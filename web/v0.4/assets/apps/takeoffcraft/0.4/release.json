@@ -1,0 +1,12 @@
+{
+    "app": "takeoffcraft",
+    "version": "0.4",
+    "released_at": "2026-10-13 17:59 UTC",
+    "git": "20b9b74 (dev had uncommitted changes)",
+    "libs": {
+        "pdf-lib": "1.17.1",
+        "pdfjs": "6.3.289",
+        "three": "0.186.1"
+    },
+    "notes": "Snap to the PDF's own lines (F3), deduct segments (E), typed lengths and coordinates. Bid areas with add and deduct alternates, typical groups (\u00d7N), items that take several kinds of marks, a price library from CSV, labor by crew, and a bid summary with a proposal PDF. Compare a revised sheet and move the takeoff across. Back-outs, roof pitch and slopes, room fill (B), scales read from sheet text, auto count at any angle. Notes, clouds and highlights. A PDF that carries its takeoff. 3D: wall thickness, stacked floors, GLB and PNG. Recovery copy after a crash, touch, language files with a Spanish draft not yet reviewed."
+}

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=TakeoffCraft
+Comment=Quantity takeoff & estimating
+Exec=takeoffcraft %F
+Icon=com.getcadcraft.takeoffcraft
+StartupWMClass=takeoffcraft
+Terminal=false
+Categories=Graphics;Engineering;
+MimeType=application/pdf;

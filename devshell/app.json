@@ -1,0 +1,31 @@
+{
+    "format": "cadcraft-devshell",
+    "version": 1,
+    "app": {
+        "slug": "takeoffcraft",
+        "name": "TakeoffCraft",
+        "layer": "ochre",
+        "role": "Quantity takeoff & estimating",
+        "tagline": "Measure the drawings. Count the work. Price the job.",
+        "short": "Calibrated linear, area and count takeoff from PDF plans, with assemblies, cost columns and quantities that export."
+    },
+    "others": {
+        "cadcraft": "CadCraft",
+        "bimcraft": "BimCraft",
+        "modelcraft": "ModelCraft",
+        "markupcraft": "MarkupCraft",
+        "civilcraft": "CivilCraft",
+        "detailcraft": "DetailCraft",
+        "partcraft": "PartCraft"
+    },
+    "vendor": {
+        "pdf-lib": "1.17.1",
+        "pdfjs": "6.3.289",
+        "three": "0.186.1"
+    },
+    "origin": "https://getcadcraft.com",
+    "packed": {
+        "at": "2026-10-13T20:37:29Z",
+        "build": "0.4"
+    }
+}
