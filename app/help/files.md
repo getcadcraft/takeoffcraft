@@ -96,7 +96,7 @@ The CSV is plain values with a byte order mark, so spreadsheet programs read cha
 ## Desktop and cloud
 
 :::desktop
-Desktop builds of TakeoffCraft are not available yet.
+From 0.5 the desktop app is CadCraft Studio: TakeoffCraft and the other seven apps in one install. There is no separate TakeoffCraft installer.
 :::
 
 Cloud saving is not available yet. Keep your `.takeoff.json` files with the job's PDFs, and back them up like any other file. See [Where your files go](common:your-files).

@@ -1,0 +1,755 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.roofing-commercial",
+ "name": "Roofing, commercial",
+ "packVersion": "0.1.0",
+ "trade": "Roofing (low slope)",
+ "description": "TPO (mechanically attached), EPDM (fully adhered) and two-ply modified bitumen systems over polyiso, tapered areas, roof edges and copings, drains, pipe and curb flashings, walkway pads. Attachment counts are starting figures for the wind design to replace. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "07 22 00",
+  "07 52 00",
+  "07 53 23",
+  "07 54 23",
+  "07 71 00"
+ ],
+ "sources": [
+  {
+   "id": "ibc-1507",
+   "title": "International Building Code, Chapter 15 Roof Assemblies and Rooftop Structures, Section 1507 Requirements for Roof Coverings",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "nrca",
+   "title": "The NRCA Roofing Manual (Membrane Roof Systems; Steep-slope Roof Systems)",
+   "publisher": "National Roofing Contractors Association",
+   "url": "https://www.nrca.net/"
+  },
+  {
+   "id": "fm-1-29",
+   "title": "FM Global Property Loss Prevention Data Sheet 1-29, Roof Deck Securement and Above-Deck Roof Components",
+   "publisher": "FM Global",
+   "url": "https://www.fm.com/"
+  },
+  {
+   "id": "pds",
+   "title": "The product data sheet of the coating, adhesive or product you specify (spread rate, coverage, coats)",
+   "publisher": "its manufacturer"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  }
+ ],
+ "items": [
+  {
+   "key": "tpo-ma",
+   "type": "area",
+   "csi": "07 54 23",
+   "group": "Single-ply",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "fm-1-29",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Membrane: 10% for side and end laps and flashings.",
+    "Polyisocyanurate boards 4 x 8 ft (32 SF), 5% waste.",
+    "Insulation fasteners and plates: 8 per 4 x 8 board in the field (a starting figure: the membrane maker’s attachment pattern and the wind design, FM 1-29 / ASCE 7, set the real count; corners and perimeters take more).",
+    "Membrane fasteners in the laps: rows every 10 ft (10 ft sheets) with fasteners 12 in o.c. = 0.1 per SF (a starting figure; set by the attachment pattern)."
+   ],
+   "note": "Measure the roof area (low slope: plan area is close enough below 2:12).",
+   "waste": 0,
+   "name": "TPO 60 mil, mechanically attached, over polyiso",
+   "unit": "SF",
+   "twin": "tpo-ma-m",
+   "components": [
+    {
+     "name": "TPO membrane",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Polyiso insulation 4 x 8 ft",
+     "unit": "board",
+     "formula": "ceil(A/32)",
+     "waste": 500
+    },
+    {
+     "name": "Insulation fasteners and plates",
+     "unit": "EA",
+     "formula": "ceil(A/32)*8",
+     "waste": 500
+    },
+    {
+     "name": "Membrane fasteners and seam plates",
+     "unit": "EA",
+     "formula": "ceil(A*0.1)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "tpo-ma-m",
+   "type": "area",
+   "csi": "07 54 23",
+   "group": "Single-ply",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "fm-1-29",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Membrane: 10% for side and end laps and flashings.",
+    "Polyisocyanurate boards 4 x 8 ft (32 SF), 5% waste.",
+    "Insulation fasteners and plates: 8 per 4 x 8 board in the field (a starting figure: the membrane maker’s attachment pattern and the wind design, FM 1-29 / ASCE 7, set the real count; corners and perimeters take more).",
+    "Membrane fasteners in the laps: rows every 10 ft (10 ft sheets) with fasteners 12 in o.c. = 0.1 per SF (a starting figure; set by the attachment pattern)."
+   ],
+   "note": "Measure the roof area (low slope: plan area is close enough below 2:12).",
+   "waste": 0,
+   "name": "TPO 1.5 mm, mechanically attached, over polyiso",
+   "unit": "m²",
+   "twin": "tpo-ma",
+   "components": [
+    {
+     "name": "TPO membrane",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Polyiso insulation 1220 x 2440 mm",
+     "unit": "board",
+     "formula": "ceil(A/2.9768)",
+     "waste": 500
+    },
+    {
+     "name": "Insulation fasteners and plates",
+     "unit": "EA",
+     "formula": "ceil(A/2.9768)*8",
+     "waste": 500
+    },
+    {
+     "name": "Membrane fasteners and seam plates",
+     "unit": "EA",
+     "formula": "ceil(A*1.0764)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "epdm-fa",
+   "type": "area",
+   "csi": "07 53 23",
+   "group": "Single-ply",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Membrane: 10% for laps and flashings.",
+    "Polyisocyanurate boards 4 x 8 ft (32 SF), 5% waste.",
+    "Insulation fasteners and plates: 8 per 4 x 8 board in the field (a starting figure: the membrane maker’s attachment pattern and the wind design, FM 1-29 / ASCE 7, set the real count; corners and perimeters take more).",
+    "Bonding adhesive: 60 SF of finished surface per gallon, both surfaces coated (a starting figure: use the adhesive’s data sheet).",
+    "Seam tape on the laps: 0.1 LF per SF (10 ft sheets)."
+   ],
+   "note": "Measure the roof area.",
+   "waste": 0,
+   "name": "EPDM 60 mil, fully adhered, over polyiso",
+   "unit": "SF",
+   "twin": "epdm-fa-m",
+   "components": [
+    {
+     "name": "EPDM membrane",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Polyiso insulation 4 x 8 ft",
+     "unit": "board",
+     "formula": "ceil(A/32)",
+     "waste": 500
+    },
+    {
+     "name": "Insulation fasteners and plates",
+     "unit": "EA",
+     "formula": "ceil(A/32)*8",
+     "waste": 500
+    },
+    {
+     "name": "Bonding adhesive",
+     "unit": "gal",
+     "formula": "A/60",
+     "waste": 500
+    },
+    {
+     "name": "Seam tape",
+     "unit": "LF",
+     "formula": "A*0.1",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "epdm-fa-m",
+   "type": "area",
+   "csi": "07 53 23",
+   "group": "Single-ply",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Membrane: 10% for laps and flashings.",
+    "Polyisocyanurate boards 4 x 8 ft (32 SF), 5% waste.",
+    "Insulation fasteners and plates: 8 per 4 x 8 board in the field (a starting figure: the membrane maker’s attachment pattern and the wind design, FM 1-29 / ASCE 7, set the real count; corners and perimeters take more).",
+    "Bonding adhesive: 60 SF of finished surface per gallon, both surfaces coated (a starting figure: use the adhesive’s data sheet).",
+    "Seam tape on the laps: 0.1 LF per SF (10 ft sheets)."
+   ],
+   "note": "Measure the roof area.",
+   "waste": 0,
+   "name": "EPDM 1.5 mm, fully adhered, over polyiso",
+   "unit": "m²",
+   "twin": "epdm-fa",
+   "components": [
+    {
+     "name": "EPDM membrane",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Polyiso insulation 1220 x 2440 mm",
+     "unit": "board",
+     "formula": "ceil(A/2.9768)",
+     "waste": 500
+    },
+    {
+     "name": "Insulation fasteners and plates",
+     "unit": "EA",
+     "formula": "ceil(A/2.9768)*8",
+     "waste": 500
+    },
+    {
+     "name": "Bonding adhesive",
+     "unit": "L",
+     "formula": "A/1.4726",
+     "waste": 500
+    },
+    {
+     "name": "Seam tape",
+     "unit": "m",
+     "formula": "A*0.3281",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "modbit-2ply",
+   "type": "area",
+   "csi": "07 52 00",
+   "group": "Modified bitumen",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Base sheet and cap sheet rolls cover one square (100 SF) each after laps (a starting figure: read the roll’s net coverage).",
+    "Cover board 4 x 8 ft over the insulation, 5% waste.",
+    "Polyisocyanurate boards 4 x 8 ft (32 SF), 5% waste."
+   ],
+   "note": "Measure the roof area.",
+   "waste": 0,
+   "name": "Modified bitumen, two-ply (base + cap), cover board, polyiso",
+   "unit": "SF",
+   "twin": "modbit-2ply-m",
+   "components": [
+    {
+     "name": "Base sheet rolls",
+     "unit": "roll",
+     "formula": "ceil(A/100)",
+     "waste": 500
+    },
+    {
+     "name": "Cap sheet rolls",
+     "unit": "roll",
+     "formula": "ceil(A/100)",
+     "waste": 500
+    },
+    {
+     "name": "Cover board 4 x 8 ft",
+     "unit": "board",
+     "formula": "ceil(A/32)",
+     "waste": 500
+    },
+    {
+     "name": "Polyiso insulation 4 x 8 ft",
+     "unit": "board",
+     "formula": "ceil(A/32)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "modbit-2ply-m",
+   "type": "area",
+   "csi": "07 52 00",
+   "group": "Modified bitumen",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Base sheet and cap sheet rolls cover one square (100 SF) each after laps (a starting figure: read the roll’s net coverage).",
+    "Cover board 4 x 8 ft over the insulation, 5% waste.",
+    "Polyisocyanurate boards 4 x 8 ft (32 SF), 5% waste."
+   ],
+   "note": "Measure the roof area.",
+   "waste": 0,
+   "name": "Modified bitumen, two-ply (base + cap), cover board, polyiso (metric)",
+   "unit": "m²",
+   "twin": "modbit-2ply",
+   "components": [
+    {
+     "name": "Base sheet rolls",
+     "unit": "roll",
+     "formula": "ceil(A/9.2903)",
+     "waste": 500
+    },
+    {
+     "name": "Cap sheet rolls",
+     "unit": "roll",
+     "formula": "ceil(A/9.2903)",
+     "waste": 500
+    },
+    {
+     "name": "Cover board 1220 x 2440 mm",
+     "unit": "board",
+     "formula": "ceil(A/2.9768)",
+     "waste": 500
+    },
+    {
+     "name": "Polyiso insulation 1220 x 2440 mm",
+     "unit": "board",
+     "formula": "ceil(A/2.9768)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "taper",
+   "type": "area",
+   "csi": "07 22 00",
+   "group": "Insulation",
+   "sources": [
+    "nrca",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tapered insulation at 1/4 in per foot over the drained area: the average added thickness is set by the layout; this item counts the area to be tapered so you can price it per SF from the supplier’s layout."
+   ],
+   "note": "Measure the area that gets tapered insulation or crickets.",
+   "waste": 0,
+   "name": "Tapered insulation and crickets (area)",
+   "unit": "SF",
+   "twin": "taper-m",
+   "components": [
+    {
+     "name": "Tapered insulation, by layout",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "taper-m",
+   "type": "area",
+   "csi": "07 22 00",
+   "group": "Insulation",
+   "sources": [
+    "nrca",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tapered insulation at 1/4 in per foot over the drained area: the average added thickness is set by the layout; this item counts the area to be tapered so you can price it per SF from the supplier’s layout."
+   ],
+   "note": "Measure the area that gets tapered insulation or crickets.",
+   "waste": 0,
+   "name": "Tapered insulation and crickets (area) (metric)",
+   "unit": "m²",
+   "twin": "taper",
+   "components": [
+    {
+     "name": "Tapered insulation, by layout",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "edge-metal",
+   "type": "linear",
+   "csi": "07 71 00",
+   "group": "Edges and flashing",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Edge metal in 10 ft lengths, one splice plate per joint; wood nailer 2 x 6 continuous under it (two plies).",
+    "Membrane strip-in flashing 12 in wide."
+   ],
+   "note": "Measure the roof edges.",
+   "waste": 0,
+   "name": "Roof edge: metal edge / gravel stop on wood nailer",
+   "unit": "LF",
+   "twin": "edge-metal-m",
+   "components": [
+    {
+     "name": "Edge metal, 10 ft lengths",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N",
+     "waste": 500
+    },
+    {
+     "name": "Wood nailer 2 x 6 (two plies)",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Membrane strip-in flashing",
+     "unit": "SF",
+     "formula": "L*1",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "edge-metal-m",
+   "type": "linear",
+   "csi": "07 71 00",
+   "group": "Edges and flashing",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Edge metal in 10 ft lengths, one splice plate per joint; wood nailer 2 x 6 continuous under it (two plies).",
+    "Membrane strip-in flashing 12 in wide."
+   ],
+   "note": "Measure the roof edges.",
+   "waste": 0,
+   "name": "Roof edge: metal edge / gravel stop on wood nailer (metric)",
+   "unit": "m",
+   "twin": "edge-metal",
+   "components": [
+    {
+     "name": "Edge metal, 3.05 m lengths",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)+N",
+     "waste": 500
+    },
+    {
+     "name": "Wood nailer 38 x 140 mm (two plies)",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Membrane strip-in flashing",
+     "unit": "m²",
+     "formula": "L*0.3048",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "coping",
+   "type": "linear",
+   "csi": "07 71 00",
+   "group": "Edges and flashing",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Coping in 10 ft lengths with a cleat each side; parapet membrane flashing up the inside face and over the top: 3 ft of membrane per LF (a starting figure for a 2 ft parapet)."
+   ],
+   "note": "Measure the parapet walls.",
+   "waste": 0,
+   "name": "Parapet: metal coping and membrane wall flashing",
+   "unit": "LF",
+   "twin": "coping-m",
+   "components": [
+    {
+     "name": "Coping, 10 ft lengths",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N",
+     "waste": 500
+    },
+    {
+     "name": "Coping cleat",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 500
+    },
+    {
+     "name": "Membrane wall flashing",
+     "unit": "SF",
+     "formula": "L*3",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "coping-m",
+   "type": "linear",
+   "csi": "07 71 00",
+   "group": "Edges and flashing",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Coping in 10 ft lengths with a cleat each side; parapet membrane flashing up the inside face and over the top: 3 ft of membrane per LF (a starting figure for a 2 ft parapet)."
+   ],
+   "note": "Measure the parapet walls.",
+   "waste": 0,
+   "name": "Parapet: metal coping and membrane wall flashing (metric)",
+   "unit": "m",
+   "twin": "coping",
+   "components": [
+    {
+     "name": "Coping, 3.05 m lengths",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)+N",
+     "waste": 500
+    },
+    {
+     "name": "Coping cleat",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 500
+    },
+    {
+     "name": "Membrane wall flashing",
+     "unit": "m²",
+     "formula": "L*0.9144",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "drain",
+   "type": "count",
+   "csi": "07 71 00",
+   "group": "Penetrations",
+   "sources": [
+    "ibc-1507",
+    "nrca"
+   ],
+   "assume": [
+    "A retrofit or new roof drain with its clamping ring and a target sheet of membrane."
+   ],
+   "note": "Count each roof drain and overflow.",
+   "waste": 0,
+   "name": "Roof drain flashing with target sheet",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Drain clamping ring and strainer",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Target sheet",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "pipe-pen",
+   "type": "count",
+   "csi": "07 71 00",
+   "group": "Penetrations",
+   "sources": [
+    "nrca"
+   ],
+   "assume": [
+    "A prefabricated pipe boot per penetration, with a stainless clamp and sealant."
+   ],
+   "note": "Count each pipe or conduit through the roof.",
+   "waste": 0,
+   "name": "Pipe penetration flashing (prefabricated boot)",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Pipe boot",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Stainless clamp",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Sealant tube",
+     "unit": "EA",
+     "formula": "ceil(N/4)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "curb",
+   "type": "count",
+   "csi": "07 71 00",
+   "group": "Penetrations",
+   "sources": [
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Equipment curb about 4 x 6 ft, 14 in high: 20 LF of perimeter x 2 ft of membrane flashing = 40 SF per curb (a starting figure)."
+   ],
+   "note": "Count each rooftop unit or skylight curb.",
+   "waste": 0,
+   "name": "Curb flashing at rooftop equipment",
+   "unit": "EA",
+   "twin": "curb-m",
+   "components": [
+    {
+     "name": "Membrane curb flashing",
+     "unit": "SF",
+     "formula": "N*40",
+     "waste": 1000
+    },
+    {
+     "name": "Inside / outside corners",
+     "unit": "EA",
+     "formula": "N*4",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "curb-m",
+   "type": "count",
+   "csi": "07 71 00",
+   "group": "Penetrations",
+   "sources": [
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Equipment curb about 4 x 6 ft, 14 in high: 20 LF of perimeter x 2 ft of membrane flashing = 40 SF per curb (a starting figure)."
+   ],
+   "note": "Count each rooftop unit or skylight curb.",
+   "waste": 0,
+   "name": "Curb flashing at rooftop equipment (metric)",
+   "unit": "EA",
+   "twin": "curb",
+   "components": [
+    {
+     "name": "Membrane curb flashing",
+     "unit": "m²",
+     "formula": "N*3.7161",
+     "waste": 1000
+    },
+    {
+     "name": "Inside / outside corners",
+     "unit": "EA",
+     "formula": "N*4",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "walkpad",
+   "type": "linear",
+   "csi": "07 71 00",
+   "group": "Edges and flashing",
+   "sources": [
+    "nrca",
+    "pds"
+   ],
+   "assume": [
+    "Walkway pads 30 x 30 in with 6 in gaps: one pad per 3 ft of path."
+   ],
+   "note": "Draw the service paths to equipment.",
+   "waste": 0,
+   "name": "Walkway pads to rooftop equipment",
+   "unit": "LF",
+   "twin": "walkpad-m",
+   "components": [
+    {
+     "name": "Walkway pads 30 x 30 in",
+     "unit": "EA",
+     "formula": "ceil(L/3)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "walkpad-m",
+   "type": "linear",
+   "csi": "07 71 00",
+   "group": "Edges and flashing",
+   "sources": [
+    "nrca",
+    "pds"
+   ],
+   "assume": [
+    "Walkway pads 30 x 30 in with 6 in gaps: one pad per 3 ft of path."
+   ],
+   "note": "Draw the service paths to equipment.",
+   "waste": 0,
+   "name": "Walkway pads to rooftop equipment (metric)",
+   "unit": "m",
+   "twin": "walkpad",
+   "components": [
+    {
+     "name": "Walkway pads 30 x 30 in",
+     "unit": "EA",
+     "formula": "ceil(L/0.9144)+N",
+     "waste": 500
+    }
+   ]
+  }
+ ]
+}

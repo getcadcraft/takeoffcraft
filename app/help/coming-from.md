@@ -8,6 +8,8 @@ keywords: switching, migrate, conditions, parts, measurement tools, markups list
 
 If you have done takeoff in PlanSwift or with the measurement tools in Bluebeam Revu, most of TakeoffCraft will feel familiar: a plan set, a scale per sheet, things you measure, and a priced total. The way the pieces fit together is different in places, and those places are below.
 
+If you know PlanSwift or On-Screen Takeoff, pick the {{ui:Takeoff desk}} menu style in {{ui:Settings}} › {{ui:TakeoffCraft}} › {{ui:Menus, keys and mouse}}: a menu bar with File, Edit, View, Scale, Takeoff, Items, Markup and Export over a row of the takeoff tools, with the scale presets on the sheet bar. See [Menus, keys and mouse](topic:menus-keys-and-mouse).
+
 ## Habits mapped
 
 | You are used to | In TakeoffCraft |
@@ -26,7 +28,7 @@ If you have done takeoff in PlanSwift or with the measurement tools in Bluebeam 
 | Count tool (both) | {{ui:Count}} ({{key:C}}). |
 | Visual search for symbols (Bluebeam) | {{ui:Auto count}} ({{key:S}}): box one symbol, review, add. |
 | Cut-outs or deductions in areas | {{ui:Cut-out}} ({{key:X}}) on a selected area, and round cut-outs. |
-| Deductions on linear runs | Not yet. Draw the runs without the deducted part. |
+| Deductions on linear runs | Draw the run straight through and press {{key:E}} ({{ui:Deduct}}) for the opening. See [Measure linear runs](topic:measure-linear). |
 | Arc segments in a polyline | {{ui:Arc}} ({{key:R}}): click a point on the curve, then its end. |
 | The Markups list with quantity columns (Bluebeam) | The {{ui:Quantities}} table, {{ui:By item}} or {{ui:By sheet}}. |
 | Estimating grid with pricing (PlanSwift) | The same table: waste, material and labor per unit, extended totals, {{ui:Job total}}. |
@@ -54,7 +56,7 @@ If you have done takeoff in PlanSwift or with the measurement tools in Bluebeam 
 
 **A recovery copy, not a cloud.** TakeoffCraft keeps a copy of your work in this browser and offers it back after a crash ([If the tab or the browser stops](topic:save-and-reopen#if-the-tab-or-the-browser-stops)), but the takeoff is yours to save: {{key:Mod+S}}. Cloud saving is not available yet.
 
-**Everything is in the browser.** There is nothing to install, and the plans are never uploaded. Desktop builds are not available yet.
+**Everything is in the browser.** There is nothing to install, and the plans are never uploaded. For a desktop app, TakeoffCraft comes in CadCraft Studio, with the other seven apps.
 
 ## Not here yet
 

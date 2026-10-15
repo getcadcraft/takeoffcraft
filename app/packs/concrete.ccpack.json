@@ -1,0 +1,1610 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.concrete",
+ "name": "Concrete",
+ "packVersion": "0.1.0",
+ "trade": "Concrete",
+ "description": "Slabs on grade (with mesh or rebar, vapor retarder and base), continuous footings, foundation walls with rebar and forms, pad footings, piers, columns, flatwork and curing. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "03 30 00",
+  "03 39 00",
+  "32 13 13"
+ ],
+ "sources": [
+  {
+   "id": "irc-r506",
+   "title": "International Residential Code, Section R506 Concrete Floors (on Ground): slab thickness, vapor retarder",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "aci-302",
+   "title": "ACI PRC-302.1, Guide to Concrete Floor and Slab Construction",
+   "publisher": "American Concrete Institute",
+   "url": "https://www.concrete.org/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "astm-a615",
+   "title": "ASTM A615/A615M, Standard Specification for Deformed and Plain Carbon-Steel Bars for Concrete Reinforcement (nominal bar weights)",
+   "publisher": "ASTM International",
+   "url": "https://www.astm.org/"
+  },
+  {
+   "id": "irc-r403",
+   "title": "International Residential Code, Section R403 Footings",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "aci-318",
+   "title": "ACI CODE-318, Building Code Requirements for Structural Concrete",
+   "publisher": "American Concrete Institute",
+   "url": "https://www.concrete.org/"
+  },
+  {
+   "id": "aci-347",
+   "title": "ACI PRC-347, Guide to Formwork for Concrete",
+   "publisher": "American Concrete Institute",
+   "url": "https://www.concrete.org/"
+  },
+  {
+   "id": "irc-r404",
+   "title": "International Residential Code, Section R404 Foundation and Retaining Walls",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "pds",
+   "title": "The product data sheet of the coating, adhesive or product you specify (spread rate, coverage, coats)",
+   "publisher": "its manufacturer"
+  }
+ ],
+ "items": [
+  {
+   "key": "sog-4-wwr",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Slabs",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base course: 4 in of clean graded gravel or sand (IRC R506.2.2).",
+    "Vapor retarder: 6-mil polyethylene (IRC R506.2.3), 10% for laps.",
+    "Welded wire reinforcement 6x6 W1.4xW1.4 sheets, 10% for laps.",
+    "Edge forms on the whole perimeter (lower the formula where the slab meets existing work)."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 4 in, WWR, vapor retarder, 4 in base",
+   "unit": "SF",
+   "twin": "sog-4-wwr-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*H/27",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "CY",
+     "formula": "A*(4/12)/27",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Welded wire reinforcement 6x6 W1.4xW1.4",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Edge forms",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.3333333333333333
+  },
+  {
+   "key": "sog-4-wwr-m",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Slabs",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base course: 4 in of clean graded gravel or sand (IRC R506.2.2).",
+    "Vapor retarder: 6-mil polyethylene (IRC R506.2.3), 10% for laps.",
+    "Welded wire reinforcement 6x6 W1.4xW1.4 sheets, 10% for laps.",
+    "Edge forms on the whole perimeter (lower the formula where the slab meets existing work)."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 100 mm, welded wire mesh, vapor retarder, 100 mm base",
+   "unit": "m²",
+   "twin": "sog-4-wwr",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*H",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "m³",
+     "formula": "A*0.1016",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Welded wire reinforcement 6x6 W1.4xW1.4",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Edge forms",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.32808398950131235
+  },
+  {
+   "key": "sog-5-wwr",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Slabs",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base course: 4 in of clean graded gravel or sand (IRC R506.2.2).",
+    "Vapor retarder: 6-mil polyethylene (IRC R506.2.3), 10% for laps.",
+    "Welded wire reinforcement 6x6 W1.4xW1.4 sheets, 10% for laps.",
+    "Edge forms on the whole perimeter (lower the formula where the slab meets existing work)."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 5 in, WWR, vapor retarder, 4 in base",
+   "unit": "SF",
+   "twin": "sog-5-wwr-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*H/27",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "CY",
+     "formula": "A*(4/12)/27",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Welded wire reinforcement 6x6 W1.4xW1.4",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Edge forms",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.4166666666666667
+  },
+  {
+   "key": "sog-5-wwr-m",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Slabs",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base course: 4 in of clean graded gravel or sand (IRC R506.2.2).",
+    "Vapor retarder: 6-mil polyethylene (IRC R506.2.3), 10% for laps.",
+    "Welded wire reinforcement 6x6 W1.4xW1.4 sheets, 10% for laps.",
+    "Edge forms on the whole perimeter (lower the formula where the slab meets existing work)."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 125 mm, welded wire mesh, vapor retarder, 100 mm base",
+   "unit": "m²",
+   "twin": "sog-5-wwr",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*H",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "m³",
+     "formula": "A*0.1016",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Welded wire reinforcement 6x6 W1.4xW1.4",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Edge forms",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.4101049868766404
+  },
+  {
+   "key": "sog-6-wwr",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Slabs",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base course: 4 in of clean graded gravel or sand (IRC R506.2.2).",
+    "Vapor retarder: 6-mil polyethylene (IRC R506.2.3), 10% for laps.",
+    "Welded wire reinforcement 6x6 W1.4xW1.4 sheets, 10% for laps.",
+    "Edge forms on the whole perimeter (lower the formula where the slab meets existing work)."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 6 in, WWR, vapor retarder, 4 in base",
+   "unit": "SF",
+   "twin": "sog-6-wwr-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*H/27",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "CY",
+     "formula": "A*(4/12)/27",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Welded wire reinforcement 6x6 W1.4xW1.4",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Edge forms",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.5
+  },
+  {
+   "key": "sog-6-wwr-m",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Slabs",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base course: 4 in of clean graded gravel or sand (IRC R506.2.2).",
+    "Vapor retarder: 6-mil polyethylene (IRC R506.2.3), 10% for laps.",
+    "Welded wire reinforcement 6x6 W1.4xW1.4 sheets, 10% for laps.",
+    "Edge forms on the whole perimeter (lower the formula where the slab meets existing work)."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 150 mm, welded wire mesh, vapor retarder, 100 mm base",
+   "unit": "m²",
+   "twin": "sog-6-wwr",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*H",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "m³",
+     "formula": "A*0.1016",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Welded wire reinforcement 6x6 W1.4xW1.4",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Edge forms",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.49212598425196846
+  },
+  {
+   "key": "sog-5-rebar",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Slabs",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Rebar #4 at 18 in o.c. each way: 2 / 1.5 = 1.333 LF per SF (metric #13 at 457 mm: 4.374 m per m²), 10% for laps.",
+    "Chairs: one per 9 SF (bars supported about 3 ft each way).",
+    "Vapor retarder 6-mil (IRC R506.2.3), 10% for laps; base 4 in."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 5 in, #4 at 18 in each way, vapor retarder, 4 in base",
+   "unit": "SF",
+   "twin": "sog-5-rebar-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*H/27",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "CY",
+     "formula": "A*(4/12)/27",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4",
+     "unit": "LF",
+     "formula": "A*2/1.5",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 (weight)",
+     "unit": "lb",
+     "formula": "A*2/1.5*0.668",
+     "waste": 1000
+    },
+    {
+     "name": "Bar chairs",
+     "unit": "EA",
+     "formula": "ceil(A/9)",
+     "waste": 500
+    },
+    {
+     "name": "Edge forms",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.4166666666666667
+  },
+  {
+   "key": "sog-5-rebar-m",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Slabs",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Rebar #4 at 18 in o.c. each way: 2 / 1.5 = 1.333 LF per SF (metric #13 at 457 mm: 4.374 m per m²), 10% for laps.",
+    "Chairs: one per 9 SF (bars supported about 3 ft each way).",
+    "Vapor retarder 6-mil (IRC R506.2.3), 10% for laps; base 4 in."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 125 mm, #13 bars at 457 mm each way, vapor retarder, 100 mm base",
+   "unit": "m²",
+   "twin": "sog-5-rebar",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*H",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "m³",
+     "formula": "A*0.1016",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13",
+     "unit": "m",
+     "formula": "A*2/0.4572",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 (weight)",
+     "unit": "kg",
+     "formula": "A*2/0.4572*0.994",
+     "waste": 1000
+    },
+    {
+     "name": "Bar chairs",
+     "unit": "EA",
+     "formula": "ceil(A/0.8361)",
+     "waste": 500
+    },
+    {
+     "name": "Edge forms",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.4101049868766404
+  },
+  {
+   "key": "ftg-16x8",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Two #4 bars continuous (size the footing and its steel from IRC R403.1 or the drawings), 10% for laps.",
+    "Side forms both sides, full depth."
+   ],
+   "note": "Measure the footing centerline.",
+   "waste": 0,
+   "name": "Continuous footing 16 x 8 in, 2 #4 continuous",
+   "unit": "LF",
+   "twin": "ftg-16x8-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "L*0.888889/27",
+     "waste": 500
+    },
+    {
+     "name": "Footing forms (both sides)",
+     "unit": "SF",
+     "formula": "L*2*0.666667",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 (weight)",
+     "unit": "lb",
+     "formula": "L*2*0.668",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "ftg-16x8-m",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Two #4 bars continuous (size the footing and its steel from IRC R403.1 or the drawings), 10% for laps.",
+    "Side forms both sides, full depth."
+   ],
+   "note": "Measure the footing centerline.",
+   "waste": 0,
+   "name": "Continuous footing 406 x 203 mm, 2 #13 continuous",
+   "unit": "m",
+   "twin": "ftg-16x8",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "L*0.082418",
+     "waste": 500
+    },
+    {
+     "name": "Footing forms (both sides)",
+     "unit": "m²",
+     "formula": "L*2*0.203",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 (weight)",
+     "unit": "kg",
+     "formula": "L*2*0.994",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "ftg-20x10",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Two #4 bars continuous (size the footing and its steel from IRC R403.1 or the drawings), 10% for laps.",
+    "Side forms both sides, full depth."
+   ],
+   "note": "Measure the footing centerline.",
+   "waste": 0,
+   "name": "Continuous footing 20 x 10 in, 2 #4 continuous",
+   "unit": "LF",
+   "twin": "ftg-20x10-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "L*1.388889/27",
+     "waste": 500
+    },
+    {
+     "name": "Footing forms (both sides)",
+     "unit": "SF",
+     "formula": "L*2*0.833333",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 (weight)",
+     "unit": "lb",
+     "formula": "L*2*0.668",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "ftg-20x10-m",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Two #4 bars continuous (size the footing and its steel from IRC R403.1 or the drawings), 10% for laps.",
+    "Side forms both sides, full depth."
+   ],
+   "note": "Measure the footing centerline.",
+   "waste": 0,
+   "name": "Continuous footing 508 x 254 mm, 2 #13 continuous",
+   "unit": "m",
+   "twin": "ftg-20x10",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "L*0.129032",
+     "waste": 500
+    },
+    {
+     "name": "Footing forms (both sides)",
+     "unit": "m²",
+     "formula": "L*2*0.254",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 (weight)",
+     "unit": "kg",
+     "formula": "L*2*0.994",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "ftg-24x12",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Two #4 bars continuous (size the footing and its steel from IRC R403.1 or the drawings), 10% for laps.",
+    "Side forms both sides, full depth."
+   ],
+   "note": "Measure the footing centerline.",
+   "waste": 0,
+   "name": "Continuous footing 24 x 12 in, 2 #4 continuous",
+   "unit": "LF",
+   "twin": "ftg-24x12-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "L*2/27",
+     "waste": 500
+    },
+    {
+     "name": "Footing forms (both sides)",
+     "unit": "SF",
+     "formula": "L*2*1",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 (weight)",
+     "unit": "lb",
+     "formula": "L*2*0.668",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "ftg-24x12-m",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Two #4 bars continuous (size the footing and its steel from IRC R403.1 or the drawings), 10% for laps.",
+    "Side forms both sides, full depth."
+   ],
+   "note": "Measure the footing centerline.",
+   "waste": 0,
+   "name": "Continuous footing 610 x 305 mm, 2 #13 continuous",
+   "unit": "m",
+   "twin": "ftg-24x12",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "L*0.18605",
+     "waste": 500
+    },
+    {
+     "name": "Footing forms (both sides)",
+     "unit": "m²",
+     "formula": "L*2*0.305",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 (weight)",
+     "unit": "kg",
+     "formula": "L*2*0.994",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "wall-8-4",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Walls",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 8 in, 4 ft high, #4 at 48 in vert. / 24 in horiz.",
+   "unit": "LF",
+   "twin": "wall-8-4-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*0.666667/27",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "SF",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4 verticals",
+     "unit": "LF",
+     "formula": "(ceil(L/4)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 horizontals",
+     "unit": "LF",
+     "formula": "L*ceil(H/2)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 4
+  },
+  {
+   "key": "wall-8-4-m",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Walls",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 203 mm, 1.22 m high, #13 at 1219 mm vert. / 610 mm horiz.",
+   "unit": "m",
+   "twin": "wall-8-4",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*0.203",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "m²",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13 verticals",
+     "unit": "m",
+     "formula": "(ceil(L/1.2192)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 horizontals",
+     "unit": "m",
+     "formula": "L*ceil(H/0.6096)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 4.00262467191601
+  },
+  {
+   "key": "wall-8-8",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Walls",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 8 in, 8 ft high, #4 at 48 in vert. / 24 in horiz.",
+   "unit": "LF",
+   "twin": "wall-8-8-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*0.666667/27",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "SF",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4 verticals",
+     "unit": "LF",
+     "formula": "(ceil(L/4)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 horizontals",
+     "unit": "LF",
+     "formula": "L*ceil(H/2)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 8
+  },
+  {
+   "key": "wall-8-8-m",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Walls",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 203 mm, 2.44 m high, #13 at 1219 mm vert. / 610 mm horiz.",
+   "unit": "m",
+   "twin": "wall-8-8",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*0.203",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "m²",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13 verticals",
+     "unit": "m",
+     "formula": "(ceil(L/1.2192)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 horizontals",
+     "unit": "m",
+     "formula": "L*ceil(H/0.6096)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 8.00524934383202
+  },
+  {
+   "key": "wall-10-4",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Walls",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 10 in, 4 ft high, #4 at 48 in vert. / 24 in horiz.",
+   "unit": "LF",
+   "twin": "wall-10-4-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*0.833333/27",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "SF",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4 verticals",
+     "unit": "LF",
+     "formula": "(ceil(L/4)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 horizontals",
+     "unit": "LF",
+     "formula": "L*ceil(H/2)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 4
+  },
+  {
+   "key": "wall-10-4-m",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Walls",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 254 mm, 1.22 m high, #13 at 1219 mm vert. / 610 mm horiz.",
+   "unit": "m",
+   "twin": "wall-10-4",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*0.254",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "m²",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13 verticals",
+     "unit": "m",
+     "formula": "(ceil(L/1.2192)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 horizontals",
+     "unit": "m",
+     "formula": "L*ceil(H/0.6096)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 4.00262467191601
+  },
+  {
+   "key": "wall-10-8",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Walls",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 10 in, 8 ft high, #4 at 48 in vert. / 24 in horiz.",
+   "unit": "LF",
+   "twin": "wall-10-8-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*0.833333/27",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "SF",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4 verticals",
+     "unit": "LF",
+     "formula": "(ceil(L/4)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 horizontals",
+     "unit": "LF",
+     "formula": "L*ceil(H/2)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 8
+  },
+  {
+   "key": "wall-10-8-m",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Walls",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 254 mm, 2.44 m high, #13 at 1219 mm vert. / 610 mm horiz.",
+   "unit": "m",
+   "twin": "wall-10-8",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*0.254",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "m²",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13 verticals",
+     "unit": "m",
+     "formula": "(ceil(L/1.2192)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 horizontals",
+     "unit": "m",
+     "formula": "L*ceil(H/0.6096)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 8.00524934383202
+  },
+  {
+   "key": "pad-24",
+   "type": "count",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Three #4 bars each way, 20 in long (6 bars, 10 LF per footing)."
+   ],
+   "note": "Count each pad footing.",
+   "waste": 0,
+   "name": "Pad footing 24 x 24 x 12 in, 3 #4 each way",
+   "unit": "EA",
+   "twin": "pad-24-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "N*2*2*1/27",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4",
+     "unit": "LF",
+     "formula": "N*10",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "pad-24-m",
+   "type": "count",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Three #4 bars each way, 20 in long (6 bars, 10 LF per footing)."
+   ],
+   "note": "Count each pad footing.",
+   "waste": 0,
+   "name": "Pad footing 610 x 610 x 305 mm, 3 #13 each way",
+   "unit": "EA",
+   "twin": "pad-24",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "N*0.6096*0.6096*0.3048",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13",
+     "unit": "m",
+     "formula": "N*3.048",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "pier-12",
+   "type": "count",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "aci-347",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Round pier 12 in diameter, 4 ft deep, in a fiber tube form; volume = 3.1416 x 0.5² x 4 = 3.14 CF."
+   ],
+   "note": "Count each pier.",
+   "waste": 0,
+   "name": "Round pier 12 in x 4 ft, tube form",
+   "unit": "EA",
+   "twin": "pier-12-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "N*3.1416*0.25*4/27",
+     "waste": 500
+    },
+    {
+     "name": "Tube form 12 in",
+     "unit": "LF",
+     "formula": "N*4",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pier-12-m",
+   "type": "count",
+   "csi": "03 30 00",
+   "group": "Footings",
+   "sources": [
+    "irc-r403",
+    "aci-347",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Round pier 12 in diameter, 4 ft deep, in a fiber tube form; volume = 3.1416 x 0.5² x 4 = 3.14 CF."
+   ],
+   "note": "Count each pier.",
+   "waste": 0,
+   "name": "Round pier 305 mm x 1.22 m, tube form",
+   "unit": "EA",
+   "twin": "pier-12",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "N*3.1416*0.1524*0.1524*1.2192",
+     "waste": 500
+    },
+    {
+     "name": "Tube form 12 in",
+     "unit": "m",
+     "formula": "N*1.2192",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "col-12",
+   "type": "count",
+   "csi": "03 30 00",
+   "group": "Columns",
+   "sources": [
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Column 12 x 12 in, 10 ft high (change 10 for your height); forms on four faces.",
+    "Four #5 verticals, 10 ft each; ties are per the drawings."
+   ],
+   "note": "Count each column.",
+   "waste": 0,
+   "name": "Concrete column 12 x 12 in, 10 ft, 4 #5 verticals",
+   "unit": "EA",
+   "twin": "col-12-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "N*1*1*10/27",
+     "waste": 500
+    },
+    {
+     "name": "Column forms (four faces)",
+     "unit": "SF",
+     "formula": "N*4*1*10",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #5 (weight)",
+     "unit": "lb",
+     "formula": "N*4*10*1.043",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "col-12-m",
+   "type": "count",
+   "csi": "03 30 00",
+   "group": "Columns",
+   "sources": [
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Column 12 x 12 in, 10 ft high (change 10 for your height); forms on four faces.",
+    "Four #5 verticals, 10 ft each; ties are per the drawings."
+   ],
+   "note": "Count each column.",
+   "waste": 0,
+   "name": "Concrete column 305 x 305 mm, 3.05 m, 4 #16 verticals",
+   "unit": "EA",
+   "twin": "col-12",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "N*0.3048*0.3048*3.048",
+     "waste": 500
+    },
+    {
+     "name": "Column forms (four faces)",
+     "unit": "m²",
+     "formula": "N*4*0.3048*3.048",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #16 (weight)",
+     "unit": "kg",
+     "formula": "N*4*3.048*1.552",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "flatwork-4",
+   "type": "area",
+   "csi": "32 13 13",
+   "group": "Flatwork",
+   "sources": [
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base 4 in.",
+    "Saw-cut or tooled control joints: 0.2 LF per SF (a 5 ft wide walk jointed every 5 ft, plus none along the length).",
+    "Edge forms on the whole perimeter."
+   ],
+   "note": "Measure walks and pads.",
+   "waste": 0,
+   "name": "Exterior flatwork 4 in, broom finish, control joints",
+   "unit": "SF",
+   "twin": "flatwork-4-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*H/27",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "CY",
+     "formula": "A*(4/12)/27",
+     "waste": 1000
+    },
+    {
+     "name": "Control joints",
+     "unit": "LF",
+     "formula": "A*0.2",
+     "waste": 0
+    },
+    {
+     "name": "Edge forms",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.3333333333333333
+  },
+  {
+   "key": "flatwork-4-m",
+   "type": "area",
+   "csi": "32 13 13",
+   "group": "Flatwork",
+   "sources": [
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base 4 in.",
+    "Saw-cut or tooled control joints: 0.2 LF per SF (a 5 ft wide walk jointed every 5 ft, plus none along the length).",
+    "Edge forms on the whole perimeter."
+   ],
+   "note": "Measure walks and pads.",
+   "waste": 0,
+   "name": "Exterior flatwork 100 mm, broom finish, control joints",
+   "unit": "m²",
+   "twin": "flatwork-4",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*H",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "m³",
+     "formula": "A*0.1016",
+     "waste": 1000
+    },
+    {
+     "name": "Control joints",
+     "unit": "m",
+     "formula": "A*0.6562",
+     "waste": 0
+    },
+    {
+     "name": "Edge forms",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.32808398950131235
+  },
+  {
+   "key": "cure",
+   "type": "area",
+   "csi": "03 39 00",
+   "group": "Finishing and curing",
+   "sources": [
+    "aci-302",
+    "pds"
+   ],
+   "assume": [
+    "Curing compound at 200 SF per gallon (a starting figure: use the product data sheet)."
+   ],
+   "note": "Measure the slab area to be cured.",
+   "waste": 0,
+   "name": "Curing compound, one coat",
+   "unit": "SF",
+   "twin": "cure-m",
+   "components": [
+    {
+     "name": "Curing compound",
+     "unit": "gal",
+     "formula": "A/200",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "cure-m",
+   "type": "area",
+   "csi": "03 39 00",
+   "group": "Finishing and curing",
+   "sources": [
+    "aci-302",
+    "pds"
+   ],
+   "assume": [
+    "Curing compound at 200 SF per gallon (a starting figure: use the product data sheet)."
+   ],
+   "note": "Measure the slab area to be cured.",
+   "waste": 0,
+   "name": "Curing compound, one coat (metric)",
+   "unit": "m²",
+   "twin": "cure",
+   "components": [
+    {
+     "name": "Curing compound",
+     "unit": "L",
+     "formula": "A/4.909",
+     "waste": 500
+    }
+   ]
+  }
+ ]
+}

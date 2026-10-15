@@ -17,7 +17,7 @@ TakeoffCraft runs in your web browser. Open TakeoffCraft and the screen is ready
 - **Your PDFs stay on your computer.** They are opened by the browser and never uploaded. Saving is a download.
 - It works in current Chrome, Edge, Firefox and Safari. See [Browsers and computers](common:browsers).
 - It works with no internet connection once you choose {{ui:Save for offline}} in the app bar and it says {{ui:Offline ready}}. See [Working offline](common:offline).
-- Cloud saving is not available yet, and desktop builds are not out yet.
+- Cloud saving is not available yet. For a desktop app, TakeoffCraft comes in CadCraft Studio, with the other seven apps.
 
 ## Your first takeoff in ten steps
 

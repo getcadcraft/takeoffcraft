@@ -11,8 +11,10 @@ import { t } from './i18n.js';
  */
 
 export async function sha256Hex(bytes) {
-  const d = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(d), (b) => b.toString(16).padStart(2, '0')).join('');
+  let d;
+  if (globalThis.crypto && globalThis.crypto.subtle) d = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
+  else d = (await import('@noble/hashes/sha2.js')).sha256(bytes);   // a page a Studio Live host serves on the LAN: no crypto.subtle (0.5 LV.12/LV.16)
+  return Array.from(d, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /**

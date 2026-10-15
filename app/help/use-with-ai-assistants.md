@@ -3,14 +3,14 @@ title: Use TakeoffCraft with an AI assistant
 summary: Let your own AI assistant or script read the takeoff's quantities and estimate, and export it: permissions, connecting through CadCraft Studio, and the activity log.
 section: tasks
 order: 118
-keywords: ai, assistant, agent, mcp, model context protocol, claude, claude code, claude desktop, script, automation, quantities, estimate, permissions, disconnect, activity
+keywords: ai, assistant, agent, mcp, model context protocol, script, automation, quantities, estimate, permissions, disconnect, activity
 ---
 
 ## What you will learn
 
 How to let an AI assistant (or a script you wrote) work with TakeoffCraft, and how to decide what it is allowed to touch.
 
-TakeoffCraft has **no AI of its own** and sends nothing anywhere. You bring the assistant: Claude Desktop, Claude Code or any program that speaks the Model Context Protocol (MCP). TakeoffCraft only gives it tools, and you choose which.
+TakeoffCraft has **no AI of its own** and sends nothing anywhere. You bring the assistant: any program that speaks the Model Context Protocol (MCP). TakeoffCraft only gives it tools, and you choose which.
 
 ## Turn it on
 
@@ -22,7 +22,7 @@ Tools outside the permissions you ticked are not offered to the assistant, and i
 
 ## Connect your assistant
 
-Assistants connect through **CadCraft Studio** on your computer: Studio runs a small server only this computer can reach, protected by a token it makes each time it starts. In Studio, choose {{ui:Connect an assistant}} and copy the address and the token into your assistant (Studio shows the exact settings for Claude Code, Claude Desktop and other MCP clients). Never share the token.
+Assistants connect through **CadCraft Studio** on your computer: Studio runs a small server only this computer can reach, protected by a token it makes each time it starts. In Studio, choose {{ui:Connect an assistant}} and copy the address and the token into your assistant (Studio shows the exact settings to paste). Never share the token.
 
 :::note
 A browser tab can't open a connection for an assistant: in the browser apps the switch has no effect until you use CadCraft Studio on your computer.

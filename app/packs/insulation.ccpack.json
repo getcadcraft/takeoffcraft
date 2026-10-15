@@ -1,0 +1,1029 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.insulation",
+ "name": "Insulation",
+ "packVersion": "0.1.0",
+ "trade": "Insulation",
+ "description": "Wall batts by height (R-13, R-21), blown-in attic R-49 with baffles and rulers, rigid foam board, closed-cell spray foam by board feet, polyethylene vapor retarder and sound batts. R-values follow your climate zone. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "07 21 13",
+  "07 21 16",
+  "07 21 19",
+  "07 21 26",
+  "07 26 00"
+ ],
+ "sources": [
+  {
+   "id": "irc-n1102",
+   "title": "International Residential Code, Section N1102 Building Thermal Envelope (insulation R-values by climate zone)",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "pds",
+   "title": "The product data sheet of the coating, adhesive or product you specify (spread rate, coverage, coats)",
+   "publisher": "its manufacturer"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "irc-r806",
+   "title": "International Residential Code, Section R806 Roof Ventilation",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "batt-r13-8",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-13, 2x4 at 16 in o.c., 8 ft",
+   "unit": "LF",
+   "twin": "batt-r13-8-m",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/40)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8
+  },
+  {
+   "key": "batt-r13-8-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-13, 38 x 89 mm at 406 mm o.c., 2.44 m",
+   "unit": "m",
+   "twin": "batt-r13-8",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/3.7161)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.00524934383202
+  },
+  {
+   "key": "batt-r13-9",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-13, 2x4 at 16 in o.c., 9 ft",
+   "unit": "LF",
+   "twin": "batt-r13-9-m",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/40)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "batt-r13-9-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-13, 38 x 89 mm at 406 mm o.c., 2.74 m",
+   "unit": "m",
+   "twin": "batt-r13-9",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/3.7161)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "batt-r13-10",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-13, 2x4 at 16 in o.c., 10 ft",
+   "unit": "LF",
+   "twin": "batt-r13-10-m",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/40)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10
+  },
+  {
+   "key": "batt-r13-10-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-13, 38 x 89 mm at 406 mm o.c., 3.05 m",
+   "unit": "m",
+   "twin": "batt-r13-10",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/3.7161)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10.006561679790025
+  },
+  {
+   "key": "batt-r21-8",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-21, 2x6 at 16 in o.c., 8 ft",
+   "unit": "LF",
+   "twin": "batt-r21-8-m",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/40)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8
+  },
+  {
+   "key": "batt-r21-8-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-21, 38 x 140 mm at 406 mm o.c., 2.44 m",
+   "unit": "m",
+   "twin": "batt-r21-8",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/3.7161)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.00524934383202
+  },
+  {
+   "key": "batt-r21-9",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-21, 2x6 at 16 in o.c., 9 ft",
+   "unit": "LF",
+   "twin": "batt-r21-9-m",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/40)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "batt-r21-9-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-21, 38 x 140 mm at 406 mm o.c., 2.74 m",
+   "unit": "m",
+   "twin": "batt-r21-9",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/3.7161)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "batt-r21-10",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-21, 2x6 at 16 in o.c., 10 ft",
+   "unit": "LF",
+   "twin": "batt-r21-10-m",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/40)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10
+  },
+  {
+   "key": "batt-r21-10-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-21, 38 x 140 mm at 406 mm o.c., 3.05 m",
+   "unit": "m",
+   "twin": "batt-r21-10",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/3.7161)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10.006561679790025
+  },
+  {
+   "key": "blown-r49",
+   "type": "area",
+   "csi": "07 21 26",
+   "group": "Attics",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Loose-fill cellulose at about R-3.7 per inch: R-49 is about 13.25 in settled (use the bag chart’s thickness for your product).",
+    "Bags: about 1 per 40 SF at R-49 (a starting figure: read the bag chart for \"bags per 1,000 SF\").",
+    "Attic rulers: one per 300 SF.",
+    "Baffles at each rafter bay along the eaves are counted as their own run."
+   ],
+   "note": "Measure the attic floor area.",
+   "waste": 0,
+   "name": "Blown-in attic insulation R-49",
+   "unit": "SF",
+   "twin": "blown-r49-m",
+   "components": [
+    {
+     "name": "Loose-fill insulation bags",
+     "unit": "bag",
+     "formula": "ceil(A/40)",
+     "waste": 500
+    },
+    {
+     "name": "Attic rulers",
+     "unit": "EA",
+     "formula": "ceil(A/300)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "blown-r49-m",
+   "type": "area",
+   "csi": "07 21 26",
+   "group": "Attics",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Loose-fill cellulose at about R-3.7 per inch: R-49 is about 13.25 in settled (use the bag chart’s thickness for your product).",
+    "Bags: about 1 per 40 SF at R-49 (a starting figure: read the bag chart for \"bags per 1,000 SF\").",
+    "Attic rulers: one per 300 SF.",
+    "Baffles at each rafter bay along the eaves are counted as their own run."
+   ],
+   "note": "Measure the attic floor area.",
+   "waste": 0,
+   "name": "Blown-in attic insulation R-49 (RSI-8.6)",
+   "unit": "m²",
+   "twin": "blown-r49",
+   "components": [
+    {
+     "name": "Loose-fill insulation bags",
+     "unit": "bag",
+     "formula": "ceil(A/3.7161)",
+     "waste": 500
+    },
+    {
+     "name": "Attic rulers",
+     "unit": "EA",
+     "formula": "ceil(A/27.871)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "baffles",
+   "type": "linear",
+   "csi": "07 21 26",
+   "group": "Attics",
+   "sources": [
+    "irc-r806",
+    "geometry"
+   ],
+   "assume": [
+    "One baffle per rafter bay, rafters 24 in o.c.: 0.5 per LF of eave."
+   ],
+   "note": "Measure along the eaves.",
+   "waste": 0,
+   "name": "Rafter vent baffles at eaves, rafters 24 in o.c.",
+   "unit": "LF",
+   "twin": "baffles-m",
+   "components": [
+    {
+     "name": "Vent baffles",
+     "unit": "EA",
+     "formula": "ceil(L/2)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "baffles-m",
+   "type": "linear",
+   "csi": "07 21 26",
+   "group": "Attics",
+   "sources": [
+    "irc-r806",
+    "geometry"
+   ],
+   "assume": [
+    "One baffle per rafter bay, rafters 24 in o.c.: 0.5 per LF of eave."
+   ],
+   "note": "Measure along the eaves.",
+   "waste": 0,
+   "name": "Rafter vent baffles at eaves, rafters 610 mm o.c.",
+   "unit": "m",
+   "twin": "baffles",
+   "components": [
+    {
+     "name": "Vent baffles",
+     "unit": "EA",
+     "formula": "ceil(L/0.6096)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "board-1",
+   "type": "area",
+   "csi": "07 21 13",
+   "group": "Board",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Boards 4 x 8 ft (32 SF), 5% waste.",
+    "Cap fasteners about 1 per 2 SF where the board is mechanically fastened (a starting figure)."
+   ],
+   "note": "Measure the insulated wall or foundation area.",
+   "waste": 0,
+   "name": "Rigid foam board 1 in, 4 x 8 ft",
+   "unit": "SF",
+   "twin": "board-1-m",
+   "components": [
+    {
+     "name": "Foam board 1 in, 4 x 8 ft",
+     "unit": "board",
+     "formula": "ceil(A/32)",
+     "waste": 500
+    },
+    {
+     "name": "Cap fasteners",
+     "unit": "EA",
+     "formula": "ceil(A/2)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "board-1-m",
+   "type": "area",
+   "csi": "07 21 13",
+   "group": "Board",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Boards 4 x 8 ft (32 SF), 5% waste.",
+    "Cap fasteners about 1 per 2 SF where the board is mechanically fastened (a starting figure)."
+   ],
+   "note": "Measure the insulated wall or foundation area.",
+   "waste": 0,
+   "name": "Rigid foam board 25 mm, 1220 x 2440 mm",
+   "unit": "m²",
+   "twin": "board-1",
+   "components": [
+    {
+     "name": "Foam board 25 mm, 1220 x 2440 mm",
+     "unit": "board",
+     "formula": "ceil(A/2.9768)",
+     "waste": 500
+    },
+    {
+     "name": "Cap fasteners",
+     "unit": "EA",
+     "formula": "ceil(A/0.1858)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "board-2",
+   "type": "area",
+   "csi": "07 21 13",
+   "group": "Board",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Boards 4 x 8 ft (32 SF), 5% waste.",
+    "Cap fasteners about 1 per 2 SF where the board is mechanically fastened (a starting figure)."
+   ],
+   "note": "Measure the insulated wall or foundation area.",
+   "waste": 0,
+   "name": "Rigid foam board 2 in, 4 x 8 ft",
+   "unit": "SF",
+   "twin": "board-2-m",
+   "components": [
+    {
+     "name": "Foam board 2 in, 4 x 8 ft",
+     "unit": "board",
+     "formula": "ceil(A/32)",
+     "waste": 500
+    },
+    {
+     "name": "Cap fasteners",
+     "unit": "EA",
+     "formula": "ceil(A/2)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "board-2-m",
+   "type": "area",
+   "csi": "07 21 13",
+   "group": "Board",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Boards 4 x 8 ft (32 SF), 5% waste.",
+    "Cap fasteners about 1 per 2 SF where the board is mechanically fastened (a starting figure)."
+   ],
+   "note": "Measure the insulated wall or foundation area.",
+   "waste": 0,
+   "name": "Rigid foam board 51 mm, 1220 x 2440 mm",
+   "unit": "m²",
+   "twin": "board-2",
+   "components": [
+    {
+     "name": "Foam board 51 mm, 1220 x 2440 mm",
+     "unit": "board",
+     "formula": "ceil(A/2.9768)",
+     "waste": 500
+    },
+    {
+     "name": "Cap fasteners",
+     "unit": "EA",
+     "formula": "ceil(A/0.1858)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "spf-cc-2",
+   "type": "area",
+   "csi": "07 21 19",
+   "group": "Spray foam",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Closed-cell spray foam 2 in: board feet = area x thickness in inches (metric: m³ = m² x 0.0508).",
+    "Yield per set is the maker’s (it drops with temperature): add your own allowance as waste."
+   ],
+   "note": "Measure the sprayed area.",
+   "waste": 0,
+   "name": "Closed-cell spray foam, 2 in",
+   "unit": "SF",
+   "twin": "spf-cc-2-m",
+   "components": [
+    {
+     "name": "Spray foam",
+     "unit": "BF",
+     "formula": "A*2",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "spf-cc-2-m",
+   "type": "area",
+   "csi": "07 21 19",
+   "group": "Spray foam",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Closed-cell spray foam 2 in: board feet = area x thickness in inches (metric: m³ = m² x 0.0508).",
+    "Yield per set is the maker’s (it drops with temperature): add your own allowance as waste."
+   ],
+   "note": "Measure the sprayed area.",
+   "waste": 0,
+   "name": "Closed-cell spray foam, 51 mm",
+   "unit": "m²",
+   "twin": "spf-cc-2",
+   "components": [
+    {
+     "name": "Spray foam",
+     "unit": "m³",
+     "formula": "A*0.0508",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "vapor-poly",
+   "type": "area",
+   "csi": "07 26 00",
+   "group": "Vapor retarders",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "6-mil polyethylene where the climate zone calls for a Class I vapor retarder (IRC R702.7); 10% for laps; acoustical sealant at the laps: one tube per 100 SF (a starting figure)."
+   ],
+   "note": "Measure the wall or ceiling area that gets the retarder.",
+   "waste": 0,
+   "name": "Polyethylene vapor retarder 6 mil",
+   "unit": "SF",
+   "twin": "vapor-poly-m",
+   "components": [
+    {
+     "name": "Polyethylene 6 mil",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Acoustical sealant tubes",
+     "unit": "EA",
+     "formula": "ceil(A/100)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "vapor-poly-m",
+   "type": "area",
+   "csi": "07 26 00",
+   "group": "Vapor retarders",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "6-mil polyethylene where the climate zone calls for a Class I vapor retarder (IRC R702.7); 10% for laps; acoustical sealant at the laps: one tube per 100 SF (a starting figure)."
+   ],
+   "note": "Measure the wall or ceiling area that gets the retarder.",
+   "waste": 0,
+   "name": "Polyethylene vapor retarder 0.15 mm",
+   "unit": "m²",
+   "twin": "vapor-poly",
+   "components": [
+    {
+     "name": "Polyethylene 6 mil",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Acoustical sealant tubes",
+     "unit": "EA",
+     "formula": "ceil(A/9.2903)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "sound-8",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Sound attenuation batts 3-1/2 in in one side of the cavity, the gross partition area, 5% waste."
+   ],
+   "note": "Draw the partition runs; the item height is the wall height.",
+   "waste": 0,
+   "name": "Sound attenuation batts in partitions, 3-1/2 in, 8 ft",
+   "unit": "LF",
+   "twin": "sound-8-m",
+   "components": [
+    {
+     "name": "Sound attenuation batts",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8
+  },
+  {
+   "key": "sound-8-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Sound attenuation batts 3-1/2 in in one side of the cavity, the gross partition area, 5% waste."
+   ],
+   "note": "Draw the partition runs; the item height is the wall height.",
+   "waste": 0,
+   "name": "Sound attenuation batts in partitions, 89 mm, 2.44 m",
+   "unit": "m",
+   "twin": "sound-8",
+   "components": [
+    {
+     "name": "Sound attenuation batts",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.00524934383202
+  },
+  {
+   "key": "sound-9",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Sound attenuation batts 3-1/2 in in one side of the cavity, the gross partition area, 5% waste."
+   ],
+   "note": "Draw the partition runs; the item height is the wall height.",
+   "waste": 0,
+   "name": "Sound attenuation batts in partitions, 3-1/2 in, 9 ft",
+   "unit": "LF",
+   "twin": "sound-9-m",
+   "components": [
+    {
+     "name": "Sound attenuation batts",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "sound-9-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Sound attenuation batts 3-1/2 in in one side of the cavity, the gross partition area, 5% waste."
+   ],
+   "note": "Draw the partition runs; the item height is the wall height.",
+   "waste": 0,
+   "name": "Sound attenuation batts in partitions, 89 mm, 2.74 m",
+   "unit": "m",
+   "twin": "sound-9",
+   "components": [
+    {
+     "name": "Sound attenuation batts",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "sound-10",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Sound attenuation batts 3-1/2 in in one side of the cavity, the gross partition area, 5% waste."
+   ],
+   "note": "Draw the partition runs; the item height is the wall height.",
+   "waste": 0,
+   "name": "Sound attenuation batts in partitions, 3-1/2 in, 10 ft",
+   "unit": "LF",
+   "twin": "sound-10-m",
+   "components": [
+    {
+     "name": "Sound attenuation batts",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10
+  },
+  {
+   "key": "sound-10-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Walls",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Sound attenuation batts 3-1/2 in in one side of the cavity, the gross partition area, 5% waste."
+   ],
+   "note": "Draw the partition runs; the item height is the wall height.",
+   "waste": 0,
+   "name": "Sound attenuation batts in partitions, 89 mm, 3.05 m",
+   "unit": "m",
+   "twin": "sound-10",
+   "components": [
+    {
+     "name": "Sound attenuation batts",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10.006561679790025
+  }
+ ]
+}

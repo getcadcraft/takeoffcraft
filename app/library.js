@@ -10,6 +10,7 @@
  *   entryFromItem(item)           an item of a takeoff as a library entry (rates, height, assembly; no marks)
  *   itemFromEntry(entry)          fields for model.addItem / the takeoff file
  *   repricePatches(items, lib)    → [{ id, patch }] the takeoff's items that have a library entry, with its rates
+ *   entryMeta(e)                  an entry's pack / source / note (0.5 TK.1), validated; trade packs themselves: packs.js
  *
  * The CSV: one row per item, then a row per component of its assembly. Columns are found by their header (any order,
  * any case, English names or the app's own export headers): Item (or Name), Type, Unit, Waste %, Material per unit,
@@ -159,15 +160,37 @@ export function entryFromItem(it) {
   return {
     name: it.name, type: it.type, unit: it.unit, heightFt: it.heightFt || 0, waste: it.waste, mat: it.mat, lab: it.lab,
     ...(it.crew ? { crew: { ...it.crew } } : {}),                  // T18: a crew travels with the item (not in the CSV)
+    ...(it.csi ? { csi: it.csi } : {}),                            // TK.4: its CSI MasterFormat number
     components: (it.components || []).map((c, i) => ({ id: 'c' + (i + 1), name: c.name, unit: c.unit, formula: c.formula, waste: c.waste, mat: c.mat, lab: c.lab })),
   };
 }
 /** A library entry → item fields (the model gives it an id, a colour and component ids). */
 export function itemFromEntry(e) {
-  const it = normalItem({ id: 'x', name: e.name, type: e.type, unit: e.unit, heightFt: e.heightFt, waste: e.waste, mat: e.mat, lab: e.lab, crew: e.crew, components: e.components || [] });
+  const it = normalItem({ id: 'x', name: e.name, type: e.type, unit: e.unit, heightFt: e.heightFt, waste: e.waste, mat: e.mat, lab: e.lab, crew: e.crew, csi: e.csi, components: e.components || [] });
   delete it.id;
   return it;
 }
+
+/**
+ * What a library entry may carry beyond its item fields (0.5 TK.1, trade packs): `pack` {id, version, name} (the pack it was
+ * installed from — Remove takes those entries out in one step), `src` (where its assembly comes from), `note` (what to check).
+ * Untrusted (storage, a pack file): anything else is dropped.
+ */
+export function entryMeta(e) {
+  const o = {};
+  const p = e?.pack;
+  if (p && typeof p === 'object' && typeof p.id === 'string' && PACK_ID_RE.test(p.id) && typeof p.version === 'string' && SEMVER_RE.test(p.version)) {
+    o.pack = { id: p.id, version: p.version, name: clean(p.name, LIMITS.name) || p.id };
+  }
+  const src = clean(e?.src, 1000), note = clean(e?.note, 1000);
+  if (src) o.src = src;
+  if (note) o.note = note;
+  return o;
+}
+const clean = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max) : '');
+/** Pack ids are add-on ids (docs/ADDONS-SPEC.md §2); versions semver. */
+export const PACK_ID_RE = /^(?!.*(?:\.\.|--))[a-z][a-z0-9.-]{0,62}[a-z0-9]$/;
+export const SEMVER_RE = /^(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})(?:-[0-9A-Za-z.]{1,20})?$/;
 
 /** Library entries as read from storage (anything else dropped). */
 export function readStored(json) {
@@ -176,7 +199,7 @@ export function readStored(json) {
   for (const e of list.slice(0, LIBRARY_MAX)) {
     if (!e || typeof e.name !== 'string' || !TYPES.includes(e.type)) continue;
     const it = normalItem({ id: 'x', ...e, components: (Array.isArray(e.components) ? e.components : []).map((c, i) => ({ ...c, id: 'c' + (i + 1) })) });
-    out.push(entryFromItem(it));
+    out.push({ ...entryFromItem(it), ...entryMeta(e) });
   }
   return out;
 }

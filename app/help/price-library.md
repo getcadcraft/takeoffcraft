@@ -3,7 +3,7 @@ title: Price library
 summary: Keep your items, rates and assemblies in a library, import it from a CSV or a past estimate, add items from it to any takeoff, and update a takeoff's prices from it.
 section: tasks
 order: 82
-keywords: library, price list, price book, cost database, import csv, rates, assemblies, reuse, template items, update prices, reprice
+keywords: library, trade packs, price list, price book, cost database, import csv, rates, assemblies, reuse, template items, update prices, reprice
 ---
 
 The **price library** holds items you use on job after job: their type, unit, height, waste, material and labor rates, and their assembly. It is kept in this browser, apart from any takeoff, so every takeoff you open here can use it.
@@ -15,6 +15,8 @@ Open it with {{ui:Library}} at the top of the {{ui:Items}} panel.
 - {{ui:Import CSV…}} reads a spreadsheet saved as CSV (see the columns below). Items whose name and type are already in the library are replaced; the rest are added. Rows it cannot read are skipped, and it says which and why.
 - {{ui:Add this takeoff's items}} copies every item of the open takeoff into the library, with its rates and assembly (not its marks).
 - The estimate CSV TakeoffCraft exports ([Export the estimate](topic:export-estimate)) imports as it is: last job's prices seed the next one.
+
+- {{ui:Trade packs…}} installs free assemblies for a trade, such as drywall, electrical or concrete, without prices. See [Trade packs](topic:trade-packs).
 
 {{ui:Export CSV}} saves the library as a CSV, to keep a copy, to edit it in a spreadsheet or to give it to a colleague. {{ui:Clear}} empties it (click twice).
 

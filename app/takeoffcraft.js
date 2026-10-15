@@ -24,12 +24,12 @@
 
 import { el, icon, bytes, frame, safeName, ask } from './ui-util.js';
 import { PageView, renderThumb } from './viewer.js';
-import { Takeoff, FORMAT, TYPES, TYPE_LABELS, VARS, VAR_HELP, sheetKey, quantities, estimate, itemVars, itemQty, measureMark, sheetBreakdown, areaEstimates, baseEstimate, alternates, backouts, segSlope, kindsOf, unitOf, condQty } from './model.js';
+import { Takeoff, FORMAT, TYPES, TYPE_LABELS, VARS, VAR_HELP, sheetKey, quantities, estimate, itemVars, itemQty, measureMark, sheetBreakdown, areaEstimates, baseEstimate, alternates, backouts, segSlope, kindsOf, unitOf, condQty, csiOk } from './model.js';
 import * as U from './units.js';
 import * as G from './geom.js';
 import { parse, evaluate } from './formula.js';
 import { openPdf, sheetTitle, matchFiles } from './pdfset.js';
-import { estimateCsv, estimateXlsx } from './export.js';
+import { estimateCsv, estimateXlsx, materialList, materialCsv, spotElevationsCsv } from './export.js';
 import { pdfWithMarks, cloudPath, NOTE_COLORS } from './pdfmarks.js';
 import { toInk, crop, trim, templateProblem, suppress, workScale, ANY_ANGLES } from './match.js';
 import { copyMarks, copyItems, readClip, scaleProblem, sizeProblem, pasteClip, measured } from './clipboard.js';
@@ -40,12 +40,15 @@ import { pageLinework, SnapIndex, MAX_SEGS } from './snap.js';
 import { parseEntry } from './typein.js';
 import { IDENTITY, fitTwoPoints, scaleOf, pixelMap, warp, changeMask, markChange, changed, movePts } from './overlay.js';
 import { readLibraryCsv, libraryCsv, mergeEntries, entryFromItem, itemFromEntry, readStored, repricePatches } from './library.js';
+import { readPack, installPack, removePack, installedPacks, libraryPack, rateUnset, PACK_EXT, PACK_LIMITS, PACK_SYSTEMS } from './packs.js';
 import { bidSummary, proposalPdf } from './bid.js';
 import { sheetScale, pageText } from './scaletext.js';
 import { roomAt } from './roomfill.js';
 import { embedTakeoff, readEmbedded } from './embed.js';
 import { t } from './i18n.js';
 import { installAgents } from './agents.js';
+import { panButton, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: the menu style's wheel and pan buttons (input-takeoffcraft.js)
+import { startAddons, columnsNow } from './addons/takeoffcraft-api.js';
 
 const TYPE_ICONS = { linear: 'bezier2', area: 'pentagon', count: 'plus-circle' };
 const HIT = 7;          // screen px for picking marks and handles
@@ -670,7 +673,8 @@ function init(root) {
       }
       if (touches.size > 2) return;
     }
-    if (e.button === 1 || (e.button === 0 && app.space)) { e.preventDefault(); panning = p; ui.over.classList.add('is-panning'); return; }
+    if ((e.button === 1 && panButton(1)) || (e.button === 0 && app.space)) { e.preventDefault(); panning = p; ui.over.classList.add('is-panning'); return; }   // IP.3: middle pans unless the style took it away
+    if (e.button === 1) { e.preventDefault(); return; }
     down = { ...p, button: e.button, moved: false, touch: e.pointerType === 'touch', t: performance.now() };
     if (down.touch) {
       longTimer = setTimeout(() => {                    // a long press = the right button: finish the run or the outline
@@ -699,7 +703,7 @@ function init(root) {
     if (down && !down.moved && Math.hypot(p.x - down.x, p.y - down.y) > (down.touch ? 10 : 4)) {
       down.moved = true;
       clearTimeout(longTimer);
-      if (!app.drag && !app.box) { panning = p; ui.over.classList.add('is-panning'); return; }
+      if (!app.drag && !app.box && (down.button === 0 || panButton(down.button))) { panning = p; ui.over.classList.add('is-panning'); return; }   // IP.3: a right drag pans only where the style says so
     }
     if (app.box && down) { app.box.b = view.toUser(p); view.overlayOnly(); return; }
     if (!cur) return;
@@ -751,7 +755,7 @@ function init(root) {
     e.preventDefault();
     const p = pos(e);
     const step = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
-    view.zoomAt(p.x, p.y, Math.pow(1.0018, -step));
+    view.zoomAt(p.x, p.y, Math.pow(1.0018, -step * (e.ctrlKey ? 1 : wheelFactor())));   // IP.3: the style's wheel (a pinch stays as it is)
   }, { passive: false });
 
   /**
@@ -1328,10 +1332,12 @@ function init(root) {
     const name = ui.itemForm.elements.name.value.trim();
     if (!name) { ui.itemForm.elements.name.focus(); return; }
     const type = ui.itemForm.elements.type.value;
-    const id = model.addItem({ name, type, waste: settings.waste });
+    // an add-on's item type (0.5 AO.6): "addon:<add-on id>:<kind>", made with that type's defaults
+    const id = type.startsWith('addon:') ? addonsApi?.createFromSelect(type, { name }) : model.addItem({ name, type, waste: settings.waste });
+    if (!id) return;
     ui.itemForm.reset(); ui.itemForm.elements.type.value = type; ui.itemForm.hidden = true;
     setActive(id);
-    status(t('item.ready.' + type, { item: name }));
+    status(t('item.ready.' + model.item(id).type, { item: name }));
   });
   ui.itemForm.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.stopPropagation(); ui.itemForm.hidden = true; } });
 
@@ -1473,6 +1479,12 @@ function init(root) {
     if (it.crew) { lab.disabled = true; lab.title = t('crew.lab.locked'); lab.value = U.rateInput(est.rows.find((r) => r.kind === 'item' && r.itemId === it.id)?.lab ?? 0); }
     rows.push(...fieldRow(t('item.f.waste'), waste), ...fieldRow(t('item.f.mat', { unit: U.UNITS[it.unit].label }), mat), ...fieldRow(t('item.f.lab', { unit: U.UNITS[it.unit].label }), lab));
     rows.push(...crewFields(it, commit, fail));
+    const csi = textInput('tc-i-csi', 'csi', it.csi || '', (v, n) => {           // TK.4: groups the workbook's "By division"
+      const x = v.trim().replace(/\s+/g, ' ');
+      if (x && !csiOk(x)) return fail(n, t('item.csi.err'));
+      commit({ csi: x || undefined }, t('undo.item.csi'));
+    }, { placeholder: t('item.csi.ph'), maxlength: 11 });
+    rows.push(...fieldRow(t('item.f.csi'), csi));
 
     // measured values
     const tq = qmap.get(id);
@@ -1655,7 +1667,22 @@ function init(root) {
       if (it.backout && !G.isConvex(m.pts)) extra.push(el('p', { className: 'tc-field-err' }, t('backout.mark.convex')));
       if (m.holes.length) rows.push(...kv(t('mark.f.outline'), U.fixed(r.grossSqft, 2) + ' SF'), ...kv(t('mark.f.cutouts'), t('mark.cutouts', { n: m.holes.length, sf: U.fixed(r.cutSqft, 2) })));
       rows.push(...kv(t('mark.f.perimeter'), m.holes.length ? t('mark.perimeter.holes', { len: ftIn(r.perimeterFt) }) : ftIn(r.perimeterFt)));
-    } else rows.push(...kv(t('mark.f.count'), '1'));
+    } else {
+      rows.push(...kv(t('mark.f.count'), '1'));
+      // TK.5: a spot elevation on a count mark, handed to CivilCraft (Export › Spot elevations); decimal feet, ft-in or metres
+      const z = el('input', { type: 'text', className: 'tc-input', id: 'tc-m-z', dataset: { field: 'm-z' }, value: typeof m.z === 'number' ? String(U.roundTo(m.z, 4)) : '', placeholder: t('spots.ph'), autocomplete: 'off', title: t('spots.field.title') });
+      z.addEventListener('change', () => {
+        const v = z.value.trim();
+        if (!v) { model.updateMark(m.id, { z: undefined }, t('undo.mark.z')); return; }
+        const num = /^-?\d+(?:\.\d+)?$/.test(v) ? Number(v) : null;
+        const r = num === null ? U.parseLength(v.replace(/^-/, ''), { defaultUnit: 'ft' }) : null;
+        const ft = num !== null ? num : r.ok ? (v.startsWith('-') ? -r.ft : r.ft) : null;
+        if (ft === null || !(Math.abs(ft) < 1e5)) { z.classList.add('is-invalid'); status(t('spots.err')); return; }
+        model.updateMark(m.id, { z: ft }, t('undo.mark.z'));
+      });
+      z.addEventListener('keydown', (e) => { if (e.key === 'Enter') z.blur(); });
+      rows.push(el('label', { for: 'tc-m-z' }, t('spots.field')), z);
+    }
     if (m.flag) extra.unshift(el('div', { className: 'tc-flag-note' }, el('p', {}, t('flag.note')),
       el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { flagChecked: m.id }, onclick: () => { model.clearFlags([m.id]); } }, t('flag.checked'))));
     const actions = el('div', { className: 'tc-actions' },
@@ -2446,14 +2473,28 @@ function init(root) {
 
   async function exportXlsx() {
     if (!model.state.items.length) { status(t('export.empty')); return; }
-    const bytesOut = await estimateXlsx(model.state, sheetLabel);
+    const bytesOut = await estimateXlsx(model.state, sheetLabel, { columns: columnsNow() });
     host.download(bytesOut, safeName(model.state.name) + '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     status(t('export.xlsx', { file: safeName(model.state.name) + '.xlsx' }) + (est.incomplete ? ' ' + t('export.incomplete') : ''), 9000);
   }
   function exportCsv() {
     if (!model.state.items.length) { status(t('export.empty')); return; }
-    host.download('\uFEFF' + estimateCsv(model.state, est), safeName(model.state.name) + '.csv', 'text/csv;charset=utf-8');   // BOM: spreadsheets read m² right
+    host.download('\uFEFF' + estimateCsv(model.state, est, columnsNow()), safeName(model.state.name) + '.csv', 'text/csv;charset=utf-8');   // BOM: spreadsheets read m² right
     status(t('export.csv', { file: safeName(model.state.name) + '.csv' }));
+  }
+  function exportMaterials() {                      // TK.4: the material list, every assembly part added up
+    if (!materialList(model.state, est).length) { status(t('mat.empty')); return; }
+    const file = safeName(t('mat.file', { name: model.state.name || 'Takeoff' })) + '.csv';
+    host.download('\uFEFF' + materialCsv(model.state, est), file, 'text/csv;charset=utf-8');
+    status(t('mat.done', { file }));
+  }
+  function exportSpots() {                          // TK.5: the open sheet's spot elevations, as a point file CivilCraft opens
+    if (!cur) { status(t('spots.nosheet')); return; }
+    const r = spotElevationsCsv(model.state, cur.key, sheetLabel);
+    if (!r.ok) { status(r.why, 9000); return; }
+    const file = safeName(t('spots.file', { sheet: sheetLabel(cur.key) })) + '.csv';
+    host.download(r.csv, file, 'text/csv;charset=utf-8');
+    status(t('spots.done', { file, n: r.n }), 9000);
   }
   async function exportPdf() {
     const withMarks = files.filter((f) => model.state.marks.some((m) => m.sheet.startsWith(f.hash + ':')) || (model.state.notes || []).some((n) => n.sheet.startsWith(f.hash + ':')));
@@ -2499,6 +2540,8 @@ function init(root) {
     'save-project': saveProject,
     'export-xlsx': exportXlsx,
     'export-csv': exportCsv,
+    'export-materials': exportMaterials,
+    'export-spots': exportSpots,
     'export-pdf': exportPdf,
     'export-bid': bidDialog,
     'export-embed': exportEmbed,
@@ -2885,7 +2928,7 @@ function init(root) {
     const asked = ask(root, {
       title: t('bid.h'), text: t('bid.text'),
       body: el('div', { className: 'tc-bid' },
-        el('div', { className: 'tc-props' }, ...f('tax', pctIn('tax')), ...f('overhead', pctIn('overhead')), ...f('profit', pctIn('profit')), ...f('bond', pctIn('bond'))),
+        el('div', { className: 'tc-props' }, ...f('burden', pctIn('burden')), ...f('tax', pctIn('tax')), ...f('overhead', pctIn('overhead')), ...f('profit', pctIn('profit')), ...f('bond', pctIn('bond'))),
         table, msg,
         el('div', { className: 'tc-props' }, ...f('project', textIn('project')), ...f('to', textIn('to', true, 2)), ...f('by', textIn('by', true, 2)),
           ...f('incl', textIn('incl', true)), ...f('excl', textIn('excl', true)), ...f('terms', textIn('terms', true, 2))),
@@ -2928,8 +2971,10 @@ function init(root) {
         const cb = el('input', { type: 'checkbox', checked: picked.has(i), dataset: { libEntry: String(i) } });
         cb.addEventListener('change', () => { if (cb.checked) picked.add(i); else picked.delete(i); });
         const unit = U.UNITS[e.unit].label;
-        return el('li', {}, el('label', { className: 'tc-lib-row' }, cb, icon(TYPE_ICONS[e.type]), el('span', { className: 'tc-lib-name' }, e.name),
-          el('span', { className: 'tc-lib-meta' }, t('lib.meta', { unit, mat: money(e.mat), lab: money(e.lab) }) + (e.components.length ? ' · ' + t('lib.parts', { n: e.components.length }) : ''))));
+        const meta = rateUnset(e) ? t('lib.row.unset', { unit }) : t('lib.meta', { unit, mat: money(e.mat), lab: money(e.lab) });   // TK.1: a pack's entries start without rates
+        return el('li', {}, el('label', { className: 'tc-lib-row', title: [e.src, e.note].filter(Boolean).join('\n') || null }, cb, icon(TYPE_ICONS[e.type]),
+          el('span', { className: 'tc-lib-name' }, e.name, e.pack ? el('span', { className: 'tc-lib-tag', dataset: { libPackTag: e.pack.id } }, t('lib.row.pack', { pack: e.pack.name })) : null),
+          el('span', { className: 'tc-lib-meta', dataset: rateUnset(e) ? { libUnset: '' } : {} }, meta + (e.components.length ? ' · ' + t('lib.parts', { n: e.components.length }) : ''))));
       }));
       if (!lib.length) list.replaceChildren(el('li', { className: 'tc-note' }, t('lib.empty')));
     }
@@ -2963,7 +3008,11 @@ function init(root) {
         if (!lib.length) { say(t('lib.empty')); return; }
         host.download('\uFEFF' + libraryCsv(lib), t('lib.file') + '.csv', 'text/csv;charset=utf-8');
       }, 'download'),
-      clear, file);
+      clear, file,
+      // TK.1: these two close the library (data-key) and open their own dialog; the library opens again after
+      btn(t('lib.packs'), { key: 'packs', libPacks: '' }, () => {}, 'box-seam'),
+      btn(t('lib.exportpack'), { key: 'export-pack', libExportPack: '' }, () => {}, 'box-arrow-up'));
+    tools.querySelector('[data-lib-packs]').title = t('lib.packs.title');
     draw();
     const asked = ask(root, {
       title: t('lib.title'), text: t('lib.text'),
@@ -2988,7 +3037,165 @@ function init(root) {
       if (!patches.length) { status(t('lib.repriced.none')); return; }
       model.updateItems(patches);
       status(t('lib.repriced', { n: patches.length }), 9000);
+    } else if (choice === 'packs') {
+      await packsDialog();
+      return libraryDialog();
+    } else if (choice === 'export-pack') {
+      await exportPackDialog();
+      return libraryDialog();
     }
+  }
+
+  // ---- trade packs (0.5 TK.1, packs.js): data-only add-ons that install assemblies into the library ----
+  const PACKS_DIR = new URL('./packs/', import.meta.url);
+  const PACK_FILE_RE = /^[a-z0-9][a-z0-9.-]{0,80}\.ccpack\.json$/;
+  const UNITS_KEY = 'takeoffcraft.packs.units';
+  let packIndex = null;                       // the build's packs/index.json, read once
+  async function loadPackIndex() {
+    if (packIndex) return packIndex;
+    const r = await fetch(new URL('index.json', PACKS_DIR), { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    packIndex = (Array.isArray(j?.packs) ? j.packs : []).filter((p) => p && typeof p.id === 'string' && typeof p.file === 'string' && PACK_FILE_RE.test(p.file));
+    return packIndex;
+  }
+  async function fetchPack(meta) {
+    const r = await fetch(new URL(meta.file, PACKS_DIR), { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const text = await r.text();
+    if (text.length > PACK_LIMITS.bytes) throw new Error(t('packs.err.big'));
+    let json;
+    try { json = JSON.parse(text); } catch { throw new Error(t('packs.err.json')); }
+    const res = readPack(json);
+    if (!res.ok) throw new Error(res.error);
+    return res;
+  }
+
+  /** The Trade packs dialog. offer: a pack id to point at (the directory's Install link, ?pack=<id>). */
+  async function packsDialog({ offer = null } = {}) {
+    let lib = loadLib();
+    const rows = [];                          // [{ meta, pack?, warnings?, fromFile? }]
+    const msg = el('p', { className: 'tc-lib-msg', role: 'status', dataset: { packsMsg: '' } });
+    const say = (text) => { msg.textContent = text; };
+    const stored = localStorage.getItem(UNITS_KEY);
+    const units = el('select', { className: 'tc-input', id: 'tc-packs-units', dataset: { packsUnits: '' } },
+      ...PACK_SYSTEMS.map((k) => el('option', { value: k, selected: k === (PACK_SYSTEMS.includes(stored) ? stored : 'imperial') }, t('packs.units.' + k))));
+    units.addEventListener('change', () => { try { localStorage.setItem(UNITS_KEY, units.value); } catch { /* private mode */ } });
+    const list = el('ul', { className: 'tc-pack-list', dataset: { packsList: '' } }, el('li', { className: 'tc-note' }, t('packs.loading')));
+    const fileIn = el('input', { type: 'file', accept: PACK_EXT + ',.json,application/json', hidden: true, dataset: { packsFile: '' } });
+    const fileBtn = el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { packsOpen: '' } }, icon('folder2-open'), ' ' + t('packs.file'));
+    fileBtn.addEventListener('click', () => fileIn.click());
+    fileIn.addEventListener('change', async () => {
+      const f = fileIn.files[0];
+      fileIn.value = '';
+      if (!f) return;
+      if (f.size > PACK_LIMITS.bytes) { say(t('packs.err.big')); return; }
+      let json;
+      try { json = JSON.parse(await f.text()); } catch { say(t('packs.err.file', { file: f.name, why: t('packs.err.json') })); return; }
+      const res = readPack(json);
+      if (!res.ok) { say(t('packs.err.file', { file: f.name, why: res.error })); return; }
+      const p = res.pack;
+      const row = { meta: { id: p.id, name: p.name, packVersion: p.packVersion, status: p.status, license: p.license, description: p.description, items: p.items.length, sources: p.sources.length }, pack: p, warnings: res.warnings, fromFile: true };
+      const i = rows.findIndex((r) => r.meta.id === p.id);
+      if (i >= 0) rows[i] = row; else rows.unshift(row);
+      say(res.warnings.length ? t('packs.notes', { first: res.warnings[0] }) : '');
+      draw();
+    });
+
+    const store = (next) => { lib = next; return saveLib(lib); };
+    async function packOf(row) { if (!row.pack) { const r = await fetchPack(row.meta); row.pack = r.pack; row.warnings = r.warnings; } return row.pack; }
+    async function install(row, samples) {
+      let p;
+      try { p = await packOf(row); } catch (err) { say(t('packs.err.file', { file: row.meta.file || row.meta.name, why: err.message })); return; }
+      const r = installPack(lib, p, { system: units.value, samples });
+      if (!store(r.lib)) { say(t('lib.err.store')); return; }
+      say([t('packs.done', { name: p.name, added: r.added, updated: r.updated }), r.kept ? t('packs.done.kept', { n: r.kept }) : '', r.full ? t('packs.done.full') : '', samples && p.samples ? '' : t('packs.done.rates')].filter(Boolean).join(' '));
+      draw();
+    }
+    function draw() {
+      const have = new Map(installedPacks(lib).map((p) => [p.id, p]));
+      list.replaceChildren(...rows.map((row) => {
+        const m = row.meta, inst = have.get(m.id);
+        const head = el('div', { className: 'tc-pack-head' },
+          el('strong', { className: 'tc-pack-name' }, m.name), ' ', el('span', { className: 'tc-pack-ver' }, m.packVersion || ''),
+          el('span', { className: 'tc-pack-status' + (m.status === 'reviewed' ? ' is-reviewed' : ''), dataset: { packStatus: m.status } },
+            m.status === 'reviewed' && row.pack?.reviewedBy ? t('packs.status.reviewed', { by: row.pack.reviewedBy, date: row.pack.reviewedOn }) : t('packs.status.starter')));
+        const meta = el('p', { className: 'tc-pack-meta' }, t('packs.meta', { n: m.items, sources: m.sources, license: m.license || 'CC0-1.0' }) + (inst ? ' · ' + t('packs.installed', { n: inst.count }) : ''));
+        const samples = row.pack?.samples ? el('input', { type: 'checkbox', dataset: { packSamples: m.id } }) : null;
+        const go = el('button', { type: 'button', className: (inst ? 'btn-line' : 'btn-plot') + ' btn-sm-cc', dataset: { packInstall: m.id } }, inst ? t('packs.update') : t('packs.install'));
+        go.addEventListener('click', () => install(row, !!samples?.checked));
+        const rm = inst ? el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { packRemove: m.id } }, t('packs.remove')) : null;
+        rm?.addEventListener('click', () => {
+          if (rm.dataset.armed !== '1') { rm.dataset.armed = '1'; rm.textContent = t('packs.remove.sure', { n: inst.count }); return; }
+          const r = removePack(lib, m.id);
+          if (!store(r.lib)) { say(t('lib.err.store')); return; }
+          say(t('packs.removed', { name: m.name, n: r.removed }));
+          draw();
+        });
+        const det = el('details', { className: 'tc-pack-more' }, el('summary', {}, t('packs.sources')), el('p', {}, m.description || ''));
+        det.addEventListener('toggle', async () => {
+          if (!det.open || det.dataset.filled) return;
+          det.dataset.filled = '1';
+          try {
+            const p = await packOf(row);
+            det.append(el('ul', { className: 'tc-pack-src' }, ...p.sources.map((x) => el('li', {}, [x.title, x.edition, x.publisher].filter(Boolean).join(', '), x.url ? ' ' : '', x.url ? el('a', { href: x.url, target: '_blank', rel: 'noopener noreferrer' }, x.url.replace(/^https:\/\//, '').replace(/\/$/, '')) : null))));   // i18n-ignore (rel attribute)
+          } catch (err) { det.append(el('p', { className: 'tc-note' }, err.message)); }
+        });
+        return el('li', { className: 'tc-pack' + (offer === m.id ? ' is-offered' : ''), dataset: { pack: m.id } }, head, meta,
+          samples ? el('label', { className: 'tc-check' }, samples, ' ' + t('packs.samples', { label: row.pack.samples.label, region: row.pack.samples.region, date: row.pack.samples.date })) : null,
+          el('div', { className: 'tc-pack-act' }, go, rm), det);
+      }));
+      if (!rows.length) list.replaceChildren(el('li', { className: 'tc-note' }, t('packs.none')));
+    }
+    const asked = ask(root, {
+      title: t('packs.title'), text: t('packs.text'),
+      body: el('div', { className: 'tc-lib tc-packs' },
+        el('div', { className: 'tc-lib-tools' }, el('label', { for: 'tc-packs-units' }, t('packs.units')), units, fileBtn, fileIn), msg, list),
+      buttons: [['cancel', t('btn.close'), 'btn-plot']],
+    });
+    root.querySelector('dialog.tc-dialog[open]')?.classList.add('is-wide');
+    loadPackIndex().then((idx) => {
+      for (const meta of idx) if (!rows.some((r) => r.meta.id === meta.id)) rows.push({ meta });
+      if (offer) {
+        const o = rows.find((r) => r.meta.id === offer);
+        say(o ? t('packs.offered', { name: o.meta.name }) : t('packs.unknown', { id: offer }));
+        if (o) requestAnimationFrame(() => list.querySelector('[data-pack="' + CSS.escape(offer) + '"]')?.scrollIntoView({ block: 'nearest' }));
+      }
+      draw();
+    }, (err) => { say(t('packs.err.load', { why: err.message })); draw(); });
+    await asked;
+  }
+
+  /** Your library as a trade pack file (TK.1). */
+  async function exportPackDialog() {
+    const lib = loadLib();
+    const f = (k, input) => [el('label', { for: input.id }, t('packs.export.f.' + k)), input];
+    const name = el('input', { type: 'text', className: 'tc-input', id: 'tc-xp-name', value: t('pack.export.name'), dataset: { xpName: '' } });
+    const author = el('input', { type: 'text', className: 'tc-input', id: 'tc-xp-author', dataset: { xpAuthor: '' } });
+    const desc = el('textarea', { className: 'tc-input', id: 'tc-xp-desc', rows: 2, dataset: { xpDesc: '' } });
+    const own = el('input', { type: 'checkbox', checked: true, dataset: { xpOwn: '' } });
+    const rates = el('input', { type: 'checkbox', dataset: { xpRates: '' } });
+    const region = el('input', { type: 'text', className: 'tc-input', id: 'tc-xp-region', placeholder: t('packs.export.ph.region'), dataset: { xpRegion: '' } });
+    const date = el('input', { type: 'date', className: 'tc-input', id: 'tc-xp-date', value: new Date().toISOString().slice(0, 10), dataset: { xpDate: '' } });
+    const ratesBox = el('div', { className: 'tc-props', hidden: true }, ...f('region', region), ...f('date', date));
+    rates.addEventListener('change', () => { ratesBox.hidden = !rates.checked; });
+    const pick = () => (own.checked ? lib.filter((e) => !e.pack) : lib);
+    const choice = await ask(root, {
+      title: t('packs.export.title'), text: t('packs.export.text'),
+      body: el('div', { className: 'tc-lib' }, el('div', { className: 'tc-props' }, ...f('name', name), ...f('author', author), ...f('desc', desc)),
+        el('label', { className: 'tc-check' }, own, ' ' + t('packs.export.f.own')), el('label', { className: 'tc-check' }, rates, ' ' + t('packs.export.f.rates')), ratesBox),
+      buttons: [['cancel', t('btn.cancel'), 'btn-line'], ['ok', t('packs.export.btn'), 'btn-plot']],
+      focus: '[data-xp-name]',
+      onOk: () => (!pick().length ? t('packs.export.err.none') : rates.checked && (!region.value.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(date.value)) ? t('packs.export.err.region') : null),
+    });
+    if (choice !== 'ok') return;
+    const slug = (name.value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'my-library').slice(0, 50);
+    const id = /^[a-z]/.test(slug) ? slug : 'pack-' + slug;
+    const entries = pick();
+    const pack = libraryPack(entries, { id, name: name.value, author: author.value, description: desc.value, rates: rates.checked, region: region.value, date: date.value });
+    const file = id + PACK_EXT;
+    host.download(JSON.stringify(pack, null, 1) + '\n', file, 'application/json');
+    status(t('packs.export.done', { file, n: pack.items.length }), 9000);
   }
 
   async function levelsDialog() {
@@ -3248,9 +3455,24 @@ function init(root) {
     refresh();
   }
 
+  // the menu styles (0.5 IP.3, input-takeoffcraft.js + the shell's app-input-ui.js): their messages go to the status line,
+  // and letters stay TakeoffCraft's while a run, an outline, a paste or an auto count is under way
+  window.ccInputHooks = { status: (text, bad) => status(text || '', bad ? 8000 : 6000), busy: () => !!(app.draft || app.paste || app.ac || app.box) };
+  // a menu style hides the toolbar, and with it the Scale group's preset list: the presets then sit on the sheet bar, beside the
+  // sheet's scale, and go back when the style is the toolbar again (the shell fires cc-input-mouse on every style change)
+  const presetLabel = ui.preset.closest('label'), presetHome = presetLabel?.parentElement;
+  const placePreset = () => {
+    if (!presetLabel || !presetHome) return;
+    const styled = !!root.querySelector(':scope > [role="toolbar"].cc-in-styled');
+    if (styled && presetLabel.parentElement !== ui.sheetbar) ui.sheetScale.after(presetLabel);
+    else if (!styled && presetLabel.parentElement !== presetHome) presetHome.append(presetLabel);
+  };
+  window.addEventListener('cc-input-mouse', () => requestAnimationFrame(placePreset));
+
   // ---- API for tests and the console ----
   window.takeoffcraft = {
     model, view,
+    files, openFiles, status: (s) => status(s),   // Studio Live (live.js): the PDFs a joiner gets, opening them, its messages
     ready: false,
     sheets: () => sheets.map((s) => ({ key: s.key, title: s.title })),
     rendered: () => view.renders,
@@ -3280,6 +3502,12 @@ function init(root) {
   };
 
   // ---- AI assistants and scripts (0.4 part 2 X.7, session agents; agents.js on host.js's control channel): off until Settings › Assistants ----
+  // ---- add-ons (0.5 AO.6, session addons; docs/ADDONS-SPEC.md §5.6): TakeoffCraft's own loader and API 1.0 (manifest "addons": "own") ----
+  let addonsApi = null;
+  startAddons({ model, status, setActive: (id) => setActive(id), typeSelect: ui.itemForm.elements.type, rightPanel: root.querySelector('.tc-right'),
+    refresh: () => { renderItems(); renderItemProps(); renderQty(); } })
+    .then((a) => { addonsApi = a; }).catch((err) => console.warn('add-ons did not start:', err));   // i18n-ignore (developer message)
+
   installAgents({ model, sheetLabel, sheets: () => sheets.map((s) => ({ key: s.key, title: s.title })), current: () => (cur ? cur.key : null), exportCsv, exportXlsx });
 
   readColors();
@@ -3319,7 +3547,18 @@ function init(root) {
     window.takeoffcraft.ready = !!pdfjs;
     if (pdfjs) status(t('start.status'), 0);
     if (pdfjs) await receiveHandoff();
+    // TK.6: ?pack=<id> (the add-on directory's Install link, behind the owner's go) opens Trade packs pointing at that pack;
+    // installing still takes the person's click
+    const packParam = new URLSearchParams(location.search).get('pack');
+    if (packParam && /^[a-z][a-z0-9.-]{1,63}$/.test(packParam)) {
+      const u = new URL(location.href);
+      u.searchParams.delete('pack');
+      history.replaceState(history.state, '', u.pathname + u.search + u.hash);
+      packsDialog({ offer: packParam });
+    }
     if (pdfjs) { const launched = await host.launchFiles(); if (launched.length) await openHostFiles(launched); }   // desktop: files it was started with
+    // Studio Live from a link (#live=<code> on a host's LAN page, ?live=<ROOM>#<secret> from an invite): join; the takeoff and its PDFs come from the host
+    if (pdfjs && /[#&]live=|[?&]live=/.test(location.hash + location.search)) import('./live.js').then((m) => m.joinFromPage(window.takeoffcraft, host), (err) => status(err.message, 12000));
     // "Recover your work?" when a page that stopped left a takeoff behind (`recovery` tells tests: none | asking | done)
     autosave.orphans().then((list) => {
       window.takeoffcraft.recovery = list.length ? 'asking' : 'none';

@@ -31,6 +31,8 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
     'Export' => [   // i18n-ignore: the group's key (data-tb-key); its name is Lang 'group.*'
         ['act', 'export-xlsx', 'file-earmark-spreadsheet', 'tool.export-xlsx', 'tool.export-xlsx.title'],
         ['act', 'export-csv', 'filetype-csv', 'tool.export-csv', 'tool.export-csv.title'],
+        ['act', 'export-materials', 'list-check', 'tool.export-materials', 'tool.export-materials.title'],
+        ['act', 'export-spots', 'geo-alt', 'tool.export-spots', 'tool.export-spots.title'],
         ['act', 'export-pdf', 'file-earmark-pdf', 'tool.export-pdf', 'tool.export-pdf.title'],
         ['act', 'export-embed', 'file-earmark-zip', 'tool.export-embed', 'tool.export-embed.title'],
         ['act', 'export-bid', 'file-earmark-text', 'tool.export-bid', 'tool.export-bid.title'],

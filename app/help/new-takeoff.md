@@ -24,5 +24,5 @@ What is cleared:
 Your files on disk are not touched. To pick up the old takeoff again, open its `.takeoff.json` and PDFs: see [Save and reopen a takeoff](topic:save-and-reopen).
 
 :::note
-Each new takeoff starts with no items. To bring items over, copy them first: {{ui:Copy item}} under Items (or copy marks, which carry their items), then {{ui:Paste}} in the new takeoff. See [Copy, paste and duplicate marks](topic:copy-paste). A library of reusable items is not built yet; see [What is not built yet](topic:not-built-yet).
+Each new takeoff starts with no items. To bring items over, copy them first: {{ui:Copy item}} under Items (or copy marks, which carry their items), then {{ui:Paste}} in the new takeoff. See [Copy, paste and duplicate marks](topic:copy-paste). For items you use on every job, keep them in your [price library](topic:price-library) and add them from there, or install a [trade pack](topic:trade-packs).
 :::

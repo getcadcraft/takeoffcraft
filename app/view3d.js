@@ -28,6 +28,7 @@ import { invert } from './m3d/vec.js';
 import { mountViewCube, mountAxisIcon } from './m3d/viewcube.js';
 import { cameraCubeOptions, cameraView } from './m3d/viewcube-camera.js';
 import { t, has } from './i18n.js';
+import { action3d, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: the menu style's buttons and wheel
 
 const DRAG = 4;            // px before a press becomes a drag
 
@@ -328,7 +329,10 @@ export class TakeoffView3D {
       }
       this.cubeOpts?.stop?.();
       if (e.button === 1) e.preventDefault();
-      const mode = e.button === 2 || (e.shiftKey && e.button !== 2) ? 'pan' : 'orbit';
+      let mode = e.button === 2 || (e.shiftKey && e.button !== 2) ? 'pan' : 'orbit';
+      const own = e.button === 0 ? null : action3d(e.button);   // IP.3: the style's middle / right button; left stays orbit + pick
+      if (own) mode = own === 'none' ? null : e.shiftKey && own === 'orbit' ? 'pan' : e.shiftKey && own === 'pan' ? 'orbit' : own;
+      if (!mode) return;
       drag = { mode, x: p.x, y: p.y, sx: p.x, sy: p.y, moved: false, button: e.button, shift: e.shiftKey };
       cv.setPointerCapture(e.pointerId);
     });
@@ -351,7 +355,7 @@ export class TakeoffView3D {
       if (!drag.moved && Math.hypot(p.x - drag.sx, p.y - drag.sy) < DRAG) return;
       drag.moved = true;
       drag.x = p.x; drag.y = p.y;
-      if (drag.mode === 'pan') this.cam.pan(dx, dy); else this.cam.orbit(dx, dy);
+      if (drag.mode === 'pan') this.cam.pan(dx, dy); else if (drag.mode === 'zoom') this.cam.zoomAt(Math.exp(dy * 0.01), drag.sx, drag.sy); else this.cam.orbit(dx, dy);
       this.invalidate();
     });
     const end = (e) => {
@@ -390,7 +394,7 @@ export class TakeoffView3D {
       this.raycaster.set(new THREE.Vector3(...r.o), new THREE.Vector3(...r.d));
       const hit = this.raycaster.intersectObjects([...this.objects.map((x) => x.mesh).filter(Boolean), this.ground], false)[0];
       if (hit) pivot = [hit.point.x, hit.point.y, hit.point.z];
-      const k = Math.exp((e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * (e.ctrlKey ? 0.01 : 0.0015));
+      const k = Math.exp((e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * (e.ctrlKey ? 0.01 : 0.0015 * wheelFactor()));   // IP.3: the style's wheel
       this.cam.zoomAt(k, p.x, p.y, pivot);
       this.invalidate();
     }, { passive: false });

@@ -12,7 +12,7 @@ import { writeXlsx, ref } from './xlsx.js';
 import { estimate, baseEstimate, alternates, quantities, sheetBreakdown, measureMark, TYPE_LABELS, areaEstimates, unitOf } from './model.js';
 import { UNITS, formatFtIn, describeScale, roundTo, formatPitch } from './units.js';
 import { t } from './i18n.js';
-import { bidSummary, bidUsed } from './bid.js';
+import { bidSummary, bidUsed, normalBid } from './bid.js';
 
 /** The estimate's column headers (CSV and the Estimate worksheet), in the language the page runs in. */
 export const estimateHead = () => ['item', 'type', 'unit', 'qty', 'waste', 'qtyw', 'matu', 'labu', 'mat', 'lab', 'total', 'notes'].map((k) => t('x.head.' + k));
@@ -44,14 +44,24 @@ const q4 = (v) => (Number.isFinite(v) ? roundTo(v, 4) : null);
 const dollars = (cents) => roundTo(cents / 100, 2);
 const rate = (r4) => r4 / 10000;
 
+/**
+ * Add-on columns after Notes (0.5 AO.6, the add-on API's export.column): [{ name, value(row, item) }] — row = an estimate row
+ * (kind item | condition | component, itemId, qty, total …), item = its item. A throwing value is an empty cell.
+ */
+function colCells(columns, r, state) {
+  if (!columns.length) return [];
+  const it = state.items.find((i) => i.id === r.itemId) || null;
+  return columns.map((c) => { try { const v = c.value(r, it); return v === undefined || v === '' ? null : v; } catch { return null; } });
+}
+
 /** The estimate as CSV text (values, not formulas). */
-export function estimateCsv(state, est = baseEstimate(state)) {
-  const lines = [csvLine(estimateHead())];
+export function estimateCsv(state, est = baseEstimate(state), columns = []) {
+  const lines = [csvLine([...estimateHead(), ...columns.map((c) => c.name)])];
   for (const r of est.rows) {
     const name = r.kind === 'component' ? '  ' + r.name : r.name;
     const type = r.kind === 'component' ? t('x.component') : TYPE_LABELS[r.type];
-    if (r.error) lines.push(csvLine([name, type, r.unit, null, r.waste / 100, null, rate(r.mat), rate(r.lab), null, null, null, rowNote(r)]));
-    else lines.push(csvLine([name, type, r.unit, q4(r.qty), r.waste / 100, q4(r.qtyW), rate(r.mat), rate(r.lab), dollars(r.matExt), dollars(r.labExt), dollars(r.total), rowNote(r)]));
+    if (r.error) lines.push(csvLine([name, type, r.unit, null, r.waste / 100, null, rate(r.mat), rate(r.lab), null, null, null, rowNote(r), ...colCells(columns, r, state)]));
+    else lines.push(csvLine([name, type, r.unit, q4(r.qty), r.waste / 100, q4(r.qtyW), rate(r.mat), rate(r.lab), dollars(r.matExt), dollars(r.labExt), dollars(r.total), rowNote(r), ...colCells(columns, r, state)]));
   }
   const alts = alternates(state);
   lines.push(csvLine([alts.length ? t('export.alt.base') : t('x.total'), null, null, null, null, null, null, null, dollars(est.matTotal), dollars(est.labTotal), dollars(est.total), est.incomplete ? t('x.incomplete') : '']));
@@ -75,15 +85,127 @@ export function sheetsCsv(state, sheetLabel) {
   return lines.join('\r\n') + '\r\n';
 }
 
+// ---------------------------------------------------------------------------
+// Reports a general contractor's estimate needs (0.5 TK.4): material list, quote request, takeoff summary, by CSI division
+
+/**
+ * The material list: every assembly part (component row) and every item or condition row that carries a material rate,
+ * added up by name and unit across the takeoff. → [{ name, unit, qty, qtyW, matExt (cents), csi, items: [item names] }],
+ * sorted by CSI number (none last), then name. Rows whose formula failed are left out (the estimate says it is incomplete).
+ */
+export function materialList(state, est = baseEstimate(state)) {
+  const items = new Map(state.items.map((i) => [i.id, i]));
+  const by = new Map();
+  for (const r of est.rows) {
+    if (r.error || !(r.qty > 0)) continue;
+    if (r.kind !== 'component' && !(r.mat > 0)) continue;
+    const it = items.get(r.itemId);
+    const name = String(r.name).trim();
+    const k = name.toLowerCase() + '\u0000' + r.unit;
+    const g = by.get(k) || { name, unit: r.unit, qty: 0, qtyW: 0, matExt: 0, csi: it?.csi || '', items: [] };
+    g.qty += r.qty; g.qtyW += r.qtyW; g.matExt += r.matExt;
+    if (!g.csi && it?.csi) g.csi = it.csi;
+    if (it && !g.items.includes(it.name)) g.items.push(it.name);
+    by.set(k, g);
+  }
+  return [...by.values()].sort((a, b) => (a.csi || '99').localeCompare(b.csi || '99') || a.name.localeCompare(b.name));
+}
+
+/** Quantities only, no prices: one row per item and second condition → [{ name, csi, type, qty, unit, marks, sheets }]. */
+export function takeoffSummary(state, est = baseEstimate(state)) {
+  const sheetsOf = new Map();
+  for (const m of state.marks) { const k = m.item + '\u0000' + m.kind; if (!sheetsOf.has(k)) sheetsOf.set(k, new Set()); sheetsOf.get(k).add(m.sheet); }
+  const items = new Map(state.items.map((i) => [i.id, i]));
+  return est.rows.filter((r) => r.kind === 'item' || r.kind === 'condition').map((r) => {
+    const it = items.get(r.itemId);
+    const kind = r.kind === 'condition' ? r.cond : it.type;
+    return { name: r.kind === 'condition' ? t('qty.cond.name', { item: r.name, type: TYPE_LABELS[r.cond].toLowerCase() }) : r.name, csi: it?.csi || '', type: TYPE_LABELS[kind], qty: r.qty, unit: r.unit, marks: r.marks || 0, sheets: sheetsOf.get(r.itemId + '\u0000' + kind)?.size || 0 };
+  });
+}
+
+/** The CSI MasterFormat division titles (2018 edition) the estimate groups by; keys `csi.div.NN` in the language file. */
+export const CSI_DIVISIONS = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '21', '22', '23', '25', '26', '27', '28', '31', '32', '33', '34', '35', '40', '41', '42', '43', '44', '45', '46', '48'];
+export const divisionTitle = (d) => (CSI_DIVISIONS.includes(d) ? t('csi.div.' + d) : t('csi.div.other'));
+
+/** The estimate by CSI division: [{ div ('03' | '' for items without a number), title, mat, lab, total (cents), items }]. */
+export function byDivision(state, est = baseEstimate(state)) {
+  const items = new Map(state.items.map((i) => [i.id, i]));
+  const by = new Map();
+  for (const r of est.rows) {
+    if (r.error) continue;
+    const it = items.get(r.itemId);
+    const div = it?.csi ? it.csi.slice(0, 2) : '';
+    const g = by.get(div) || { div, title: div ? divisionTitle(div) : t('csi.div.none'), mat: 0, lab: 0, total: 0, items: new Set() };
+    g.mat += r.matExt; g.lab += r.labExt; g.total += r.total; g.items.add(r.itemId);
+    by.set(div, g);
+  }
+  return [...by.values()].sort((a, b) => (a.div || '99').localeCompare(b.div || '99')).map((g) => ({ ...g, items: g.items.size }));
+}
+
+/**
+ * Spot elevations for CivilCraft (0.5 TK.5): the count marks of one sheet that carry an elevation (`z`), as a point file
+ * CivilCraft opens (points.js: a header naming Point, Northing, Easting, Elevation, Description). Northing and easting are
+ * the sheet's own coordinates in feet (PDF user space × its scale: y up = north on an unrotated sheet), so distances and
+ * volumes between the points are true; place them on site coordinates in CivilCraft. → { ok, csv, n } | { ok: false, why }
+ */
+export function spotElevationsCsv(state, sheet, sheetLabel = (k) => k) {
+  const sc = state.sheets[sheet]?.scale;
+  const marks = state.marks.filter((m) => m.sheet === sheet && m.kind === 'count' && typeof m.z === 'number');
+  if (!marks.length) return { ok: false, why: t('spots.none') };
+  if (!sc) return { ok: false, why: t('spots.noscale', { sheet: sheetLabel(sheet) }) };
+  const k = sc.ftPerUnit;
+  const items = new Map(state.items.map((i) => [i.id, i]));
+  const lines = [csvLine(['Point', 'Northing', 'Easting', 'Elevation', 'Description'])];   // i18n-ignore: CivilCraft reads these column names
+  marks.forEach((m, i) => lines.push(csvLine([i + 1, roundTo(m.pts[0].y * k, 4), roundTo(m.pts[0].x * k, 4), roundTo(m.z, 4), items.get(m.item)?.name || ''])));
+  return { ok: true, csv: lines.join('\r\n') + '\r\n', n: marks.length };
+}
+
+/** The material list as CSV (values). */
+export function materialCsv(state, est = baseEstimate(state)) {
+  const lines = [csvLine(['part', 'csi', 'unit', 'qty', 'qtyw', 'mat', 'items'].map((k) => t('mat.head.' + k)))];
+  const list = materialList(state, est);
+  for (const g of list) lines.push(csvLine([g.name, g.csi, g.unit, q4(g.qty), q4(g.qtyW), dollars(g.matExt), g.items.join('; ')]));
+  lines.push(csvLine([t('x.total'), null, null, null, null, dollars(list.reduce((n, g) => n + g.matExt, 0)), est.incomplete ? t('x.incomplete') : '']));
+  return lines.join('\r\n') + '\r\n';
+}
+
+/**
+ * The markups block under the Estimate sheet's total (TK.4), with live formulas: each markup's base in column I, its percent
+ * in E, its amount = ROUND(I × E, 2) in K; the cost and the bid add up column K. Cached values are bidSummary's to the cent.
+ */
+function markupRows(est, bid, totalRow, firstRow) {
+  const b = normalBid(bid);
+  const sum = bidSummary(est, b);
+  const L = (key) => sum.lines.find((l) => l.key === key);
+  const rows = [];
+  const at = {};                                   // key → 1-based row of its amount (column K)
+  let r = firstRow;
+  const push = (cells, key) => { rows.push(cells); if (key) at[key] = r; r++; };
+  push([{ v: t('bid.h'), s: 'bold' }]);
+  const pctRow = (key, baseF, baseV) => push([L(key).label, null, null, null, { v: L(key).pct / 10000, s: 'pct' }, null, null, null,
+    { v: dollars(baseV), f: baseF, s: 'money' }, null, { v: dollars(L(key).cents), f: 'ROUND(I' + r + '*E' + r + ',2)', s: 'money' }, t('bid.x.base')], key);
+  const I = 'I' + totalRow, J = 'J' + totalRow;
+  if (L('burden')) pctRow('burden', J, est.labTotal);
+  push([{ v: L('cost').label, s: 'bold' }, null, null, null, null, null, null, null, null, null,
+    { v: dollars(L('cost').cents), f: [I, J, ...(at.burden ? ['K' + at.burden] : [])].join('+'), s: 'boldMoney' }, ''], 'cost');
+  const above = ['cost'];
+  const refs = () => above.filter((k) => at[k]).map((k) => 'K' + at[k]).join('+');
+  const cents = () => above.reduce((n, k) => n + (L(k)?.cents || 0), 0);
+  if (L('tax')) { pctRow('tax', I, est.matTotal); above.push('tax'); }
+  for (const k of ['overhead', 'profit', 'bond']) if (L(k)) { pctRow(k, refs(), cents()); above.push(k); }
+  push([{ v: L('total').label, s: 'bold' }, null, null, null, null, null, null, null, null, null, { v: dollars(L('total').cents), f: refs(), s: 'boldMoney' }, ''], 'total');
+  return rows;
+}
+
 /** Workbook sheets for writeXlsx: Estimate (with formulas), By sheet, Marks, Scales. */
-export function estimateSheets(state, sheetLabel, est = baseEstimate(state)) {
-  const rows = [estimateHead().map((h) => ({ v: h, s: 'head' }))];
+export function estimateSheets(state, sheetLabel, est = baseEstimate(state), columns = []) {
+  const rows = [[...estimateHead(), ...columns.map((c) => c.name)].map((h) => ({ v: h, s: 'head' }))];
   for (const r of est.rows) {
     const n = rows.length; // 0-based row index of this row
     const name = r.kind === 'component' ? { v: '    ' + r.name } : { v: r.name, s: 'bold' };
     const type = r.kind === 'component' ? t('x.component') : TYPE_LABELS[r.type];
     if (r.error) {
-      rows.push([name, type, r.unit, null, { v: r.waste / 10000, s: 'pct' }, null, { v: rate(r.mat), s: 'rate' }, { v: rate(r.lab), s: 'rate' }, null, null, null, rowNote(r)]);
+      rows.push([name, type, r.unit, null, { v: r.waste / 10000, s: 'pct' }, null, { v: rate(r.mat), s: 'rate' }, { v: rate(r.lab), s: 'rate' }, null, null, null, rowNote(r), ...colCells(columns, r, state)]);
       continue;
     }
     const D = ref(n, 3), E = ref(n, 4), F = ref(n, 5), G = ref(n, 6), H = ref(n, 7), I = ref(n, 8), J = ref(n, 9);
@@ -98,6 +220,7 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state)) {
       { v: dollars(r.labExt), f: r.work ? 'ROUND(' + F + '/' + r.crew.prod + '*' + r.crew.size + '*' + rate(r.crew.wage) + ',2)' : 'ROUND(' + F + '*' + H + ',2)', s: 'money' },   // T18: a crew's hours × wage
       { v: dollars(r.total), f: I + '+' + J, s: 'money' },
       rowNote(r),
+      ...colCells(columns, r, state),
     ]);
   }
   const last = rows.length; // 1-based number of the last data row
@@ -107,6 +230,10 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state)) {
     { v: dollars(est.labTotal), f: 'SUM(J2:J' + last + ')', s: 'boldMoney' },
     { v: dollars(est.total), f: 'SUM(K2:K' + last + ')', s: 'boldMoney' },
     est.incomplete ? t('x.incomplete') : '']);
+  if (bidUsed(state.bid)) {                                 // TK.4: the markups on the estimate itself, live
+    rows.push([]);
+    rows.push(...markupRows(est, state.bid, rows.length - 1, rows.length + 1));
+  }
 
   const q = quantities(state);
   const bySheet = [['sheet', 'item', 'qty', 'unit', 'marks'].map((k) => ({ v: t('x.head.' + k), s: 'head' }))];
@@ -131,7 +258,7 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state)) {
     const row = [sheetLabel(m.sheet), it.name, TYPE_LABELS[m.kind]];
     const unit = unitOf(it, m.kind);                      // a second condition's mark (T8) in that condition's unit
     if (!r) { markRow(addArea(m, [...row, null, null, t('x.noscale.sheet')])); continue; }
-    if (m.kind === 'count') markRow(addArea(m, [...row, { v: 1, s: 'int' }, 'EA', '']));
+    if (m.kind === 'count') markRow(addArea(m, [...row, { v: 1, s: 'int' }, 'EA', typeof m.z === 'number' ? t('spots.detail', { z: roundTo(m.z, 4) }) : '']));
     else if (m.kind === 'linear') {
       const k = UNITS[unit].system === 'metric' ? 0.3048 : 1;
       const ded = new Set(r.deducts);
@@ -175,6 +302,36 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state)) {
     for (const l of b.lines) rowsB.push([l.sub ? { v: l.label, s: 'bold' } : l.label, l.pct ? { v: l.pct / 10000, s: 'pct' } : null, { v: dollars(l.cents), s: l.sub ? 'boldMoney' : 'money' }]);
     if (b.alts.length) { rowsB.push([]); for (const a of b.alts) rowsB.push([t('bid.pdf.alt', { name: a.name, kind: t('alt.' + a.alt).toLowerCase() }), null, { v: dollars(a.withMarkup), s: 'money' }]); }
     out.push({ name: t('bid.sheet'), rows: rowsB, cols: [40, 10, 16], freeze: 1 });
+  }
+  // TK.4 (after every sheet it had, so they keep their places): takeoff summary (quantities, no prices), material list and the quote request for suppliers, by CSI division
+  const ts = takeoffSummary(state, est);
+  if (ts.length) {
+    const rowsT = [['item', 'csi', 'type', 'qty', 'unit', 'marks', 'sheets'].map((k) => ({ v: t('sum.head.' + k), s: 'head' }))];
+    for (const x of ts) rowsT.push([{ v: x.name, s: 'bold' }, x.csi, x.type, { v: x.qty, s: 'qty' }, x.unit, { v: x.marks, s: 'int' }, { v: x.sheets, s: 'int' }]);
+    out.push({ name: t('sum.sheet'), rows: rowsT, cols: [40, 11, 9, 12, 7, 8, 8], freeze: 1 });
+  }
+  const ml = materialList(state, est);
+  if (ml.length) {
+    const rowsM = [['part', 'csi', 'unit', 'qty', 'qtyw', 'mat', 'items'].map((k) => ({ v: t('mat.head.' + k), s: 'head' }))];
+    for (const g of ml) rowsM.push([{ v: g.name, s: 'bold' }, g.csi, g.unit, { v: g.qty, s: 'qty' }, { v: g.qtyW, s: 'qty' }, { v: dollars(g.matExt), s: 'money' }, g.items.join('; ')]);
+    rowsM.push([]);
+    rowsM.push([{ v: t('x.total'), s: 'bold' }, null, null, null, null, { v: dollars(ml.reduce((n, g) => n + g.matExt, 0)), f: 'SUM(F2:F' + (ml.length + 1) + ')', s: 'boldMoney' }, est.incomplete ? t('x.incomplete') : '']);
+    out.push({ name: t('mat.sheet'), rows: rowsM, cols: [40, 11, 8, 12, 14, 14, 50], freeze: 1 });
+    // the quote request: what to send a supplier — quantities with waste, an empty price column, live extensions
+    const rowsQ = [[{ v: t('quote.title', { name: state.name || 'Takeoff' }), s: 'bold' }], [t('quote.note')], ['part', 'unit', 'qty', 'price', 'ext'].map((k) => ({ v: t('quote.head.' + k), s: 'head' }))];
+    for (const g of ml) { const n = rowsQ.length + 1; rowsQ.push([g.name, g.unit, { v: g.qtyW, s: 'qty' }, { v: 0, s: 'rate' }, { v: 0, f: 'ROUND(C' + n + '*D' + n + ',2)', s: 'money' }]); }
+    rowsQ.push([]);
+    rowsQ.push([{ v: t('x.total'), s: 'bold' }, null, null, null, { v: 0, f: 'SUM(E4:E' + (ml.length + 3) + ')', s: 'boldMoney' }]);
+    out.push({ name: t('quote.sheet'), rows: rowsQ, cols: [44, 8, 14, 14, 16], freeze: 3 });
+  }
+  if (state.items.some((i) => i.csi)) {
+    const bd = byDivision(state, est);
+    const rowsD = [['div', 'title', 'items', 'mat', 'lab', 'total'].map((k) => ({ v: t('div.head.' + k), s: 'head' }))];
+    for (const g of bd) rowsD.push([g.div, { v: g.title, s: 'bold' }, { v: g.items, s: 'int' }, { v: dollars(g.mat), s: 'money' }, { v: dollars(g.lab), s: 'money' }, { v: dollars(g.total), s: 'money' }]);
+    rowsD.push([]);
+    const n = bd.length + 1;
+    rowsD.push([null, { v: t('x.total'), s: 'bold' }, null, { v: dollars(est.matTotal), f: 'SUM(D2:D' + n + ')', s: 'boldMoney' }, { v: dollars(est.labTotal), f: 'SUM(E2:E' + n + ')', s: 'boldMoney' }, { v: dollars(est.total), f: 'SUM(F2:F' + n + ')', s: 'boldMoney' }]);
+    out.push({ name: t('div.sheet'), rows: rowsD, cols: [8, 48, 8, 14, 14, 14], freeze: 1 });
   }
   return out;
 }
@@ -237,5 +394,6 @@ export function areaRows(state) {
 }
 
 export async function estimateXlsx(state, sheetLabel, opts = {}) {
-  return writeXlsx(estimateSheets(state, sheetLabel), { title: state.name, ...opts });
+  const { columns = [], ...rest } = opts;
+  return writeXlsx(estimateSheets(state, sheetLabel, undefined, columns), { title: state.name, ...rest });
 }

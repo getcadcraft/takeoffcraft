@@ -1,0 +1,605 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.roofing-residential",
+ "name": "Roofing, residential",
+ "packVersion": "0.1.0",
+ "trade": "Roofing (steep slope)",
+ "description": "Architectural asphalt shingles with underlayment, drip edge, starter and nails; tear-off; ice barrier at eaves; ridge and hip cap with ridge vent; valleys; step flashing; pipe boots; standing-seam metal panels. Use the pitch on the item so areas are true roof surfaces. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "02 41 19",
+  "07 31 13",
+  "07 41 13",
+  "07 62 00"
+ ],
+ "sources": [
+  {
+   "id": "irc-r905",
+   "title": "International Residential Code, Section R905 Requirements for Roof Coverings (asphalt shingles, underlayment, drip edge)",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "nrca",
+   "title": "The NRCA Roofing Manual (Membrane Roof Systems; Steep-slope Roof Systems)",
+   "publisher": "National Roofing Contractors Association",
+   "url": "https://www.nrca.net/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "irc-r806",
+   "title": "International Residential Code, Section R806 Roof Ventilation",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "pds",
+   "title": "The product data sheet of the coating, adhesive or product you specify (spread rate, coverage, coats)",
+   "publisher": "its manufacturer"
+  },
+  {
+   "id": "ibc-1507",
+   "title": "International Building Code, Chapter 15 Roof Assemblies and Rooftop Structures, Section 1507 Requirements for Roof Coverings",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "shingle-arch",
+   "type": "area",
+   "csi": "07 31 13",
+   "group": "Shingles",
+   "sources": [
+    "irc-r905",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Shingles: 3 bundles per square of 100 SF (most architectural and three-tab shingles; check the wrapper), 10% waste for hips, valleys and starter cuts.",
+    "Synthetic underlayment over the whole deck (IRC R905.1.1), 10% for laps.",
+    "Drip edge at eaves and rakes (IRC R905.2.8.5): the plane’s whole outline P, in 10 ft lengths; lower it where planes meet hips and valleys.",
+    "Starter strip along eaves and rakes: P.",
+    "Nails: about 320 per square (4 per shingle, IRC R905.2.6 minimum; 6 in high-wind areas)."
+   ],
+   "note": "Measure each roof plane on the plan and give the item the roof pitch (Roofs and slopes): A is then the sloped surface; P is the plane’s outline.",
+   "waste": 0,
+   "name": "Asphalt shingles, architectural, synthetic underlayment, drip edge",
+   "unit": "SF",
+   "twin": "shingle-arch-m",
+   "components": [
+    {
+     "name": "Shingles",
+     "unit": "bundle",
+     "formula": "ceil(A/100*3)",
+     "waste": 1000
+    },
+    {
+     "name": "Synthetic underlayment",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Drip edge, 10 ft lengths",
+     "unit": "EA",
+     "formula": "ceil(P/10)",
+     "waste": 500
+    },
+    {
+     "name": "Starter strip",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    },
+    {
+     "name": "Roofing nails 1-1/4 in",
+     "unit": "EA",
+     "formula": "ceil(A/100*320)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "shingle-arch-m",
+   "type": "area",
+   "csi": "07 31 13",
+   "group": "Shingles",
+   "sources": [
+    "irc-r905",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Shingles: 3 bundles per square of 100 SF (most architectural and three-tab shingles; check the wrapper), 10% waste for hips, valleys and starter cuts.",
+    "Synthetic underlayment over the whole deck (IRC R905.1.1), 10% for laps.",
+    "Drip edge at eaves and rakes (IRC R905.2.8.5): the plane’s whole outline P, in 10 ft lengths; lower it where planes meet hips and valleys.",
+    "Starter strip along eaves and rakes: P.",
+    "Nails: about 320 per square (4 per shingle, IRC R905.2.6 minimum; 6 in high-wind areas)."
+   ],
+   "note": "Measure each roof plane on the plan and give the item the roof pitch (Roofs and slopes): A is then the sloped surface; P is the plane’s outline.",
+   "waste": 0,
+   "name": "Asphalt shingles, architectural, synthetic underlayment, drip edge (metric)",
+   "unit": "m²",
+   "twin": "shingle-arch",
+   "components": [
+    {
+     "name": "Shingles",
+     "unit": "bundle",
+     "formula": "ceil(A/9.2903*3)",
+     "waste": 1000
+    },
+    {
+     "name": "Synthetic underlayment",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Drip edge, 3.05 m lengths",
+     "unit": "EA",
+     "formula": "ceil(P/3.048)",
+     "waste": 500
+    },
+    {
+     "name": "Starter strip",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    },
+    {
+     "name": "Roofing nails 1-1/4 in",
+     "unit": "EA",
+     "formula": "ceil(A/9.2903*320)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "tearoff",
+   "type": "area",
+   "csi": "02 41 19",
+   "group": "Tear-off",
+   "sources": [
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "One layer of asphalt shingles weighs about 250 lb per square (a starting figure: heavier shingles and extra layers weigh more).",
+    "Dumpster loads are counted from the debris volume: 1 CY per square of one layer (a starting figure)."
+   ],
+   "note": "Measure each roof plane on the plan and give the item the roof pitch (Roofs and slopes): A is then the sloped surface; P is the plane’s outline.",
+   "waste": 0,
+   "name": "Tear off one layer of asphalt shingles",
+   "unit": "SF",
+   "twin": "tearoff-m",
+   "components": [
+    {
+     "name": "Debris weight",
+     "unit": "lb",
+     "formula": "A/100*250",
+     "waste": 0
+    },
+    {
+     "name": "Debris volume",
+     "unit": "CY",
+     "formula": "A/100",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "tearoff-m",
+   "type": "area",
+   "csi": "02 41 19",
+   "group": "Tear-off",
+   "sources": [
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "One layer of asphalt shingles weighs about 250 lb per square (a starting figure: heavier shingles and extra layers weigh more).",
+    "Dumpster loads are counted from the debris volume: 1 CY per square of one layer (a starting figure)."
+   ],
+   "note": "Measure each roof plane on the plan and give the item the roof pitch (Roofs and slopes): A is then the sloped surface; P is the plane’s outline.",
+   "waste": 0,
+   "name": "Tear off one layer of asphalt shingles (metric)",
+   "unit": "m²",
+   "twin": "tearoff",
+   "components": [
+    {
+     "name": "Debris weight",
+     "unit": "kg",
+     "formula": "A*12.207",
+     "waste": 0
+    },
+    {
+     "name": "Debris volume",
+     "unit": "m³",
+     "formula": "A*0.0823",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "ice-barrier",
+   "type": "linear",
+   "csi": "07 31 13",
+   "group": "Underlayment",
+   "sources": [
+    "irc-r905",
+    "geometry"
+   ],
+   "assume": [
+    "Self-adhered ice barrier from the eave to 24 in inside the exterior wall (IRC R905.1.2): two 3 ft courses = 6 ft up the slope (change 6 for your overhang and pitch).",
+    "10% for laps."
+   ],
+   "note": "Draw along the eaves where the climate calls for an ice barrier.",
+   "waste": 0,
+   "name": "Ice barrier at eaves, two 3 ft courses",
+   "unit": "LF",
+   "twin": "ice-barrier-m",
+   "components": [
+    {
+     "name": "Self-adhered ice barrier",
+     "unit": "SF",
+     "formula": "L*6",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "ice-barrier-m",
+   "type": "linear",
+   "csi": "07 31 13",
+   "group": "Underlayment",
+   "sources": [
+    "irc-r905",
+    "geometry"
+   ],
+   "assume": [
+    "Self-adhered ice barrier from the eave to 24 in inside the exterior wall (IRC R905.1.2): two 3 ft courses = 6 ft up the slope (change 6 for your overhang and pitch).",
+    "10% for laps."
+   ],
+   "note": "Draw along the eaves where the climate calls for an ice barrier.",
+   "waste": 0,
+   "name": "Ice barrier at eaves, two 0.91 m courses",
+   "unit": "m",
+   "twin": "ice-barrier",
+   "components": [
+    {
+     "name": "Self-adhered ice barrier",
+     "unit": "m²",
+     "formula": "L*1.8288",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "ridge-cap",
+   "type": "linear",
+   "csi": "07 31 13",
+   "group": "Hips and ridges",
+   "sources": [
+    "irc-r905",
+    "irc-r806",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Hip and ridge cap shingles: about 33 LF per bundle (check the wrapper).",
+    "Ridge vent on ridges only (where the attic ventilation calls for it, IRC R806): leave it out for hips."
+   ],
+   "note": "Draw ridges and hips; give the item the roof pitch and set the segments as hips where they are (Roofs and slopes).",
+   "waste": 0,
+   "name": "Ridge and hip cap with ridge vent",
+   "unit": "LF",
+   "twin": "ridge-cap-m",
+   "components": [
+    {
+     "name": "Hip and ridge cap shingles",
+     "unit": "bundle",
+     "formula": "ceil(L/33)",
+     "waste": 500
+    },
+    {
+     "name": "Ridge vent",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "ridge-cap-m",
+   "type": "linear",
+   "csi": "07 31 13",
+   "group": "Hips and ridges",
+   "sources": [
+    "irc-r905",
+    "irc-r806",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Hip and ridge cap shingles: about 33 LF per bundle (check the wrapper).",
+    "Ridge vent on ridges only (where the attic ventilation calls for it, IRC R806): leave it out for hips."
+   ],
+   "note": "Draw ridges and hips; give the item the roof pitch and set the segments as hips where they are (Roofs and slopes).",
+   "waste": 0,
+   "name": "Ridge and hip cap with ridge vent (metric)",
+   "unit": "m",
+   "twin": "ridge-cap",
+   "components": [
+    {
+     "name": "Hip and ridge cap shingles",
+     "unit": "bundle",
+     "formula": "ceil(L/10.058)",
+     "waste": 500
+    },
+    {
+     "name": "Ridge vent",
+     "unit": "m",
+     "formula": "L",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "valley",
+   "type": "linear",
+   "csi": "07 62 00",
+   "group": "Flashing",
+   "sources": [
+    "irc-r905",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Open metal valley 24 in wide in 10 ft lengths (IRC R905.2.8.2), over a 36 in self-adhered underlayment strip."
+   ],
+   "note": "Draw each valley; give the item the pitch and set the segments as valleys (hip) so they measure along the slope.",
+   "waste": 0,
+   "name": "Valley: metal valley flashing over self-adhered underlayment",
+   "unit": "LF",
+   "twin": "valley-m",
+   "components": [
+    {
+     "name": "Valley metal 24 in, 10 ft lengths",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N",
+     "waste": 500
+    },
+    {
+     "name": "Self-adhered underlayment 36 in strip",
+     "unit": "SF",
+     "formula": "L*3",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "valley-m",
+   "type": "linear",
+   "csi": "07 62 00",
+   "group": "Flashing",
+   "sources": [
+    "irc-r905",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Open metal valley 24 in wide in 10 ft lengths (IRC R905.2.8.2), over a 36 in self-adhered underlayment strip."
+   ],
+   "note": "Draw each valley; give the item the pitch and set the segments as valleys (hip) so they measure along the slope.",
+   "waste": 0,
+   "name": "Valley: metal valley flashing over self-adhered underlayment (metric)",
+   "unit": "m",
+   "twin": "valley",
+   "components": [
+    {
+     "name": "Valley metal 610 mm, 3.05 m lengths",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)+N",
+     "waste": 500
+    },
+    {
+     "name": "Self-adhered underlayment 36 in strip",
+     "unit": "m²",
+     "formula": "L*0.9144",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "step-flashing",
+   "type": "linear",
+   "csi": "07 62 00",
+   "group": "Flashing",
+   "sources": [
+    "irc-r905",
+    "geometry"
+   ],
+   "assume": [
+    "One step flashing per shingle course: 5 in exposure = 2.4 pieces per LF of wall (IRC R905.2.8.3)."
+   ],
+   "note": "Draw where a roof plane meets a wall, along the slope.",
+   "waste": 0,
+   "name": "Step flashing at sidewalls, 5 in exposure",
+   "unit": "LF",
+   "twin": "step-flashing-m",
+   "components": [
+    {
+     "name": "Step flashing pieces",
+     "unit": "EA",
+     "formula": "ceil(L*12/5)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "step-flashing-m",
+   "type": "linear",
+   "csi": "07 62 00",
+   "group": "Flashing",
+   "sources": [
+    "irc-r905",
+    "geometry"
+   ],
+   "assume": [
+    "One step flashing per shingle course: 5 in exposure = 2.4 pieces per LF of wall (IRC R905.2.8.3)."
+   ],
+   "note": "Draw where a roof plane meets a wall, along the slope.",
+   "waste": 0,
+   "name": "Step flashing at sidewalls, 127 mm exposure",
+   "unit": "m",
+   "twin": "step-flashing",
+   "components": [
+    {
+     "name": "Step flashing pieces",
+     "unit": "EA",
+     "formula": "ceil(L/0.127)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pipe-boot",
+   "type": "count",
+   "csi": "07 62 00",
+   "group": "Flashing",
+   "sources": [
+    "nrca"
+   ],
+   "assume": [
+    "One boot per pipe through the roof."
+   ],
+   "note": "Count each plumbing vent through the roof.",
+   "waste": 0,
+   "name": "Pipe boot flashing",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Pipe boot",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Sealant tube",
+     "unit": "EA",
+     "formula": "ceil(N/4)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "metal-panel",
+   "type": "area",
+   "csi": "07 41 13",
+   "group": "Metal roofing",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Standing-seam panels 16 in wide, 10% waste.",
+    "Clips at 24 in along each seam: 16 / 12 x 2 = 2.67 SF per clip, so 0.375 clips per SF (spacing is set by the panel maker and the wind design).",
+    "High-temperature underlayment over the whole deck, 10% for laps.",
+    "Eave and rake trim on the outline P."
+   ],
+   "note": "Measure each roof plane on the plan and give the item the roof pitch (Roofs and slopes): A is then the sloped surface; P is the plane’s outline.",
+   "waste": 0,
+   "name": "Standing-seam metal roof panels 16 in, clips, underlayment",
+   "unit": "SF",
+   "twin": "metal-panel-m",
+   "components": [
+    {
+     "name": "Metal roof panels",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Panel clips",
+     "unit": "EA",
+     "formula": "ceil(A*0.375)",
+     "waste": 500
+    },
+    {
+     "name": "High-temperature underlayment",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Eave and rake trim",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "metal-panel-m",
+   "type": "area",
+   "csi": "07 41 13",
+   "group": "Metal roofing",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Standing-seam panels 16 in wide, 10% waste.",
+    "Clips at 24 in along each seam: 16 / 12 x 2 = 2.67 SF per clip, so 0.375 clips per SF (spacing is set by the panel maker and the wind design).",
+    "High-temperature underlayment over the whole deck, 10% for laps.",
+    "Eave and rake trim on the outline P."
+   ],
+   "note": "Measure each roof plane on the plan and give the item the roof pitch (Roofs and slopes): A is then the sloped surface; P is the plane’s outline.",
+   "waste": 0,
+   "name": "Standing-seam metal roof panels 406 mm, clips, underlayment",
+   "unit": "m²",
+   "twin": "metal-panel",
+   "components": [
+    {
+     "name": "Metal roof panels",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Panel clips",
+     "unit": "EA",
+     "formula": "ceil(A*4.0365)",
+     "waste": 500
+    },
+    {
+     "name": "High-temperature underlayment",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Eave and rake trim",
+     "unit": "m",
+     "formula": "P",
+     "waste": 1000
+    }
+   ]
+  }
+ ]
+}

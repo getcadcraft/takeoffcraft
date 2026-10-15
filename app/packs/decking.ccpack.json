@@ -1,0 +1,689 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.decking",
+ "name": "Decking",
+ "packVersion": "0.1.0",
+ "trade": "Decking",
+ "description": "Wood or composite deck surface with joists, screws, hangers and rim; ledger with fasteners and flashing; beams; footings with posts; guards with balusters; stairs by riser. Spans and sizes come from the IRC deck section or DCA 6. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "03 30 00",
+  "06 10 00"
+ ],
+ "sources": [
+  {
+   "id": "irc-r507",
+   "title": "International Residential Code, Section R507 Exterior Decks",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "awc-dca6",
+   "title": "DCA 6, Prescriptive Residential Wood Deck Construction Guide",
+   "publisher": "American Wood Council",
+   "url": "https://awc.org/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "irc-r312",
+   "title": "International Residential Code, Section R312 Guards and Window Fall Protection",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "deck-wood-16",
+   "type": "area",
+   "csi": "06 10 00",
+   "group": "Deck surface",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Boards 5-1/2 in wide with 1/8 in gaps: 2.133 LF per SF, 10% waste.",
+    "Joists at 16 in o.c. (span them from IRC Table R507.6): 0.75 LF per SF, 10% waste.",
+    "Two screws per board at each joist: 3.2 per SF (hidden fasteners per their maker).",
+    "Joist hangers: two per joist, counted from the joist length at 12 ft average: hangers = joist LF / 12 x 2.",
+    "Rim joists on the outline P (doubled where the drawings say)."
+   ],
+   "note": "Measure the deck area on the plan.",
+   "waste": 0,
+   "name": "Deck surface: 5/4 x 6 wood decking, joists 2x8 at 16 in o.c.",
+   "unit": "SF",
+   "twin": "deck-wood-16-m",
+   "components": [
+    {
+     "name": "Deck boards",
+     "unit": "LF",
+     "formula": "A*2.1333",
+     "waste": 1000
+    },
+    {
+     "name": "Joists 2x8",
+     "unit": "LF",
+     "formula": "A*0.75",
+     "waste": 1000
+    },
+    {
+     "name": "Deck screws",
+     "unit": "EA",
+     "formula": "ceil(A*3.2)",
+     "waste": 500
+    },
+    {
+     "name": "Joist hangers",
+     "unit": "EA",
+     "formula": "ceil(A*0.75/12*2)",
+     "waste": 500
+    },
+    {
+     "name": "Rim joist 2x8",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "deck-wood-16-m",
+   "type": "area",
+   "csi": "06 10 00",
+   "group": "Deck surface",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Boards 5-1/2 in wide with 1/8 in gaps: 2.133 LF per SF, 10% waste.",
+    "Joists at 16 in o.c. (span them from IRC Table R507.6): 0.75 LF per SF, 10% waste.",
+    "Two screws per board at each joist: 3.2 per SF (hidden fasteners per their maker).",
+    "Joist hangers: two per joist, counted from the joist length at 12 ft average: hangers = joist LF / 12 x 2.",
+    "Rim joists on the outline P (doubled where the drawings say)."
+   ],
+   "note": "Measure the deck area on the plan.",
+   "waste": 0,
+   "name": "Deck surface: 25 x 140 mm wood decking, joists 38 x 184 mm at 406 mm o.c.",
+   "unit": "m²",
+   "twin": "deck-wood-16",
+   "components": [
+    {
+     "name": "Deck boards",
+     "unit": "m",
+     "formula": "A*7.0",
+     "waste": 1000
+    },
+    {
+     "name": "Joists 38 x 184 mm",
+     "unit": "m",
+     "formula": "A*2.4606",
+     "waste": 1000
+    },
+    {
+     "name": "Deck screws",
+     "unit": "EA",
+     "formula": "ceil(A*34.4445)",
+     "waste": 500
+    },
+    {
+     "name": "Joist hangers",
+     "unit": "EA",
+     "formula": "ceil(A*2.4606/3.6576*2)",
+     "waste": 500
+    },
+    {
+     "name": "Rim joist 38 x 184 mm",
+     "unit": "m",
+     "formula": "P",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "deck-composite-12",
+   "type": "area",
+   "csi": "06 10 00",
+   "group": "Deck surface",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Boards 5-1/2 in wide with 1/8 in gaps: 2.133 LF per SF, 10% waste.",
+    "Joists at 12 in o.c. (span them from IRC Table R507.6): 1 LF per SF, 10% waste.",
+    "Two screws per board at each joist: 4.2667 per SF (hidden fasteners per their maker).",
+    "Joist hangers: two per joist, counted from the joist length at 12 ft average: hangers = joist LF / 12 x 2.",
+    "Rim joists on the outline P (doubled where the drawings say)."
+   ],
+   "note": "Measure the deck area on the plan.",
+   "waste": 0,
+   "name": "Deck surface: composite decking, joists 2x8 at 12 in o.c.",
+   "unit": "SF",
+   "twin": "deck-composite-12-m",
+   "components": [
+    {
+     "name": "Deck boards",
+     "unit": "LF",
+     "formula": "A*2.1333",
+     "waste": 1000
+    },
+    {
+     "name": "Joists 2x8",
+     "unit": "LF",
+     "formula": "A*1",
+     "waste": 1000
+    },
+    {
+     "name": "Deck screws",
+     "unit": "EA",
+     "formula": "ceil(A*4.2667)",
+     "waste": 500
+    },
+    {
+     "name": "Joist hangers",
+     "unit": "EA",
+     "formula": "ceil(A*1/12*2)",
+     "waste": 500
+    },
+    {
+     "name": "Rim joist 2x8",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "deck-composite-12-m",
+   "type": "area",
+   "csi": "06 10 00",
+   "group": "Deck surface",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Boards 5-1/2 in wide with 1/8 in gaps: 2.133 LF per SF, 10% waste.",
+    "Joists at 12 in o.c. (span them from IRC Table R507.6): 1 LF per SF, 10% waste.",
+    "Two screws per board at each joist: 4.2667 per SF (hidden fasteners per their maker).",
+    "Joist hangers: two per joist, counted from the joist length at 12 ft average: hangers = joist LF / 12 x 2.",
+    "Rim joists on the outline P (doubled where the drawings say)."
+   ],
+   "note": "Measure the deck area on the plan.",
+   "waste": 0,
+   "name": "Deck surface: composite decking, joists 38 x 184 mm at 305 mm o.c.",
+   "unit": "m²",
+   "twin": "deck-composite-12",
+   "components": [
+    {
+     "name": "Deck boards",
+     "unit": "m",
+     "formula": "A*7.0",
+     "waste": 1000
+    },
+    {
+     "name": "Joists 38 x 184 mm",
+     "unit": "m",
+     "formula": "A*3.2808",
+     "waste": 1000
+    },
+    {
+     "name": "Deck screws",
+     "unit": "EA",
+     "formula": "ceil(A*45.9264)",
+     "waste": 500
+    },
+    {
+     "name": "Joist hangers",
+     "unit": "EA",
+     "formula": "ceil(A*3.2808/3.6576*2)",
+     "waste": 500
+    },
+    {
+     "name": "Rim joist 38 x 184 mm",
+     "unit": "m",
+     "formula": "P",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "ledger",
+   "type": "linear",
+   "csi": "06 10 00",
+   "group": "Framing",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Ledger 2x8 treated; two 1/2 in lag screws or bolts every 16 in staggered = 1.5 per LF (IRC Table R507.9.1.3(1) sets the spacing by joist span: check yours).",
+    "Flashing over the ledger, 10% for laps."
+   ],
+   "note": "Draw the ledger along the house.",
+   "waste": 0,
+   "name": "Ledger board with fasteners and flashing",
+   "unit": "LF",
+   "twin": "ledger-m",
+   "components": [
+    {
+     "name": "Ledger 2x8, treated",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Ledger lag screws or bolts 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L*1.5)",
+     "waste": 0
+    },
+    {
+     "name": "Ledger flashing",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "ledger-m",
+   "type": "linear",
+   "csi": "06 10 00",
+   "group": "Framing",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Ledger 2x8 treated; two 1/2 in lag screws or bolts every 16 in staggered = 1.5 per LF (IRC Table R507.9.1.3(1) sets the spacing by joist span: check yours).",
+    "Flashing over the ledger, 10% for laps."
+   ],
+   "note": "Draw the ledger along the house.",
+   "waste": 0,
+   "name": "Ledger board with fasteners and flashing (metric)",
+   "unit": "m",
+   "twin": "ledger",
+   "components": [
+    {
+     "name": "Ledger 38 x 184 mm, treated",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Ledger lag screws or bolts 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L*4.9213)",
+     "waste": 0
+    },
+    {
+     "name": "Ledger flashing",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "beam",
+   "type": "linear",
+   "csi": "06 10 00",
+   "group": "Framing",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Beam of two 2x10 plies (size it from IRC Table R507.5); posts are counted with the footings."
+   ],
+   "note": "Draw each beam.",
+   "waste": 0,
+   "name": "Beam, two 2x10 plies",
+   "unit": "LF",
+   "twin": "beam-m",
+   "components": [
+    {
+     "name": "2x10 treated",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Carriage bolts / structural screws",
+     "unit": "EA",
+     "formula": "ceil(L/1.333)*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "beam-m",
+   "type": "linear",
+   "csi": "06 10 00",
+   "group": "Framing",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Beam of two 2x10 plies (size it from IRC Table R507.5); posts are counted with the footings."
+   ],
+   "note": "Draw each beam.",
+   "waste": 0,
+   "name": "Beam, two 38 x 235 mm plies",
+   "unit": "m",
+   "twin": "beam",
+   "components": [
+    {
+     "name": "38 x 235 mm treated",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Carriage bolts / structural screws",
+     "unit": "EA",
+     "formula": "ceil(L/0.4064)*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "footing-post",
+   "type": "count",
+   "csi": "03 30 00",
+   "group": "Footings and posts",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Footing 12 in diameter x 3 ft deep in a tube form (depth below the frost line: IRC R507.3; size from Table R507.3.1): 3.1416 x 0.5² x 3 / 27 = 0.0873 CY.",
+    "Post 6x6 treated, one per footing, with a post base and a post cap."
+   ],
+   "note": "Count each footing.",
+   "waste": 0,
+   "name": "Deck footing 12 in x 3 ft with 6x6 post",
+   "unit": "EA",
+   "twin": "footing-post-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "N*3.1416*0.25*3/27",
+     "waste": 1000
+    },
+    {
+     "name": "Tube form 12 in",
+     "unit": "LF",
+     "formula": "N*3",
+     "waste": 500
+    },
+    {
+     "name": "Post 6x6 treated",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Post base",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Post cap",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "footing-post-m",
+   "type": "count",
+   "csi": "03 30 00",
+   "group": "Footings and posts",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Footing 12 in diameter x 3 ft deep in a tube form (depth below the frost line: IRC R507.3; size from Table R507.3.1): 3.1416 x 0.5² x 3 / 27 = 0.0873 CY.",
+    "Post 6x6 treated, one per footing, with a post base and a post cap."
+   ],
+   "note": "Count each footing.",
+   "waste": 0,
+   "name": "Deck footing 305 mm x 0.91 m with 140 x 140 mm post",
+   "unit": "EA",
+   "twin": "footing-post",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "N*3.1416*0.1524*0.1524*0.9144",
+     "waste": 1000
+    },
+    {
+     "name": "Tube form 12 in",
+     "unit": "m",
+     "formula": "N*0.9144",
+     "waste": 500
+    },
+    {
+     "name": "Post 6x6 treated",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Post base",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Post cap",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "guard",
+   "type": "linear",
+   "csi": "06 10 00",
+   "group": "Guards and stairs",
+   "sources": [
+    "irc-r312",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Guard 36 in high (IRC R312.1.2), balusters 1-1/2 in with less than 4 in between them (R312.1.3): 5-1/4 in o.c.",
+    "Posts at 6 ft at most plus one per run (a starting figure: the guard system’s maker and DCA 6 set it).",
+    "Top and bottom rails the length of the run."
+   ],
+   "note": "Draw each guard run.",
+   "waste": 0,
+   "name": "Guard: wood posts, rails and balusters, 36 in",
+   "unit": "LF",
+   "twin": "guard-m",
+   "components": [
+    {
+     "name": "Top rail",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Bottom rail",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Balusters",
+     "unit": "EA",
+     "formula": "ceil(L*12/5.25)",
+     "waste": 500
+    },
+    {
+     "name": "Guard posts 4x4",
+     "unit": "EA",
+     "formula": "ceil(L/6)+N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "guard-m",
+   "type": "linear",
+   "csi": "06 10 00",
+   "group": "Guards and stairs",
+   "sources": [
+    "irc-r312",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Guard 36 in high (IRC R312.1.2), balusters 1-1/2 in with less than 4 in between them (R312.1.3): 5-1/4 in o.c.",
+    "Posts at 6 ft at most plus one per run (a starting figure: the guard system’s maker and DCA 6 set it).",
+    "Top and bottom rails the length of the run."
+   ],
+   "note": "Draw each guard run.",
+   "waste": 0,
+   "name": "Guard: wood posts, rails and balusters, 914 mm",
+   "unit": "m",
+   "twin": "guard",
+   "components": [
+    {
+     "name": "Top rail",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Bottom rail",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Balusters",
+     "unit": "EA",
+     "formula": "ceil(L/0.13335)",
+     "waste": 500
+    },
+    {
+     "name": "Guard posts 4x4",
+     "unit": "EA",
+     "formula": "ceil(L/1.8288)+N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "stair",
+   "type": "count",
+   "csi": "06 10 00",
+   "group": "Guards and stairs",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Per riser of a stair 3 ft wide: three stringers share the risers (a stringer is about 1.3 LF per riser), two treads of 5/4 x 6 x 3 ft, one riser board.",
+    "Graspable handrail and guards are their own runs (IRC R311.7.8)."
+   ],
+   "note": "Count the risers of each stair.",
+   "waste": 0,
+   "name": "Deck stair, 3 ft wide, per riser",
+   "unit": "EA",
+   "twin": "stair-m",
+   "components": [
+    {
+     "name": "Stringer 2x12",
+     "unit": "LF",
+     "formula": "N*1.3*3",
+     "waste": 1000
+    },
+    {
+     "name": "Tread boards",
+     "unit": "LF",
+     "formula": "N*2*3",
+     "waste": 1000
+    },
+    {
+     "name": "Riser board",
+     "unit": "LF",
+     "formula": "N*3",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "stair-m",
+   "type": "count",
+   "csi": "06 10 00",
+   "group": "Guards and stairs",
+   "sources": [
+    "irc-r507",
+    "awc-dca6",
+    "geometry"
+   ],
+   "assume": [
+    "Per riser of a stair 3 ft wide: three stringers share the risers (a stringer is about 1.3 LF per riser), two treads of 5/4 x 6 x 3 ft, one riser board.",
+    "Graspable handrail and guards are their own runs (IRC R311.7.8)."
+   ],
+   "note": "Count the risers of each stair.",
+   "waste": 0,
+   "name": "Deck stair, 0.91 m wide, per riser",
+   "unit": "EA",
+   "twin": "stair",
+   "components": [
+    {
+     "name": "Stringer 38 x 286 mm",
+     "unit": "m",
+     "formula": "N*0.39624*3",
+     "waste": 1000
+    },
+    {
+     "name": "Tread boards",
+     "unit": "m",
+     "formula": "N*2*0.9144",
+     "waste": 1000
+    },
+    {
+     "name": "Riser board",
+     "unit": "m",
+     "formula": "N*0.9144",
+     "waste": 1000
+    }
+   ]
+  }
+ ]
+}

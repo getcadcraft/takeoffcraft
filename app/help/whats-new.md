@@ -1,82 +1,76 @@
 ---
-title: What's new in 0.4
-summary: Snap to the drawing, deducts, typed lengths, bid areas and alternates, revised-sheet compare, roofs and slopes, room fill, a price library, crews, a bid summary with a proposal PDF, markups, more 3D, touch, and a recovery copy of your work.
+title: What's new in 0.5
+summary: Trade packs of ready-made assemblies for 16 trades, new workbook reports and labor burden, spot elevations for CivilCraft, measuring one job together live, menu styles, and a layout for phones.
 section: start
 order: 5
-keywords: whats new, what's new, release notes, changelog, changes, 0.4, version, new features, snap, deduct, bid areas, alternates, compare, revision, back-out, slope, pitch, roof, room fill, price library, crew, proposal, markups, typical, touch, recover, language, spanish
+keywords: whats new, what's new, release notes, changelog, changes, 0.5, version, new features, trade packs, packs, assemblies, csi, masterformat, material list, quote request, by division, labor burden, spot elevations, earthwork, live, work together, menu style, takeoff desk, conditions, keys, mouse, phone, fold phone, tablet, studio, settings
 ---
 
-This is what changed in TakeoffCraft 0.4, compared with 0.3, the version Try runs now. Most of it is new ways to measure and to price. Your 0.3 takeoffs open as they are.
+This is what changed in TakeoffCraft 0.5, compared with 0.4. Your 0.4 takeoffs open as they are.
 
 ## New
 
-### Measuring
+### Trade packs
 
-- **Snap to the drawing.** While you measure or calibrate, a point near a line of the PDF lands on its end, its midpoint, a crossing, or on the line. It is on at the start. {{key:F3}} or {{ui:Snap}} in the status bar turns it off. See [Snap to the drawing's lines](topic:snap-to-the-drawing).
-- **Type lengths and coordinates.** While you draw, type a digit, `@` or `#` and the {{ui:Type}} box opens: `12'6"` goes toward the pointer, `12'6"<45` at an angle, `@6',-4'` from the last point. {{key:Enter}} places the point. See [Measure linear runs](topic:measure-linear).
-- **Deduct part of a run.** Draw a wall straight through a door and press {{key:E}} ({{ui:Deduct}}) for the opening. That part is drawn dashed and is not counted. See [Measure linear runs](topic:measure-linear).
-- **Room fill.** Choose {{ui:Room}} ({{key:B}}) and click inside a room: it outlines the floor, with door openings closed. Settings sets how wide an opening it closes. See [Measure areas with cut-outs](topic:measure-areas).
-- **Back-outs.** Draw a column or shaft once and it comes off every overlapping area of the items you pick, such as floor, ceiling and slab. See [Measure areas with cut-outs](topic:measure-areas).
-- **Roofs and slopes.** Give an item or an area a {{ui:Pitch}} (6:12 or 26.57°) to measure the roof surface from the plan. Rakes, hips and valleys measure along their slope. See [Roofs and slopes](topic:roofs-and-slopes).
-- **Scales from the sheets' text.** {{ui:From the sheets’ text…}} in the scale list finds the scale printed on each sheet and sets them all in one step. See [Set the scale](topic:set-the-scale).
-- **Bend an arc.** A selected arc has a round handle in its middle: drag it to bend the arc. An arc's end now snaps to 45° like a straight segment.
-- **Auto count at any angle.** {{ui:Any angle (slower)}} finds symbols turned to any angle. With {{ui:Search all open sheets}}, it also finds them on sheets drawn at another scale. See [Auto count a symbol](topic:auto-count).
+- **Ready-made assemblies for 16 trades.** {{ui:Library}} at the top of the {{ui:Items}} panel, then {{ui:Trade packs…}}: electrical, drywall and framing, painting, concrete, flooring, masonry, residential and commercial roofing, siding, finish carpentry, plumbing, HVAC, insulation, landscape, decking, and a general-contractor pack by CSI division. In all, 432 assemblies. Choose imperial, metric or both. See [Trade packs](topic:trade-packs).
+- **No prices.** Pack items say "set your rate": the rates are yours, from the library, the item editor or your own CSV with {{ui:Update prices}}. See [Price library](topic:price-library).
+- **Starters.** Every pack says "Starter: not reviewed by an estimator yet". {{ui:Sources and details}} shows what each assembly was written from, and each assumption is marked as a starting figure. Check them against your job before you price with them.
+- **Your library stays yours.** Installing keeps your own item of the same name, installing a pack again replaces only its own items, and {{ui:Remove}} takes a pack's items out in one step. Items already in a takeoff stay.
+- **Share your own library as a pack.** {{ui:Export as pack…}} saves a `.ccpack.json` file, without your rates unless you tick {{ui:Include my rates as sample rates}}. {{ui:Open a pack file…}} reads one.
 
-### Organizing and pricing
+### Reports and pricing
 
-- **Bid areas.** Tag marks by building, floor or phase with the {{ui:Bid area}} picker. The {{ui:By area}} tab and the workbook give quantities and costs per area, with subtotals. See [Bid areas](topic:bid-areas).
-- **Alternates.** A bid area can be an add or a deduct alternate. Totals show the base bid and each alternate's change. See [Bid areas](topic:bid-areas).
-- **Typical groups.** Take off a unit once and count it any number of times, for example ×24. Change the number at any time. See [Typical groups](topic:typical-groups).
-- **One item, several kinds of marks.** {{ui:Also measure}} lets a room item take its floor, base and doors, each priced on its own row. See [Create takeoff items](topic:create-items).
-- **Price library.** {{ui:Library}} in the Items panel imports items, rates and assemblies from a CSV or a past estimate. Add them to any takeoff, or {{ui:Update prices}} from it. See [Price library](topic:price-library).
-- **Labor by crew.** Production per hour, crew size and wage give the hours, crew-days and labor cost. See [Create takeoff items](topic:create-items).
-- **Bid summary and proposal.** {{ui:Export}} › {{ui:Bid summary & proposal…}} adds sales tax, overhead, profit and bond, and makes a proposal PDF with inclusions and exclusions. See [Bid summary and proposal](topic:bid-summary).
+- **CSI numbers.** The item editor has a {{ui:CSI number}}, such as `09 21 16`. Items from trade packs have one already. See [Create takeoff items](topic:create-items).
+- **More in the workbook.** The XLSX adds a takeoff summary, a material list (parts added up by name and unit across items), a quote request for suppliers with an empty price column, and costs by CSI division. The Estimate sheet ends with the markups as live formulas. See [Export the estimate](topic:export-estimate).
+- **Material list on its own.** {{ui:Export}} › {{ui:Material list}} saves it as a CSV, for ordering.
+- **Labor burden.** The bid summary adds labor burden as a percentage of labor, before tax, overhead, profit and bond. It shows in the proposal PDF, the CSV and the workbook. See [Bid summary and proposal](topic:bid-summary).
 
-### Revisions, markups and files
+### Earthwork
 
-- **Compare a revised sheet.** {{ui:Compare}} on the sheet bar lays the old drawing in red over the new one. Line them up by two points, find the changes, and move the takeoff across. Marks that need a look are flagged. See [Compare a revised sheet and move the takeoff](topic:compare-revisions).
-- **Notes, clouds and highlights.** The {{ui:Markup}} menu on the sheet bar draws them, each with a status. The {{ui:Markups}} panel lists them, and the marked PDF shows them. They are never counted. See [Notes, clouds and highlights](topic:markups).
-- **A PDF with the takeoff inside.** {{ui:Export}} › {{ui:PDF with the takeoff inside}} saves the PDF with the takeoff attached. Open that PDF alone and the takeoff comes back. See [Save and reopen a takeoff](topic:save-and-reopen).
-- **Recover your work.** TakeoffCraft keeps a recovery copy of the takeoff in the browser, with its PDFs up to 64 MB. After a crash or a closed tab it asks "Recover your work?". See [Save and reopen a takeoff](topic:save-and-reopen) and [Recover unsaved work](common:recover).
-- **A PDF from another app.** A PDF handed over from MarkupCraft opens here in a new tab. The sheet bar's {{ui:MarkupCraft}} button hands your PDF the other way when the MarkupCraft beside it can take one. See [Start a takeoff and open a plan set](topic:open-plan-set).
-- **Recent files.** The start screen lists PDFs and takeoffs you opened before, in browsers that can reopen them. See [Where your files go](common:your-files).
+- **Spot elevations for CivilCraft.** A count mark can carry an {{ui:Elevation}} (`102.5`, `102'-6"` or `31.24 m`). {{ui:Export}} › {{ui:Spot elevations}} writes the open sheet's points as a CSV that CivilCraft reads. Northing and easting are sheet coordinates at the sheet's scale: distances are true, but they are not survey coordinates. See [Earthwork and spot elevations](topic:earthwork).
+- The general-contractor pack has bulk excavation and utility trench items for simple digs.
 
-### 3D
+### From other apps
 
-- **Walls with a thickness, a base and door heads.** {{ui:In 3D}} in the item editor gives walls a thickness, a base height and a head over deducted openings. Quantities do not change. See [Check the takeoff in 3D](topic:check-in-3d).
-- **Stacked floors.** {{ui:Levels…}} and {{ui:Stack}} on the 3D bar show the sheets at their floor levels.
-- **Save the 3D view.** {{ui:PNG}} saves an image ({{key:Shift}} + click: twice the size). {{ui:GLB}} saves a 3D model for other programs.
+- CadCraft's HVAC and Piping add-ons can send a duct or pipe schedule to TakeoffCraft as a PDF with the takeoff inside.
+- BimCraft's {{ui:Takeoff}} button sends a house model to TakeoffCraft with every quantity marked on a scaled plan.
 
-### Everywhere
+### Add-ons
 
-- **Touch screens.** Pinch and pan with two fingers. Long-press or double-tap to finish a run. A {{ui:Finish}} / {{ui:Back}} / {{ui:Cancel}} bar shows while you draw by touch, and targets are bigger for fingers. See [Troubleshooting](topic:troubleshooting).
-- **Language files.** Every word on screen and in the exports comes from a language file. Settings › Language offers "Español (México)". It is a machine-made draft that has not been reviewed yet. Help topics stay in English.
-- **Find a tool.** Press {{key:Mod+K}}, or choose {{ui:Find}}, and type a few letters to run a tool, change a setting or open a help topic. See [Find a tool or setting](common:find-tools).
-- **Add-ons list.** Settings has an Add-ons list. TakeoffCraft ships with no add-ons yet.
+- Add-ons for TakeoffCraft can offer item types with their assembly, add columns to the estimate CSV and XLSX, read the takeoff and add a section to the right panel. A takeoff saved without the add-on keeps its data. No add-on ships with TakeoffCraft yet.
 
-## Improved
+## Changed
 
-- {{ui:Export}} is one menu in the toolbar: {{ui:XLSX}}, {{ui:CSV}}, {{ui:Marked PDF}} and the new exports. The toolbar stays on one row.
-- The workbook gains sheets when you use the new features: By bid area, Alternates, Bid summary and Markups.
-- Dialogs with a lot in them scroll inside, so the title and buttons stay in view.
-- The panel shows a new mark as soon as you draw it.
-- Panels can go into up to four windows, move between them, and resize by touch when floating. See [Arrange the panels and use a second monitor](common:arrange-panels).
-- The view cube's words come from the language file too.
+- **3D check view.** Small models are framed closely when the view fits them.
 
 ## Fixed
 
-- With a check box or option ticked, {{key:Mod+Z}} and {{key:Delete}} work again.
-- Dragging the corner that starts an arc no longer makes the arc straight.
+- On a phone, the quantities table ran off the right edge and the status line was cut off.
+- A PDF could not open in a browser joining a live session on your network. It opens now.
+
+## In every app
+
+- **CadCraft Studio is the desktop app.** From 0.5 the desktop download is CadCraft Studio: all eight apps in one install. The separate installer for each app stops. TakeoffCraft still runs in the browser, and as a browser edition you can download.
+- **Installers are not signed yet.** Code signing comes with 0.6. On Windows, if SmartScreen stops the installer, choose {{ui:More info}}, then {{ui:Run anyway}}. The macOS disk image (Apple silicon and Intel, macOS 13 or later) is not signed or notarized: the first time, right-click the app and choose {{ui:Open}}. iPad, Android and iPhone come with 0.6.
+- **Work together live.** In CadCraft Studio, {{ui:Live}} shares the file you have open: teammates on the same network join with a short code and edit with you, each with their own undo. In TakeoffCraft the host's PDFs come to everyone who joins, and every window works out the same quantities and totals from the marks. Sessions on your own network are free, for everyone. Invite links over the internet aren't open yet. See [Work together live](common:work-together-live) and [Take off one job together, live](topic:work-live).
+- **Menus, keys and mouse.** In {{ui:Settings}} › {{ui:TakeoffCraft}} › {{ui:Menus, keys and mouse}}, pick a menu style ({{ui:TakeoffCraft}}, or {{ui:Takeoff desk}}: a menu bar over one row of takeoff tools, where items are called conditions), give any command your own key, move commands between menus, set the wheel and the mouse buttons, and export or import a style as a `.ccinput.json` file. {{ui:Use this style in every app}} opens every app in its matching style. See [Menus, keys and mouse](topic:menus-keys-and-mouse).
+- **A wider Settings dialog,** in two columns, so more fits without scrolling. See [TakeoffCraft settings](topic:settings).
+- **Floating and bottom panels fit the window.** A floating panel stays above the status bar and shrinks with a small window; on a short window a panel docked at the bottom leaves the drawing room. See [Arrange the panels and use a second monitor](common:arrange-panels).
+- **Phones and fold phones.** On a screen up to 760 px wide, or a phone held sideways, the sheet keeps the screen: panels open as sheets from a bar at the bottom, the {{ui:Quantities}} table slides up from the bottom, the toolbar is one row that scrolls sideways and the sheet bar is the second line. {{ui:Tools}} hides the toolbar and {{ui:Move}} puts it at the bottom. Turning the phone, or opening and closing a fold phone, keeps your work, the selection and an open dialog. The app bar's {{ui:More}} menu holds the version, Find and the links. Phones work, but TakeoffCraft is made for larger screens.
+- **Touch tablets.** On a touch screen each toolbar is one row that scrolls sideways instead of wrapping onto several lines.
+- **Spanish** stays a machine-made draft that has not been reviewed yet. Help topics are in English.
 
 ## Files and compatibility
 
-- Takeoffs saved in 0.3 open in 0.4 as they are.
-- A takeoff saved in 0.4 opens in 0.3, but 0.3 leaves out what it does not know: bid areas, typical groups, markups, deducts, pitches and the bid summary. Marks of an item's extra kinds are left out too.
-- The price library is kept in this browser. Export it as a CSV to move it.
+- Takeoffs saved in 0.4 open in 0.5 as they are.
+- A 0.5 takeoff can carry new things: an item's CSI number, a count mark's elevation, the labor burden and an add-on's data.
+- Installed packs live in the price library, in this browser.
 
 ## Not in this version yet
 
-- Box (window) selection.
-- A price library shared by a team.
-- Reading a scale from a scanned sheet or a scale bar.
+- Trade packs reviewed by working estimators, and prices in packs.
+- Cut and fill quantities coming back from CivilCraft.
+- Spot elevations from more than the open sheet, or in survey coordinates.
+- In a live session, PDFs opened after joining stay on that person's screen, and page changes are not shared.
+- Box (window) selection, and finding mirrored symbols with auto count.
 - More is listed in [What is not built yet](topic:not-built-yet).

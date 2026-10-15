@@ -360,6 +360,22 @@ tr.is-alt td { font-style: italic; }
 .tc-lib-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: .1rem .5rem; align-items: center; padding: .35rem .6rem; cursor: pointer; font-size: .8125rem; }
 .tc-lib-name { font-weight: 600; overflow-wrap: anywhere; }
 .tc-lib-meta { grid-column: 3; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+/* trade packs (0.5 TK.1) */
+.tc-lib-tag { margin-left: .4rem; padding: 0 .3rem; border: 1px solid var(--line); border-radius: 3px; font-weight: 400; font-size: .75rem; color: var(--ink-2); white-space: nowrap; }
+.tc-pack-list { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; border: 1px solid var(--line); border-radius: 4px; }
+.tc-pack-list > li { padding: .5rem .6rem; border-bottom: 1px solid var(--line); font-size: .8125rem; }
+.tc-pack-list > li:last-child { border-bottom: 0; }
+.tc-pack.is-offered { outline: 2px solid var(--action); outline-offset: -2px; }
+.tc-pack-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .5rem; }
+.tc-pack-ver { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.tc-pack-status { padding: 0 .35rem; border: 1px solid var(--line); border-radius: 3px; font-size: .75rem; color: var(--ink-2); }
+.tc-pack-meta { margin: .15rem 0 .35rem; color: var(--ink-2); }
+.tc-pack-act { display: flex; flex-wrap: wrap; gap: .4rem; }
+.tc-pack-more { margin-top: .35rem; }
+.tc-pack-more > p { margin: .3rem 0; }
+.tc-pack-src { margin: .3rem 0 0; padding-left: 1.1rem; overflow-wrap: anywhere; }
+.tc-packs .tc-lib-tools { align-items: center; }
+.tc-packs .tc-lib-tools select { width: auto; }
 
 /* typical groups (T16) */
 .tc-groups { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
@@ -395,3 +411,12 @@ tr.is-alt td { font-style: italic; }
 .tc-note-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tc-note-st { color: var(--ink-2); font-size: .75rem; }
 .tc-note-st.is-open { color: #D9480F; font-weight: 600; }
+
+/* ---- A phone (0.5 Track PH; the layout is the shell's assets/js/app-phone.js + app-shell.css § Phones). TakeoffCraft's
+   own: the Preset select keeps the toolbar one row (its label goes to screen readers only); the sheet bar is the second
+   toolbar line (manifest "phone" options). ---- */
+html.cc-compact .tc-preset { flex-direction: row; align-items: center; }
+html.cc-compact .tc-preset-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+html.cc-compact .tc-preset .tc-select { width: 7rem; }
+html.cc-compact .tc-sheetbar .tc-3d-toggle { font-size: .75rem; min-height: 2.5rem; white-space: nowrap; }
+html.cc-compact .tc-sheetbar-name, html.cc-compact .tc-sheetbar-scale { font-size: .75rem; white-space: nowrap; }

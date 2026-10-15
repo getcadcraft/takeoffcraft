@@ -1,0 +1,732 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.landscape",
+ "name": "Landscape",
+ "packVersion": "0.1.0",
+ "trade": "Landscape",
+ "description": "Sod on topsoil, seed with straw, planting beds with soil, fabric and mulch, metal edging, trees and shrubs, spray irrigation zones and valves, concrete pavers on base and sand. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "32 14 13",
+  "32 84 00",
+  "32 92 19",
+  "32 92 23",
+  "32 93 00",
+  "32 93 33",
+  "32 93 43",
+  "32 94 13"
+ ],
+ "sources": [
+  {
+   "id": "ansi-z60",
+   "title": "ANSI Z60.1, American Standard for Nursery Stock",
+   "publisher": "AmericanHort",
+   "url": "https://www.americanhort.org/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "pds",
+   "title": "The product data sheet of the coating, adhesive or product you specify (spread rate, coverage, coats)",
+   "publisher": "its manufacturer"
+  },
+  {
+   "id": "icpi",
+   "title": "Tech Spec 2, Construction of Interlocking Concrete Pavements",
+   "publisher": "Interlocking Concrete Pavement Institute",
+   "url": "https://icpi.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "sod",
+   "type": "area",
+   "csi": "32 92 23",
+   "group": "Lawns",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Sod 5% waste; pallets of about 450 SF (ask the farm: 400 to 500 SF).",
+    "Topsoil 2 in under the sod: CY = A x 2 / 12 / 27.",
+    "Starter fertilizer: one 50 lb bag per 5,000 SF (a starting figure: read the bag)."
+   ],
+   "note": "Measure the lawn area.",
+   "waste": 0,
+   "name": "Sod on 2 in topsoil",
+   "unit": "SF",
+   "twin": "sod-m",
+   "components": [
+    {
+     "name": "Sod",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Sod pallets",
+     "unit": "EA",
+     "formula": "ceil(A*1.05/450)",
+     "waste": 0
+    },
+    {
+     "name": "Topsoil 2 in",
+     "unit": "CY",
+     "formula": "A*2/12/27",
+     "waste": 1000
+    },
+    {
+     "name": "Starter fertilizer, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/5000)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "sod-m",
+   "type": "area",
+   "csi": "32 92 23",
+   "group": "Lawns",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Sod 5% waste; pallets of about 450 SF (ask the farm: 400 to 500 SF).",
+    "Topsoil 2 in under the sod: CY = A x 2 / 12 / 27.",
+    "Starter fertilizer: one 50 lb bag per 5,000 SF (a starting figure: read the bag)."
+   ],
+   "note": "Measure the lawn area.",
+   "waste": 0,
+   "name": "Sod on 50 mm topsoil",
+   "unit": "m²",
+   "twin": "sod",
+   "components": [
+    {
+     "name": "Sod",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Sod pallets",
+     "unit": "EA",
+     "formula": "ceil(A*1.05/41.806)",
+     "waste": 0
+    },
+    {
+     "name": "Topsoil 2 in",
+     "unit": "m³",
+     "formula": "A*0.0508",
+     "waste": 1000
+    },
+    {
+     "name": "Starter fertilizer, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/464.52)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "seed",
+   "type": "area",
+   "csi": "32 92 19",
+   "group": "Lawns",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Seed at 5 lb per 1,000 SF (a starting figure: the seed tag gives the rate for its mix).",
+    "Straw mulch: one bale per 1,000 SF."
+   ],
+   "note": "Measure the seeded area.",
+   "waste": 0,
+   "name": "Lawn seed with straw mulch",
+   "unit": "SF",
+   "twin": "seed-m",
+   "components": [
+    {
+     "name": "Grass seed",
+     "unit": "lb",
+     "formula": "A/1000*5",
+     "waste": 500
+    },
+    {
+     "name": "Straw bales",
+     "unit": "EA",
+     "formula": "ceil(A/1000)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "seed-m",
+   "type": "area",
+   "csi": "32 92 19",
+   "group": "Lawns",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Seed at 5 lb per 1,000 SF (a starting figure: the seed tag gives the rate for its mix).",
+    "Straw mulch: one bale per 1,000 SF."
+   ],
+   "note": "Measure the seeded area.",
+   "waste": 0,
+   "name": "Lawn seed with straw mulch (metric)",
+   "unit": "m²",
+   "twin": "seed",
+   "components": [
+    {
+     "name": "Grass seed",
+     "unit": "kg",
+     "formula": "A*0.02441",
+     "waste": 500
+    },
+    {
+     "name": "Straw bales",
+     "unit": "EA",
+     "formula": "ceil(A/92.903)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "bed-mulch",
+   "type": "area",
+   "csi": "32 93 00",
+   "group": "Planting beds",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Mulch 3 in deep: CY = A x 3 / 12 / 27; 10% for settling.",
+    "Landscape fabric under it, 10% for laps; staples one per 4 SF.",
+    "Planting soil 6 in: CY = A x 6 / 12 / 27."
+   ],
+   "note": "Measure each planting bed.",
+   "waste": 0,
+   "name": "Planting bed: 6 in planting soil, fabric, 3 in mulch",
+   "unit": "SF",
+   "twin": "bed-mulch-m",
+   "components": [
+    {
+     "name": "Planting soil 6 in",
+     "unit": "CY",
+     "formula": "A*6/12/27",
+     "waste": 1000
+    },
+    {
+     "name": "Landscape fabric",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Fabric staples",
+     "unit": "EA",
+     "formula": "ceil(A/4)",
+     "waste": 0
+    },
+    {
+     "name": "Mulch 3 in",
+     "unit": "CY",
+     "formula": "A*3/12/27",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "bed-mulch-m",
+   "type": "area",
+   "csi": "32 93 00",
+   "group": "Planting beds",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Mulch 3 in deep: CY = A x 3 / 12 / 27; 10% for settling.",
+    "Landscape fabric under it, 10% for laps; staples one per 4 SF.",
+    "Planting soil 6 in: CY = A x 6 / 12 / 27."
+   ],
+   "note": "Measure each planting bed.",
+   "waste": 0,
+   "name": "Planting bed: 150 mm planting soil, fabric, 75 mm mulch",
+   "unit": "m²",
+   "twin": "bed-mulch",
+   "components": [
+    {
+     "name": "Planting soil 6 in",
+     "unit": "m³",
+     "formula": "A*0.1524",
+     "waste": 1000
+    },
+    {
+     "name": "Landscape fabric",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Fabric staples",
+     "unit": "EA",
+     "formula": "ceil(A/0.3716)",
+     "waste": 0
+    },
+    {
+     "name": "Mulch 3 in",
+     "unit": "m³",
+     "formula": "A*0.0762",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "edging",
+   "type": "linear",
+   "csi": "32 94 13",
+   "group": "Planting beds",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Steel or aluminum edging in 10 ft pieces; stakes at 30 in plus one per run (a starting figure: the maker’s spacing)."
+   ],
+   "note": "Draw the bed edges.",
+   "waste": 0,
+   "name": "Landscape edging, metal, staked",
+   "unit": "LF",
+   "twin": "edging-m",
+   "components": [
+    {
+     "name": "Edging, 10 ft pieces",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N",
+     "waste": 500
+    },
+    {
+     "name": "Edging stakes",
+     "unit": "EA",
+     "formula": "ceil(L/2.5)+N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "edging-m",
+   "type": "linear",
+   "csi": "32 94 13",
+   "group": "Planting beds",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Steel or aluminum edging in 10 ft pieces; stakes at 30 in plus one per run (a starting figure: the maker’s spacing)."
+   ],
+   "note": "Draw the bed edges.",
+   "waste": 0,
+   "name": "Landscape edging, metal, staked (metric)",
+   "unit": "m",
+   "twin": "edging",
+   "components": [
+    {
+     "name": "Edging, 3.05 m pieces",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)+N",
+     "waste": 500
+    },
+    {
+     "name": "Edging stakes",
+     "unit": "EA",
+     "formula": "ceil(L/0.762)+N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "tree-2in",
+   "type": "count",
+   "csi": "32 93 43",
+   "group": "Plants",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Balled-and-burlapped tree, 2 in caliper (ANSI Z60.1 sizes).",
+    "Two stakes and ties per tree (where staking is specified).",
+    "Mulch ring 6 ft across, 3 in deep: 3.1416 x 3² x 0.25 / 27 = 0.262 CY per tree."
+   ],
+   "note": "Count each tree on the planting plan.",
+   "waste": 0,
+   "name": "Tree, 2 in caliper B&B, staked, mulch ring",
+   "unit": "EA",
+   "twin": "tree-2in-m",
+   "components": [
+    {
+     "name": "Tree 2 in caliper",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Tree stakes and ties",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    },
+    {
+     "name": "Mulch ring",
+     "unit": "CY",
+     "formula": "N*3.1416*9*0.25/27",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "tree-2in-m",
+   "type": "count",
+   "csi": "32 93 43",
+   "group": "Plants",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Balled-and-burlapped tree, 2 in caliper (ANSI Z60.1 sizes).",
+    "Two stakes and ties per tree (where staking is specified).",
+    "Mulch ring 6 ft across, 3 in deep: 3.1416 x 3² x 0.25 / 27 = 0.262 CY per tree."
+   ],
+   "note": "Count each tree on the planting plan.",
+   "waste": 0,
+   "name": "Tree, 50 mm caliper B&B, staked, mulch ring",
+   "unit": "EA",
+   "twin": "tree-2in",
+   "components": [
+    {
+     "name": "Tree 2 in caliper",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Tree stakes and ties",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    },
+    {
+     "name": "Mulch ring",
+     "unit": "m³",
+     "formula": "N*3.1416*0.9144*0.9144*0.0762",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "shrub-5",
+   "type": "count",
+   "csi": "32 93 33",
+   "group": "Plants",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Container shrub, #5 container (ANSI Z60.1).",
+    "Backfill amendment 1 cu ft per shrub (a starting figure)."
+   ],
+   "note": "Count each shrub.",
+   "waste": 0,
+   "name": "Shrub, #5 container, with amended backfill",
+   "unit": "EA",
+   "twin": "shrub-5-m",
+   "components": [
+    {
+     "name": "Shrub #5",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Soil amendment",
+     "unit": "CF",
+     "formula": "N*1",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "shrub-5-m",
+   "type": "count",
+   "csi": "32 93 33",
+   "group": "Plants",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Container shrub, #5 container (ANSI Z60.1).",
+    "Backfill amendment 1 cu ft per shrub (a starting figure)."
+   ],
+   "note": "Count each shrub.",
+   "waste": 0,
+   "name": "Shrub, #5 container (19 L), with amended backfill",
+   "unit": "EA",
+   "twin": "shrub-5",
+   "components": [
+    {
+     "name": "Shrub #5",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Soil amendment",
+     "unit": "m³",
+     "formula": "N*0.0283168",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "irrigation-spray",
+   "type": "area",
+   "csi": "32 84 00",
+   "group": "Irrigation",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Spray heads at 12 ft head-to-head spacing on a square grid: one per 144 SF (layouts at the edges add heads: a starting figure).",
+    "Lateral pipe: one line per 12 ft row = A / 12 LF; 10% for fittings and swing joints.",
+    "One swing joint per head."
+   ],
+   "note": "Measure each irrigated lawn or bed zone.",
+   "waste": 0,
+   "name": "Irrigation, spray zone, heads 12 ft head-to-head",
+   "unit": "SF",
+   "twin": "irrigation-spray-m",
+   "components": [
+    {
+     "name": "Spray heads with nozzles",
+     "unit": "EA",
+     "formula": "ceil(A/144)",
+     "waste": 0
+    },
+    {
+     "name": "Lateral pipe 3/4 in",
+     "unit": "LF",
+     "formula": "A/12",
+     "waste": 1000
+    },
+    {
+     "name": "Swing joints",
+     "unit": "EA",
+     "formula": "ceil(A/144)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "irrigation-spray-m",
+   "type": "area",
+   "csi": "32 84 00",
+   "group": "Irrigation",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Spray heads at 12 ft head-to-head spacing on a square grid: one per 144 SF (layouts at the edges add heads: a starting figure).",
+    "Lateral pipe: one line per 12 ft row = A / 12 LF; 10% for fittings and swing joints.",
+    "One swing joint per head."
+   ],
+   "note": "Measure each irrigated lawn or bed zone.",
+   "waste": 0,
+   "name": "Irrigation, spray zone, heads 3.66 m head-to-head",
+   "unit": "m²",
+   "twin": "irrigation-spray",
+   "components": [
+    {
+     "name": "Spray heads with nozzles",
+     "unit": "EA",
+     "formula": "ceil(A/13.378)",
+     "waste": 0
+    },
+    {
+     "name": "Lateral pipe 3/4 in",
+     "unit": "m",
+     "formula": "A/3.6576",
+     "waste": 1000
+    },
+    {
+     "name": "Swing joints",
+     "unit": "EA",
+     "formula": "ceil(A/13.378)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "irrigation-zone",
+   "type": "count",
+   "csi": "32 84 00",
+   "group": "Irrigation",
+   "sources": [
+    "pds"
+   ],
+   "assume": [
+    "One valve per zone in a valve box; controller station wire by the run."
+   ],
+   "note": "Count each irrigation zone.",
+   "waste": 0,
+   "name": "Irrigation zone valve in valve box",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Zone valve 1 in",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Valve box",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Waterproof wire connectors",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "pavers",
+   "type": "area",
+   "csi": "32 14 13",
+   "group": "Paving",
+   "sources": [
+    "icpi",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete pavers 5% waste.",
+    "Aggregate base 6 in compacted for a patio or walk (ICPI Tech Spec 2 gives the base by use and soil): CY = A x 6 / 12 / 27, 15% for compaction.",
+    "Bedding sand 1 in: CY = A / 12 / 27.",
+    "Edge restraint on the whole outline P.",
+    "Joint sand: one 50 lb bag per 50 SF (a starting figure)."
+   ],
+   "note": "Measure the paved area.",
+   "waste": 0,
+   "name": "Concrete pavers on 6 in base and 1 in sand",
+   "unit": "SF",
+   "twin": "pavers-m",
+   "components": [
+    {
+     "name": "Concrete pavers",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Aggregate base 6 in",
+     "unit": "CY",
+     "formula": "A*6/12/27",
+     "waste": 1500
+    },
+    {
+     "name": "Bedding sand 1 in",
+     "unit": "CY",
+     "formula": "A/12/27",
+     "waste": 1000
+    },
+    {
+     "name": "Edge restraint",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    },
+    {
+     "name": "Joint sand, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/50)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "pavers-m",
+   "type": "area",
+   "csi": "32 14 13",
+   "group": "Paving",
+   "sources": [
+    "icpi",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete pavers 5% waste.",
+    "Aggregate base 6 in compacted for a patio or walk (ICPI Tech Spec 2 gives the base by use and soil): CY = A x 6 / 12 / 27, 15% for compaction.",
+    "Bedding sand 1 in: CY = A / 12 / 27.",
+    "Edge restraint on the whole outline P.",
+    "Joint sand: one 50 lb bag per 50 SF (a starting figure)."
+   ],
+   "note": "Measure the paved area.",
+   "waste": 0,
+   "name": "Concrete pavers on 150 mm base and 25 mm sand",
+   "unit": "m²",
+   "twin": "pavers",
+   "components": [
+    {
+     "name": "Concrete pavers",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Aggregate base 6 in",
+     "unit": "m³",
+     "formula": "A*0.1524",
+     "waste": 1500
+    },
+    {
+     "name": "Bedding sand 1 in",
+     "unit": "m³",
+     "formula": "A*0.0254",
+     "waste": 1000
+    },
+    {
+     "name": "Edge restraint",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    },
+    {
+     "name": "Joint sand, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/4.6452)",
+     "waste": 0
+    }
+   ]
+  }
+ ]
+}

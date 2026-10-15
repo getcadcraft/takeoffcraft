@@ -14,7 +14,7 @@ Exports are downloads. They are made on your computer from the takeoff and the o
    Your browser downloads `(name).xlsx`. The status bar says "Exported (name).xlsx (estimate with live formulas, by sheet, marks, scales)." and adds a warning when the estimate is incomplete.
 2. Open it in your spreadsheet program.
 
-The workbook has four worksheets:
+The workbook has four worksheets, and the reports below when they apply:
 
 | Worksheet | What it holds |
 |---|---|
@@ -22,6 +22,12 @@ The workbook has four worksheets:
 | By sheet | Each item's quantity on each sheet, with the number of marks. |
 | Marks | Every mark: sheet, item, type, quantity, and detail (segment lengths, gross and cut-out areas, perimeter). |
 | Scales | Each sheet that has a scale or marks: its scale, how it was set (preset, or calibrated on which distance), and feet per PDF unit. |
+| Takeoff summary | Each item's quantity, CSI number, marks and sheets, without prices. |
+| Material list | Every assembly part added up across the takeoff (the same part used by several items is one line), with waste and material cost, and the items that use it. |
+| Quote request | The material list to send a supplier: quantities with waste, an empty unit-price column, and extensions and a total that fill in as prices are typed. |
+| By division | Material, labor and total by CSI MasterFormat division, when items have a {{ui:CSI number}}. |
+
+With a [bid summary](topic:bid-summary), the Estimate worksheet also ends with its markups (labor burden, sales tax, overhead, profit, bond and the bid), as live formulas.
 
 The Estimate worksheet keeps **live formulas**: quantity with waste, the rounded material and labor amounts, each row's total and the job total. Spreadsheet programs recalculate them, so you can change a rate or waste in the spreadsheet and the totals follow. The numbers TakeoffCraft computed are stored in the cells as well, and match to the cent.
 
@@ -33,7 +39,7 @@ The workbook has been checked in LibreOffice Calc, which recalculated it to the 
 
 Open the {{ui:Export}} menu and choose {{ui:CSV}}. You get `(name).csv`: the same rows and columns as the Estimate worksheet, as plain values (no formulas), and the job total. Use it to paste into another estimating or accounting system.
 
-The CSV has only the estimate; for quantities by sheet and the mark list, use XLSX.
+The CSV has only the estimate; for quantities by sheet and the mark list, use XLSX. {{ui:Material list}} in the same menu saves the material list alone as CSV, for ordering.
 
 ## A marked PDF
 

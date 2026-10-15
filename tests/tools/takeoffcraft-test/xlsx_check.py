@@ -70,7 +70,7 @@ def D(v):
 
 
 def recalc(cells):
-    """Evaluate the Estimate sheet's formulas: X*(1+Y), ROUND(X*Y,2), X+Y, SUM(Xa:Xb)."""
+    """Evaluate the Estimate sheet's formulas: X*(1+Y), ROUND(X*Y,2), X, X+Y(+Z…), SUM(Xa:Xb)."""
     vals = {}
 
     def get(ref):
@@ -93,9 +93,8 @@ def recalc(cells):
         m = re.fullmatch(r'ROUND\(([A-Z]+\d+)\*([A-Z]+\d+),2\)', f)
         if m:
             return (get(m[1]) * get(m[2])).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        m = re.fullmatch(r'([A-Z]+\d+)\+([A-Z]+\d+)', f)
-        if m:
-            return get(m[1]) + get(m[2])
+        if re.fullmatch(r'[A-Z]+\d+(\+[A-Z]+\d+)*', f):      # a reference, or a sum of references (the markups block, TK.4)
+            return sum((get(r) for r in f.split('+')), Decimal(0))
         m = re.fullmatch(r'SUM\(([A-Z]+)(\d+):([A-Z]+)(\d+)\)', f)
         if m:
             return sum((get(m[1] + str(r)) for r in range(int(m[2]), int(m[4]) + 1)), Decimal(0))

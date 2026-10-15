@@ -76,6 +76,7 @@ const ok = (cond, name, extra = '') => { if (cond) { pass++; if (VERBOSE) consol
 const near = (a, b, t = 1e-9) => Math.abs(a - b) <= t * Math.max(1, Math.abs(a), Math.abs(b));
 const eq = (a, b, name) => ok(Object.is(a, b) || a === b, name, 'got ' + JSON.stringify(a) + ', want ' + JSON.stringify(b));
 const section = (s) => console.log('\n' + s);
+const TK4_SHEETS = ['Takeoff summary', 'Material list', 'Quote request', 'By division'];   // 0.5 TK.4: reports added after the others
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'takeoffcraft-test-'));
 
 // ---------------------------------------------------------------------------
@@ -795,7 +796,7 @@ section('Quantities, wall area, waste and cost');
     tb.undo();
     // the workbook
     const wb = E.estimateSheets(tb.state, (k) => (k === s1 ? 'P1' : 'P2'));
-    eq(wb.map((x) => x.name).join('|'), 'Estimate|By sheet|Marks|Scales|By bid area', 'a takeoff with bid areas gets a "By bid area" worksheet (last, so the others keep their places)');
+    eq(wb.map((x) => x.name).filter((n) => !TK4_SHEETS.includes(n)).join('|'), 'Estimate|By sheet|Marks|Scales|By bid area', 'a takeoff with bid areas gets a "By bid area" worksheet (after the first four, so they keep their places; the TK.4 reports come after it)');
     const ba = wb[4].rows;
     const sub = ba.find((r) => r[0]?.v === 'Building A subtotal');
     ok(sub && sub[7].v === 100 && /^SUM\(H\d+:H\d+\)$/.test(sub[7].f), 'each area has a subtotal with a SUM formula', JSON.stringify(sub));
@@ -1177,7 +1178,7 @@ section('Quantities, wall area, waste and cost');
     let out;
     try { out = JSON.parse(execFileSync(py, [path.join(TOOLS, 'xlsx_check.py'), f], { encoding: 'utf8' })); } catch (err) { ok(false, 'xlsx_check.py reads the workbook', String(err.stderr || err.message).slice(0, 400)); continue; }
     ok(true, `read back with ${out.reader}`);
-    eq(out.names.join('|'), 'Estimate|By sheet|Marks|Scales', 'four sheets, in order');
+    eq(out.names.slice(0, 4).join('|') + '|' + out.names.slice(4).filter((n) => !TK4_SHEETS.includes(n)).length, 'Estimate|By sheet|Marks|Scales|0', 'the four sheets in order, then only the TK.4 reports');
     const cells = out.sheets.Estimate.cells, cached = out.sheets.Estimate.cached;
     eq(cells.A1, 'Item', 'A1 header');
     const totalRow = est.rows.length + 3;
@@ -1208,7 +1209,9 @@ section('Quantities, wall area, waste and cost');
     ok(!/corrupt|repair|error|FAILED/i.test(outCsv + outPdf), 'LibreOffice converts it with no corrupt/repair/error message', (outCsv + outPdf).slice(0, 300));
     ok(fs.existsSync(path.join(lo, 'estimate.pdf')) && /Pages:\s+[1-9]/.test(execFileSync('pdfinfo', [path.join(lo, 'estimate.pdf')], { encoding: 'utf8' })), 'LibreOffice prints it to PDF');
     const names = fs.readdirSync(lo).filter((n) => n.endsWith('.csv')).sort();
-    eq(names.join('|'), ['estimate-By sheet.csv', 'estimate-Estimate.csv', 'estimate-Marks.csv', 'estimate-Scales.csv'].join('|'), 'LibreOffice sees the four sheets');
+    const want = E.estimateSheets(t.state, label).map((x) => 'estimate-' + x.name + '.csv').sort();
+    ok(want.length >= 4 && ['Estimate', 'By sheet', 'Marks', 'Scales'].every((n) => want.includes('estimate-' + n + '.csv')), 'the workbook has Estimate, By sheet, Marks, Scales (and the TK.4 reports when they apply)', want.join('|'));
+    eq(names.join('|'), want.join('|'), `LibreOffice sees every sheet (${want.length})`);
     const parseCsv = (txt) => txt.replace(/^\uFEFF/, '').trim().split(/\r?\n/).map((l) => { const out = []; let cur = '', q = false; for (let i = 0; i < l.length; i++) { const c = l[i]; if (q) { if (c === '"' && l[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; } else if (c === '"') q = true; else if (c === ',') { out.push(cur); cur = ''; } else cur += c; } out.push(cur); return out; });
     const rowsLo = parseCsv(fs.readFileSync(path.join(lo, 'estimate-Estimate.csv'), 'utf8'));
     let cmp = 0, bad = 0;
@@ -1356,6 +1359,257 @@ section('Price library from CSV (T9)');
   // what is stored: a takeoff item as an entry, read back from JSON (bad entries dropped)
   const stored = Lb.readStored(JSON.parse(JSON.stringify([Lb.entryFromItem(t.state.items[0]), { name: 'x', type: 'volume' }, null])));
   ok(stored.length === 1 && stored[0].components.length === 2 && !('id' in stored[0]) && !('color' in stored[0]), 'readStored keeps good entries (no id, no colour)');
+}
+
+section('Trade packs: format, install, remove, export (TK.1)');
+{
+  const Lb = await load('library.js');
+  const Pk = await load('packs.js');
+  const base = () => ({
+    format: 'takeoffcraft-pack', version: 1, id: 'zz.test-pack', name: 'Test pack', packVersion: '1.2.0', license: 'CC0-1.0', status: 'starter',
+    sources: [{ id: 'ga', title: 'GA-216', publisher: 'Gypsum Association', url: 'https://www.gypsum.org/' }, { id: 'bad', title: 'x', url: 'http://plain.example/' }],
+    items: [
+      { key: 'wall', name: 'Partition A', type: 'linear', unit: 'LF', heightFt: 9, waste: 500, mat: 99999, lab: 12345, csi: '09 21 16', sources: ['ga', 'nope'], assume: ['Studs 16 in o.c.'], twin: 'wall-m',
+        components: [{ name: 'Studs', unit: 'EA', formula: 'ceil(L*0.75)+N', mat: 5000 }, { name: 'Broken', unit: 'EA', formula: 'L +' }, { name: 'Sneaky', unit: 'EA', formula: 'constructor(1)' }] },
+      { key: 'wall-m', name: 'Partition A (metric)', type: 'linear', unit: 'm', heightFt: 9, twin: 'wall', components: [{ name: 'Studs', unit: 'EA', formula: 'ceil(L/0.4064)+N' }] },
+      { key: 'outlet', name: 'Outlet', type: 'count', unit: 'EA', components: [{ name: 'Box', unit: 'EA', formula: 'N' }] },
+      { key: 'outlet', name: 'Duplicate key', type: 'count', unit: 'EA' },
+      { key: 'BAD KEY', name: 'x', type: 'count' },
+      { key: 'vol', name: 'Volume', type: 'volume' },
+      null,
+    ],
+  });
+  const r = Pk.readPack(base());
+  ok(r.ok && r.pack.items.length === 3, 'readPack: a good pack reads; a duplicate key, a bad key, an unknown type and null are left out', JSON.stringify(r.warnings || r.error));
+  const w = r.pack.items[0];
+  ok(w.mat === 0 && w.lab === 0 && w.components.every((c) => c.mat === 0 && c.lab === 0), 'rates written into a pack\'s items are ignored: items install without prices');
+  ok(w.components.length === 1 && w.components[0].formula === 'ceil(L*0.75)+N', 'a component whose formula does not parse (or names a prototype) is dropped');
+  ok(w.csi === '09 21 16' && JSON.stringify(w.sources) === '["ga"]' && w.assume[0] === 'Studs 16 in o.c.' && w.twin === 'wall-m', 'CSI number, known sources only, assumptions and the twin kept');
+  ok(r.pack.sources.length === 2 && !('url' in r.pack.sources[1]), 'a source keeps https links only');
+  ok(r.warnings.some((x) => /4 items could not be read/.test(x)) && r.warnings.some((x) => /2 assembly parts/.test(x)), 'warnings say how many items and parts were left out', r.warnings.join(' | '));
+  for (const [mut, why] of [
+    [(j) => { j.format = 'takeoffcraft-project'; }, /not a TakeoffCraft trade pack/],
+    [(j) => { j.version = 2; }, /newer TakeoffCraft/],
+    [(j) => { j.id = 'Bad Id'; }, /id is missing/],
+    [(j) => { j.id = 'a..b'; }, /id is missing/],
+    [(j) => { j.name = ''; }, /has no name/],
+    [(j) => { j.packVersion = 'v1'; }, /version number/],
+    [(j) => { j.items = [{ key: 'x', type: 'count' }]; }, /no items that could be read/],
+  ]) { const j = base(); mut(j); const x = Pk.readPack(j); ok(!x.ok && why.test(x.error), 'refused: ' + why.source, x.error); }
+  ok(!Pk.readPack(null).ok && !Pk.readPack([]).ok && !Pk.readPack('{}').ok, 'refused: null, an array, a string');
+  const rv = Pk.readPack({ ...base(), status: 'reviewed' });
+  ok(rv.pack.status === 'starter' && rv.warnings.some((x) => /treated as a starter/.test(x)), '"reviewed" without who and when stays a starter');
+  const rv2 = Pk.readPack({ ...base(), status: 'reviewed', reviewedBy: 'A. Estimator', reviewedOn: '2026-11-01' });
+  ok(rv2.pack.status === 'reviewed' && rv2.pack.reviewedBy === 'A. Estimator', 'reviewed with who and when');
+  const ctl = Pk.readPack({ ...base(), name: 'Test\u0000\u0007 pack' });
+  eq(ctl.pack.name, 'Test pack', 'control characters are stripped from names');
+  // sample rates: only labelled ones (label, region, date, currency), only when asked
+  const noLabel = Pk.readPack({ ...base(), samples: { region: 'Austin, TX', date: '2026-10-01', currency: 'USD', rates: { wall: { mat: 10000 } } } });
+  ok(!noLabel.pack.samples && noLabel.warnings.some((x) => /sample rates were left out/.test(x)), 'sample rates without a label are dropped, with a warning');
+  const sm = Pk.readPack({ ...base(), samples: { label: 'Sample rates, test', region: 'Austin, TX', date: '2026-10-01', currency: 'USD', rates: { wall: { mat: 10000, lab: 20000, components: { Studs: { mat: 4000 }, Nope: { mat: 1 } } }, ghost: { mat: 1 } } } });
+  ok(sm.pack.samples && sm.pack.samples.rates.wall.mat === 10000 && !('ghost' in sm.pack.samples.rates) && !('Nope' in sm.pack.samples.rates.wall.components), 'labelled sample rates read; unknown items and parts dropped');
+  const plain = Pk.packEntries(sm.pack, { system: 'imperial' });
+  ok(plain.length === 2 && plain.every((e) => Pk.rateUnset(e)) && plain.every((e) => e.pack.id === 'zz.test-pack' && e.pack.version === '1.2.0'), 'packEntries (imperial): the LF item and the count item, rates empty, tagged with the pack');
+  ok(/GA-216, Gypsum Association/.test(plain[0].src) && /Studs 16 in o\.c\./.test(plain[0].note) && plain[0].csi === '09 21 16', 'each entry says its source and assumptions and keeps its CSI number');
+  eq(Pk.packEntries(sm.pack, { system: 'metric' }).map((e) => e.name).join('|'), 'Partition A (metric)|Outlet', 'metric: the metric twin and the count item');
+  eq(Pk.packEntries(sm.pack, { system: 'both' }).length, 3, 'both: every item');
+  const withS = Pk.packEntries(sm.pack, { system: 'imperial', samples: true });
+  ok(withS[0].mat === 10000 && withS[0].lab === 20000 && withS[0].components[0].mat === 4000 && withS[0].sample.region === 'Austin, TX' && Pk.rateUnset(withS[1]), 'samples only when asked: labelled with region and date, items without samples stay empty');
+  // install, again, own entries kept, remove in one step
+  const mine = { name: 'Outlet', type: 'count', unit: 'EA', heightFt: 0, waste: 0, mat: 350000, lab: 0, components: [] };
+  const lib0 = [mine, { name: 'Carpet', type: 'area', unit: 'SY', heightFt: 0, waste: 0, mat: 270000, lab: 0, components: [] }];
+  const i1 = Pk.installPack(lib0, sm.pack, { system: 'imperial' });
+  ok(i1.added === 1 && i1.kept === 1 && i1.lib.length === 3 && i1.lib[0] === mine, 'install: the partition added; my own "Outlet" kept as it was (never overwritten by a pack)');
+  const i2 = Pk.installPack(i1.lib, sm.pack, { system: 'both' });
+  ok(i2.added === 1 && i2.updated === 1 && i2.lib.length === 4, 'installing again (both units): the partition replaced in place, its metric twin added — no duplicates');
+  eq(JSON.stringify(Pk.installedPacks(i2.lib)), JSON.stringify([{ id: 'zz.test-pack', name: 'Test pack', version: '1.2.0', count: 2 }]), 'installedPacks: id, name, version, entries');
+  const rm = Pk.removePack(i2.lib, 'zz.test-pack');
+  ok(rm.removed === 2 && rm.lib.length === 2 && rm.lib[0] === mine && !Pk.installedPacks(rm.lib).length, 'removePack: every entry of that pack goes in one step; mine stay');
+  // stored and read back (the app keeps the library in localStorage)
+  const back = Lb.readStored(JSON.parse(JSON.stringify(i2.lib)));
+  ok(back.length === 4 && back[2].pack?.id === 'zz.test-pack' && back[2].csi === '09 21 16' && /GA-216/.test(back[2].src), 'readStored keeps an entry\'s pack, CSI number and source');
+  const forged = Lb.readStored([{ ...mine, pack: { id: 'Bad Id', version: 'x' }, src: 'a\u0000b' }]);
+  ok(!forged[0].pack && forged[0].src === 'a b', 'readStored drops a forged pack tag and cleans the text');
+  const tk = new M.Takeoff();
+  tk.addItems([Lb.itemFromEntry(back[2])]);
+  ok(tk.state.items[0].csi === '09 21 16' && tk.state.items[0].components.length === 1, 'an item added from a pack entry keeps its CSI number and assembly');
+  // export your own library as a pack, read back
+  const own = [{ ...mine, csi: '26 27 26' }, { name: 'Wall B', type: 'linear', unit: 'LF', heightFt: 8, waste: 1000, mat: 21000, lab: 33000, components: [{ name: 'Studs', unit: 'EA', formula: 'ceil(L*0.75)+N', waste: 0, mat: 4250, lab: 0 }] }];
+  const xp = Pk.libraryPack(own, { id: 'my-library', name: 'My shop', author: 'ACME' });
+  const xr = Pk.readPack(JSON.parse(JSON.stringify(xp)));
+  ok(xr.ok && !xr.warnings.length && xr.pack.items.length === 2 && !xr.pack.samples, 'libraryPack → readPack: a valid pack, no rates in it by default', JSON.stringify(xr.warnings || xr.error));
+  ok(xr.pack.items[1].components[0].formula === 'ceil(L*0.75)+N' && xr.pack.items[0].csi === '26 27 26' && near(xr.pack.items[1].heightFt, 8), 'assemblies, heights and CSI numbers travel');
+  const xpR = Pk.libraryPack(own, { id: 'my-library', name: 'My shop', rates: true, region: 'Monterrey, NL', date: '2026-10-14', currency: 'MXN' });
+  const xrR = Pk.readPack(JSON.parse(JSON.stringify(xpR)));
+  ok(xrR.pack.samples?.region === 'Monterrey, NL' && xrR.pack.samples.currency === 'MXN' && xrR.pack.samples.rates['wall-b'].mat === 21000 && xrR.pack.samples.rates['wall-b'].components.Studs.mat === 4250, 'with "include my rates": they go out labelled as sample rates (region, date, currency)');
+  ok(!Pk.libraryPack(own, { rates: true }).samples, 'rates without a region and date do not go out');
+  const ins = Pk.installPack([], xrR.pack, { system: 'both', samples: true });
+  ok(ins.lib[1].mat === 21000 && ins.lib[1].components[0].mat === 4250 && ins.lib[0].mat === 350000, 'that pack installs back with its sample rates when asked');
+}
+
+section('Trade packs: the shipped packs (TK.2, TK.3)');
+{
+  const Pk = await load('packs.js');
+  const Bp = await import(pathToFileURL(path.join(TOOLS, 'build-packs.mjs')).href);
+  const PACKDIR = path.join(APP, 'packs');
+  if (BUILD === 'dev') {
+    const chk = (() => { try { execFileSync(process.execPath, [path.join(TOOLS, 'build-packs.mjs'), '--check'], { encoding: 'utf8' }); return ''; } catch (e) { return e.stdout || e.message; } })();
+    ok(chk === '', 'dev/packs/*.json are exactly what tools/takeoffcraft-test/packs/ builds (build-packs.mjs --check)', chk);
+  }
+  const index = JSON.parse(fs.readFileSync(path.join(PACKDIR, 'index.json'), 'utf8'));
+  const srcs = await Bp.sources();
+  ok(index.packs.length === srcs.length && index.packs.length >= 6, `index.json lists every pack (${index.packs.length})`);
+  const BANNED = /planswift|bluebeam|on-?screen takeoff|stack takeoff|trimble|accubid|mc2|sage estimating|procore|togal|claude|anthropic/i;
+  let assemblies = 0, twinsChecked = 0;
+  const twinBad = [];
+  for (const meta of index.packs) {
+    const text = fs.readFileSync(path.join(PACKDIR, meta.file), 'utf8');
+    const res = Pk.readPack(JSON.parse(text));
+    const p = res.pack;
+    ok(res.ok && !res.warnings.length && p.items.length === meta.items, `${meta.id}: reads with no warnings, ${meta.items} items`, JSON.stringify(res.warnings || res.error));
+    if (!res.ok) continue;
+    assemblies += p.items.length;
+    ok(p.license === 'CC0-1.0' && p.status === 'starter' && !p.samples, `${meta.id}: CC0-1.0, a starter (not reviewed), no rates at all`);
+    ok(!BANNED.test(text), `${meta.id}: names no competitor product and no assistant`);
+    ok(p.items.every((i) => i.sources?.length && i.sources.some((s) => s !== 'geometry')), `${meta.id}: every assembly names at least one outside reference`, p.items.filter((i) => !i.sources?.some((s) => s !== 'geometry')).map((i) => i.key).join(', '));
+    ok(p.items.every((i) => i.csi), `${meta.id}: every assembly has a CSI MasterFormat number`);
+    ok(p.items.every((i) => i.components.length >= 1), `${meta.id}: every assembly has at least one component`);
+    const keys = new Map(p.items.map((i) => [i.key, i]));
+    const unpaired = p.items.filter((i) => Pk.packSystemOf(i) !== 'any' && !(i.twin && keys.get(i.twin)?.twin === i.key && Pk.packSystemOf(keys.get(i.twin)) !== Pk.packSystemOf(i)));
+    ok(!unpaired.length, `${meta.id}: every imperial assembly has a metric twin and back`, unpaired.map((i) => i.key).join(', '));
+    // twins agree: the same work measured in both systems gives the same quantities (k = metric ÷ imperial unit)
+    const src = srcs.find((s) => s.pack.id === meta.id).pack;
+    for (const imp of src.items.filter((i) => i._k)) {
+      const met = src.items.find((i) => i.key === imp.twin);
+      const H = imp.heightFt || (imp.type === 'area' ? 0.5 : 10);
+      const vi = imp.type === 'linear' ? { L: 500, H, A: 500 * H, N: 4 } : imp.type === 'area' ? { A: 5000, P: 300, H, N: 4 } : { N: 40 };
+      const sf = imp.type === 'area' ? 5000 / U.UNITS[imp.unit].perSqFt : 0;     // an SY item's A is in square yards
+      const vm = imp.type === 'linear' ? { L: 500 * 0.3048, H: H * 0.3048, A: 500 * H * 0.09290304, N: 4 } : imp.type === 'area' ? { A: sf * 0.09290304, P: 300 * 0.3048, H: H * 0.3048, N: 4 } : { N: 40 };
+      imp.components.forEach((c, i) => {
+        const k = imp._k[i];
+        const ra = F.compute(c.formula, vi), rb = F.compute(met.components[i].formula, vm);
+        const a = ra.ok ? ra.value : ra.error, b = rb.ok ? rb.value : rb.error;
+        twinsChecked++;
+        if (k === null || typeof a !== 'number' || typeof b !== 'number') { twinBad.push(`${imp.key} ${c.name}: k ${k}, ${a}, ${b}`); return; }
+        const want = a * k;
+        if (Math.abs(b - want) > Math.max(0.025 * Math.abs(want), 1.5)) twinBad.push(`${imp.key} ${c.name}: imperial ${a} × ${k} = ${want.toFixed(3)}, metric ${b}`);
+      });
+    }
+  }
+  ok(!twinBad.length, `twins agree: ${twinsChecked} components, each metric quantity within 2.5% of the imperial one × its unit factor`, twinBad.slice(0, 6).join(' | '));
+  console.log(`    ${index.packs.length} packs, ${assemblies} assemblies (imperial + metric twins + unit-free counts)`);
+}
+
+section('Trade packs: one example per pack, worked by hand');
+{
+  const Pk = await load('packs.js');
+  const Lb = await load('library.js');
+  const PACKDIR = path.join(APP, 'packs');
+  const packs = new Map(JSON.parse(fs.readFileSync(path.join(PACKDIR, 'index.json'), 'utf8')).packs.map((m) => [m.id, Pk.readPack(JSON.parse(fs.readFileSync(path.join(PACKDIR, m.file), 'utf8'))).pack]));
+  const hash = 'e'.repeat(64);
+  /** A takeoff with one item from pack `id` (entry `key`), measured by `marks` on a 1/4" = 1'-0" sheet (18 units per foot). */
+  const run = (id, key, marks) => {
+    const p = packs.get(id);
+    if (!p) return null;
+    const e = Pk.packEntries(p, { system: 'both' }).find((x) => x.name === p.items.find((i) => i.key === key)?.name);
+    const t = new M.Takeoff();
+    t.addFile({ hash, name: 'x.pdf', size: 1, pages: 1 });
+    const s0 = M.sheetKey(hash, 0);
+    t.setScale(s0, { method: 'preset', preset: 'a1/4', ftPerUnit: U.presetFtPerUnit('a1/4'), label: '1/4"', cal: null });
+    const [itemId] = t.addItems([Lb.itemFromEntry(e)]);
+    for (const m of marks) t.addMark({ item: itemId, sheet: s0, ...m });
+    const est = M.estimate(t.state);
+    const q = (name) => est.rows.find((r) => r.kind === 'component' && r.name === name);
+    return { est, q, item: t.state.items[0] };
+  };
+  const ft = (a) => a * 18;
+  const runs = (...lens) => lens.map((L, i) => ({ pts: [{ x: 0, y: i * 100 }, { x: ft(L), y: i * 100 }] }));
+  const rect = (w, d) => [{ pts: [{ x: 0, y: 0 }, { x: ft(w), y: 0 }, { x: ft(w), y: ft(d) }, { x: 0, y: ft(d) }] }];
+  const counts = (n) => Array.from({ length: n }, (_, i) => ({ pts: [{ x: i * 10, y: 0 }] }));
+  const checkAll = (label, r, want) => {
+    const bad = [];
+    for (const [name, v, vw] of want) {
+      const row = r?.q(name);
+      if (!row || row.error || !near(row.qty, v, 1e-6) || (vw !== undefined && !near(row.qtyW, vw, 1e-6))) bad.push(`${name}: got ${row ? (row.error || row.qty + ' / ' + row.qtyW) : 'no row'}, want ${v}${vw !== undefined ? ' / ' + vw : ''}`);
+    }
+    ok(r && !bad.length, label, bad.join(' | '));
+  };
+
+  // Drywall and framing — partition, 1/2 in one layer each side on steel studs, 10 ft: runs 30 ft + 12 ft (N = 2), L = 42, A = 420 SF.
+  //   track 2 × 42 = 84 LF (+5% = 88.2) · studs ceil(0.75 × 42) + 2 = ceil(31.5) + 2 = 34 · sheets ceil(840 / 32) = ceil(26.25) = 27
+  //   screws ceil(840 × 0.875) = 735 · tape 840 × 0.375 = 315 LF · compound 840 × 0.01 = 8.4 gal
+  checkAll('drywall: steel-stud partition 10 ft, 30 + 12 ft of wall — track, studs, sheets, screws, tape, compound', run('trade.drywall-framing', 'part-steel-12-1x1-10', runs(30, 12)), [
+    ['Steel track 3-5/8 in (top and bottom)', 84, 88.2], ['Steel studs 3-5/8 in, cut to wall height', 34], ['Gypsum board 1/2 in, 4 x 8 ft sheets', 27, 29.7],
+    ['Drywall screws', 735], ['Joint tape', 315], ['Joint compound, ready-mixed', 8.4]]);
+  //   its metric twin on the same 42 ft (12.8016 m) at its own 3.05 m: A = 39.04488 m², sheets ceil(2 × 39.04488 / 2.9768) = ceil(26.233) = 27
+  checkAll('drywall (metric twin): the same walls give the same 27 sheets', run('trade.drywall-framing', 'part-steel-12-1x1-10-m', runs(30, 12)), [['Gypsum board 12.7 mm, 1220 x 2440 mm sheets', 27]]);
+
+  // Electrical — EMT 1/2 in with 3 #12: runs 25 + 40 ft (N = 2), L = 65.
+  //   EMT 65 · couplings ceil(6.5) = 7 · connectors 4 · straps ceil(6.5) + 4 = 11 · THHN (65 + 2) × 3 = 201 LF
+  checkAll('electrical: EMT run 25 + 40 ft — conduit, couplings, connectors, straps, wire', run('trade.electrical', 'emt-12-3', runs(25, 40)), [
+    ['EMT 1/2 in', 65], ['EMT couplings 1/2 in', 7], ['EMT connectors 1/2 in', 4], ['One-hole straps 1/2 in', 11], ['THHN #12', 201, 221.1]]);
+  checkAll('electrical: 12 duplex receptacles — 12 boxes, devices, plates, pigtails', run('trade.electrical', 'recep-duplex-20', counts(12)), [
+    ['Device box, single gang', 12], ['Duplex receptacle 20 A', 12], ['Cover plate, single gang', 12], ['Ground pigtail with wire nut', 12]]);
+
+  // Painting — new walls 9 ft, one 50 ft run: A = 450 SF. Primer 450 / 300 = 1.5 gal; finish 2 × 450 / 350 = 2.571429 gal.
+  checkAll('painting: 50 ft of 9 ft wall — 1.5 gal primer, 2.57 gal finish', run('trade.painting', 'walls-new-9', runs(50)), [
+    ['Primer, PVA / latex', 1.5], ['Interior latex, finish', 900 / 350]]);
+
+  // Concrete — slab on grade 4 in, 30 x 40 ft: A = 1200 SF, P = 140 ft, depth 1/3 ft.
+  //   concrete 1200 × (1/3) / 27 = 14.814815 CY (+5% = 15.555556) · gravel 4 in the same · vapor 1200 · WWR 1200 · edge forms 140
+  checkAll('concrete: 30 x 40 ft slab, 4 in — 14.81 CY, base, vapor retarder, mesh, forms', run('trade.concrete', 'sog-4-wwr', rect(30, 40)), [
+    ['Concrete', 400 / 27, 400 / 27 * 1.05], ['Base course gravel 4 in', 400 / 27], ['Vapor retarder 6 mil', 1200, 1320], ['Welded wire reinforcement 6x6 W1.4xW1.4', 1200], ['Edge forms', 140]]);
+  // continuous footing 20 x 10 in, 100 ft: 100 × (20/12 × 10/12) / 27 = 5.144033 CY · forms 2 × 100 × 10/12 = 166.67 SF · #4 2 × 100 = 200 LF = 133.6 lb
+  checkAll('concrete: 100 ft of 20 x 10 in footing — 5.14 CY, 166.67 SF of forms, 200 LF / 133.6 lb of #4', run('trade.concrete', 'ftg-20x10', runs(100)), [
+    ['Concrete', 100 * (20 / 12) * (10 / 12) / 27], ['Footing forms (both sides)', 2 * 100 * 10 / 12], ['Rebar #4', 200], ['Rebar #4 (weight)', 133.6]]);
+
+  // Flooring — tile on concrete, 12 x 15 ft room = 180 SF: tile 180 (+10% = 198) · thin-set ceil(180 / 95) = 2 bags · grout 180 × 0.08 = 14.4 lb
+  checkAll('flooring: 12 x 15 ft of tile — 198 SF with waste, 2 bags thin-set, 14.4 lb grout', run('trade.flooring', 'tile-floor-conc', rect(12, 15)), [
+    ['Floor tile', 180, 198], ['Thin-set mortar, 50 lb bags', 2], ['Sanded grout', 14.4]]);
+  // broadloom in SY: the same room = 20 SY, perimeter 54 ft → carpet 20 SY (+10% = 22) · pad 20 · tack strip 54 LF
+  checkAll('flooring: the same room in carpet — 20 SY (22 with waste), pad, 54 LF tack strip', run('trade.flooring', 'carpet-broadloom', rect(12, 15)), [
+    ['Carpet', 20, 22], ['Carpet pad', 20], ['Tack strip', 54]]);
+
+  // Masonry — brick veneer 40 x 10 ft = 400 SF: brick ceil(400 × 6.75) = 2700 (+5% = 2835) · mortar 400 × 0.0592 = 23.68 CF · ties ceil(400 / 2.67) = 150
+  checkAll('masonry: 400 SF of brick veneer — 2700 brick, 23.68 CF mortar, 150 ties', run('trade.masonry', 'brick-veneer', rect(40, 10)), [
+    ['Face brick, modular', 2700, 2835], ['Mortar (type N)', 23.68], ['Veneer ties', 150]]);
+  // 8 in block, the same 400 SF: ceil(400 × 1.125) = 450 block · joint reinforcement 400 × 0.75 = 300 LF
+  checkAll('masonry: 400 SF of 8 in block — 450 units, 300 LF joint reinforcement', run('trade.masonry', 'cmu-8', rect(40, 10)), [
+    ['Concrete block 8 x 8 x 16 in', 450], ['Joint reinforcement, ladder', 300]]);
+  // Roofing, residential — one 30 x 40 ft plane drawn flat (no pitch): A = 1200 SF, P = 140 ft.
+  //   bundles ceil(1200 / 100 × 3) = 36 (+10% = 39.6) · underlayment 1200 · drip edge ceil(140 / 10) = 14 · starter 140 · nails ceil(12 × 320) = 3840
+  checkAll('roofing (residential): 1,200 SF of shingles — 36 bundles, underlayment, 14 drip edges, 140 LF starter, 3,840 nails', run('trade.roofing-residential', 'shingle-arch', rect(30, 40)), [
+    ['Shingles', 36, 39.6], ['Synthetic underlayment', 1200], ['Drip edge, 10 ft lengths', 14], ['Starter strip', 140], ['Roofing nails 1-1/4 in', 3840]]);
+  // Roofing, commercial — TPO on 100 x 50 ft = 5000 SF: membrane 5000 (+10% = 5500) · boards ceil(156.25) = 157 · 157 × 8 = 1256 plates · ceil(500) = 500 seam fasteners
+  checkAll('roofing (commercial): 5,000 SF of TPO — 157 polyiso boards, 1,256 plates, 500 seam fasteners', run('trade.roofing-commercial', 'tpo-ma', rect(100, 50)), [
+    ['TPO membrane', 5000, 5500], ['Polyiso insulation 4 x 8 ft', 157], ['Insulation fasteners and plates', 1256], ['Membrane fasteners and seam plates', 500]]);
+  // Siding — vinyl on a 40 x 10 ft wall = 400 SF: 4 SQ (+10% = 4.4) · nails ceil(450) = 450 · barrier 400 · cap fasteners 200
+  checkAll('siding: 400 SF of vinyl — 4 squares, 450 nails, 400 SF of barrier, 200 cap fasteners', run('trade.siding', 'vinyl-d4', rect(40, 10)), [
+    ['Vinyl siding', 4, 4.4], ['Siding nails', 450], ['Water-resistive barrier', 400], ['Cap fasteners', 200]]);
+  // Finish carpentry — base, runs 30 + 18 ft: 48 LF (+10% = 52.8), nails ceil(72) = 72; six doors: casing 6 × 35 = 210 LF (+10% = 231)
+  checkAll('finish carpentry: 48 LF of base — 52.8 with waste, 72 nails', run('trade.finish-carpentry', 'base', runs(30, 18)), [['Base molding', 48, 52.8], ['Finish nails', 72]]);
+  checkAll('finish carpentry: six interior doors — 6 units, 210 LF of casing (231 with waste), 6 locksets', run('trade.finish-carpentry', 'door-int', counts(6)), [['Prehung interior door unit', 6], ['Door casing', 210, 231], ['Lockset, passage or privacy', 6]]);
+  // Plumbing — PVC 4 in, runs 37 + 13 ft (N = 2): pipe 50 (+10% = 55) · hangers ceil(50 / 4) + 2 = 15; four lavatories → 8 angle stops
+  checkAll('plumbing: 50 LF of 4 in PVC — 55 with waste, 15 hangers at 4 ft', run('trade.plumbing', 'pvc-dwv-4', runs(37, 13)), [['PVC DWV pipe 4 in', 50, 55], ['Pipe hangers 4 in', 15]]);
+  checkAll('plumbing: four lavatories — 4 faucets, 8 angle stops and supplies', run('trade.plumbing', 'lav', counts(4)), [['Faucet', 4], ['Angle stops', 8], ['Supply lines', 8]]);
+  // HVAC — 20 x 10 in duct, one 64 ft run: perimeter 60 in = 5 SF/LF → 320 SF (+15% = 368) · hangers ceil(8) + 1 = 9 · wrap 320 (+20% = 384)
+  checkAll('HVAC: 64 LF of 20 x 10 in duct — 320 SF of metal (368 with seams), 9 hangers, 384 SF of wrap', run('trade.hvac', 'rect-20x10', runs(64)), [
+    ['Galvanized sheet metal duct', 320, 368], ['Duct hangers (pairs)', 9], ['Duct wrap 1-1/2 in', 320, 384]]);
+  // Insulation — R-13 batts, 9 ft walls, one 120 ft run: A = 1080 SF (+5% = 1134) · packages ceil(1080 / 40) = 27
+  checkAll('insulation: 120 ft of 9 ft wall — 1,080 SF of R-13 (1,134 with waste), 27 packages', run('trade.insulation', 'batt-r13-9', runs(120)), [['Batt insulation', 1080, 1134], ['Batt packages', 27]]);
+  // Landscape — a 20 x 15 ft bed = 300 SF: soil 300 × 6 / 12 / 27 = 5.5556 CY · fabric 300 · staples 75 · mulch 300 × 3 / 12 / 27 = 2.7778 CY
+  checkAll('landscape: a 300 SF bed — 5.56 CY soil, 300 SF fabric, 75 staples, 2.78 CY mulch', run('trade.landscape', 'bed-mulch', rect(20, 15)), [
+    ['Planting soil 6 in', 300 * 6 / 12 / 27], ['Landscape fabric', 300], ['Fabric staples', 75], ['Mulch 3 in', 300 * 3 / 12 / 27]]);
+  // Decking — wood deck 12 x 16 ft = 192 SF, P = 56: boards 192 × 2.1333 = 409.5936 LF · joists 144 LF · screws ceil(614.4) = 615 · hangers ceil(24) = 24 · rim 56
+  checkAll('decking: a 12 x 16 ft deck — 409.6 LF of boards, 144 LF of joists, 615 screws, 24 hangers, 56 LF of rim', run('trade.decking', 'deck-wood-16', rect(12, 16)), [
+    ['Deck boards', 192 * 2.1333], ['Joists 2x8', 144], ['Deck screws', 615], ['Joist hangers', 24], ['Rim joist 2x8', 56]]);
+  // General contractor — bulk excavation 40 x 50 ft at its 3 ft depth: 2000 × 3 / 27 = 222.22 CY bank, × 1.25 = 277.78 CY loose, ceil(23.15) = 24 trucks
+  checkAll('general contractor: 2,000 SF excavated 3 ft — 222.2 CY bank, 277.8 CY loose, 24 truck loads', run('trade.general-contractor', 'gc-excavation', rect(40, 50)), [
+    ['Excavation (bank)', 2000 * 3 / 27], ['Haul (loose)', 2000 * 3 / 27 * 1.25], ['Truck loads, 12 CY', 24]]);
+  // and its acoustical ceiling, 20 x 30 ft = 600 SF, P = 100: panels 75 · mains 150 LF · tees 300 LF · wall angle 100 · wires ceil(37.5) = 38
+  checkAll('general contractor: 600 SF of 2 x 4 ceiling — 75 panels, 150 LF mains, 300 LF tees, 100 LF angle, 38 wires', run('trade.general-contractor', 'gc-act-2x4', rect(20, 30)), [
+    ['Ceiling panels', 75], ['Main runners', 150], ['Cross tees 4 ft', 300], ['Wall angle', 100], ['Hanger wires', 38]]);
+  ok(packs.size >= 16 && [...packs.keys()].every((id) => /^trade\./.test(id)), `one example above for each of the ${packs.size} packs`);
 }
 
 section('Typical groups (T16)');
@@ -1515,6 +1769,125 @@ section('Bid summary and proposal PDF (T19)');
   ok(/Taping and finishing/.test(txt) && /•\s+Paint/.test(txt) && !/-\s+Taping/.test(txt) && /Valid for 30 days/.test(txt) && /accepted/.test(txt), 'inclusions, exclusions (one per line, dashes dropped), terms, acceptance');
 }
 
+section('Reports: labor burden, material list, quote request, takeoff summary, by division (TK.4)');
+{
+  const Bd = await load('bid.js');
+  const t = new M.Takeoff();
+  const hash = '8'.repeat(64);
+  t.addFile({ hash, name: 'gc.pdf', size: 1, pages: 1 });
+  const s0 = M.sheetKey(hash, 0);
+  t.setScale(s0, { method: 'preset', preset: 'a1/4', ftPerUnit: U.presetFtPerUnit('a1/4'), label: '1/4"', cal: null });
+  const R = (v) => U.parseRate(v).rate4;
+  // two partitions sharing parts, a ceiling sharing one of them, and a count item with a material rate and no CSI number
+  const [wa, wb, cl, dr] = t.addItems([
+    { name: 'Wall A', type: 'linear', unit: 'LF', heightFt: 10, csi: '09 21 16', lab: R('5'), components: [
+      { name: 'Gypsum board 4 x 8', unit: 'sheet', formula: 'ceil(A*2/32)', waste: 1000, mat: R('12') }, { name: 'Drywall screws', unit: 'EA', formula: 'ceil(A*2*0.875)', mat: R('0.02') }] },
+    { name: 'Wall B', type: 'linear', unit: 'LF', heightFt: 8, csi: '09 21 16', components: [
+      { name: 'Gypsum board 4 x 8', unit: 'sheet', formula: 'ceil(A*2/32)', waste: 1000, mat: R('12') }, { name: 'drywall screws ', unit: 'EA', formula: 'ceil(A*2*0.875)', mat: R('0.02') }] },
+    { name: 'Ceiling', type: 'area', unit: 'SF', csi: '09 21 16', components: [{ name: 'Drywall screws', unit: 'EA', formula: 'ceil(A*1.094)', mat: R('0.02') }] },
+    { name: 'Door', type: 'count', unit: 'EA', mat: R('250'), lab: R('80') },
+  ]);
+  t.addMark({ item: wa, sheet: s0, pts: [{ x: 0, y: 0 }, { x: 40 * 18, y: 0 }] });                 // 40 LF × 10 ft = 400 SF
+  t.addMark({ item: wb, sheet: s0, pts: [{ x: 0, y: 100 }, { x: 20 * 18, y: 100 }] });             // 20 LF × 8 ft = 160 SF
+  t.addMark({ item: cl, sheet: s0, pts: [{ x: 0, y: 200 }, { x: 360, y: 200 }, { x: 360, y: 560 }, { x: 0, y: 560 }] });   // 20 × 20 ft = 400 SF
+  t.addMark({ item: dr, sheet: s0, pts: [{ x: 5, y: 5 }] }); t.addMark({ item: dr, sheet: s0, pts: [{ x: 9, y: 5 }] });
+  const est = M.baseEstimate(t.state);
+  // material list by hand: board A ceil(800/32) = 25, B ceil(320/32) = 10 → 35 sheets (+10% = 38.5), 38.5 × $12 = $462.00 (each row rounded:
+  //   27.5 × 12 = 330.00 + 11 × 12 = 132.00); screws A ceil(700) = 700, B ceil(280) = 280, ceiling ceil(437.6) = 438 → 1418 EA, $28.36
+  //   ("drywall screws " with another case and a trailing space is the same part); doors 2 EA × $250 = $500.00
+  const ml = E.materialList(t.state, est);
+  const board = ml.find((g) => g.name === 'Gypsum board 4 x 8'), screws = ml.find((g) => g.name.toLowerCase() === 'drywall screws'), door = ml.find((g) => g.name === 'Door');
+  ok(ml.length === 3 && board.qty === 35 && near(board.qtyW, 38.5) && board.matExt === 46200 && board.items.join() === 'Wall A,Wall B' && board.csi === '09 21 16', 'material list: 35 sheets of board (38.5 with waste, $462.00) from Wall A and Wall B', JSON.stringify(board));
+  ok(screws.qty === 1418 && screws.matExt === 2836 && screws.items.length === 3, 'drywall screws added up across three items, names compared without case or spaces: 1,418 EA, $28.36', JSON.stringify(screws));
+  ok(door.qty === 2 && door.matExt === 50000 && ml[ml.length - 1] === door, 'a priced item without parts is its own line (no CSI number: listed last)');
+  const mcsv = E.materialCsv(t.state, est);
+  ok(/^Part,CSI,Unit,Quantity,Qty with waste,Material,Used by/.test(mcsv) && /^Gypsum board 4 x 8,09 21 16,sheet,35,38\.5,462,Wall A; Wall B/m.test(mcsv) && /^Job total,,,,,990\.36,/m.test(mcsv), 'the material list CSV, its total $990.36', mcsv);
+  const ts = E.takeoffSummary(t.state, est);
+  eq(ts.map((x) => [x.name, x.csi, x.qty, x.unit, x.marks, x.sheets].join(':')).join(' | '), 'Wall A:09 21 16:40:LF:1:1 | Wall B:09 21 16:20:LF:1:1 | Ceiling:09 21 16:400:SF:1:1 | Door::2:EA:2:1', 'takeoff summary: quantities, marks and sheets, no prices');
+  const bd = E.byDivision(t.state, est);
+  ok(bd.length === 2 && bd[0].div === '09' && bd[0].title === 'Finishes' && bd[0].items === 3 && bd[0].mat === 49036 && bd[0].lab === 20000 && bd[1].div === '' && bd[1].title === 'No CSI number' && bd[1].total === 66000, 'by division: 09 Finishes $490.36 material + $200.00 labor; the door under "No CSI number"', JSON.stringify(bd));
+  ok(bd.reduce((n, g) => n + g.total, 0) === est.total, 'the divisions add up to the job');
+  // labor burden: material $990.36, labor $360.00 (wall A 40 × $5 = 200 + doors 2 × 80 = 160)
+  //   burden 30 % × 36000 = 10800 → cost 99036 + 36000 + 10800 = 145836; tax 8.25 % × 99036 = 8170.47 → 8170; overhead 10 % × 154006 = 15400.6 → 15401;
+  //   profit 10 % × 169407 = 16940.7 → 16941; bond 1.5 % × 186348 = 2795.22 → 2795; bid 189143
+  t.setBid({ burden: 3000, tax: 825, overhead: 1000, profit: 1000, bond: 150 });
+  const sum = Bd.bidSummary(est, t.bid());
+  eq(sum.lines.map((l) => l.key + ':' + l.cents).join(' '), 'mat:99036 lab:36000 burden:10800 cost:145836 tax:8170 overhead:15401 profit:16941 bond:2795 total:189143', 'labor burden: a percent of labor, part of the cost before the other markups');
+  ok(Bd.bidSummary(est, { tax: 825 }).lines.every((l) => l.key !== 'burden') && Bd.normalBid({ burden: -5 }).burden === 0, 'no burden line when it is 0; a bad percent reads as 0');
+  ok(M.readProject(JSON.parse(JSON.stringify(t.toJSON()))).state.bid.burden === 3000, 'the burden is saved with the takeoff');
+  // the workbook: markups under the Estimate total (live), the new sheets, recalculated independently
+  const sheetsX = E.estimateSheets(t.state, (k) => 'Sheet 1', est);
+  eq(sheetsX.map((x) => x.name).join('|'), 'Estimate|By sheet|Marks|Scales|Bid summary|Takeoff summary|Material list|Quote request|By division', 'the workbook gains Takeoff summary, Material list, Quote request and By division, after the sheets it had');
+  const estRows = sheetsX[0].rows;
+  const bidRow = estRows.findIndex((r) => r[0]?.v === 'Bid' || r[0] === 'Bid');
+  ok(bidRow > 0 && estRows[bidRow][10].v === 1891.43 && /^K\d+(\+K\d+)+$/.test(estRows[bidRow][10].f), 'the Estimate sheet ends with the markups block: Bid $1,891.43 as a live sum', JSON.stringify(estRows[bidRow]));
+  const xf = path.join(tmp, 'tk4.xlsx');
+  fs.writeFileSync(xf, await E.estimateXlsx(t.state, () => 'Sheet 1'));
+  const py = fs.existsSync(path.join(TOOLS, 'venv/bin/python')) ? path.join(TOOLS, 'venv/bin/python') : 'python3';
+  try {
+    const out = JSON.parse(execFileSync(py, [path.join(TOOLS, 'xlsx_check.py'), xf], { encoding: 'utf8' }));
+    const cached = out.sheets.Estimate.cached;
+    let mism = 0;
+    for (const [k, v] of Object.entries(out.recalc)) if (Math.abs(v - cached[k]) > 1e-9) { mism++; if (mism < 5) console.log('    recalc ' + k + ' ' + v + ' vs cached ' + cached[k]); }
+    ok(Object.keys(out.recalc).length > 20 && mism === 0, `the Estimate sheet with its markups block RE-CALCULATED independently (Decimal): ${Object.keys(out.recalc).length} formulas, all equal to the app's`);
+    const bidCell = Object.entries(out.sheets.Estimate.cells).find(([, v]) => v === 'Bid');
+    eq(out.recalc['K' + bidCell[0].slice(1)], 1891.43, 'the recalculated bid = $1,891.43');
+    const q = out.sheets['Quote request'].cells;
+    ok(q.A1 === 'Quote request: Takeoff' && q.D4 === 0 && /^=?ROUND\(C4\*D4,2\)$/.test(q.E4) && /^=?SUM\(E4:E6\)$/.test(q.E8), 'the quote request: empty unit prices, live extensions and total', JSON.stringify(q));
+  } catch (err) { ok(false, 'xlsx_check.py reads the TK.4 workbook', String(err.stderr || err.message).slice(0, 400)); }
+  // LibreOffice (when installed) recalculates the markups block and the quote request
+  const soffice = ['/usr/bin/soffice', '/usr/local/bin/soffice'].find((f) => fs.existsSync(f));
+  if (soffice) {
+    const lo = path.join(tmp, 'lo4');
+    fs.mkdirSync(path.join(lo, 'profile/user'), { recursive: true });
+    fs.writeFileSync(path.join(lo, 'profile/user/registrymodifications.xcu'), '<?xml version="1.0" encoding="UTF-8"?>\n<oor:items xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><item oor:path="/org.openoffice.Office.Calc/Formula/Load"><prop oor:name="OOXMLRecalcMode" oor:op="fuse"><value>0</value></prop></item></oor:items>');
+    fs.copyFileSync(xf, path.join(lo, 'tk4.xlsx'));
+    let msg = '';
+    try { msg = execFileSync(soffice, ['-env:UserInstallation=file://' + path.join(lo, 'profile'), '--headless', '--convert-to', 'csv:Text - txt - csv (StarCalc):44,34,76,1,,1033,false,true,false,false,false,-1', '--outdir', lo, path.join(lo, 'tk4.xlsx')], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120000 }); } catch (err) { msg = 'FAILED ' + (err.stderr || err.message); }
+    const estLo = fs.existsSync(path.join(lo, 'tk4-Estimate.csv')) ? fs.readFileSync(path.join(lo, 'tk4-Estimate.csv'), 'utf8') : '';
+    ok(!/corrupt|repair|error|FAILED/i.test(msg) && /^Bid,.*,1891\.43,/m.test(estLo) && /^Labor burden,,,,30%,,,,360,,108,/m.test(estLo), 'LibreOffice recalculates the markups block: burden $108.00 on $360.00, bid $1,891.43', estLo.split('\n').slice(-9).join(' / '));
+  } else console.log('  (LibreOffice not installed: skipped its TK.4 check)');
+}
+
+section('Earthwork hand-off: spot elevations to CivilCraft (TK.5)');
+{
+  const t = new M.Takeoff();
+  const hash = '7'.repeat(64);
+  t.addFile({ hash, name: 'site.pdf', size: 1, pages: 1 });
+  const s0 = M.sheetKey(hash, 0);
+  const spot = t.addItem({ name: 'Existing grade', type: 'count' });
+  const wall = t.addItem({ name: 'Wall', type: 'linear' });
+  // 1" = 20' (engineering): 20 ft per 72 pt
+  t.setScale(s0, { method: 'preset', preset: 'e20', ftPerUnit: 20 / 72, label: '1" = 20\'', cal: null });
+  t.addMark({ item: spot, sheet: s0, pts: [{ x: 72, y: 144 }], z: 101.25 });
+  t.addMark({ item: spot, sheet: s0, pts: [{ x: 360, y: 144 }], z: -2 });
+  t.addMark({ item: spot, sheet: s0, pts: [{ x: 216, y: 432 }], z: 0 });
+  t.addMark({ item: spot, sheet: s0, pts: [{ x: 500, y: 500 }] });                       // no elevation: not a point
+  t.addMark({ item: wall, sheet: s0, pts: [{ x: 0, y: 0 }, { x: 72, y: 0 }], z: 5 });    // a run never carries one
+  ok(t.state.marks.filter((m) => typeof m.z === 'number').map((m) => m.z).join() === '101.25,-2,0', 'count marks keep their elevation (negative and zero too); a run drops it');
+  const back = M.readProject(JSON.parse(JSON.stringify(t.toJSON()))).state;
+  eq(back.marks.map((m) => m.z ?? '-').join(), '101.25,-2,0,-,-', 'elevations are saved with the takeoff and read back');
+  const bad = M.readProject({ ...JSON.parse(JSON.stringify(t.toJSON())), marks: t.toJSON().marks.map((m, i) => (i === 0 ? { ...m, z: '12' } : i === 1 ? { ...m, z: 1e9 } : m)) }).state;
+  ok(!('z' in bad.marks[0]) && !('z' in bad.marks[1]) && bad.marks[2].z === 0, 'a text or absurd elevation in a file is dropped');
+  const id0 = t.state.marks[0].id;
+  t.updateMark(id0, { z: 99.5 });
+  ok(t.state.marks[0].z === 99.5 && (t.undo(), t.state.marks[0].z === 101.25), 'changing an elevation is one undo step');
+  const r = E.spotElevationsCsv(t.state, s0, () => 'C-101');
+  // x 72 pt × 20/72 = 20 ft east, y 144 pt = 40 ft north; (100, 40); (60, 120)
+  eq(r.ok && r.csv, 'Point,Northing,Easting,Elevation,Description\r\n1,40,20,101.25,Existing grade\r\n2,40,100,-2,Existing grade\r\n3,120,60,0,Existing grade\r\n', 'the points file: northing and easting in feet from the sheet\'s scale, elevations, the item as description');
+  const Pt = await import(pathToFileURL(path.join(ROOT, 'public_html/assets/apps/civilcraft/dev/points.js')).href);
+  const got = Pt.parsePoints(r.csv);
+  ok(got.points.length === 3 && got.points[1].x === 100 && got.points[1].y === 40 && got.points[1].z === -2 && got.points[2].d === 'Existing grade' && !got.bad.length, 'CivilCraft\'s own points reader takes it as it is (PNEZD from the header)', JSON.stringify({ n: got.points.length, f: got.format, bad: got.bad }));
+  const t2 = new M.Takeoff();
+  t2.addFile({ hash, name: 'site.pdf', size: 1, pages: 1 });
+  const sp2 = t2.addItem({ name: 'Grade', type: 'count' });
+  t2.addMark({ item: sp2, sheet: s0, pts: [{ x: 1, y: 1 }], z: 3 });
+  ok(!E.spotElevationsCsv(t2.state, s0, () => 'C-101').ok && /has no scale/.test(E.spotElevationsCsv(t2.state, s0, () => 'C-101').why), 'a sheet with no scale is refused, saying why');
+  ok(/no count marks with an elevation/.test(E.spotElevationsCsv(new M.Takeoff().state, s0).why), 'a sheet without spot elevations says so');
+  const clip = C.copyMarks(t.state, [id0], { view: { width: 612, height: 792 }, userUnit: 1 });
+  ok(clip.marks[0].z === 101.25, 'copy and paste carry a mark\'s elevation');
+}
+
 section('Scales from the sheets\' text (T20)');
 {
   const St = await load('scaletext.js');
@@ -1670,7 +2043,7 @@ section('3D');
   }
   const src3 = (f) => fs.readFileSync(path.join(APP, f), 'utf8');
   ok(!/from ['"]three['"]|\bdocument\b|\bwindow\b/.test(src3('scene3d.js')), 'scene3d.js is DOM-free and never imports three');
-  ok(/from 'three'/.test(src3('view3d.js')) && !/from '\.\.\//.test(src3('view3d.js')) && ![...src3('view3d.js').matchAll(/from '\.\/([^']+)'/g)].some((m) => !m[1].startsWith('m3d/') && m[1] !== 'i18n.js'), 'view3d.js imports three, the m3d copies and the language file only');
+  ok(/from 'three'/.test(src3('view3d.js')) && !/from '\.\.\//.test(src3('view3d.js')) && ![...src3('view3d.js').matchAll(/from '\.\/([^']+)'/g)].some((m) => !m[1].startsWith('m3d/') && m[1] !== 'i18n.js' && m[1] !== 'input-mouse.js'), 'view3d.js imports three, the m3d copies, the language file and the menu style\'s mouse (input-mouse.js, 0.5 IP.3) only');
   const appJs = src3('takeoffcraft.js');
   ok(!/^import .*(view3d|scene3d)/m.test(appJs) && /import\('\.\/view3d\.js'\)/.test(appJs) && /import\('\.\/scene3d\.js'\)/.test(appJs), 'the 3D modules (and so three.js) load lazily with import()');
   ok(!/\.\.\/\.\.\/modelcraft|apps\/modelcraft/.test(src3('view3d.js') + src3('scene3d.js') + appJs), 'nothing imports from ModelCraft\'s folder');
@@ -2209,11 +2582,19 @@ async function browserTest() {
       await T((q) => { const m = document.querySelector(q)?.closest('details'); if (m && !m.open) m.querySelector('summary').click(); }, sel);
       const [d] = await Promise.all([page.waitForEvent('download', { timeout: 20000 }), page.click(sel)]); const f = path.join(tmp, d.suggestedFilename()); await d.saveAs(f); return f;
     };
-    ok(await T(() => [...document.querySelectorAll('[data-export-menu] [role="menuitem"]')].map((b) => b.dataset.act).join() === 'export-xlsx,export-csv,export-pdf,export-embed,export-bid'), 'Export is one menu: XLSX, CSV, Marked PDF, PDF with the takeoff inside (T10), Bid summary & proposal (T19)');
+    ok(await T(() => [...document.querySelectorAll('[data-export-menu] [role="menuitem"]')].map((b) => b.dataset.act).join() === 'export-xlsx,export-csv,export-materials,export-spots,export-pdf,export-embed,export-bid'), 'Export is one menu: XLSX, CSV, Material list (TK.4), Spot elevations (TK.5), Marked PDF, PDF with the takeoff inside (T10), Bid summary & proposal (T19)');
     const fx = await dl('[data-act="export-xlsx"]');
     ok(fx.endsWith('.xlsx') && /No errors detected/.test(execFileSync('unzip', ['-t', fx], { encoding: 'utf8' })), 'XLSX downloads and unzips cleanly');
     const fc = await dl('[data-act="export-csv"]');
     ok(fs.readFileSync(fc, 'utf8').startsWith('\uFEFFItem,Type,Unit'), 'CSV downloads (UTF-8 with a BOM, so spreadsheets read m² right)');
+    // TK.5: Spot elevations — refused while no count mark has one, then a points file CivilCraft reads
+    await T(() => { const m = document.querySelector('[data-export-menu]'); if (m && !m.open) m.querySelector('summary').click(); });
+    await page.click('[data-act="export-spots"]');
+    ok(/no count marks with an elevation/.test(await T(() => document.querySelector('[data-status]').textContent)), 'Spot elevations with none set says what to do');
+    await T(() => { const tk = window.takeoffcraft; const c = tk.model.state.marks.find((m) => m.kind === 'count'); tk.model.updateMark(c.id, { z: 98.75 }); });
+    const fz = await dl('[data-act="export-spots"]');
+    ok(/^Point,Northing,Easting,Elevation,Description\r\n1,[\d.]+,[\d.]+,98\.75,/.test(fs.readFileSync(fz, 'utf8')), 'Spot elevations downloads the points file (98.75)', fs.readFileSync(fz, 'utf8').slice(0, 120));
+    await T(() => window.takeoffcraft.model.undo());
     const fp = await dl('[data-act="save-project"]');
     const proj = JSON.parse(fs.readFileSync(fp, 'utf8'));
     ok(fp.endsWith('.takeoff.json') && proj.format === 'takeoffcraft-project' && proj.marks.length === 5, 'project file downloads (5 marks)');
@@ -2944,6 +3325,61 @@ async function browserTest() {
       ok((await T(() => window.takeoffcraft.model.state.items.find((i) => i.name === 'Room 101').mat)) === 0, 'one Ctrl+Z puts its old prices back');
       const kept = await T(() => JSON.parse(localStorage.getItem('takeoffcraft.library') || '[]').map((e) => e.name).join());
       eq(kept, 'Partition type A,Room 101', 'the library is kept in this browser for the next takeoff');
+
+      // TK.1: trade packs — install into the library (no prices), add one to the takeoff, remove in one step, export as a pack
+      await T(() => localStorage.setItem('takeoffcraft.packs.units', 'imperial'));
+      await page.click('[data-library]');
+      await page.waitForSelector('dialog[open] [data-lib-packs]');
+      await page.click('dialog[open] [data-lib-packs]');
+      await page.waitForSelector('dialog[open] [data-pack="trade.drywall-framing"] [data-pack-install]');
+      const packRows = await page.$$eval('dialog[open] [data-pack]', (els) => els.map((e) => e.dataset.pack));
+      ok(packRows.length >= 6 && packRows.includes('trade.electrical') && packRows.includes('trade.concrete'), 'Trade packs lists the packs of this build', packRows.join());
+      ok(/Starter: not reviewed by an estimator yet/.test(await page.textContent('dialog[open] [data-pack="trade.drywall-framing"]')), 'each pack says it is a starter, not reviewed');
+      await page.click('dialog[open] [data-pack="trade.drywall-framing"] [data-pack-install]');
+      await page.waitForFunction(() => /Installed Drywall and framing: \d+ added/.test(document.querySelector('dialog[open] [data-packs-msg]')?.textContent || ''));
+      const pmsg = await page.textContent('dialog[open] [data-packs-msg]');
+      ok(/Set your rates: a pack brings none/.test(pmsg) && await page.isVisible('dialog[open] [data-pack="trade.drywall-framing"] [data-pack-remove]'), 'Install: added to the library, "set your rates", and now Remove is offered', pmsg);
+      await page.click('dialog[open] [data-pack="trade.drywall-framing"] summary');
+      await page.waitForSelector('dialog[open] [data-pack="trade.drywall-framing"] .tc-pack-src li');
+      ok(/Gypsum Association/.test(await page.textContent('dialog[open] [data-pack="trade.drywall-framing"] .tc-pack-src')), 'Sources and details lists the references');
+      await page.screenshot({ path: path.join(shots, 'takeoffcraft-packs-paper.png') });
+      await page.click('dialog[open] [data-key="cancel"]');
+      await page.waitForSelector('dialog[open] [data-lib-list]');                       // back in the library
+      const libState = await T(() => JSON.parse(localStorage.getItem('takeoffcraft.library') || '[]'));
+      const dw = libState.filter((e) => e.pack?.id === 'trade.drywall-framing');
+      ok(dw.length > 20 && dw.every((e) => e.mat === 0 && e.lab === 0 && (e.components || []).every((c) => !c.mat && !c.lab)) && dw.every((e) => e.unit !== 'm' && e.unit !== 'm²'), `the library holds ${dw.length} imperial drywall entries, all without rates`);
+      ok((await page.$$('dialog[open] [data-lib-unset]')).length >= 20 && (await page.$$('dialog[open] [data-lib-pack-tag="trade.drywall-framing"]')).length >= 20, 'their rows say "set your rate" and carry the pack\'s tag');
+      await page.fill('dialog[open] [data-lib-search]', 'steel studs 3-5/8 in at 16 in o.c., 10 ft');
+      await page.waitForTimeout(100);
+      await page.check('dialog[open] [data-lib-entry]:first-of-type');
+      await page.click('dialog[open] [data-key="ok"]');
+      await page.waitForTimeout(150);
+      const dwi = await T(() => window.takeoffcraft.model.state.items.find((i) => /steel studs 3-5\/8 in at 16 in o\.c\., 10 ft high/.test(i.name)));
+      ok(dwi && dwi.heightFt === 10 && dwi.components.length === 6 && dwi.csi === '09 21 16', 'a pack item added to the takeoff: 10 ft high, six parts, CSI 09 21 16', JSON.stringify(dwi && { h: dwi.heightFt, n: dwi.components.length, csi: dwi.csi }));
+      await page.click('[data-library]');
+      await page.waitForSelector('dialog[open] [data-lib-packs]');
+      await page.click('dialog[open] [data-lib-packs]');
+      await page.waitForSelector('dialog[open] [data-pack="trade.drywall-framing"] [data-pack-remove]');
+      await page.click('dialog[open] [data-pack="trade.drywall-framing"] [data-pack-remove]');
+      ok(/Remove \d+ entries\?/.test(await page.textContent('dialog[open] [data-pack="trade.drywall-framing"] [data-pack-remove]')), 'Remove asks once more');
+      await page.click('dialog[open] [data-pack="trade.drywall-framing"] [data-pack-remove]');
+      await page.waitForFunction(() => /Removed Drywall and framing: \d+ entries/.test(document.querySelector('dialog[open] [data-packs-msg]')?.textContent || ''));
+      eq(await T(() => JSON.parse(localStorage.getItem('takeoffcraft.library') || '[]').map((e) => e.name).join()), 'Partition type A,Room 101', 'Remove: every entry of the pack left in one step; my own entries stay');
+      ok(!!(await T(() => window.takeoffcraft.model.state.items.find((i) => /10 ft high/.test(i.name)))), 'the item already in the takeoff stays');
+      await page.click('dialog[open] [data-key="cancel"]');
+      await page.waitForSelector('dialog[open] [data-lib-export-pack]');
+      await page.click('dialog[open] [data-lib-export-pack]');
+      await page.waitForSelector('dialog[open] [data-xp-name]');
+      await page.fill('dialog[open] [data-xp-name]', 'Test shop');
+      await page.check('dialog[open] [data-xp-rates]');
+      await page.click('dialog[open] [data-key="ok"]');
+      ok(/region and the date/.test(await page.textContent('dialog[open] .tc-ask-err')), 'export with rates but no region is refused, saying why');
+      await page.fill('dialog[open] [data-xp-region]', 'Austin, Texas');
+      const [dl] = await Promise.all([page.waitForEvent('download'), page.click('dialog[open] [data-key="ok"]')]);
+      const xpJson = JSON.parse(fs.readFileSync(await dl.path(), 'utf8'));
+      ok(dl.suggestedFilename() === 'test-shop.ccpack.json' && xpJson.format === 'takeoffcraft-pack' && xpJson.items.length === 2 && xpJson.samples?.region === 'Austin, Texas' && xpJson.samples.rates['partition-type-a'].mat === 21000, 'Export as pack: test-shop.ccpack.json with my two entries and my rates labelled as samples for Austin');
+      await page.waitForSelector('dialog[open] [data-lib-list]');
+      await page.click('dialog[open] [data-key="cancel"]');
       await T(() => localStorage.removeItem('takeoffcraft.library'));
 
       // T16: a typical group — Room 101's floor taken off once, counted ×24
@@ -3300,6 +3736,18 @@ async function browserTest() {
     await page.screenshot({ path: path.join(shots, 'takeoffcraft-empty-paper.png') });
     const words = await T(() => document.querySelector('[data-takeoffcraft]').innerText);
     ok(!/\b(null|undefined|NaN)\b/.test(words), 'no "null", "undefined" or "NaN" on the empty page');
+
+    // TK.6: the directory's pack listing (lab access sees the dev build's packs) and the Install link the app takes (?pack=)
+    await page.goto('https://getcadcraft.com/addons?kind=pack');
+    const cards = await page.$$eval('[data-pack]', (els) => els.map((e) => e.dataset.pack));
+    ok(cards.length >= 16 && !(await page.$('[data-pack-install]')), `/addons?kind=pack lists ${cards.length} packs; no Install button while the owner's switch is off`);
+    await page.screenshot({ path: path.join(shots, 'takeoffcraft-addons-packs-paper.png'), fullPage: true });
+    await page.goto('https://getcadcraft.com/lab/takeoffcraft?space=paper&pack=trade.concrete');
+    await appReady();
+    await page.waitForSelector('dialog[open] [data-pack="trade.concrete"].is-offered');
+    ok(/A link asked to install Concrete/.test(await page.textContent('dialog[open] [data-packs-msg]')) && !/[?&]pack=/.test(page.url()), '?pack=trade.concrete opens Trade packs pointing at Concrete (installing still takes a click); the address drops ?pack=');
+    ok((await T(() => (JSON.parse(localStorage.getItem('takeoffcraft.library') || '[]')).length)) === 0, 'nothing was installed by the link alone');
+    await page.click('dialog[open] [data-key="cancel"]');
     ok(true, 'screenshots in ' + shots);
   } catch (err) {
     ok(false, 'browser run', err.stack?.split('\n').slice(0, 4).join(' | '));

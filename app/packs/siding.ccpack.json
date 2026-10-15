@@ -1,0 +1,526 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.siding",
+ "name": "Siding",
+ "packVersion": "0.1.0",
+ "trade": "Siding",
+ "description": "Vinyl and fiber-cement lap siding with water-resistive barrier and fasteners, J-channel, corner posts, starter strip, vented soffit and fascia. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "07 46 33",
+  "07 46 46"
+ ],
+ "sources": [
+  {
+   "id": "vsi",
+   "title": "Vinyl Siding Installation Manual",
+   "publisher": "Vinyl Siding Institute",
+   "url": "https://www.vinylsiding.org/"
+  },
+  {
+   "id": "irc-r703",
+   "title": "International Residential Code, Section R703 Exterior Covering (water-resistive barrier, siding attachment, anchored veneer ties)",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "pds",
+   "title": "The product data sheet of the coating, adhesive or product you specify (spread rate, coverage, coats)",
+   "publisher": "its manufacturer"
+  },
+  {
+   "id": "irc-r806",
+   "title": "International Residential Code, Section R806 Roof Ventilation",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "vinyl-d4",
+   "type": "area",
+   "csi": "07 46 33",
+   "group": "Lap siding",
+   "sources": [
+    "vsi",
+    "irc-r703",
+    "geometry"
+   ],
+   "assume": [
+    "Panels by the square (100 SF), 10% waste; double 4 in panels, 8 in per course.",
+    "Nails 16 in o.c. along each course (VSI manual): 1.5 courses per ft x 0.75 nails per ft = 1.125 per SF.",
+    "Water-resistive barrier over the whole wall (IRC R703.2), 10% for laps; cap fasteners about 1 per 2 SF (a starting figure: use the barrier maker’s schedule)."
+   ],
+   "note": "Measure each wall elevation; cut out openings over 4 SF (or lower the waste).",
+   "waste": 0,
+   "name": "Vinyl siding, double 4 in, on water-resistive barrier",
+   "unit": "SF",
+   "twin": "vinyl-d4-m",
+   "components": [
+    {
+     "name": "Vinyl siding",
+     "unit": "SQ",
+     "formula": "A/100",
+     "waste": 1000
+    },
+    {
+     "name": "Siding nails",
+     "unit": "EA",
+     "formula": "ceil(A*1.125)",
+     "waste": 500
+    },
+    {
+     "name": "Water-resistive barrier",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Cap fasteners",
+     "unit": "EA",
+     "formula": "ceil(A/2)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "vinyl-d4-m",
+   "type": "area",
+   "csi": "07 46 33",
+   "group": "Lap siding",
+   "sources": [
+    "vsi",
+    "irc-r703",
+    "geometry"
+   ],
+   "assume": [
+    "Panels by the square (100 SF), 10% waste; double 4 in panels, 8 in per course.",
+    "Nails 16 in o.c. along each course (VSI manual): 1.5 courses per ft x 0.75 nails per ft = 1.125 per SF.",
+    "Water-resistive barrier over the whole wall (IRC R703.2), 10% for laps; cap fasteners about 1 per 2 SF (a starting figure: use the barrier maker’s schedule)."
+   ],
+   "note": "Measure each wall elevation; cut out openings over 4 SF (or lower the waste).",
+   "waste": 0,
+   "name": "Vinyl siding, double 102 mm, on water-resistive barrier",
+   "unit": "m²",
+   "twin": "vinyl-d4",
+   "components": [
+    {
+     "name": "Vinyl siding",
+     "unit": "SQ",
+     "formula": "A/9.2903",
+     "waste": 1000
+    },
+    {
+     "name": "Siding nails",
+     "unit": "EA",
+     "formula": "ceil(A*12.1094)",
+     "waste": 500
+    },
+    {
+     "name": "Water-resistive barrier",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Cap fasteners",
+     "unit": "EA",
+     "formula": "ceil(A/0.1858)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "fc-lap",
+   "type": "area",
+   "csi": "07 46 46",
+   "group": "Lap siding",
+   "sources": [
+    "irc-r703",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Planks 8-1/4 in x 12 ft at 7 in exposure: 12 / 7 = 1.714 LF per SF, so one 12 ft plank per 7 SF; 10% waste.",
+    "One blind nail per stud crossing, studs 16 in o.c.: 1.714 x 0.75 = 1.29 per SF (the maker’s guide and IRC Table R703.3(1) give the fastening).",
+    "Water-resistive barrier over the whole wall (IRC R703.2), 10% for laps; cap fasteners about 1 per 2 SF (a starting figure: use the barrier maker’s schedule)."
+   ],
+   "note": "Measure each wall elevation.",
+   "waste": 0,
+   "name": "Fiber-cement lap siding 8-1/4 in, 7 in exposure",
+   "unit": "SF",
+   "twin": "fc-lap-m",
+   "components": [
+    {
+     "name": "Lap planks 8-1/4 in x 12 ft",
+     "unit": "EA",
+     "formula": "ceil(A/7)",
+     "waste": 1000
+    },
+    {
+     "name": "Siding nails",
+     "unit": "EA",
+     "formula": "ceil(A*1.29)",
+     "waste": 500
+    },
+    {
+     "name": "Water-resistive barrier",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Cap fasteners",
+     "unit": "EA",
+     "formula": "ceil(A/2)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "fc-lap-m",
+   "type": "area",
+   "csi": "07 46 46",
+   "group": "Lap siding",
+   "sources": [
+    "irc-r703",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Planks 8-1/4 in x 12 ft at 7 in exposure: 12 / 7 = 1.714 LF per SF, so one 12 ft plank per 7 SF; 10% waste.",
+    "One blind nail per stud crossing, studs 16 in o.c.: 1.714 x 0.75 = 1.29 per SF (the maker’s guide and IRC Table R703.3(1) give the fastening).",
+    "Water-resistive barrier over the whole wall (IRC R703.2), 10% for laps; cap fasteners about 1 per 2 SF (a starting figure: use the barrier maker’s schedule)."
+   ],
+   "note": "Measure each wall elevation.",
+   "waste": 0,
+   "name": "Fiber-cement lap siding 210 mm, 178 mm exposure",
+   "unit": "m²",
+   "twin": "fc-lap",
+   "components": [
+    {
+     "name": "Lap planks 210 mm x 3.66 m",
+     "unit": "EA",
+     "formula": "ceil(A/0.6503)",
+     "waste": 1000
+    },
+    {
+     "name": "Siding nails",
+     "unit": "EA",
+     "formula": "ceil(A*13.885)",
+     "waste": 500
+    },
+    {
+     "name": "Water-resistive barrier",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Cap fasteners",
+     "unit": "EA",
+     "formula": "ceil(A/0.1858)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "jchannel",
+   "type": "linear",
+   "csi": "07 46 33",
+   "group": "Trim",
+   "sources": [
+    "vsi",
+    "geometry"
+   ],
+   "assume": [
+    "J-channel in 12-1/2 ft lengths, one extra per run for laps."
+   ],
+   "note": "Measure around windows and doors and along rakes.",
+   "waste": 0,
+   "name": "J-channel at openings and rakes",
+   "unit": "LF",
+   "twin": "jchannel-m",
+   "components": [
+    {
+     "name": "J-channel, 12-1/2 ft lengths",
+     "unit": "EA",
+     "formula": "ceil(L/12.5)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "jchannel-m",
+   "type": "linear",
+   "csi": "07 46 33",
+   "group": "Trim",
+   "sources": [
+    "vsi",
+    "geometry"
+   ],
+   "assume": [
+    "J-channel in 12-1/2 ft lengths, one extra per run for laps."
+   ],
+   "note": "Measure around windows and doors and along rakes.",
+   "waste": 0,
+   "name": "J-channel at openings and rakes (metric)",
+   "unit": "m",
+   "twin": "jchannel",
+   "components": [
+    {
+     "name": "J-channel, 3.81 m lengths",
+     "unit": "EA",
+     "formula": "ceil(L/3.81)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "corner-post",
+   "type": "linear",
+   "csi": "07 46 33",
+   "group": "Trim",
+   "sources": [
+    "vsi",
+    "geometry"
+   ],
+   "assume": [
+    "Corner posts in 10 ft lengths; a corner taller than one post takes two."
+   ],
+   "note": "Draw each outside and inside corner, eave to grade.",
+   "waste": 0,
+   "name": "Corner posts (outside and inside)",
+   "unit": "LF",
+   "twin": "corner-post-m",
+   "components": [
+    {
+     "name": "Corner post, 10 ft",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "corner-post-m",
+   "type": "linear",
+   "csi": "07 46 33",
+   "group": "Trim",
+   "sources": [
+    "vsi",
+    "geometry"
+   ],
+   "assume": [
+    "Corner posts in 10 ft lengths; a corner taller than one post takes two."
+   ],
+   "note": "Draw each outside and inside corner, eave to grade.",
+   "waste": 0,
+   "name": "Corner posts (outside and inside) (metric)",
+   "unit": "m",
+   "twin": "corner-post",
+   "components": [
+    {
+     "name": "Corner post, 3.05 m",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "starter",
+   "type": "linear",
+   "csi": "07 46 33",
+   "group": "Trim",
+   "sources": [
+    "vsi",
+    "geometry"
+   ],
+   "assume": [
+    "Starter strip in 12 ft lengths along the bottom of the siding."
+   ],
+   "note": "Measure along the base of the siding.",
+   "waste": 0,
+   "name": "Starter strip",
+   "unit": "LF",
+   "twin": "starter-m",
+   "components": [
+    {
+     "name": "Starter strip, 12 ft",
+     "unit": "EA",
+     "formula": "ceil(L/12)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "starter-m",
+   "type": "linear",
+   "csi": "07 46 33",
+   "group": "Trim",
+   "sources": [
+    "vsi",
+    "geometry"
+   ],
+   "assume": [
+    "Starter strip in 12 ft lengths along the bottom of the siding."
+   ],
+   "note": "Measure along the base of the siding.",
+   "waste": 0,
+   "name": "Starter strip (metric)",
+   "unit": "m",
+   "twin": "starter",
+   "components": [
+    {
+     "name": "Starter strip, 3.66 m",
+     "unit": "EA",
+     "formula": "ceil(L/3.6576)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "soffit",
+   "type": "area",
+   "csi": "07 46 33",
+   "group": "Soffit and fascia",
+   "sources": [
+    "vsi",
+    "irc-r806",
+    "geometry"
+   ],
+   "assume": [
+    "Vented soffit panels by area, 10% waste; check the net free area against the attic ventilation required (IRC R806).",
+    "F-channel or J-channel at the wall: the soffit outline P counts both edges, so half of it."
+   ],
+   "note": "Measure the soffit area as a strip along each eave.",
+   "waste": 0,
+   "name": "Vented soffit with channel",
+   "unit": "SF",
+   "twin": "soffit-m",
+   "components": [
+    {
+     "name": "Vented soffit panels",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "F-channel at the wall",
+     "unit": "LF",
+     "formula": "P/2",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "soffit-m",
+   "type": "area",
+   "csi": "07 46 33",
+   "group": "Soffit and fascia",
+   "sources": [
+    "vsi",
+    "irc-r806",
+    "geometry"
+   ],
+   "assume": [
+    "Vented soffit panels by area, 10% waste; check the net free area against the attic ventilation required (IRC R806).",
+    "F-channel or J-channel at the wall: the soffit outline P counts both edges, so half of it."
+   ],
+   "note": "Measure the soffit area as a strip along each eave.",
+   "waste": 0,
+   "name": "Vented soffit with channel (metric)",
+   "unit": "m²",
+   "twin": "soffit",
+   "components": [
+    {
+     "name": "Vented soffit panels",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "F-channel at the wall",
+     "unit": "m",
+     "formula": "P/2",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "fascia",
+   "type": "linear",
+   "csi": "07 46 33",
+   "group": "Soffit and fascia",
+   "sources": [
+    "vsi",
+    "geometry"
+   ],
+   "assume": [
+    "Aluminum fascia cover 6 in in 12 ft lengths; trim nails 1 per 16 in."
+   ],
+   "note": "Measure the eaves and rakes.",
+   "waste": 0,
+   "name": "Fascia cover, aluminum 6 in",
+   "unit": "LF",
+   "twin": "fascia-m",
+   "components": [
+    {
+     "name": "Fascia cover, 12 ft",
+     "unit": "EA",
+     "formula": "ceil(L/12)+N",
+     "waste": 500
+    },
+    {
+     "name": "Trim nails",
+     "unit": "EA",
+     "formula": "ceil(L*0.75)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "fascia-m",
+   "type": "linear",
+   "csi": "07 46 33",
+   "group": "Soffit and fascia",
+   "sources": [
+    "vsi",
+    "geometry"
+   ],
+   "assume": [
+    "Aluminum fascia cover 6 in in 12 ft lengths; trim nails 1 per 16 in."
+   ],
+   "note": "Measure the eaves and rakes.",
+   "waste": 0,
+   "name": "Fascia cover, aluminum 152 mm",
+   "unit": "m",
+   "twin": "fascia",
+   "components": [
+    {
+     "name": "Fascia cover, 3.66 m",
+     "unit": "EA",
+     "formula": "ceil(L/3.6576)+N",
+     "waste": 500
+    },
+    {
+     "name": "Trim nails",
+     "unit": "EA",
+     "formula": "ceil(L/0.4064)",
+     "waste": 1000
+    }
+   ]
+  }
+ ]
+}

@@ -11,6 +11,7 @@
  *              components: [{ id, name, unit, formula, waste, mat, lab }],
  *              backout (area items: its marks are back-outs, T14), backoutOf [area item ids it deducts from],
  *              pitch (rise per 12: area items' surface, linear items' rakes and hips — T15), slope (linear: 'rake' | 'hip'),
+ *              csi (a CSI MasterFormat number, "09 21 16": groups the estimate by division — 0.5 TK.4),
  *              3D only (T5): thickFt (linear: wall thickness), baseFt (linear, area: height above the floor), headFt (linear: an
  *              opening's head — a deducted segment keeps the wall above it) }]
  *   marks   [{ id, item, sheet, kind, pts: [{x,y}], holes: [[{x,y}]], …extras }]   PDF user space
@@ -21,18 +22,20 @@
  *             pitch    rise per 12        this mark's own pitch (instead of its item's) — T15
  *             slopes   [{ k, p } | null]  linear: per segment, 'flat' | 'rake' | 'hip' and its own pitch — T15
  *             group    typical group id   taken off once, counted `repeat` times — T16
+ *             z        feet               count: a spot elevation, handed to CivilCraft as a point file — 0.5 TK.5
  *   areas   [{ id, name, alt? }]   bid areas, in order (T12); a mark without `area` is in no bid area. `alt` (T17):
  *           'add' — an add alternate, left out of the base bid; 'deduct' — in the base bid, offered as a deduction
  *   groups  [{ id, name, repeat }]   typical groups (T16): a unit taken off once and counted `repeat` times
  *   notes   [{ id, sheet, kind: 'note' | 'cloud' | 'highlight', pts, text, status: 'open' | 'answered' | 'closed' }]   markups
  *           (T22): a note pins a point, a cloud or a highlight spans two corners; never counted, drawn in the marked PDF
- *   bid     { tax, overhead, profit, bond (basis points), to, project, by, incl, excl, terms, items }   the bid summary and
+ *   bid     { burden (labor burden, TK.4), tax, overhead, profit, bond (basis points), to, project, by, incl, excl, terms, items }   the bid summary and
  *           proposal (T19, bid.js)
  *
  * Every edit goes through `change(label, fn)` — one undo step. Quantities are always computed
  * from the marks and the sheet scales, never stored, so a changed scale re-measures everything.
  */
 
+import { cleanAddonData } from './addons.js';
 import { segmentLengths, areaWithHoles, isConvex, overlapArea, bounds } from './geom.js';
 import { normalBid, bidUsed } from './bid.js';
 import { UNITS, UNITS_FOR, DEFAULT_UNIT, lengthUnitOf, areaUnitOf, ftTo, sqftTo, withWaste, extendCents, MAX_PITCH, slopeFactor, hipFactor, roundTo } from './units.js';
@@ -98,7 +101,7 @@ export function normalNote(f) {
   return { id: String(f.id), sheet: f.sheet, kind: f.kind, pts, text, status: NOTE_STATUS.includes(f.status) ? f.status : 'open' };
 }
 
-export const MARK_EXTRAS = ['deducts', 'area', 'flag', 'pitch', 'slopes', 'group'];
+export const MARK_EXTRAS = ['deducts', 'area', 'flag', 'pitch', 'slopes', 'group', 'z'];
 export const SLOPE_KINDS = ['flat', 'rake', 'hip'];
 const pitchOk = (p) => typeof p === 'number' && Number.isFinite(p) && p >= 0 && p <= MAX_PITCH;
 const feetOk = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0 && v < 1e4;
@@ -113,8 +116,11 @@ export function markExtras(m) {
   if (m.flag) o.flag = m.flag;
   if (m.pitch !== undefined) o.pitch = m.pitch;
   if (m.kind === 'linear' && m.slopes?.some(Boolean)) o.slopes = m.slopes.map((x) => (x ? { ...x } : null));
+  if (m.kind === 'count' && zOk(m.z)) o.z = m.z;
   return o;
 }
+/** A spot elevation in feet (0.5 TK.5): any finite number under 100,000 ft, negative and zero included. */
+const zOk = (z) => typeof z === 'number' && Number.isFinite(z) && Math.abs(z) < 1e5;
 /**
  * Validate the optional fields of an untrusted mark `raw` whose geometry `m` is already clean.
  * ctx.areas / ctx.groups: the ids of the takeoff's bid areas and typical groups (a mark is in one of each at most).
@@ -124,6 +130,7 @@ export function readExtras(raw, m, ctx = {}) {
   if (typeof raw?.area === 'string' && ctx.areas?.has(raw.area)) o.area = raw.area;
   if (typeof raw?.group === 'string' && ctx.groups?.has(raw.group)) o.group = raw.group;
   if (raw?.flag === 'rev') o.flag = 'rev';
+  if (m.kind === 'count' && zOk(raw?.z)) o.z = raw.z;
   if (m.kind !== 'count' && pitchOk(raw?.pitch)) o.pitch = raw.pitch;
   if (m.kind === 'linear' && Array.isArray(raw?.slopes)) {
     const n = m.pts.length - 1;
@@ -289,7 +296,7 @@ export class Takeoff {
       const kinds = new Set(kindsOf(next));
       if (next.type !== it.type && s.marks.some((m) => m.item === id && m.kind === it.type)) throw new Error(t('err.item.type'));
       if (s.marks.some((m) => m.item === id && !kinds.has(m.kind))) throw new Error(t('err.item.cond'));
-      for (const k of ['backout', 'backoutOf', 'pitch', 'slope', 'thickFt', 'baseFt', 'headFt', 'conds', 'crew']) if (!(k in next)) delete it[k];     // turned off: the fields go
+      for (const k of ['backout', 'backoutOf', 'pitch', 'slope', 'thickFt', 'baseFt', 'headFt', 'conds', 'crew', 'xd', 'csi']) if (!(k in next)) delete it[k];     // turned off: the fields go
       Object.assign(it, next);
     });
   }
@@ -636,6 +643,10 @@ const arr = (p) => (p.b ? [p.x, p.y, p.b] : [p.x, p.y]);
 const str = (v, max = LIMITS.name) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
 const int = (v, lo, hi, d = 0) => (Number.isInteger(v) && v >= lo && v <= hi ? v : d);
 
+/** A CSI MasterFormat number: "09", "09 21", "09 21 16" or "09 21 16.23" (0.5 TK.4). */
+export const CSI_RE = /^\d{2}(?: \d{2}(?: \d{2}(?:\.\d{2})?)?)?$/;
+export const csiOk = (v) => typeof v === 'string' && CSI_RE.test(v);
+
 export function normalItem(f) {
   const type = TYPES.includes(f.type) ? f.type : 'linear';
   const unit = UNITS_FOR[type].includes(f.unit) ? f.unit : DEFAULT_UNIT[type];
@@ -657,6 +668,8 @@ export function normalItem(f) {
     ...(type !== 'count' && feetOk(f.baseFt) ? { baseFt: f.baseFt } : {}),
     ...(type === 'linear' && feetOk(f.headFt) ? { headFt: f.headFt } : {}),
     ...(type === 'linear' && (f.slope === 'rake' || f.slope === 'hip') ? { slope: f.slope } : {}),
+    ...(cleanAddonData(f.xd) ? { xd: cleanAddonData(f.xd) } : {}),   // add-ons' own data on the item (0.5 AO.6); kept without the add-on
+    ...(csiOk(f.csi) ? { csi: f.csi } : {}),                          // a CSI MasterFormat number (0.5 TK.4: the estimate by division)
     ...(type === 'area' && f.backout === true ? { backout: true, backoutOf: [...new Set((Array.isArray(f.backoutOf) ? f.backoutOf : []).filter((x) => typeof x === 'string' && x !== String(f.id)).slice(0, LIMITS.items))] } : {}),
   };
 }

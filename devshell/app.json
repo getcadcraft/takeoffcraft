@@ -19,13 +19,16 @@
         "partcraft": "PartCraft"
     },
     "vendor": {
+        "noble-ciphers": "2.4.0",
+        "noble-curves": "2.4.0",
+        "noble-hashes": "2.4.0",
         "pdf-lib": "1.17.1",
         "pdfjs": "6.3.289",
         "three": "0.186.1"
     },
     "origin": "https://getcadcraft.com",
     "packed": {
-        "at": "2026-10-13T20:37:29Z",
-        "build": "0.4"
+        "at": "2026-10-15T10:30:45Z",
+        "build": "dev"
     }
 }

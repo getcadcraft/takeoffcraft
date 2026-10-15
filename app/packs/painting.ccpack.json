@@ -1,0 +1,1060 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.painting",
+ "name": "Painting",
+ "packVersion": "0.1.0",
+ "trade": "Painting",
+ "description": "Interior walls by height (new and repaint), wall areas, ceilings, doors and frames, trim, caulk, exterior siding and block, epoxy floors. Spread rates are starting figures to replace with your products’ data sheets. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "07 92 00",
+  "09 67 23",
+  "09 91 13",
+  "09 91 23"
+ ],
+ "sources": [
+  {
+   "id": "mpi",
+   "title": "MPI Architectural Painting Specification Manual (paint systems by substrate)",
+   "publisher": "Master Painters Institute",
+   "url": "https://www.mpi.net/"
+  },
+  {
+   "id": "pds",
+   "title": "The product data sheet of the coating, adhesive or product you specify (spread rate, coverage, coats)",
+   "publisher": "its manufacturer"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  }
+ ],
+ "items": [
+  {
+   "key": "walls-new-8",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 8 ft",
+   "unit": "LF",
+   "twin": "walls-new-8-m",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "gal",
+     "formula": "A*1/300",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/350",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8
+  },
+  {
+   "key": "walls-new-8-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 2.44 m",
+   "unit": "m",
+   "twin": "walls-new-8",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "L",
+     "formula": "A*1/7.363",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/8.59",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.00524934383202
+  },
+  {
+   "key": "walls-repaint-8",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Finish: 400 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Repaint over sound paint in a similar color: no primer. Measure the run, one side.",
+   "waste": 0,
+   "name": "Repaint walls, two coats, 8 ft",
+   "unit": "LF",
+   "twin": "walls-repaint-8-m",
+   "components": [
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/400",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8
+  },
+  {
+   "key": "walls-repaint-8-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Finish: 400 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Repaint over sound paint in a similar color: no primer. Measure the run, one side.",
+   "waste": 0,
+   "name": "Repaint walls, two coats, 2.44 m",
+   "unit": "m",
+   "twin": "walls-repaint-8",
+   "components": [
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/9.817",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.00524934383202
+  },
+  {
+   "key": "walls-new-9",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 9 ft",
+   "unit": "LF",
+   "twin": "walls-new-9-m",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "gal",
+     "formula": "A*1/300",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/350",
+     "waste": 500
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "walls-new-9-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 2.74 m",
+   "unit": "m",
+   "twin": "walls-new-9",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "L",
+     "formula": "A*1/7.363",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/8.59",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "walls-repaint-9",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Finish: 400 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Repaint over sound paint in a similar color: no primer. Measure the run, one side.",
+   "waste": 0,
+   "name": "Repaint walls, two coats, 9 ft",
+   "unit": "LF",
+   "twin": "walls-repaint-9-m",
+   "components": [
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/400",
+     "waste": 500
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "walls-repaint-9-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Finish: 400 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Repaint over sound paint in a similar color: no primer. Measure the run, one side.",
+   "waste": 0,
+   "name": "Repaint walls, two coats, 2.74 m",
+   "unit": "m",
+   "twin": "walls-repaint-9",
+   "components": [
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/9.817",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "walls-new-10",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 10 ft",
+   "unit": "LF",
+   "twin": "walls-new-10-m",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "gal",
+     "formula": "A*1/300",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/350",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10
+  },
+  {
+   "key": "walls-new-10-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 3.05 m",
+   "unit": "m",
+   "twin": "walls-new-10",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "L",
+     "formula": "A*1/7.363",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/8.59",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10.006561679790025
+  },
+  {
+   "key": "walls-repaint-10",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Finish: 400 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Repaint over sound paint in a similar color: no primer. Measure the run, one side.",
+   "waste": 0,
+   "name": "Repaint walls, two coats, 10 ft",
+   "unit": "LF",
+   "twin": "walls-repaint-10-m",
+   "components": [
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/400",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10
+  },
+  {
+   "key": "walls-repaint-10-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Finish: 400 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Repaint over sound paint in a similar color: no primer. Measure the run, one side.",
+   "waste": 0,
+   "name": "Repaint walls, two coats, 3.05 m",
+   "unit": "m",
+   "twin": "walls-repaint-10",
+   "components": [
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/9.817",
+     "waste": 500
+    }
+   ],
+   "heightFt": 10.006561679790025
+  },
+  {
+   "key": "walls-new-12",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 12 ft",
+   "unit": "LF",
+   "twin": "walls-new-12-m",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "gal",
+     "formula": "A*1/300",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/350",
+     "waste": 500
+    }
+   ],
+   "heightFt": 12
+  },
+  {
+   "key": "walls-new-12-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 3.66 m",
+   "unit": "m",
+   "twin": "walls-new-12",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "L",
+     "formula": "A*1/7.363",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/8.59",
+     "waste": 500
+    }
+   ],
+   "heightFt": 12.007874015748031
+  },
+  {
+   "key": "walls-repaint-12",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Finish: 400 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Repaint over sound paint in a similar color: no primer. Measure the run, one side.",
+   "waste": 0,
+   "name": "Repaint walls, two coats, 12 ft",
+   "unit": "LF",
+   "twin": "walls-repaint-12-m",
+   "components": [
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/400",
+     "waste": 500
+    }
+   ],
+   "heightFt": 12
+  },
+  {
+   "key": "walls-repaint-12-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Finish: 400 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Repaint over sound paint in a similar color: no primer. Measure the run, one side.",
+   "waste": 0,
+   "name": "Repaint walls, two coats, 3.66 m",
+   "unit": "m",
+   "twin": "walls-repaint-12",
+   "components": [
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/9.817",
+     "waste": 500
+    }
+   ],
+   "heightFt": 12.007874015748031
+  },
+  {
+   "key": "walls-area",
+   "type": "area",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "For walls measured as areas (elevations).",
+   "waste": 0,
+   "name": "Paint wall area, primer + two finish coats",
+   "unit": "SF",
+   "twin": "walls-area-m",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "gal",
+     "formula": "A*1/300",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/350",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "walls-area-m",
+   "type": "area",
+   "csi": "09 91 23",
+   "group": "Interior walls",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "For walls measured as areas (elevations).",
+   "waste": 0,
+   "name": "Paint wall area, primer + two finish coats (metric)",
+   "unit": "m²",
+   "twin": "walls-area",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "L",
+     "formula": "A*1/7.363",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/8.59",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "ceilings",
+   "type": "area",
+   "csi": "09 91 23",
+   "group": "Ceilings",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the ceiling area.",
+   "waste": 0,
+   "name": "Paint gypsum ceilings, primer + two coats flat",
+   "unit": "SF",
+   "twin": "ceilings-m",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "gal",
+     "formula": "A*1/300",
+     "waste": 500
+    },
+    {
+     "name": "Ceiling latex, flat",
+     "unit": "gal",
+     "formula": "A*2/350",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "ceilings-m",
+   "type": "area",
+   "csi": "09 91 23",
+   "group": "Ceilings",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the ceiling area.",
+   "waste": 0,
+   "name": "Paint gypsum ceilings, primer + two coats flat (metric)",
+   "unit": "m²",
+   "twin": "ceilings",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "L",
+     "formula": "A*1/7.363",
+     "waste": 500
+    },
+    {
+     "name": "Ceiling latex, flat",
+     "unit": "L",
+     "formula": "A*2/8.59",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "door-frame",
+   "type": "count",
+   "csi": "09 91 23",
+   "group": "Doors and trim",
+   "sources": [
+    "mpi",
+    "pds"
+   ],
+   "assume": [
+    "About 50 SF of painted surface per door and frame, both sides (a 3 x 7 ft door is 21 SF a side, plus the frame).",
+    "Primer 300 SF/gal, finish 350 SF/gal per coat, two finish coats (starting figures: use the data sheets)."
+   ],
+   "note": "Count each door with its frame.",
+   "waste": 0,
+   "name": "Paint door and frame, both sides, primer + two coats",
+   "unit": "EA",
+   "twin": "door-frame-m",
+   "components": [
+    {
+     "name": "Primer, enamel undercoat",
+     "unit": "gal",
+     "formula": "N*50/300",
+     "waste": 500
+    },
+    {
+     "name": "Enamel, semi-gloss",
+     "unit": "gal",
+     "formula": "N*50*2/350",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "door-frame-m",
+   "type": "count",
+   "csi": "09 91 23",
+   "group": "Doors and trim",
+   "sources": [
+    "mpi",
+    "pds"
+   ],
+   "assume": [
+    "About 50 SF of painted surface per door and frame, both sides (a 3 x 7 ft door is 21 SF a side, plus the frame).",
+    "Primer 300 SF/gal, finish 350 SF/gal per coat, two finish coats (starting figures: use the data sheets)."
+   ],
+   "note": "Count each door with its frame.",
+   "waste": 0,
+   "name": "Paint door and frame, both sides, primer + two coats (metric)",
+   "unit": "EA",
+   "twin": "door-frame",
+   "components": [
+    {
+     "name": "Primer, enamel undercoat",
+     "unit": "L",
+     "formula": "N*4.645/7.363",
+     "waste": 500
+    },
+    {
+     "name": "Enamel, semi-gloss",
+     "unit": "L",
+     "formula": "N*4.645*2/8.590",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "trim",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Doors and trim",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Trim girth about 6 in (0.5 SF per LF; metric 0.1524 m² per m).",
+    "Two coats of enamel at 350 SF/gal (a starting figure)."
+   ],
+   "note": "Measure base, casing and other trim runs.",
+   "waste": 0,
+   "name": "Paint trim and base, two coats enamel",
+   "unit": "LF",
+   "twin": "trim-m",
+   "components": [
+    {
+     "name": "Enamel, semi-gloss",
+     "unit": "gal",
+     "formula": "L*0.5*2/350",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "trim-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Doors and trim",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Trim girth about 6 in (0.5 SF per LF; metric 0.1524 m² per m).",
+    "Two coats of enamel at 350 SF/gal (a starting figure)."
+   ],
+   "note": "Measure base, casing and other trim runs.",
+   "waste": 0,
+   "name": "Paint trim and base, two coats enamel (metric)",
+   "unit": "m",
+   "twin": "trim",
+   "components": [
+    {
+     "name": "Enamel, semi-gloss",
+     "unit": "L",
+     "formula": "L*0.1524*2/8.590",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "ext-siding",
+   "type": "area",
+   "csi": "09 91 13",
+   "group": "Exterior",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Exterior primer and finish at 250 SF/gal per coat on siding (rough and lapped surfaces take more: a starting figure).",
+    "Primer + two finish coats."
+   ],
+   "note": "Measure the wall area of each elevation.",
+   "waste": 0,
+   "name": "Paint exterior siding, primer + two coats",
+   "unit": "SF",
+   "twin": "ext-siding-m",
+   "components": [
+    {
+     "name": "Exterior primer",
+     "unit": "gal",
+     "formula": "A*1/250",
+     "waste": 500
+    },
+    {
+     "name": "Exterior acrylic latex",
+     "unit": "gal",
+     "formula": "A*2/250",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "ext-siding-m",
+   "type": "area",
+   "csi": "09 91 13",
+   "group": "Exterior",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Exterior primer and finish at 250 SF/gal per coat on siding (rough and lapped surfaces take more: a starting figure).",
+    "Primer + two finish coats."
+   ],
+   "note": "Measure the wall area of each elevation.",
+   "waste": 0,
+   "name": "Paint exterior siding, primer + two coats (metric)",
+   "unit": "m²",
+   "twin": "ext-siding",
+   "components": [
+    {
+     "name": "Exterior primer",
+     "unit": "L",
+     "formula": "A*1/6.136",
+     "waste": 500
+    },
+    {
+     "name": "Exterior acrylic latex",
+     "unit": "L",
+     "formula": "A*2/6.136",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "ext-cmu",
+   "type": "area",
+   "csi": "09 91 13",
+   "group": "Exterior",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Block filler at 200 SF/gal, finish at 250 SF/gal per coat, two coats (starting figures: porous block takes more)."
+   ],
+   "note": "Measure the masonry wall area.",
+   "waste": 0,
+   "name": "Paint concrete block, block filler + two coats",
+   "unit": "SF",
+   "twin": "ext-cmu-m",
+   "components": [
+    {
+     "name": "Block filler",
+     "unit": "gal",
+     "formula": "A*1/200",
+     "waste": 500
+    },
+    {
+     "name": "Exterior acrylic latex",
+     "unit": "gal",
+     "formula": "A*2/250",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "ext-cmu-m",
+   "type": "area",
+   "csi": "09 91 13",
+   "group": "Exterior",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Block filler at 200 SF/gal, finish at 250 SF/gal per coat, two coats (starting figures: porous block takes more)."
+   ],
+   "note": "Measure the masonry wall area.",
+   "waste": 0,
+   "name": "Paint concrete block, block filler + two coats (metric)",
+   "unit": "m²",
+   "twin": "ext-cmu",
+   "components": [
+    {
+     "name": "Block filler",
+     "unit": "L",
+     "formula": "A*1/4.909",
+     "waste": 500
+    },
+    {
+     "name": "Exterior acrylic latex",
+     "unit": "L",
+     "formula": "A*2/6.136",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "floor-epoxy",
+   "type": "area",
+   "csi": "09 67 23",
+   "group": "Floors",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Two coats of epoxy at 200 SF/gal per coat (a starting figure; film thickness decides it: use the data sheet).",
+    "Surface preparation is labor in the item rate."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Epoxy floor coating, two coats",
+   "unit": "SF",
+   "twin": "floor-epoxy-m",
+   "components": [
+    {
+     "name": "Epoxy floor coating",
+     "unit": "gal",
+     "formula": "A*2/200",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "floor-epoxy-m",
+   "type": "area",
+   "csi": "09 67 23",
+   "group": "Floors",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Two coats of epoxy at 200 SF/gal per coat (a starting figure; film thickness decides it: use the data sheet).",
+    "Surface preparation is labor in the item rate."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Epoxy floor coating, two coats (metric)",
+   "unit": "m²",
+   "twin": "floor-epoxy",
+   "components": [
+    {
+     "name": "Epoxy floor coating",
+     "unit": "L",
+     "formula": "A*2/4.909",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "caulk",
+   "type": "linear",
+   "csi": "07 92 00",
+   "group": "Doors and trim",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "About 25 LF of 1/4 in bead per 10.1 oz cartridge (metric 7.62 m) — a starting figure."
+   ],
+   "note": "Measure caulked joints (trim to wall, frames).",
+   "waste": 0,
+   "name": "Caulk joints before painting, 1/4 in bead",
+   "unit": "LF",
+   "twin": "caulk-m",
+   "components": [
+    {
+     "name": "Paintable acrylic caulk, 10.1 oz cartridges",
+     "unit": "EA",
+     "formula": "ceil(L/25)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "caulk-m",
+   "type": "linear",
+   "csi": "07 92 00",
+   "group": "Doors and trim",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "About 25 LF of 1/4 in bead per 10.1 oz cartridge (metric 7.62 m) — a starting figure."
+   ],
+   "note": "Measure caulked joints (trim to wall, frames).",
+   "waste": 0,
+   "name": "Caulk joints before painting, 6 mm bead",
+   "unit": "m",
+   "twin": "caulk",
+   "components": [
+    {
+     "name": "Paintable acrylic caulk, 10.1 oz cartridges",
+     "unit": "EA",
+     "formula": "ceil(L/7.62)",
+     "waste": 1000
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,680 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.finish-carpentry",
+ "name": "Finish carpentry",
+ "packVersion": "0.1.0",
+ "trade": "Finish carpentry",
+ "description": "Base, shoe, chair rail and crown with nails; interior doors cased both sides; window casing, stool and apron; closet shelf and rod; base and wall cabinets with countertop and backsplash. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "06 22 00",
+  "08 14 16",
+  "12 32 00"
+ ],
+ "sources": [
+  {
+   "id": "awi",
+   "title": "Architectural Woodwork Standards",
+   "publisher": "Architectural Woodwork Institute (AWI, AWMAC, WI)",
+   "url": "https://www.awinet.org/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  }
+ ],
+ "items": [
+  {
+   "key": "base",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Running trim",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Base 10% waste for copes, miters and short pieces.",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Base molding, 3-1/4 in MDF",
+   "unit": "LF",
+   "twin": "base-m",
+   "components": [
+    {
+     "name": "Base molding",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*1.5)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "base-m",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Running trim",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Base 10% waste for copes, miters and short pieces.",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Base molding, 83 mm MDF",
+   "unit": "m",
+   "twin": "base",
+   "components": [
+    {
+     "name": "Base molding",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*4.9213)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "shoe",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Running trim",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Shoe 10% waste.",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Base shoe / quarter round",
+   "unit": "LF",
+   "twin": "shoe-m",
+   "components": [
+    {
+     "name": "Base shoe / quarter round",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*1.5)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "shoe-m",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Running trim",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Shoe 10% waste.",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Base shoe / quarter round (metric)",
+   "unit": "m",
+   "twin": "shoe",
+   "components": [
+    {
+     "name": "Base shoe / quarter round",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*4.9213)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "chair-rail",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Running trim",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Chair rail 10% waste.",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Chair rail",
+   "unit": "LF",
+   "twin": "chair-rail-m",
+   "components": [
+    {
+     "name": "Chair rail",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*1.5)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "chair-rail-m",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Running trim",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Chair rail 10% waste.",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Chair rail (metric)",
+   "unit": "m",
+   "twin": "chair-rail",
+   "components": [
+    {
+     "name": "Chair rail",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*4.9213)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "crown",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Running trim",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Crown 15% waste (compound cuts and copes).",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Crown molding, 4-1/2 in",
+   "unit": "LF",
+   "twin": "crown-m",
+   "components": [
+    {
+     "name": "Crown molding",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1500
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*1.5)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "crown-m",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Running trim",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Crown 15% waste (compound cuts and copes).",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Crown molding, 114 mm",
+   "unit": "m",
+   "twin": "crown",
+   "components": [
+    {
+     "name": "Crown molding",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1500
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*4.9213)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "door-int",
+   "type": "count",
+   "csi": "08 14 16",
+   "group": "Doors and trim",
+   "sources": [
+    "awi"
+   ],
+   "assume": [
+    "Prehung interior door 3 x 6-8 cased both sides: casing per side = 2 legs x 7 ft + a head of 3-1/2 ft = 17.5 LF, both sides 35 LF; 10% waste.",
+    "Hinges come with the prehung unit; one lockset and one door stop each.",
+    "Shims and finish nails are sundries."
+   ],
+   "note": "Count each interior door.",
+   "waste": 0,
+   "name": "Interior door, prehung, cased both sides",
+   "unit": "EA",
+   "twin": "door-int-m",
+   "components": [
+    {
+     "name": "Prehung interior door unit",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Door casing",
+     "unit": "LF",
+     "formula": "N*35",
+     "waste": 1000
+    },
+    {
+     "name": "Lockset, passage or privacy",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Door stop",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "door-int-m",
+   "type": "count",
+   "csi": "08 14 16",
+   "group": "Doors and trim",
+   "sources": [
+    "awi"
+   ],
+   "assume": [
+    "Prehung interior door 3 x 6-8 cased both sides: casing per side = 2 legs x 7 ft + a head of 3-1/2 ft = 17.5 LF, both sides 35 LF; 10% waste.",
+    "Hinges come with the prehung unit; one lockset and one door stop each.",
+    "Shims and finish nails are sundries."
+   ],
+   "note": "Count each interior door.",
+   "waste": 0,
+   "name": "Interior door, prehung, cased both sides (metric)",
+   "unit": "EA",
+   "twin": "door-int",
+   "components": [
+    {
+     "name": "Prehung interior door unit",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Door casing",
+     "unit": "m",
+     "formula": "N*10.668",
+     "waste": 1000
+    },
+    {
+     "name": "Lockset, passage or privacy",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Door stop",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "window-trim",
+   "type": "count",
+   "csi": "06 22 00",
+   "group": "Doors and trim",
+   "sources": [
+    "awi"
+   ],
+   "assume": [
+    "Window about 3 x 5 ft: casing 2 legs x 5-1/2 ft + head 3-1/2 ft = 14.5 LF; apron 3-1/2 ft; one stool each; 10% waste."
+   ],
+   "note": "Count each window that gets interior trim.",
+   "waste": 0,
+   "name": "Window trim: casing, stool and apron",
+   "unit": "EA",
+   "twin": "window-trim-m",
+   "components": [
+    {
+     "name": "Window casing",
+     "unit": "LF",
+     "formula": "N*14.5",
+     "waste": 1000
+    },
+    {
+     "name": "Apron",
+     "unit": "LF",
+     "formula": "N*3.5",
+     "waste": 1000
+    },
+    {
+     "name": "Window stool",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "window-trim-m",
+   "type": "count",
+   "csi": "06 22 00",
+   "group": "Doors and trim",
+   "sources": [
+    "awi"
+   ],
+   "assume": [
+    "Window about 3 x 5 ft: casing 2 legs x 5-1/2 ft + head 3-1/2 ft = 14.5 LF; apron 3-1/2 ft; one stool each; 10% waste."
+   ],
+   "note": "Count each window that gets interior trim.",
+   "waste": 0,
+   "name": "Window trim: casing, stool and apron (metric)",
+   "unit": "EA",
+   "twin": "window-trim",
+   "components": [
+    {
+     "name": "Window casing",
+     "unit": "m",
+     "formula": "N*4.4196",
+     "waste": 1000
+    },
+    {
+     "name": "Apron",
+     "unit": "m",
+     "formula": "N*1.0668",
+     "waste": 1000
+    },
+    {
+     "name": "Window stool",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "closet",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Closets and shelving",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Shelf 12 in and closet rod the length of the run; supports at 4 ft at most plus one per run (a starting figure: heavy loads need closer brackets).",
+    "Cleat (ledger) on three walls: back + 2 ft returns = run + 2 ft per run."
+   ],
+   "note": "Draw each closet run.",
+   "waste": 0,
+   "name": "Closet shelf and rod",
+   "unit": "LF",
+   "twin": "closet-m",
+   "components": [
+    {
+     "name": "Shelf board 12 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Closet rod",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Shelf and rod brackets",
+     "unit": "EA",
+     "formula": "ceil(L/4)+N",
+     "waste": 0
+    },
+    {
+     "name": "Cleat 1 x 4",
+     "unit": "LF",
+     "formula": "L+N*2",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "closet-m",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Closets and shelving",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Shelf 12 in and closet rod the length of the run; supports at 4 ft at most plus one per run (a starting figure: heavy loads need closer brackets).",
+    "Cleat (ledger) on three walls: back + 2 ft returns = run + 2 ft per run."
+   ],
+   "note": "Draw each closet run.",
+   "waste": 0,
+   "name": "Closet shelf and rod (metric)",
+   "unit": "m",
+   "twin": "closet",
+   "components": [
+    {
+     "name": "Shelf board 12 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Closet rod",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Shelf and rod brackets",
+     "unit": "EA",
+     "formula": "ceil(L/1.2192)+N",
+     "waste": 0
+    },
+    {
+     "name": "Cleat 1 x 4",
+     "unit": "m",
+     "formula": "L+N*0.6096",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "cab-base",
+   "type": "linear",
+   "csi": "12 32 00",
+   "group": "Cabinets and tops",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Base cabinets by the linear foot along the wall; countertop 25-1/2 in deep = 2.125 SF per LF; backsplash 4 in = 0.333 SF per LF.",
+    "Count sink cutouts and end panels on their own."
+   ],
+   "note": "Draw the base cabinet runs along the wall.",
+   "waste": 0,
+   "name": "Base cabinets with countertop and 4 in backsplash",
+   "unit": "LF",
+   "twin": "cab-base-m",
+   "components": [
+    {
+     "name": "Base cabinets",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 0
+    },
+    {
+     "name": "Countertop",
+     "unit": "SF",
+     "formula": "L*2.125",
+     "waste": 500
+    },
+    {
+     "name": "Backsplash",
+     "unit": "SF",
+     "formula": "L*0.333",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "cab-base-m",
+   "type": "linear",
+   "csi": "12 32 00",
+   "group": "Cabinets and tops",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Base cabinets by the linear foot along the wall; countertop 25-1/2 in deep = 2.125 SF per LF; backsplash 4 in = 0.333 SF per LF.",
+    "Count sink cutouts and end panels on their own."
+   ],
+   "note": "Draw the base cabinet runs along the wall.",
+   "waste": 0,
+   "name": "Base cabinets with countertop and 102 mm backsplash",
+   "unit": "m",
+   "twin": "cab-base",
+   "components": [
+    {
+     "name": "Base cabinets",
+     "unit": "m",
+     "formula": "L",
+     "waste": 0
+    },
+    {
+     "name": "Countertop",
+     "unit": "m²",
+     "formula": "L*0.6477",
+     "waste": 500
+    },
+    {
+     "name": "Backsplash",
+     "unit": "m²",
+     "formula": "L*0.1016",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "cab-wall",
+   "type": "linear",
+   "csi": "12 32 00",
+   "group": "Cabinets and tops",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Wall cabinets by the linear foot; light rail and crown by the run if they are part of the design."
+   ],
+   "note": "Draw the wall cabinet runs.",
+   "waste": 0,
+   "name": "Wall cabinets",
+   "unit": "LF",
+   "twin": "cab-wall-m",
+   "components": [
+    {
+     "name": "Wall cabinets",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "cab-wall-m",
+   "type": "linear",
+   "csi": "12 32 00",
+   "group": "Cabinets and tops",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Wall cabinets by the linear foot; light rail and crown by the run if they are part of the design."
+   ],
+   "note": "Draw the wall cabinet runs.",
+   "waste": 0,
+   "name": "Wall cabinets (metric)",
+   "unit": "m",
+   "twin": "cab-wall",
+   "components": [
+    {
+     "name": "Wall cabinets",
+     "unit": "m",
+     "formula": "L",
+     "waste": 0
+    }
+   ]
+  }
+ ]
+}

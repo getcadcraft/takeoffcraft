@@ -1,0 +1,3393 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.general-contractor",
+ "name": "General contractor, by CSI division",
+ "packVersion": "0.1.0",
+ "trade": "General contracting",
+ "description": "A starter estimate by CSI MasterFormat division: general requirements, demolition, concrete, masonry, metals, wood, thermal and moisture, openings, finishes, specialties, plumbing, HVAC, electrical, earthwork, exterior improvements and utilities. With the workbook’s material list, quote request, takeoff summary, by-division sheet and markups for labor burden, tax, overhead, profit and bond. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "01",
+  "02",
+  "03",
+  "04",
+  "05",
+  "06",
+  "07",
+  "08",
+  "09",
+  "10",
+  "22",
+  "23",
+  "26",
+  "31",
+  "32",
+  "33"
+ ],
+ "sources": [
+  {
+   "id": "osha-1926",
+   "title": "OSHA 29 CFR 1926, Safety and Health Regulations for Construction (Subpart P Excavations)",
+   "publisher": "U.S. Occupational Safety and Health Administration",
+   "url": "https://www.osha.gov/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "csi-mf",
+   "title": "MasterFormat (division and section numbers and titles)",
+   "publisher": "Construction Specifications Institute",
+   "url": "https://www.csiresources.org/"
+  },
+  {
+   "id": "irc-r506",
+   "title": "International Residential Code, Section R506 Concrete Floors (on Ground): slab thickness, vapor retarder",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "aci-302",
+   "title": "ACI PRC-302.1, Guide to Concrete Floor and Slab Construction",
+   "publisher": "American Concrete Institute",
+   "url": "https://www.concrete.org/"
+  },
+  {
+   "id": "irc-r403",
+   "title": "International Residential Code, Section R403 Footings",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "aci-318",
+   "title": "ACI CODE-318, Building Code Requirements for Structural Concrete",
+   "publisher": "American Concrete Institute",
+   "url": "https://www.concrete.org/"
+  },
+  {
+   "id": "aci-347",
+   "title": "ACI PRC-347, Guide to Formwork for Concrete",
+   "publisher": "American Concrete Institute",
+   "url": "https://www.concrete.org/"
+  },
+  {
+   "id": "astm-a615",
+   "title": "ASTM A615/A615M, Standard Specification for Deformed and Plain Carbon-Steel Bars for Concrete Reinforcement (nominal bar weights)",
+   "publisher": "ASTM International",
+   "url": "https://www.astm.org/"
+  },
+  {
+   "id": "irc-r404",
+   "title": "International Residential Code, Section R404 Foundation and Retaining Walls",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "ncma-tek",
+   "title": "TEK notes: concrete masonry unit sizes (nominal 8 x 8 x 16 in, actual 7-5/8 x 7-5/8 x 15-5/8 in)",
+   "publisher": "National Concrete Masonry Association",
+   "url": "https://ncma.org/"
+  },
+  {
+   "id": "tms-402",
+   "title": "TMS 402/602, Building Code Requirements and Specification for Masonry Structures",
+   "publisher": "The Masonry Society",
+   "url": "https://masonrysociety.org/"
+  },
+  {
+   "id": "bia-tn10",
+   "title": "Technical Note 10, Dimensioning and Estimating Brick Masonry",
+   "publisher": "Brick Industry Association",
+   "url": "https://www.gobrick.com/"
+  },
+  {
+   "id": "irc-r703",
+   "title": "International Residential Code, Section R703 Exterior Covering (water-resistive barrier, siding attachment, anchored veneer ties)",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "ibc-1014",
+   "title": "International Building Code, Section 1014 Handrails",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "irc-r602",
+   "title": "International Residential Code, Section R602 Wood Wall Framing",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "awi",
+   "title": "Architectural Woodwork Standards",
+   "publisher": "Architectural Woodwork Institute (AWI, AWMAC, WI)",
+   "url": "https://www.awinet.org/"
+  },
+  {
+   "id": "irc-n1102",
+   "title": "International Residential Code, Section N1102 Building Thermal Envelope (insulation R-values by climate zone)",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "pds",
+   "title": "The product data sheet of the coating, adhesive or product you specify (spread rate, coverage, coats)",
+   "publisher": "its manufacturer"
+  },
+  {
+   "id": "ibc-1507",
+   "title": "International Building Code, Chapter 15 Roof Assemblies and Rooftop Structures, Section 1507 Requirements for Roof Coverings",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "nrca",
+   "title": "The NRCA Roofing Manual (Membrane Roof Systems; Steep-slope Roof Systems)",
+   "publisher": "National Roofing Contractors Association",
+   "url": "https://www.nrca.net/"
+  },
+  {
+   "id": "fm-1-29",
+   "title": "FM Global Property Loss Prevention Data Sheet 1-29, Roof Deck Securement and Above-Deck Roof Components",
+   "publisher": "FM Global",
+   "url": "https://www.fm.com/"
+  },
+  {
+   "id": "sdi",
+   "title": "ANSI/SDI A250.8, Specifications for Standard Steel Doors and Frames (SDI-100)",
+   "publisher": "Steel Door Institute",
+   "url": "https://www.steeldoor.org/"
+  },
+  {
+   "id": "astm-e2112",
+   "title": "ASTM E2112, Standard Practice for Installation of Exterior Windows, Doors and Skylights",
+   "publisher": "ASTM International",
+   "url": "https://www.astm.org/"
+  },
+  {
+   "id": "ga-216",
+   "title": "GA-216, Application and Finishing of Gypsum Panel Products",
+   "publisher": "Gypsum Association",
+   "url": "https://www.gypsum.org/"
+  },
+  {
+   "id": "irc-r702",
+   "title": "International Residential Code, Section R702 Interior Covering (gypsum board application, Table R702.3.5)",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "astm-c754",
+   "title": "ASTM C754, Standard Specification for Installation of Steel Framing Members to Receive Screw-Attached Gypsum Panel Products",
+   "publisher": "ASTM International",
+   "url": "https://www.astm.org/"
+  },
+  {
+   "id": "mpi",
+   "title": "MPI Architectural Painting Specification Manual (paint systems by substrate)",
+   "publisher": "Master Painters Institute",
+   "url": "https://www.mpi.net/"
+  },
+  {
+   "id": "astm-c636",
+   "title": "ASTM C636, Standard Practice for Installation of Metal Ceiling Suspension Systems for Acoustical Tile and Lay-in Panels",
+   "publisher": "ASTM International",
+   "url": "https://www.astm.org/"
+  },
+  {
+   "id": "astm-f710",
+   "title": "ASTM F710, Standard Practice for Preparing Concrete Floors to Receive Resilient Flooring",
+   "publisher": "ASTM International",
+   "url": "https://www.astm.org/"
+  },
+  {
+   "id": "cri-105",
+   "title": "CRI 105, Standard for Installation of Residential Carpet (and CRI 104 for commercial)",
+   "publisher": "The Carpet and Rug Institute",
+   "url": "https://carpet-rug.org/"
+  },
+  {
+   "id": "ada-2010",
+   "title": "2010 ADA Standards for Accessible Design (604 water closets and toilet compartments)",
+   "publisher": "U.S. Department of Justice",
+   "url": "https://www.ada.gov/"
+  },
+  {
+   "id": "ipc-4",
+   "title": "International Plumbing Code, Chapter 4 Fixtures, Faucets and Fixture Fittings",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "ipc-308",
+   "title": "International Plumbing Code, Section 308 Piping Support (Table 308.5 Hanger Spacing)",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "smacna",
+   "title": "HVAC Duct Construction Standards: Metal and Flexible",
+   "publisher": "SMACNA",
+   "url": "https://www.smacna.org/"
+  },
+  {
+   "id": "imc-6",
+   "title": "International Mechanical Code, Chapter 6 Duct Systems",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "nec-358",
+   "title": "NFPA 70, National Electrical Code, Article 358 Electrical Metallic Tubing (358.30 securing and supporting)",
+   "edition": "2023",
+   "publisher": "National Fire Protection Association",
+   "url": "https://www.nfpa.org/"
+  },
+  {
+   "id": "nec-300",
+   "title": "NFPA 70, National Electrical Code, Article 300 General Requirements for Wiring Methods (300.14 free conductor at outlets)",
+   "edition": "2023",
+   "publisher": "National Fire Protection Association",
+   "url": "https://www.nfpa.org/"
+  },
+  {
+   "id": "nec-314",
+   "title": "NFPA 70, National Electrical Code, Article 314 Outlet, Device, Pull, and Junction Boxes",
+   "edition": "2023",
+   "publisher": "National Fire Protection Association",
+   "url": "https://www.nfpa.org/"
+  },
+  {
+   "id": "ai-ms4",
+   "title": "MS-4, The Asphalt Handbook",
+   "publisher": "Asphalt Institute",
+   "url": "https://www.asphaltinstitute.org/"
+  },
+  {
+   "id": "ansi-z60",
+   "title": "ANSI Z60.1, American Standard for Nursery Stock",
+   "publisher": "AmericanHort",
+   "url": "https://www.americanhort.org/"
+  },
+  {
+   "id": "astm-d3034",
+   "title": "ASTM D3034, Standard Specification for Type PSM Poly(Vinyl Chloride) (PVC) Sewer Pipe and Fittings",
+   "publisher": "ASTM International",
+   "url": "https://www.astm.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "gc-temp-toilet",
+   "type": "count",
+   "csi": "01 51 00",
+   "group": "Division 01",
+   "sources": [
+    "osha-1926"
+   ],
+   "assume": [
+    "Count unit-months: one portable toilet for a month = 1 (OSHA 1926.51 sets how many for the crew size).",
+    "Service weekly: 4.33 visits a month."
+   ],
+   "note": "Count one mark per toilet per month on site (or type the count in a typical group).",
+   "waste": 0,
+   "name": "Temporary toilet, per unit-month",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Portable toilet rental (month)",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Service visits",
+     "unit": "EA",
+     "formula": "ceil(N*4.33)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-dumpster",
+   "type": "count",
+   "csi": "01 74 19",
+   "group": "Division 01",
+   "sources": [
+    "osha-1926"
+   ],
+   "assume": [
+    "A 30 CY roll-off of mixed construction debris weighs about 4 tons (a starting figure: dense loads weigh more; disposal is billed by weight)."
+   ],
+   "note": "Count the dumpster hauls you expect.",
+   "waste": 0,
+   "name": "Dumpster haul, 30 CY roll-off",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Roll-off haul",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Disposal weight (tons)",
+     "unit": "EA",
+     "formula": "N*4",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-temp-fence",
+   "type": "linear",
+   "csi": "01 56 00",
+   "group": "Division 01",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Chain-link panels 10 ft long on stands, one extra stand per run; two sandbags per stand."
+   ],
+   "note": "Draw the fence line.",
+   "waste": 0,
+   "name": "Temporary chain-link fence 6 ft, panels on stands",
+   "unit": "LF",
+   "twin": "gc-temp-fence-m",
+   "components": [
+    {
+     "name": "Fence panel 6 x 10 ft",
+     "unit": "EA",
+     "formula": "ceil(L/10)",
+     "waste": 0
+    },
+    {
+     "name": "Panel stands",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N",
+     "waste": 0
+    },
+    {
+     "name": "Sandbags",
+     "unit": "EA",
+     "formula": "(ceil(L/10)+N)*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-temp-fence-m",
+   "type": "linear",
+   "csi": "01 56 00",
+   "group": "Division 01",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Chain-link panels 10 ft long on stands, one extra stand per run; two sandbags per stand."
+   ],
+   "note": "Draw the fence line.",
+   "waste": 0,
+   "name": "Temporary chain-link fence 1.83 m, panels on stands",
+   "unit": "m",
+   "twin": "gc-temp-fence",
+   "components": [
+    {
+     "name": "Fence panel 1.83 x 3.05 m",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)",
+     "waste": 0
+    },
+    {
+     "name": "Panel stands",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)+N",
+     "waste": 0
+    },
+    {
+     "name": "Sandbags",
+     "unit": "EA",
+     "formula": "(ceil(L/3.048)+N)*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-final-clean",
+   "type": "area",
+   "csi": "01 74 23",
+   "group": "Division 01",
+   "sources": [
+    "csi-mf",
+    "geometry"
+   ],
+   "assume": [
+    "Final cleaning by floor area; windows and exterior wash are their own items."
+   ],
+   "note": "Measure the floor area to clean.",
+   "waste": 0,
+   "name": "Final cleaning, by floor area",
+   "unit": "SF",
+   "twin": "gc-final-clean-m",
+   "components": [
+    {
+     "name": "Final cleaning",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-final-clean-m",
+   "type": "area",
+   "csi": "01 74 23",
+   "group": "Division 01",
+   "sources": [
+    "csi-mf",
+    "geometry"
+   ],
+   "assume": [
+    "Final cleaning by floor area; windows and exterior wash are their own items."
+   ],
+   "note": "Measure the floor area to clean.",
+   "waste": 0,
+   "name": "Final cleaning, by floor area (metric)",
+   "unit": "m²",
+   "twin": "gc-final-clean",
+   "components": [
+    {
+     "name": "Final cleaning",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-demo-partition",
+   "type": "linear",
+   "csi": "02 41 19",
+   "group": "Division 02",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Gypsum board on studs: about 1 CY of loose debris per 25 SF of wall (both faces and framing; a starting figure)."
+   ],
+   "note": "Draw the partitions to remove; the item height is the wall height.",
+   "waste": 0,
+   "name": "Selective demolition: gypsum partition, 9 ft",
+   "unit": "LF",
+   "twin": "gc-demo-partition-m",
+   "components": [
+    {
+     "name": "Debris (loose)",
+     "unit": "CY",
+     "formula": "A/25",
+     "waste": 0
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "gc-demo-partition-m",
+   "type": "linear",
+   "csi": "02 41 19",
+   "group": "Division 02",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Gypsum board on studs: about 1 CY of loose debris per 25 SF of wall (both faces and framing; a starting figure)."
+   ],
+   "note": "Draw the partitions to remove; the item height is the wall height.",
+   "waste": 0,
+   "name": "Selective demolition: gypsum partition, 2.74 m",
+   "unit": "m",
+   "twin": "gc-demo-partition",
+   "components": [
+    {
+     "name": "Debris (loose)",
+     "unit": "m³",
+     "formula": "A*0.3292",
+     "waste": 0
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "gc-demo-floor",
+   "type": "area",
+   "csi": "02 41 19",
+   "group": "Division 02",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Resilient or carpet flooring: about 1 CY of loose debris per 200 SF (a starting figure; tile and mortar beds weigh far more)."
+   ],
+   "note": "Measure the floor finish to remove.",
+   "waste": 0,
+   "name": "Selective demolition: remove floor finish",
+   "unit": "SF",
+   "twin": "gc-demo-floor-m",
+   "components": [
+    {
+     "name": "Debris (loose)",
+     "unit": "CY",
+     "formula": "A/200",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-demo-floor-m",
+   "type": "area",
+   "csi": "02 41 19",
+   "group": "Division 02",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Resilient or carpet flooring: about 1 CY of loose debris per 200 SF (a starting figure; tile and mortar beds weigh far more)."
+   ],
+   "note": "Measure the floor finish to remove.",
+   "waste": 0,
+   "name": "Selective demolition: remove floor finish (metric)",
+   "unit": "m²",
+   "twin": "gc-demo-floor",
+   "components": [
+    {
+     "name": "Debris (loose)",
+     "unit": "m³",
+     "formula": "A*0.04115",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-sog-4-wwr",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Division 03",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base course: 4 in of clean graded gravel or sand (IRC R506.2.2).",
+    "Vapor retarder: 6-mil polyethylene (IRC R506.2.3), 10% for laps.",
+    "Welded wire reinforcement 6x6 W1.4xW1.4 sheets, 10% for laps.",
+    "Edge forms on the whole perimeter (lower the formula where the slab meets existing work)."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 4 in, WWR, vapor retarder, 4 in base",
+   "unit": "SF",
+   "twin": "gc-sog-4-wwr-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*H/27",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "CY",
+     "formula": "A*(4/12)/27",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Welded wire reinforcement 6x6 W1.4xW1.4",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Edge forms",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.3333333333333333
+  },
+  {
+   "key": "gc-sog-4-wwr-m",
+   "type": "area",
+   "csi": "03 30 00",
+   "group": "Division 03",
+   "sources": [
+    "irc-r506",
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base course: 4 in of clean graded gravel or sand (IRC R506.2.2).",
+    "Vapor retarder: 6-mil polyethylene (IRC R506.2.3), 10% for laps.",
+    "Welded wire reinforcement 6x6 W1.4xW1.4 sheets, 10% for laps.",
+    "Edge forms on the whole perimeter (lower the formula where the slab meets existing work)."
+   ],
+   "note": "Measure the slab area; the item depth is the slab thickness.",
+   "waste": 0,
+   "name": "Slab on grade 100 mm, welded wire mesh, vapor retarder, 100 mm base",
+   "unit": "m²",
+   "twin": "gc-sog-4-wwr",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*H",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "m³",
+     "formula": "A*0.1016",
+     "waste": 1000
+    },
+    {
+     "name": "Vapor retarder 6 mil",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Welded wire reinforcement 6x6 W1.4xW1.4",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Edge forms",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.32808398950131235
+  },
+  {
+   "key": "gc-ftg-20x10",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Division 03",
+   "sources": [
+    "irc-r403",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Two #4 bars continuous (size the footing and its steel from IRC R403.1 or the drawings), 10% for laps.",
+    "Side forms both sides, full depth."
+   ],
+   "note": "Measure the footing centerline.",
+   "waste": 0,
+   "name": "Continuous footing 20 x 10 in, 2 #4 continuous",
+   "unit": "LF",
+   "twin": "gc-ftg-20x10-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "L*1.388889/27",
+     "waste": 500
+    },
+    {
+     "name": "Footing forms (both sides)",
+     "unit": "SF",
+     "formula": "L*2*0.833333",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 (weight)",
+     "unit": "lb",
+     "formula": "L*2*0.668",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-ftg-20x10-m",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Division 03",
+   "sources": [
+    "irc-r403",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Two #4 bars continuous (size the footing and its steel from IRC R403.1 or the drawings), 10% for laps.",
+    "Side forms both sides, full depth."
+   ],
+   "note": "Measure the footing centerline.",
+   "waste": 0,
+   "name": "Continuous footing 508 x 254 mm, 2 #13 continuous",
+   "unit": "m",
+   "twin": "gc-ftg-20x10",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "L*0.129032",
+     "waste": 500
+    },
+    {
+     "name": "Footing forms (both sides)",
+     "unit": "m²",
+     "formula": "L*2*0.254",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 (weight)",
+     "unit": "kg",
+     "formula": "L*2*0.994",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-wall-8-8",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Division 03",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 8 in, 8 ft high, #4 at 48 in vert. / 24 in horiz.",
+   "unit": "LF",
+   "twin": "gc-wall-8-8-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*0.666667/27",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "SF",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #4 verticals",
+     "unit": "LF",
+     "formula": "(ceil(L/4)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #4 horizontals",
+     "unit": "LF",
+     "formula": "L*ceil(H/2)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 8
+  },
+  {
+   "key": "gc-wall-8-8-m",
+   "type": "linear",
+   "csi": "03 30 00",
+   "group": "Division 03",
+   "sources": [
+    "irc-r404",
+    "aci-318",
+    "aci-347",
+    "astm-a615",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Forms both faces, full height (SFCA = 2 x wall area).",
+    "Rebar #4 verticals at 48 in o.c. and horizontals at 24 in o.c. (a starting layout: take the steel from IRC R404.1 tables or the drawings), 10% for laps."
+   ],
+   "note": "Measure the wall centerline; the item height is the wall height.",
+   "waste": 0,
+   "name": "Foundation wall 203 mm, 2.44 m high, #13 at 1219 mm vert. / 610 mm horiz.",
+   "unit": "m",
+   "twin": "gc-wall-8-8",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*0.203",
+     "waste": 500
+    },
+    {
+     "name": "Wall forms (both faces)",
+     "unit": "m²",
+     "formula": "A*2",
+     "waste": 500
+    },
+    {
+     "name": "Rebar #13 verticals",
+     "unit": "m",
+     "formula": "(ceil(L/1.2192)+N)*H",
+     "waste": 1000
+    },
+    {
+     "name": "Rebar #13 horizontals",
+     "unit": "m",
+     "formula": "L*ceil(H/0.6096)",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 8.00524934383202
+  },
+  {
+   "key": "gc-flatwork-4",
+   "type": "area",
+   "csi": "32 13 13",
+   "group": "Division 32",
+   "sources": [
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base 4 in.",
+    "Saw-cut or tooled control joints: 0.2 LF per SF (a 5 ft wide walk jointed every 5 ft, plus none along the length).",
+    "Edge forms on the whole perimeter."
+   ],
+   "note": "Measure walks and pads.",
+   "waste": 0,
+   "name": "Exterior flatwork 4 in, broom finish, control joints",
+   "unit": "SF",
+   "twin": "gc-flatwork-4-m",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "CY",
+     "formula": "A*H/27",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "CY",
+     "formula": "A*(4/12)/27",
+     "waste": 1000
+    },
+    {
+     "name": "Control joints",
+     "unit": "LF",
+     "formula": "A*0.2",
+     "waste": 0
+    },
+    {
+     "name": "Edge forms",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.3333333333333333
+  },
+  {
+   "key": "gc-flatwork-4-m",
+   "type": "area",
+   "csi": "32 13 13",
+   "group": "Division 32",
+   "sources": [
+    "aci-302",
+    "geometry"
+   ],
+   "assume": [
+    "Concrete: 5% for over-excavation, uneven subgrade and spillage (a starting figure).",
+    "Base 4 in.",
+    "Saw-cut or tooled control joints: 0.2 LF per SF (a 5 ft wide walk jointed every 5 ft, plus none along the length).",
+    "Edge forms on the whole perimeter."
+   ],
+   "note": "Measure walks and pads.",
+   "waste": 0,
+   "name": "Exterior flatwork 100 mm, broom finish, control joints",
+   "unit": "m²",
+   "twin": "gc-flatwork-4",
+   "components": [
+    {
+     "name": "Concrete",
+     "unit": "m³",
+     "formula": "A*H",
+     "waste": 500
+    },
+    {
+     "name": "Base course gravel 4 in",
+     "unit": "m³",
+     "formula": "A*0.1016",
+     "waste": 1000
+    },
+    {
+     "name": "Control joints",
+     "unit": "m",
+     "formula": "A*0.6562",
+     "waste": 0
+    },
+    {
+     "name": "Edge forms",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    }
+   ],
+   "heightFt": 0.32808398950131235
+  },
+  {
+   "key": "gc-cmu-8",
+   "type": "area",
+   "csi": "04 22 00",
+   "group": "Division 04",
+   "sources": [
+    "ncma-tek",
+    "tms-402",
+    "geometry"
+   ],
+   "assume": [
+    "Block: 1.125 per SF on a 16 x 8 in module, 5% waste.",
+    "Mortar: face-shell bedding, 1.25 in shells, 3/8 in joints = 0.01442 CF per SF, plus 25% for waste (a starting figure).",
+    "Ladder joint reinforcement every second course (16 in): 0.75 LF per SF, 10% for laps.",
+    "Grout and vertical bars are per the drawings: add them as their own items."
+   ],
+   "note": "Measure the wall area on the elevations.",
+   "waste": 0,
+   "name": "Concrete block wall 8 in, face-shell bedding, joint reinforcement 16 in o.c.",
+   "unit": "SF",
+   "twin": "gc-cmu-8-m",
+   "components": [
+    {
+     "name": "Concrete block 8 x 8 x 16 in",
+     "unit": "EA",
+     "formula": "ceil(A*1.125)",
+     "waste": 500
+    },
+    {
+     "name": "Mortar (type S)",
+     "unit": "CF",
+     "formula": "A*0.01442",
+     "waste": 2500
+    },
+    {
+     "name": "Joint reinforcement, ladder",
+     "unit": "LF",
+     "formula": "A*0.75",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-cmu-8-m",
+   "type": "area",
+   "csi": "04 22 00",
+   "group": "Division 04",
+   "sources": [
+    "ncma-tek",
+    "tms-402",
+    "geometry"
+   ],
+   "assume": [
+    "Block: 1.125 per SF on a 16 x 8 in module, 5% waste.",
+    "Mortar: face-shell bedding, 1.25 in shells, 3/8 in joints = 0.01442 CF per SF, plus 25% for waste (a starting figure).",
+    "Ladder joint reinforcement every second course (16 in): 0.75 LF per SF, 10% for laps.",
+    "Grout and vertical bars are per the drawings: add them as their own items."
+   ],
+   "note": "Measure the wall area on the elevations.",
+   "waste": 0,
+   "name": "Concrete block wall 200 mm, face-shell bedding, joint reinforcement 406 mm o.c.",
+   "unit": "m²",
+   "twin": "gc-cmu-8",
+   "components": [
+    {
+     "name": "Concrete block 200 x 200 x 400 mm",
+     "unit": "EA",
+     "formula": "ceil(A*12.109)",
+     "waste": 500
+    },
+    {
+     "name": "Mortar (type S)",
+     "unit": "m³",
+     "formula": "A*0.0044",
+     "waste": 2500
+    },
+    {
+     "name": "Joint reinforcement, ladder",
+     "unit": "m",
+     "formula": "A/0.4064",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-brick-veneer",
+   "type": "area",
+   "csi": "04 21 13",
+   "group": "Division 04",
+   "sources": [
+    "bia-tn10",
+    "irc-r703",
+    "tms-402",
+    "geometry"
+   ],
+   "assume": [
+    "Brick: modular, 6.75 per SF with 3/8 in joints (BIA Technical Note 10), 5% waste.",
+    "Mortar: 0.0592 CF per SF from the joint volume, plus 25% for waste and droppings (a starting figure).",
+    "Ties: one per 2.67 SF of wall (IRC R703.8.4.1 limit).",
+    "No deduction for openings: draw them as cut-outs."
+   ],
+   "note": "Measure the veneer area on the elevations. Metric twin: the same US modular brick; local bricks differ in size, so change 72.66 for yours.",
+   "waste": 0,
+   "name": "Brick veneer, modular, 3/8 in joints, with ties",
+   "unit": "SF",
+   "twin": "gc-brick-veneer-m",
+   "components": [
+    {
+     "name": "Face brick, modular",
+     "unit": "EA",
+     "formula": "ceil(A*6.75)",
+     "waste": 500
+    },
+    {
+     "name": "Mortar (type N)",
+     "unit": "CF",
+     "formula": "A*0.0592",
+     "waste": 2500
+    },
+    {
+     "name": "Veneer ties",
+     "unit": "EA",
+     "formula": "ceil(A/2.67)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-brick-veneer-m",
+   "type": "area",
+   "csi": "04 21 13",
+   "group": "Division 04",
+   "sources": [
+    "bia-tn10",
+    "irc-r703",
+    "tms-402",
+    "geometry"
+   ],
+   "assume": [
+    "Brick: modular, 6.75 per SF with 3/8 in joints (BIA Technical Note 10), 5% waste.",
+    "Mortar: 0.0592 CF per SF from the joint volume, plus 25% for waste and droppings (a starting figure).",
+    "Ties: one per 2.67 SF of wall (IRC R703.8.4.1 limit).",
+    "No deduction for openings: draw them as cut-outs."
+   ],
+   "note": "Measure the veneer area on the elevations. Metric twin: the same US modular brick; local bricks differ in size, so change 72.66 for yours.",
+   "waste": 0,
+   "name": "Brick veneer, modular (US), 10 mm joints, with ties",
+   "unit": "m²",
+   "twin": "gc-brick-veneer",
+   "components": [
+    {
+     "name": "Face brick, modular",
+     "unit": "EA",
+     "formula": "ceil(A*72.66)",
+     "waste": 500
+    },
+    {
+     "name": "Mortar (type N)",
+     "unit": "m³",
+     "formula": "A*0.01803",
+     "waste": 2500
+    },
+    {
+     "name": "Veneer ties",
+     "unit": "EA",
+     "formula": "ceil(A/0.24805)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-lintel-4",
+   "type": "count",
+   "csi": "05 50 00",
+   "group": "Division 05",
+   "sources": [
+    "tms-402",
+    "astm-a615"
+   ],
+   "assume": [
+    "Opening 4 ft with 8 in bearing each end: 5.33 LF of angle per lintel (size the angle from the drawings)."
+   ],
+   "note": "Count each opening in the veneer.",
+   "waste": 0,
+   "name": "Loose steel lintel angle, 4 ft opening",
+   "unit": "EA",
+   "twin": "gc-lintel-4-m",
+   "components": [
+    {
+     "name": "Steel angle 3-1/2 x 3-1/2 x 1/4 in",
+     "unit": "LF",
+     "formula": "N*(4+2*8/12)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-lintel-4-m",
+   "type": "count",
+   "csi": "05 50 00",
+   "group": "Division 05",
+   "sources": [
+    "tms-402",
+    "astm-a615"
+   ],
+   "assume": [
+    "Opening 4 ft with 8 in bearing each end: 5.33 LF of angle per lintel (size the angle from the drawings)."
+   ],
+   "note": "Count each opening in the veneer.",
+   "waste": 0,
+   "name": "Loose steel lintel angle, 1.22 m opening",
+   "unit": "EA",
+   "twin": "gc-lintel-4",
+   "components": [
+    {
+     "name": "Steel angle 89 x 89 x 6.4 mm",
+     "unit": "m",
+     "formula": "N*(1.2192+2*0.2032)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-handrail",
+   "type": "linear",
+   "csi": "05 52 13",
+   "group": "Division 05",
+   "sources": [
+    "ibc-1014",
+    "geometry"
+   ],
+   "assume": [
+    "Handrail 1-1/2 in steel pipe (IBC 1014.3 graspability); wall brackets at 4 ft at most plus one per run; two returns per run (IBC 1014.6 extensions are part of the run)."
+   ],
+   "note": "Draw each handrail run.",
+   "waste": 0,
+   "name": "Steel pipe handrail, wall mounted",
+   "unit": "LF",
+   "twin": "gc-handrail-m",
+   "components": [
+    {
+     "name": "Steel pipe rail 1-1/2 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Wall brackets",
+     "unit": "EA",
+     "formula": "ceil(L/4)+N",
+     "waste": 0
+    },
+    {
+     "name": "Rail returns",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-handrail-m",
+   "type": "linear",
+   "csi": "05 52 13",
+   "group": "Division 05",
+   "sources": [
+    "ibc-1014",
+    "geometry"
+   ],
+   "assume": [
+    "Handrail 1-1/2 in steel pipe (IBC 1014.3 graspability); wall brackets at 4 ft at most plus one per run; two returns per run (IBC 1014.6 extensions are part of the run)."
+   ],
+   "note": "Draw each handrail run.",
+   "waste": 0,
+   "name": "Steel pipe handrail, wall mounted (metric)",
+   "unit": "m",
+   "twin": "gc-handrail",
+   "components": [
+    {
+     "name": "Steel pipe rail 1-1/2 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Wall brackets",
+     "unit": "EA",
+     "formula": "ceil(L/1.2192)+N",
+     "waste": 0
+    },
+    {
+     "name": "Rail returns",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-ext-wall-2x6-9",
+   "type": "linear",
+   "csi": "06 11 00",
+   "group": "Division 06",
+   "sources": [
+    "irc-r602",
+    "irc-r703",
+    "geometry"
+   ],
+   "assume": [
+    "Studs 2x6 at 16 in o.c.: ceil(0.75 x length) + one per run; corners, intersections and openings extra (rough openings).",
+    "Plates: one bottom (treated where on concrete) and a double top plate (IRC R602.3.2).",
+    "Sheathing 4 x 8 ft (32 SF) panels on one side; water-resistive barrier on the wall area (IRC R703.2), 10% for laps."
+   ],
+   "note": "Measure the exterior wall run; the item height is the plate height. Set your rates: none are included.",
+   "waste": 0,
+   "name": "Exterior wall, wood studs 2x6 at 16 in o.c., 7/16 in sheathing, 9 ft",
+   "unit": "LF",
+   "twin": "gc-ext-wall-2x6-9-m",
+   "components": [
+    {
+     "name": "Bottom plate 2x6, treated",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Top plates 2x6, double",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Studs 2x6, wall height",
+     "unit": "EA",
+     "formula": "ceil(L*0.75)+N",
+     "waste": 1000
+    },
+    {
+     "name": "Wall sheathing 7/16 in, 4 x 8 ft",
+     "unit": "sheet",
+     "formula": "ceil(A/32)",
+     "waste": 1000
+    },
+    {
+     "name": "Water-resistive barrier",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "gc-ext-wall-2x6-9-m",
+   "type": "linear",
+   "csi": "06 11 00",
+   "group": "Division 06",
+   "sources": [
+    "irc-r602",
+    "irc-r703",
+    "geometry"
+   ],
+   "assume": [
+    "Studs 2x6 at 16 in o.c.: ceil(0.75 x length) + one per run; corners, intersections and openings extra (rough openings).",
+    "Plates: one bottom (treated where on concrete) and a double top plate (IRC R602.3.2).",
+    "Sheathing 4 x 8 ft (32 SF) panels on one side; water-resistive barrier on the wall area (IRC R703.2), 10% for laps."
+   ],
+   "note": "Measure the exterior wall run; the item height is the plate height. Set your rates: none are included.",
+   "waste": 0,
+   "name": "Exterior wall, wood studs 38 x 140 mm at 406 mm o.c., 11 mm sheathing, 2.74 m",
+   "unit": "m",
+   "twin": "gc-ext-wall-2x6-9",
+   "components": [
+    {
+     "name": "Bottom plate 38 x 140 mm, treated",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Top plates 38 x 140 mm, double",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Studs 38 x 140 mm, wall height",
+     "unit": "EA",
+     "formula": "ceil(L/0.4064)+N",
+     "waste": 1000
+    },
+    {
+     "name": "Wall sheathing 11 mm, 1220 x 2440 mm",
+     "unit": "sheet",
+     "formula": "ceil(A/2.9768)",
+     "waste": 1000
+    },
+    {
+     "name": "Water-resistive barrier",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "gc-base",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Division 06",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Base 10% waste for copes, miters and short pieces.",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Base molding, 3-1/4 in MDF",
+   "unit": "LF",
+   "twin": "gc-base-m",
+   "components": [
+    {
+     "name": "Base molding",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*1.5)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-base-m",
+   "type": "linear",
+   "csi": "06 22 00",
+   "group": "Division 06",
+   "sources": [
+    "awi",
+    "geometry"
+   ],
+   "assume": [
+    "Base 10% waste for copes, miters and short pieces.",
+    "Finish nails: one pair per stud, studs 16 in o.c. (1.5 nails per LF)."
+   ],
+   "note": "Measure the runs; door openings are deducts.",
+   "waste": 0,
+   "name": "Base molding, 83 mm MDF",
+   "unit": "m",
+   "twin": "gc-base",
+   "components": [
+    {
+     "name": "Base molding",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Finish nails",
+     "unit": "EA",
+     "formula": "ceil(L*4.9213)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-batt-r13-9",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Division 07",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-13, 2x4 at 16 in o.c., 9 ft",
+   "unit": "LF",
+   "twin": "gc-batt-r13-9-m",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/40)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "gc-batt-r13-9-m",
+   "type": "linear",
+   "csi": "07 21 16",
+   "group": "Division 07",
+   "sources": [
+    "irc-n1102",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "R-value by climate zone: IRC Table N1102.1.2 (IECC R402.1.2); choose the product that meets it.",
+    "Batts on the gross wall area (A = run x height), no deduction for studs and plates (they offset the cutting waste); 5% waste.",
+    "Packages by the coverage printed on the bag: change the SF per package (40 here) to yours."
+   ],
+   "note": "Draw exterior wall runs; the item height is the wall height. Leave openings as deducts.",
+   "waste": 0,
+   "name": "Wall batts R-13, 38 x 89 mm at 406 mm o.c., 2.74 m",
+   "unit": "m",
+   "twin": "gc-batt-r13-9",
+   "components": [
+    {
+     "name": "Batt insulation",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Batt packages",
+     "unit": "EA",
+     "formula": "ceil(A/3.7161)",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "gc-tpo-ma",
+   "type": "area",
+   "csi": "07 54 23",
+   "group": "Division 07",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "fm-1-29",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Membrane: 10% for side and end laps and flashings.",
+    "Polyisocyanurate boards 4 x 8 ft (32 SF), 5% waste.",
+    "Insulation fasteners and plates: 8 per 4 x 8 board in the field (a starting figure: the membrane maker’s attachment pattern and the wind design, FM 1-29 / ASCE 7, set the real count; corners and perimeters take more).",
+    "Membrane fasteners in the laps: rows every 10 ft (10 ft sheets) with fasteners 12 in o.c. = 0.1 per SF (a starting figure; set by the attachment pattern)."
+   ],
+   "note": "Measure the roof area (low slope: plan area is close enough below 2:12).",
+   "waste": 0,
+   "name": "TPO 60 mil, mechanically attached, over polyiso",
+   "unit": "SF",
+   "twin": "gc-tpo-ma-m",
+   "components": [
+    {
+     "name": "TPO membrane",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Polyiso insulation 4 x 8 ft",
+     "unit": "board",
+     "formula": "ceil(A/32)",
+     "waste": 500
+    },
+    {
+     "name": "Insulation fasteners and plates",
+     "unit": "EA",
+     "formula": "ceil(A/32)*8",
+     "waste": 500
+    },
+    {
+     "name": "Membrane fasteners and seam plates",
+     "unit": "EA",
+     "formula": "ceil(A*0.1)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-tpo-ma-m",
+   "type": "area",
+   "csi": "07 54 23",
+   "group": "Division 07",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "fm-1-29",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Membrane: 10% for side and end laps and flashings.",
+    "Polyisocyanurate boards 4 x 8 ft (32 SF), 5% waste.",
+    "Insulation fasteners and plates: 8 per 4 x 8 board in the field (a starting figure: the membrane maker’s attachment pattern and the wind design, FM 1-29 / ASCE 7, set the real count; corners and perimeters take more).",
+    "Membrane fasteners in the laps: rows every 10 ft (10 ft sheets) with fasteners 12 in o.c. = 0.1 per SF (a starting figure; set by the attachment pattern)."
+   ],
+   "note": "Measure the roof area (low slope: plan area is close enough below 2:12).",
+   "waste": 0,
+   "name": "TPO 1.5 mm, mechanically attached, over polyiso",
+   "unit": "m²",
+   "twin": "gc-tpo-ma",
+   "components": [
+    {
+     "name": "TPO membrane",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Polyiso insulation 1220 x 2440 mm",
+     "unit": "board",
+     "formula": "ceil(A/2.9768)",
+     "waste": 500
+    },
+    {
+     "name": "Insulation fasteners and plates",
+     "unit": "EA",
+     "formula": "ceil(A/2.9768)*8",
+     "waste": 500
+    },
+    {
+     "name": "Membrane fasteners and seam plates",
+     "unit": "EA",
+     "formula": "ceil(A*1.0764)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-edge-metal",
+   "type": "linear",
+   "csi": "07 71 00",
+   "group": "Division 07",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Edge metal in 10 ft lengths, one splice plate per joint; wood nailer 2 x 6 continuous under it (two plies).",
+    "Membrane strip-in flashing 12 in wide."
+   ],
+   "note": "Measure the roof edges.",
+   "waste": 0,
+   "name": "Roof edge: metal edge / gravel stop on wood nailer",
+   "unit": "LF",
+   "twin": "gc-edge-metal-m",
+   "components": [
+    {
+     "name": "Edge metal, 10 ft lengths",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N",
+     "waste": 500
+    },
+    {
+     "name": "Wood nailer 2 x 6 (two plies)",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Membrane strip-in flashing",
+     "unit": "SF",
+     "formula": "L*1",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-edge-metal-m",
+   "type": "linear",
+   "csi": "07 71 00",
+   "group": "Division 07",
+   "sources": [
+    "ibc-1507",
+    "nrca",
+    "geometry"
+   ],
+   "assume": [
+    "Edge metal in 10 ft lengths, one splice plate per joint; wood nailer 2 x 6 continuous under it (two plies).",
+    "Membrane strip-in flashing 12 in wide."
+   ],
+   "note": "Measure the roof edges.",
+   "waste": 0,
+   "name": "Roof edge: metal edge / gravel stop on wood nailer (metric)",
+   "unit": "m",
+   "twin": "gc-edge-metal",
+   "components": [
+    {
+     "name": "Edge metal, 3.05 m lengths",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)+N",
+     "waste": 500
+    },
+    {
+     "name": "Wood nailer 38 x 140 mm (two plies)",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 1000
+    },
+    {
+     "name": "Membrane strip-in flashing",
+     "unit": "m²",
+     "formula": "L*0.3048",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-caulk",
+   "type": "linear",
+   "csi": "07 92 00",
+   "group": "Division 07",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "About 25 LF of 1/4 in bead per 10.1 oz cartridge (metric 7.62 m) — a starting figure."
+   ],
+   "note": "Measure caulked joints (trim to wall, frames).",
+   "waste": 0,
+   "name": "Caulk joints before painting, 1/4 in bead",
+   "unit": "LF",
+   "twin": "gc-caulk-m",
+   "components": [
+    {
+     "name": "Paintable acrylic caulk, 10.1 oz cartridges",
+     "unit": "EA",
+     "formula": "ceil(L/25)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-caulk-m",
+   "type": "linear",
+   "csi": "07 92 00",
+   "group": "Division 07",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "About 25 LF of 1/4 in bead per 10.1 oz cartridge (metric 7.62 m) — a starting figure."
+   ],
+   "note": "Measure caulked joints (trim to wall, frames).",
+   "waste": 0,
+   "name": "Caulk joints before painting, 6 mm bead",
+   "unit": "m",
+   "twin": "gc-caulk",
+   "components": [
+    {
+     "name": "Paintable acrylic caulk, 10.1 oz cartridges",
+     "unit": "EA",
+     "formula": "ceil(L/7.62)",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-hm-door",
+   "type": "count",
+   "csi": "08 11 13",
+   "group": "Division 08",
+   "sources": [
+    "sdi"
+   ],
+   "assume": [
+    "A single 3 x 7 ft hollow metal door in a hollow metal frame: 3 hinges (1-1/2 pair), a lockset, a closer, a stop and 3 silencers (hardware sets come from the door schedule)."
+   ],
+   "note": "Count each door opening.",
+   "waste": 0,
+   "name": "Hollow metal door and frame with hardware",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Hollow metal frame",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Hollow metal door",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Hinges",
+     "unit": "EA",
+     "formula": "N*3",
+     "waste": 0
+    },
+    {
+     "name": "Lockset",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Door closer",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Door stop",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Silencers",
+     "unit": "EA",
+     "formula": "N*3",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-window",
+   "type": "count",
+   "csi": "08 51 13",
+   "group": "Division 08",
+   "sources": [
+    "astm-e2112"
+   ],
+   "assume": [
+    "Window about 3 x 5 ft: 16 LF of perimeter flashed with tape (ASTM E2112) and sealed (one 10.1 oz cartridge per 25 LF, a starting figure)."
+   ],
+   "note": "Count each window.",
+   "waste": 0,
+   "name": "Window 3 x 5 ft with flashing tape and sealant",
+   "unit": "EA",
+   "twin": "gc-window-m",
+   "components": [
+    {
+     "name": "Window unit",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Flashing tape",
+     "unit": "LF",
+     "formula": "N*16",
+     "waste": 1000
+    },
+    {
+     "name": "Sealant cartridges",
+     "unit": "EA",
+     "formula": "ceil(N*16/25)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-window-m",
+   "type": "count",
+   "csi": "08 51 13",
+   "group": "Division 08",
+   "sources": [
+    "astm-e2112"
+   ],
+   "assume": [
+    "Window about 3 x 5 ft: 16 LF of perimeter flashed with tape (ASTM E2112) and sealed (one 10.1 oz cartridge per 25 LF, a starting figure)."
+   ],
+   "note": "Count each window.",
+   "waste": 0,
+   "name": "Window 0.91 x 1.52 m with flashing tape and sealant",
+   "unit": "EA",
+   "twin": "gc-window",
+   "components": [
+    {
+     "name": "Window unit",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Flashing tape",
+     "unit": "m",
+     "formula": "N*4.8768",
+     "waste": 1000
+    },
+    {
+     "name": "Sealant cartridges",
+     "unit": "EA",
+     "formula": "ceil(N*4.8768/7.62)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-part-steel-12-1x1-9",
+   "type": "linear",
+   "csi": "09 21 16",
+   "group": "Division 09",
+   "sources": [
+    "ga-216",
+    "irc-r702",
+    "astm-c754",
+    "geometry"
+   ],
+   "assume": [
+    "Studs at 16 in o.c.: ceil(0.75 x length) + one end stud per run; no extra studs for corners, intersections or openings (count those as rough openings).",
+    "Sheets: 4 x 8 ft (32 SF); the metric twin uses 1220 x 2440 mm (2.98 m²). Change the 32 / 2.98 for other sheet sizes.",
+    "Screws: 0.875 per SF of board on walls (28 per sheet: studs 16 in o.c., screws 16 in o.c.).",
+    "Tape: 0.375 LF per SF of finished board (12 LF of joint per 4 x 8 sheet).",
+    "Joint compound: 0.01 gal per SF of finished board — a starting figure; take the coverage from your product data sheet.",
+    "No deduction for openings: draw door and window openings as deducts on the run, or lower the waste."
+   ],
+   "note": "Measure the wall run (linear); the item height is the wall height (A = run x height, one side). Set your rates: none are included.",
+   "waste": 0,
+   "name": "Gypsum partition, 1/2 in, one layer each side, steel studs 3-5/8 in at 16 in o.c., 9 ft high",
+   "unit": "LF",
+   "twin": "gc-part-steel-12-1x1-9-m",
+   "components": [
+    {
+     "name": "Steel track 3-5/8 in (top and bottom)",
+     "unit": "LF",
+     "formula": "L*2",
+     "waste": 500
+    },
+    {
+     "name": "Steel studs 3-5/8 in, cut to wall height",
+     "unit": "EA",
+     "formula": "ceil(L*0.75)+N",
+     "waste": 500
+    },
+    {
+     "name": "Gypsum board 1/2 in, 4 x 8 ft sheets",
+     "unit": "sheet",
+     "formula": "ceil(A*2/32)",
+     "waste": 1000
+    },
+    {
+     "name": "Drywall screws",
+     "unit": "EA",
+     "formula": "ceil(A*2*0.875)",
+     "waste": 1000
+    },
+    {
+     "name": "Joint tape",
+     "unit": "LF",
+     "formula": "A*2*0.375",
+     "waste": 1000
+    },
+    {
+     "name": "Joint compound, ready-mixed",
+     "unit": "gal",
+     "formula": "A*2*0.01",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "gc-part-steel-12-1x1-9-m",
+   "type": "linear",
+   "csi": "09 21 16",
+   "group": "Division 09",
+   "sources": [
+    "ga-216",
+    "irc-r702",
+    "astm-c754",
+    "geometry"
+   ],
+   "assume": [
+    "Studs at 16 in o.c.: ceil(0.75 x length) + one end stud per run; no extra studs for corners, intersections or openings (count those as rough openings).",
+    "Sheets: 4 x 8 ft (32 SF); the metric twin uses 1220 x 2440 mm (2.98 m²). Change the 32 / 2.98 for other sheet sizes.",
+    "Screws: 0.875 per SF of board on walls (28 per sheet: studs 16 in o.c., screws 16 in o.c.).",
+    "Tape: 0.375 LF per SF of finished board (12 LF of joint per 4 x 8 sheet).",
+    "Joint compound: 0.01 gal per SF of finished board — a starting figure; take the coverage from your product data sheet.",
+    "No deduction for openings: draw door and window openings as deducts on the run, or lower the waste."
+   ],
+   "note": "Measure the wall run (linear); the item height is the wall height (A = run x height, one side). Set your rates: none are included.",
+   "waste": 0,
+   "name": "Gypsum partition, 12.7 mm, one layer each side, steel studs 92 mm at 406 mm o.c., 2.74 m high",
+   "unit": "m",
+   "twin": "gc-part-steel-12-1x1-9",
+   "components": [
+    {
+     "name": "Steel track 92 mm (top and bottom)",
+     "unit": "m",
+     "formula": "L*2",
+     "waste": 500
+    },
+    {
+     "name": "Steel studs 92 mm, cut to wall height",
+     "unit": "EA",
+     "formula": "ceil(L/0.4064)+N",
+     "waste": 500
+    },
+    {
+     "name": "Gypsum board 12.7 mm, 1220 x 2440 mm sheets",
+     "unit": "sheet",
+     "formula": "ceil(A*2/2.9768)",
+     "waste": 1000
+    },
+    {
+     "name": "Drywall screws",
+     "unit": "EA",
+     "formula": "ceil(A*2*9.42)",
+     "waste": 1000
+    },
+    {
+     "name": "Joint tape",
+     "unit": "m",
+     "formula": "A*2*1.2303",
+     "waste": 1000
+    },
+    {
+     "name": "Joint compound, ready-mixed",
+     "unit": "L",
+     "formula": "A*2*0.4074",
+     "waste": 1000
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "gc-walls-new-9",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Division 09",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 9 ft",
+   "unit": "LF",
+   "twin": "gc-walls-new-9-m",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "gal",
+     "formula": "A*1/300",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "gal",
+     "formula": "A*2/350",
+     "waste": 500
+    }
+   ],
+   "heightFt": 9
+  },
+  {
+   "key": "gc-walls-new-9-m",
+   "type": "linear",
+   "csi": "09 91 23",
+   "group": "Division 09",
+   "sources": [
+    "mpi",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Primer: 300 SF per gallon, one coat (a starting figure: use the primer's data sheet).",
+    "Finish: 350 SF per gallon per coat, two coats (a starting figure: use the paint's data sheet).",
+    "No deduction for openings under 100 SF; sundries (tape, masking, caulk) are not counted."
+   ],
+   "note": "Measure the wall run (one side); the item height is the painted height (A = run x height).",
+   "waste": 0,
+   "name": "Paint walls, new gypsum board, primer + two finish coats, 2.74 m",
+   "unit": "m",
+   "twin": "gc-walls-new-9",
+   "components": [
+    {
+     "name": "Primer, PVA / latex",
+     "unit": "L",
+     "formula": "A*1/7.363",
+     "waste": 500
+    },
+    {
+     "name": "Interior latex, finish",
+     "unit": "L",
+     "formula": "A*2/8.59",
+     "waste": 500
+    }
+   ],
+   "heightFt": 8.989501312335959
+  },
+  {
+   "key": "gc-act-2x4",
+   "type": "area",
+   "csi": "09 51 13",
+   "group": "Division 09",
+   "sources": [
+    "astm-c636",
+    "geometry"
+   ],
+   "assume": [
+    "Lay-in panels 2 x 4 ft (8 SF), 5% waste.",
+    "Main runners 4 ft o.c. (A / 4 LF); 4 ft cross tees every 2 ft between them (A / 2 LF).",
+    "Wall angle on the room outline P.",
+    "Hanger wires 4 ft o.c. along the mains (ASTM C636): one per 16 SF."
+   ],
+   "note": "Measure each ceiling area.",
+   "waste": 0,
+   "name": "Acoustical ceiling 2 x 4 ft lay-in, exposed grid",
+   "unit": "SF",
+   "twin": "gc-act-2x4-m",
+   "components": [
+    {
+     "name": "Ceiling panels",
+     "unit": "EA",
+     "formula": "ceil(A/8)",
+     "waste": 500
+    },
+    {
+     "name": "Main runners",
+     "unit": "LF",
+     "formula": "A/4",
+     "waste": 500
+    },
+    {
+     "name": "Cross tees 4 ft",
+     "unit": "LF",
+     "formula": "A/2",
+     "waste": 500
+    },
+    {
+     "name": "Wall angle",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 1000
+    },
+    {
+     "name": "Hanger wires",
+     "unit": "EA",
+     "formula": "ceil(A/16)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-act-2x4-m",
+   "type": "area",
+   "csi": "09 51 13",
+   "group": "Division 09",
+   "sources": [
+    "astm-c636",
+    "geometry"
+   ],
+   "assume": [
+    "Lay-in panels 2 x 4 ft (8 SF), 5% waste.",
+    "Main runners 4 ft o.c. (A / 4 LF); 4 ft cross tees every 2 ft between them (A / 2 LF).",
+    "Wall angle on the room outline P.",
+    "Hanger wires 4 ft o.c. along the mains (ASTM C636): one per 16 SF."
+   ],
+   "note": "Measure each ceiling area.",
+   "waste": 0,
+   "name": "Acoustical ceiling 610 x 1220 mm lay-in, exposed grid",
+   "unit": "m²",
+   "twin": "gc-act-2x4",
+   "components": [
+    {
+     "name": "Ceiling panels",
+     "unit": "EA",
+     "formula": "ceil(A/0.74322)",
+     "waste": 500
+    },
+    {
+     "name": "Main runners",
+     "unit": "m",
+     "formula": "A/1.2192",
+     "waste": 500
+    },
+    {
+     "name": "Cross tees 4 ft",
+     "unit": "m",
+     "formula": "A/0.6096",
+     "waste": 500
+    },
+    {
+     "name": "Wall angle",
+     "unit": "m",
+     "formula": "P",
+     "waste": 1000
+    },
+    {
+     "name": "Hanger wires",
+     "unit": "EA",
+     "formula": "ceil(A/1.48645)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-vct",
+   "type": "area",
+   "csi": "09 65 19",
+   "group": "Division 09",
+   "sources": [
+    "astm-f710",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tile 5% waste.",
+    "Adhesive at 150 SF per gallon (a starting figure: use the adhesive’s data sheet for its trowel)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Vinyl composition tile 12 x 12 in, adhesive",
+   "unit": "SF",
+   "twin": "gc-vct-m",
+   "components": [
+    {
+     "name": "Vinyl composition tile",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Flooring adhesive",
+     "unit": "gal",
+     "formula": "A/150",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-vct-m",
+   "type": "area",
+   "csi": "09 65 19",
+   "group": "Division 09",
+   "sources": [
+    "astm-f710",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tile 5% waste.",
+    "Adhesive at 150 SF per gallon (a starting figure: use the adhesive’s data sheet for its trowel)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Vinyl composition tile 305 x 305 mm, adhesive",
+   "unit": "m²",
+   "twin": "gc-vct",
+   "components": [
+    {
+     "name": "Vinyl composition tile",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Flooring adhesive",
+     "unit": "L",
+     "formula": "A/3.681",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-carpet-tile",
+   "type": "area",
+   "csi": "09 68 13",
+   "group": "Division 09",
+   "sources": [
+    "cri-105",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Carpet tile 24 x 24 in (4 SF), 5% waste.",
+    "Release adhesive at 200 SF per gallon (a starting figure: use the data sheet)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Carpet tile 24 x 24 in, release adhesive",
+   "unit": "SF",
+   "twin": "gc-carpet-tile-m",
+   "components": [
+    {
+     "name": "Carpet tile",
+     "unit": "EA",
+     "formula": "ceil(A/4)",
+     "waste": 500
+    },
+    {
+     "name": "Release adhesive",
+     "unit": "gal",
+     "formula": "A/200",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-carpet-tile-m",
+   "type": "area",
+   "csi": "09 68 13",
+   "group": "Division 09",
+   "sources": [
+    "cri-105",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Carpet tile 24 x 24 in (4 SF), 5% waste.",
+    "Release adhesive at 200 SF per gallon (a starting figure: use the data sheet)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Carpet tile 610 x 610 mm, release adhesive",
+   "unit": "m²",
+   "twin": "gc-carpet-tile",
+   "components": [
+    {
+     "name": "Carpet tile",
+     "unit": "EA",
+     "formula": "ceil(A/0.3716)",
+     "waste": 500
+    },
+    {
+     "name": "Release adhesive",
+     "unit": "L",
+     "formula": "A/4.909",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-rubber-base",
+   "type": "linear",
+   "csi": "09 65 13",
+   "group": "Division 09",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Rubber or vinyl base, 4 in, 5% waste.",
+    "Base adhesive: one cartridge per 25 LF (a starting figure)."
+   ],
+   "note": "Measure the base run along the walls; leave out door openings.",
+   "waste": 0,
+   "name": "Resilient wall base 4 in",
+   "unit": "LF",
+   "twin": "gc-rubber-base-m",
+   "components": [
+    {
+     "name": "Resilient base 4 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "Base adhesive cartridges",
+     "unit": "EA",
+     "formula": "ceil(L/25)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-rubber-base-m",
+   "type": "linear",
+   "csi": "09 65 13",
+   "group": "Division 09",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Rubber or vinyl base, 4 in, 5% waste.",
+    "Base adhesive: one cartridge per 25 LF (a starting figure)."
+   ],
+   "note": "Measure the base run along the walls; leave out door openings.",
+   "waste": 0,
+   "name": "Resilient wall base 100 mm",
+   "unit": "m",
+   "twin": "gc-rubber-base",
+   "components": [
+    {
+     "name": "Resilient base 4 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "Base adhesive cartridges",
+     "unit": "EA",
+     "formula": "ceil(L/7.62)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-toilet-acc",
+   "type": "count",
+   "csi": "10 28 00",
+   "group": "Division 10",
+   "sources": [
+    "ada-2010"
+   ],
+   "assume": [
+    "An accessible toilet room: grab bars 36 in and 42 in (2010 ADA Standards 604.5), paper holder, mirror, soap and towel dispensers."
+   ],
+   "note": "Count each toilet room.",
+   "waste": 0,
+   "name": "Toilet room accessories, accessible single-user room",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Grab bar 36 in",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Grab bar 42 in",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Toilet paper holder",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Mirror",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Soap dispenser",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Paper towel dispenser",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-wc",
+   "type": "count",
+   "csi": "22 40 00",
+   "group": "Division 22",
+   "sources": [
+    "ipc-4"
+   ],
+   "assume": [
+    "Rough-in piping is measured as runs; the parts here are the fixture and its trim."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Water closet, floor mounted, with supply",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Water closet (bowl and tank)",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Wax ring",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Closet bolts (set)",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Angle stop",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Supply line",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-lav",
+   "type": "count",
+   "csi": "22 40 00",
+   "group": "Division 22",
+   "sources": [
+    "ipc-4"
+   ],
+   "assume": [
+    "Rough-in piping is measured as runs; the parts here are the fixture and its trim."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Lavatory with faucet, trap and supplies",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Lavatory",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Faucet",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "P-trap",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Angle stops",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    },
+    {
+     "name": "Supply lines",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-pvc-dwv-4",
+   "type": "linear",
+   "csi": "22 13 16",
+   "group": "Division 22",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Pipe 10% waste.",
+    "Hangers at 4 ft at most on horizontal PVC (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw horizontal runs; risers as their own runs.",
+   "waste": 0,
+   "name": "PVC DWV pipe 4 in, horizontal, hung",
+   "unit": "LF",
+   "twin": "gc-pvc-dwv-4-m",
+   "components": [
+    {
+     "name": "PVC DWV pipe 4 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Pipe hangers 4 in",
+     "unit": "EA",
+     "formula": "ceil(L/4)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-pvc-dwv-4-m",
+   "type": "linear",
+   "csi": "22 13 16",
+   "group": "Division 22",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Pipe 10% waste.",
+    "Hangers at 4 ft at most on horizontal PVC (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw horizontal runs; risers as their own runs.",
+   "waste": 0,
+   "name": "PVC DWV pipe 100 mm, horizontal, hung",
+   "unit": "m",
+   "twin": "gc-pvc-dwv-4",
+   "components": [
+    {
+     "name": "PVC DWV pipe 4 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Pipe hangers 4 in",
+     "unit": "EA",
+     "formula": "ceil(L/1.2192)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-copper-l-34",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Division 22",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tube 10% waste.",
+    "Hangers at 6 ft at most on copper tubing 1-1/4 in and smaller (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "Copper tube type L 3/4 in, hung",
+   "unit": "LF",
+   "twin": "gc-copper-l-34-m",
+   "components": [
+    {
+     "name": "Copper tube type L 3/4 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Copper hangers 3/4 in",
+     "unit": "EA",
+     "formula": "ceil(L/6)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-copper-l-34-m",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Division 22",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tube 10% waste.",
+    "Hangers at 6 ft at most on copper tubing 1-1/4 in and smaller (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "Copper tube type L 22 mm, hung",
+   "unit": "m",
+   "twin": "gc-copper-l-34",
+   "components": [
+    {
+     "name": "Copper tube type L 3/4 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Copper hangers 3/4 in",
+     "unit": "EA",
+     "formula": "ceil(L/1.8288)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "gc-rect-20x10",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Division 23",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Sheet metal by surface: perimeter 60 in = 5 SF per LF; 15% for seams, joints and fittings (a starting figure).",
+    "Hangers at 8 ft at most, plus one per run (check the SMACNA hanger table for the duct size).",
+    "Duct wrap 1-1/2 in on the perimeter, 20% for overlaps and corners."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Rectangular duct 20 x 10 in, galvanized, wrapped",
+   "unit": "LF",
+   "twin": "gc-rect-20x10-m",
+   "components": [
+    {
+     "name": "Galvanized sheet metal duct",
+     "unit": "SF",
+     "formula": "L*5",
+     "waste": 1500
+    },
+    {
+     "name": "Duct hangers (pairs)",
+     "unit": "EA",
+     "formula": "ceil(L/8)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "SF",
+     "formula": "L*5",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "gc-rect-20x10-m",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Division 23",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Sheet metal by surface: perimeter 60 in = 5 SF per LF; 15% for seams, joints and fittings (a starting figure).",
+    "Hangers at 8 ft at most, plus one per run (check the SMACNA hanger table for the duct size).",
+    "Duct wrap 1-1/2 in on the perimeter, 20% for overlaps and corners."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Rectangular duct 508 x 254 mm, galvanized, wrapped",
+   "unit": "m",
+   "twin": "gc-rect-20x10",
+   "components": [
+    {
+     "name": "Galvanized sheet metal duct",
+     "unit": "m²",
+     "formula": "L*1.524",
+     "waste": 1500
+    },
+    {
+     "name": "Duct hangers (pairs)",
+     "unit": "EA",
+     "formula": "ceil(L/2.4384)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "m²",
+     "formula": "L*1.524",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "gc-diffuser-2x2",
+   "type": "count",
+   "csi": "23 37 13",
+   "group": "Division 23",
+   "sources": [
+    "smacna",
+    "imc-6"
+   ],
+   "assume": [
+    "Size each device from the air schedule; the parts here are per device."
+   ],
+   "note": "Count each device.",
+   "waste": 0,
+   "name": "Supply diffuser 24 x 24, lay-in, with plenum box",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Supply diffuser 24 x 24",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Plenum box with collar",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Balancing damper",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-emt-12-3",
+   "type": "linear",
+   "csi": "26 05 33",
+   "group": "Division 26",
+   "sources": [
+    "nec-358",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "EMT in 10 ft lengths (metric twin 3.05 m): one coupling per length.",
+    "Straps: within 3 ft of each box (2 per run) and every 10 ft (NEC 358.30).",
+    "Connectors: one at each end of a run.",
+    "Wire: 3 conductors x (run + 1 ft per run for 6 in free conductor at each box, NEC 300.14). Pulling allowance: 10% waste."
+   ],
+   "note": "Draw each conduit run; N = number of runs. Fittings for offsets and bends are not counted.",
+   "waste": 0,
+   "name": "EMT 1/2 in with 3 #12 THHN",
+   "unit": "LF",
+   "twin": "gc-emt-12-3-m",
+   "components": [
+    {
+     "name": "EMT 1/2 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "EMT couplings 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L/10)",
+     "waste": 500
+    },
+    {
+     "name": "EMT connectors 1/2 in",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    },
+    {
+     "name": "One-hole straps 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N*2",
+     "waste": 500
+    },
+    {
+     "name": "THHN #12",
+     "unit": "LF",
+     "formula": "(L+N*1)*3",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-emt-12-3-m",
+   "type": "linear",
+   "csi": "26 05 33",
+   "group": "Division 26",
+   "sources": [
+    "nec-358",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "EMT in 10 ft lengths (metric twin 3.05 m): one coupling per length.",
+    "Straps: within 3 ft of each box (2 per run) and every 10 ft (NEC 358.30).",
+    "Connectors: one at each end of a run.",
+    "Wire: 3 conductors x (run + 1 ft per run for 6 in free conductor at each box, NEC 300.14). Pulling allowance: 10% waste."
+   ],
+   "note": "Draw each conduit run; N = number of runs. Fittings for offsets and bends are not counted.",
+   "waste": 0,
+   "name": "EMT 16 mm (1/2) with 3 THHN 3.31 mm²",
+   "unit": "m",
+   "twin": "gc-emt-12-3",
+   "components": [
+    {
+     "name": "EMT 16 mm (1/2)",
+     "unit": "m",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "EMT couplings 16 mm (1/2)",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)",
+     "waste": 500
+    },
+    {
+     "name": "EMT connectors 16 mm (1/2)",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    },
+    {
+     "name": "One-hole straps 16 mm (1/2)",
+     "unit": "EA",
+     "formula": "ceil(L/3)+N*2",
+     "waste": 500
+    },
+    {
+     "name": "THHN 3.31 mm²",
+     "unit": "m",
+     "formula": "(L+N*0.3048)*3",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "gc-recep-duplex-20",
+   "type": "count",
+   "csi": "26 27 26",
+   "group": "Division 26",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "One box per device, sized for its box fill (NEC 314.16): check it for the conductors you bring in."
+   ],
+   "note": "Count each device on the plans.",
+   "waste": 0,
+   "name": "Duplex receptacle 20 A, new-work box",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Device box, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Duplex receptacle 20 A",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Cover plate, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Ground pigtail with wire nut",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-lt-troffer-2x4",
+   "type": "count",
+   "csi": "26 51 00",
+   "group": "Division 26",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "Lamps are integral (LED) unless a lamp line is listed."
+   ],
+   "note": "Count each troffer; the whip ties it to the junction box above.",
+   "waste": 0,
+   "name": "LED troffer 2 x 4, lay-in",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "LED troffer 2 x 4",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Fixture whip, 6 ft flexible",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Seismic / support wires (2 per fixture)",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-excavation",
+   "type": "area",
+   "csi": "31 23 16",
+   "group": "Division 31",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Bank volume = area x depth (the item depth); side slopes or benching (OSHA 1926 Subpart P) are not included: widen the area for them.",
+    "Swell 25% from bank to loose (a starting figure: it depends on the soil).",
+    "Trucks of 12 CY loose."
+   ],
+   "note": "Measure the excavated area; the item depth is the average cut depth. For cut and fill over a surface, use CivilCraft.",
+   "waste": 0,
+   "name": "Bulk excavation to depth, haul off",
+   "unit": "SF",
+   "twin": "gc-excavation-m",
+   "components": [
+    {
+     "name": "Excavation (bank)",
+     "unit": "CY",
+     "formula": "A*H/27",
+     "waste": 0
+    },
+    {
+     "name": "Haul (loose)",
+     "unit": "CY",
+     "formula": "A*H/27*1.25",
+     "waste": 0
+    },
+    {
+     "name": "Truck loads, 12 CY",
+     "unit": "EA",
+     "formula": "ceil(A*H/27*1.25/12)",
+     "waste": 0
+    }
+   ],
+   "heightFt": 3
+  },
+  {
+   "key": "gc-excavation-m",
+   "type": "area",
+   "csi": "31 23 16",
+   "group": "Division 31",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Bank volume = area x depth (the item depth); side slopes or benching (OSHA 1926 Subpart P) are not included: widen the area for them.",
+    "Swell 25% from bank to loose (a starting figure: it depends on the soil).",
+    "Trucks of 12 CY loose."
+   ],
+   "note": "Measure the excavated area; the item depth is the average cut depth. For cut and fill over a surface, use CivilCraft.",
+   "waste": 0,
+   "name": "Bulk excavation to depth, haul off (metric)",
+   "unit": "m²",
+   "twin": "gc-excavation",
+   "components": [
+    {
+     "name": "Excavation (bank)",
+     "unit": "m³",
+     "formula": "A*H",
+     "waste": 0
+    },
+    {
+     "name": "Haul (loose)",
+     "unit": "m³",
+     "formula": "A*H*1.25",
+     "waste": 0
+    },
+    {
+     "name": "Truck loads, 12 CY",
+     "unit": "EA",
+     "formula": "ceil(A*H*1.25/9.1747)",
+     "waste": 0
+    }
+   ],
+   "heightFt": 3
+  },
+  {
+   "key": "gc-trench",
+   "type": "linear",
+   "csi": "31 23 33",
+   "group": "Division 31",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Trench 2 ft wide (the item height is its depth); deeper than 5 ft needs protection (OSHA 1926.652), not included.",
+    "Bedding 6 in under the pipe; backfill = excavation minus bedding (the pipe’s own volume is left in the backfill)."
+   ],
+   "note": "Draw the trench line.",
+   "waste": 0,
+   "name": "Utility trench 2 ft wide, bedding and backfill",
+   "unit": "LF",
+   "twin": "gc-trench-m",
+   "components": [
+    {
+     "name": "Trench excavation",
+     "unit": "CY",
+     "formula": "L*2*H/27",
+     "waste": 0
+    },
+    {
+     "name": "Bedding 6 in",
+     "unit": "CY",
+     "formula": "L*2*0.5/27",
+     "waste": 1000
+    },
+    {
+     "name": "Backfill",
+     "unit": "CY",
+     "formula": "L*2*(H-0.5)/27",
+     "waste": 0
+    }
+   ],
+   "heightFt": 4
+  },
+  {
+   "key": "gc-trench-m",
+   "type": "linear",
+   "csi": "31 23 33",
+   "group": "Division 31",
+   "sources": [
+    "osha-1926",
+    "geometry"
+   ],
+   "assume": [
+    "Trench 2 ft wide (the item height is its depth); deeper than 5 ft needs protection (OSHA 1926.652), not included.",
+    "Bedding 6 in under the pipe; backfill = excavation minus bedding (the pipe’s own volume is left in the backfill)."
+   ],
+   "note": "Draw the trench line.",
+   "waste": 0,
+   "name": "Utility trench 0.61 m wide, bedding and backfill",
+   "unit": "m",
+   "twin": "gc-trench",
+   "components": [
+    {
+     "name": "Trench excavation",
+     "unit": "m³",
+     "formula": "L*0.6096*H",
+     "waste": 0
+    },
+    {
+     "name": "Bedding 6 in",
+     "unit": "m³",
+     "formula": "L*0.6096*0.1524",
+     "waste": 1000
+    },
+    {
+     "name": "Backfill",
+     "unit": "m³",
+     "formula": "L*0.6096*(H-0.1524)",
+     "waste": 0
+    }
+   ],
+   "heightFt": 4
+  },
+  {
+   "key": "gc-asphalt",
+   "type": "area",
+   "csi": "32 12 16",
+   "group": "Division 32",
+   "sources": [
+    "ai-ms4",
+    "geometry"
+   ],
+   "assume": [
+    "Hot-mix asphalt 2 in compacted at about 145 lb per cubic foot (a starting figure: use the mix design’s density): tons = A x 2 / 12 x 145 / 2000.",
+    "Aggregate base 6 in compacted, 15% for compaction."
+   ],
+   "note": "Measure the paved area.",
+   "waste": 0,
+   "name": "Asphalt paving 2 in on 6 in aggregate base",
+   "unit": "SF",
+   "twin": "gc-asphalt-m",
+   "components": [
+    {
+     "name": "Hot-mix asphalt",
+     "unit": "ton",
+     "formula": "A*2/12*145/2000",
+     "waste": 500
+    },
+    {
+     "name": "Aggregate base 6 in",
+     "unit": "CY",
+     "formula": "A*6/12/27",
+     "waste": 1500
+    }
+   ]
+  },
+  {
+   "key": "gc-asphalt-m",
+   "type": "area",
+   "csi": "32 12 16",
+   "group": "Division 32",
+   "sources": [
+    "ai-ms4",
+    "geometry"
+   ],
+   "assume": [
+    "Hot-mix asphalt 2 in compacted at about 145 lb per cubic foot (a starting figure: use the mix design’s density): tons = A x 2 / 12 x 145 / 2000.",
+    "Aggregate base 6 in compacted, 15% for compaction."
+   ],
+   "note": "Measure the paved area.",
+   "waste": 0,
+   "name": "Asphalt paving 50 mm on 150 mm aggregate base",
+   "unit": "m²",
+   "twin": "gc-asphalt",
+   "components": [
+    {
+     "name": "Hot-mix asphalt",
+     "unit": "t",
+     "formula": "A*0.0508*2.3227",
+     "waste": 500
+    },
+    {
+     "name": "Aggregate base 6 in",
+     "unit": "m³",
+     "formula": "A*0.1524",
+     "waste": 1500
+    }
+   ]
+  },
+  {
+   "key": "gc-sod",
+   "type": "area",
+   "csi": "32 92 23",
+   "group": "Division 32",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Sod 5% waste; pallets of about 450 SF (ask the farm: 400 to 500 SF).",
+    "Topsoil 2 in under the sod: CY = A x 2 / 12 / 27.",
+    "Starter fertilizer: one 50 lb bag per 5,000 SF (a starting figure: read the bag)."
+   ],
+   "note": "Measure the lawn area.",
+   "waste": 0,
+   "name": "Sod on 2 in topsoil",
+   "unit": "SF",
+   "twin": "gc-sod-m",
+   "components": [
+    {
+     "name": "Sod",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Sod pallets",
+     "unit": "EA",
+     "formula": "ceil(A*1.05/450)",
+     "waste": 0
+    },
+    {
+     "name": "Topsoil 2 in",
+     "unit": "CY",
+     "formula": "A*2/12/27",
+     "waste": 1000
+    },
+    {
+     "name": "Starter fertilizer, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/5000)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-sod-m",
+   "type": "area",
+   "csi": "32 92 23",
+   "group": "Division 32",
+   "sources": [
+    "ansi-z60",
+    "geometry"
+   ],
+   "assume": [
+    "Sod 5% waste; pallets of about 450 SF (ask the farm: 400 to 500 SF).",
+    "Topsoil 2 in under the sod: CY = A x 2 / 12 / 27.",
+    "Starter fertilizer: one 50 lb bag per 5,000 SF (a starting figure: read the bag)."
+   ],
+   "note": "Measure the lawn area.",
+   "waste": 0,
+   "name": "Sod on 50 mm topsoil",
+   "unit": "m²",
+   "twin": "gc-sod",
+   "components": [
+    {
+     "name": "Sod",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Sod pallets",
+     "unit": "EA",
+     "formula": "ceil(A*1.05/41.806)",
+     "waste": 0
+    },
+    {
+     "name": "Topsoil 2 in",
+     "unit": "m³",
+     "formula": "A*0.0508",
+     "waste": 1000
+    },
+    {
+     "name": "Starter fertilizer, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/464.52)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-sewer",
+   "type": "linear",
+   "csi": "33 31 00",
+   "group": "Division 33",
+   "sources": [
+    "astm-d3034",
+    "geometry"
+   ],
+   "assume": [
+    "PVC sewer pipe SDR 35 in 14 ft lengths (gasketed bell joints); cleanouts and manholes are counted on their own. Trench and bedding: the trench item."
+   ],
+   "note": "Draw the sewer line.",
+   "waste": 0,
+   "name": "Sanitary sewer pipe, PVC SDR 35, 6 in",
+   "unit": "LF",
+   "twin": "gc-sewer-m",
+   "components": [
+    {
+     "name": "PVC sewer pipe 6 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "Pipe lengths, 14 ft",
+     "unit": "EA",
+     "formula": "ceil(L/14)+N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "gc-sewer-m",
+   "type": "linear",
+   "csi": "33 31 00",
+   "group": "Division 33",
+   "sources": [
+    "astm-d3034",
+    "geometry"
+   ],
+   "assume": [
+    "PVC sewer pipe SDR 35 in 14 ft lengths (gasketed bell joints); cleanouts and manholes are counted on their own. Trench and bedding: the trench item."
+   ],
+   "note": "Draw the sewer line.",
+   "waste": 0,
+   "name": "Sanitary sewer pipe, PVC SDR 35, 150 mm",
+   "unit": "m",
+   "twin": "gc-sewer",
+   "components": [
+    {
+     "name": "PVC sewer pipe 6 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "Pipe lengths, 4.27 m",
+     "unit": "EA",
+     "formula": "ceil(L/4.2672)+N",
+     "waste": 0
+    }
+   ]
+  }
+ ]
+}

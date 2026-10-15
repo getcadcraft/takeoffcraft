@@ -1,0 +1,845 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.hvac",
+ "name": "HVAC",
+ "packVersion": "0.1.0",
+ "trade": "HVAC",
+ "description": "Rectangular and spiral duct by size with hangers and wrap, insulated flexible duct with supports, supply diffusers, registers and return grilles, exhaust fans, thermostats and split systems. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "23 09 00",
+  "23 31 13",
+  "23 33 46",
+  "23 34 23",
+  "23 37 13",
+  "23 81 26"
+ ],
+ "sources": [
+  {
+   "id": "smacna",
+   "title": "HVAC Duct Construction Standards: Metal and Flexible",
+   "publisher": "SMACNA",
+   "url": "https://www.smacna.org/"
+  },
+  {
+   "id": "imc-6",
+   "title": "International Mechanical Code, Chapter 6 Duct Systems",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "adc",
+   "title": "Flexible Duct Performance and Installation Standards",
+   "publisher": "Air Diffusion Council",
+   "url": "https://flexibleduct.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "rect-12x8",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Sheet metal by surface: perimeter 40 in = 3.3333 SF per LF; 15% for seams, joints and fittings (a starting figure).",
+    "Hangers at 8 ft at most, plus one per run (check the SMACNA hanger table for the duct size).",
+    "Duct wrap 1-1/2 in on the perimeter, 20% for overlaps and corners."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Rectangular duct 12 x 8 in, galvanized, wrapped",
+   "unit": "LF",
+   "twin": "rect-12x8-m",
+   "components": [
+    {
+     "name": "Galvanized sheet metal duct",
+     "unit": "SF",
+     "formula": "L*3.333333",
+     "waste": 1500
+    },
+    {
+     "name": "Duct hangers (pairs)",
+     "unit": "EA",
+     "formula": "ceil(L/8)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "SF",
+     "formula": "L*3.333333",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "rect-12x8-m",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Sheet metal by surface: perimeter 40 in = 3.3333 SF per LF; 15% for seams, joints and fittings (a starting figure).",
+    "Hangers at 8 ft at most, plus one per run (check the SMACNA hanger table for the duct size).",
+    "Duct wrap 1-1/2 in on the perimeter, 20% for overlaps and corners."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Rectangular duct 305 x 203 mm, galvanized, wrapped",
+   "unit": "m",
+   "twin": "rect-12x8",
+   "components": [
+    {
+     "name": "Galvanized sheet metal duct",
+     "unit": "m²",
+     "formula": "L*1.016",
+     "waste": 1500
+    },
+    {
+     "name": "Duct hangers (pairs)",
+     "unit": "EA",
+     "formula": "ceil(L/2.4384)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "m²",
+     "formula": "L*1.016",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "rect-20x10",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Sheet metal by surface: perimeter 60 in = 5 SF per LF; 15% for seams, joints and fittings (a starting figure).",
+    "Hangers at 8 ft at most, plus one per run (check the SMACNA hanger table for the duct size).",
+    "Duct wrap 1-1/2 in on the perimeter, 20% for overlaps and corners."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Rectangular duct 20 x 10 in, galvanized, wrapped",
+   "unit": "LF",
+   "twin": "rect-20x10-m",
+   "components": [
+    {
+     "name": "Galvanized sheet metal duct",
+     "unit": "SF",
+     "formula": "L*5",
+     "waste": 1500
+    },
+    {
+     "name": "Duct hangers (pairs)",
+     "unit": "EA",
+     "formula": "ceil(L/8)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "SF",
+     "formula": "L*5",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "rect-20x10-m",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Sheet metal by surface: perimeter 60 in = 5 SF per LF; 15% for seams, joints and fittings (a starting figure).",
+    "Hangers at 8 ft at most, plus one per run (check the SMACNA hanger table for the duct size).",
+    "Duct wrap 1-1/2 in on the perimeter, 20% for overlaps and corners."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Rectangular duct 508 x 254 mm, galvanized, wrapped",
+   "unit": "m",
+   "twin": "rect-20x10",
+   "components": [
+    {
+     "name": "Galvanized sheet metal duct",
+     "unit": "m²",
+     "formula": "L*1.524",
+     "waste": 1500
+    },
+    {
+     "name": "Duct hangers (pairs)",
+     "unit": "EA",
+     "formula": "ceil(L/2.4384)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "m²",
+     "formula": "L*1.524",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "rect-24x12",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Sheet metal by surface: perimeter 72 in = 6 SF per LF; 15% for seams, joints and fittings (a starting figure).",
+    "Hangers at 8 ft at most, plus one per run (check the SMACNA hanger table for the duct size).",
+    "Duct wrap 1-1/2 in on the perimeter, 20% for overlaps and corners."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Rectangular duct 24 x 12 in, galvanized, wrapped",
+   "unit": "LF",
+   "twin": "rect-24x12-m",
+   "components": [
+    {
+     "name": "Galvanized sheet metal duct",
+     "unit": "SF",
+     "formula": "L*6",
+     "waste": 1500
+    },
+    {
+     "name": "Duct hangers (pairs)",
+     "unit": "EA",
+     "formula": "ceil(L/8)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "SF",
+     "formula": "L*6",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "rect-24x12-m",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Sheet metal by surface: perimeter 72 in = 6 SF per LF; 15% for seams, joints and fittings (a starting figure).",
+    "Hangers at 8 ft at most, plus one per run (check the SMACNA hanger table for the duct size).",
+    "Duct wrap 1-1/2 in on the perimeter, 20% for overlaps and corners."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Rectangular duct 610 x 305 mm, galvanized, wrapped",
+   "unit": "m",
+   "twin": "rect-24x12",
+   "components": [
+    {
+     "name": "Galvanized sheet metal duct",
+     "unit": "m²",
+     "formula": "L*1.83",
+     "waste": 1500
+    },
+    {
+     "name": "Duct hangers (pairs)",
+     "unit": "EA",
+     "formula": "ceil(L/2.4384)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "m²",
+     "formula": "L*1.83",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "spiral-8",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Spiral duct in 10 ft lengths with a coupling each; hangers at 10 ft at most plus one per run (check the SMACNA table).",
+    "Surface for wrap: 3.1416 x 8 in = 2.0944 SF per LF, 20% for overlaps."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Round spiral duct 8 in, wrapped",
+   "unit": "LF",
+   "twin": "spiral-8-m",
+   "components": [
+    {
+     "name": "Spiral duct 8 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Couplings",
+     "unit": "EA",
+     "formula": "ceil(L/10)",
+     "waste": 500
+    },
+    {
+     "name": "Duct hangers",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "SF",
+     "formula": "L*2.094395",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "spiral-8-m",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Spiral duct in 10 ft lengths with a coupling each; hangers at 10 ft at most plus one per run (check the SMACNA table).",
+    "Surface for wrap: 3.1416 x 8 in = 2.0944 SF per LF, 20% for overlaps."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Round spiral duct 203 mm, wrapped",
+   "unit": "m",
+   "twin": "spiral-8",
+   "components": [
+    {
+     "name": "Spiral duct 8 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Couplings",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)",
+     "waste": 500
+    },
+    {
+     "name": "Duct hangers",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "m²",
+     "formula": "L*0.637743",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "spiral-12",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Spiral duct in 10 ft lengths with a coupling each; hangers at 10 ft at most plus one per run (check the SMACNA table).",
+    "Surface for wrap: 3.1416 x 12 in = 3.1416 SF per LF, 20% for overlaps."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Round spiral duct 12 in, wrapped",
+   "unit": "LF",
+   "twin": "spiral-12-m",
+   "components": [
+    {
+     "name": "Spiral duct 12 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Couplings",
+     "unit": "EA",
+     "formula": "ceil(L/10)",
+     "waste": 500
+    },
+    {
+     "name": "Duct hangers",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "SF",
+     "formula": "L*3.141593",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "spiral-12-m",
+   "type": "linear",
+   "csi": "23 31 13",
+   "group": "Ductwork",
+   "sources": [
+    "smacna",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Spiral duct in 10 ft lengths with a coupling each; hangers at 10 ft at most plus one per run (check the SMACNA table).",
+    "Surface for wrap: 3.1416 x 12 in = 3.1416 SF per LF, 20% for overlaps."
+   ],
+   "note": "Draw the duct centerline.",
+   "waste": 0,
+   "name": "Round spiral duct 305 mm, wrapped",
+   "unit": "m",
+   "twin": "spiral-12",
+   "components": [
+    {
+     "name": "Spiral duct 12 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Couplings",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)",
+     "waste": 500
+    },
+    {
+     "name": "Duct hangers",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct wrap 1-1/2 in",
+     "unit": "m²",
+     "formula": "L*0.958186",
+     "waste": 2000
+    }
+   ]
+  },
+  {
+   "key": "flex-6",
+   "type": "linear",
+   "csi": "23 33 46",
+   "group": "Ductwork",
+   "sources": [
+    "adc",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Insulated flexible duct in 25 ft boxes; runs pulled tight, no longer than the code and the device allow.",
+    "Supports at 5 ft at most (Air Diffusion Council), plus one per run; two clamps per run."
+   ],
+   "note": "Draw each flex run from the trunk to the device.",
+   "waste": 0,
+   "name": "Flexible duct 6 in, insulated",
+   "unit": "LF",
+   "twin": "flex-6-m",
+   "components": [
+    {
+     "name": "Flex duct 6 in, 25 ft box",
+     "unit": "box",
+     "formula": "ceil(L/25)",
+     "waste": 0
+    },
+    {
+     "name": "Flex duct supports",
+     "unit": "EA",
+     "formula": "ceil(L/5)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct clamps",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "flex-6-m",
+   "type": "linear",
+   "csi": "23 33 46",
+   "group": "Ductwork",
+   "sources": [
+    "adc",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Insulated flexible duct in 25 ft boxes; runs pulled tight, no longer than the code and the device allow.",
+    "Supports at 5 ft at most (Air Diffusion Council), plus one per run; two clamps per run."
+   ],
+   "note": "Draw each flex run from the trunk to the device.",
+   "waste": 0,
+   "name": "Flexible duct 152 mm, insulated",
+   "unit": "m",
+   "twin": "flex-6",
+   "components": [
+    {
+     "name": "Flex duct 152 mm, 7.62 m box",
+     "unit": "box",
+     "formula": "ceil(L/7.62)",
+     "waste": 0
+    },
+    {
+     "name": "Flex duct supports",
+     "unit": "EA",
+     "formula": "ceil(L/1.524)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct clamps",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "flex-8",
+   "type": "linear",
+   "csi": "23 33 46",
+   "group": "Ductwork",
+   "sources": [
+    "adc",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Insulated flexible duct in 25 ft boxes; runs pulled tight, no longer than the code and the device allow.",
+    "Supports at 5 ft at most (Air Diffusion Council), plus one per run; two clamps per run."
+   ],
+   "note": "Draw each flex run from the trunk to the device.",
+   "waste": 0,
+   "name": "Flexible duct 8 in, insulated",
+   "unit": "LF",
+   "twin": "flex-8-m",
+   "components": [
+    {
+     "name": "Flex duct 8 in, 25 ft box",
+     "unit": "box",
+     "formula": "ceil(L/25)",
+     "waste": 0
+    },
+    {
+     "name": "Flex duct supports",
+     "unit": "EA",
+     "formula": "ceil(L/5)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct clamps",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "flex-8-m",
+   "type": "linear",
+   "csi": "23 33 46",
+   "group": "Ductwork",
+   "sources": [
+    "adc",
+    "imc-6",
+    "geometry"
+   ],
+   "assume": [
+    "Insulated flexible duct in 25 ft boxes; runs pulled tight, no longer than the code and the device allow.",
+    "Supports at 5 ft at most (Air Diffusion Council), plus one per run; two clamps per run."
+   ],
+   "note": "Draw each flex run from the trunk to the device.",
+   "waste": 0,
+   "name": "Flexible duct 203 mm, insulated",
+   "unit": "m",
+   "twin": "flex-8",
+   "components": [
+    {
+     "name": "Flex duct 203 mm, 7.62 m box",
+     "unit": "box",
+     "formula": "ceil(L/7.62)",
+     "waste": 0
+    },
+    {
+     "name": "Flex duct supports",
+     "unit": "EA",
+     "formula": "ceil(L/1.524)+N",
+     "waste": 500
+    },
+    {
+     "name": "Duct clamps",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "diffuser-2x2",
+   "type": "count",
+   "csi": "23 37 13",
+   "group": "Air devices",
+   "sources": [
+    "smacna",
+    "imc-6"
+   ],
+   "assume": [
+    "Size each device from the air schedule; the parts here are per device."
+   ],
+   "note": "Count each device.",
+   "waste": 0,
+   "name": "Supply diffuser 24 x 24, lay-in, with plenum box",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Supply diffuser 24 x 24",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Plenum box with collar",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Balancing damper",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "register",
+   "type": "count",
+   "csi": "23 37 13",
+   "group": "Air devices",
+   "sources": [
+    "smacna",
+    "imc-6"
+   ],
+   "assume": [
+    "Size each device from the air schedule; the parts here are per device."
+   ],
+   "note": "Count each device.",
+   "waste": 0,
+   "name": "Supply register with boot",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Supply register",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Register boot",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "return-grille",
+   "type": "count",
+   "csi": "23 37 13",
+   "group": "Air devices",
+   "sources": [
+    "smacna",
+    "imc-6"
+   ],
+   "assume": [
+    "Size each device from the air schedule; the parts here are per device."
+   ],
+   "note": "Count each device.",
+   "waste": 0,
+   "name": "Return grille, lay-in",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Return grille 24 x 24",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Return plenum box",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "exhaust-fan",
+   "type": "count",
+   "csi": "23 34 23",
+   "group": "Equipment",
+   "sources": [
+    "imc-6"
+   ],
+   "assume": [
+    "Duct to the outside is measured as a run."
+   ],
+   "note": "Count each exhaust fan.",
+   "waste": 0,
+   "name": "Exhaust fan, ceiling mounted, with wall or roof cap",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Ceiling exhaust fan",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Wall or roof cap with damper",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "thermostat",
+   "type": "count",
+   "csi": "23 09 00",
+   "group": "Equipment",
+   "sources": [
+    "imc-6"
+   ],
+   "assume": [
+    "Control wiring is measured as a run."
+   ],
+   "note": "Count each thermostat.",
+   "waste": 0,
+   "name": "Thermostat",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Programmable thermostat",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Sub-base / wall plate",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "split-system",
+   "type": "count",
+   "csi": "23 81 26",
+   "group": "Equipment",
+   "sources": [
+    "imc-6"
+   ],
+   "assume": [
+    "Refrigerant line set and condensate drain measured as runs or added per the layout."
+   ],
+   "note": "Count each split system.",
+   "waste": 0,
+   "name": "Split system: furnace or air handler + condensing unit",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Furnace / air handler",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Condensing unit",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Equipment pad",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Disconnect",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Filter rack",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  }
+ ]
+}

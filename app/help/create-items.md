@@ -52,6 +52,7 @@ The item editor (**Item: (name)**) has these fields. Each one is saved when you 
 | {{ui:Waste %}} | Added to the quantity before pricing: 10 means quantity × 1.10. |
 | {{ui:Material $/LF}} | Material cost per unit. The label follows the unit: $/SF, $/EA and so on. |
 | {{ui:Labor $/LF}} | Labor cost per unit. |
+| {{ui:CSI number}} | Its CSI MasterFormat number, like `09 21 16` (or just the division, `09`). The workbook's By division worksheet groups costs by it. Items from [trade packs](topic:trade-packs) have one already. |
 
 Height and depth take feet and inches (`9'-0"`, `8' 6"`) or decimal feet (`9`) for imperial units, and meters (`2.7`, `2700 mm`) for metric units. Rates take amounts like `12.50` or `$1,250`, up to four decimals. See [Length, rate and percent entry](topic:entry-formats).
 

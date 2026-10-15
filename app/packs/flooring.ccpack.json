@@ -1,0 +1,903 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.flooring",
+ "name": "Flooring",
+ "packVersion": "0.1.0",
+ "trade": "Flooring",
+ "description": "Floor and wall tile (on concrete or on backer board), luxury vinyl plank, VCT, broadloom carpet and carpet tile, solid hardwood, resilient base, transitions and self-leveling underlayment. Coverage figures are starting points to replace with your products’ data sheets. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "03 54 16",
+  "09 30 13",
+  "09 64 00",
+  "09 65 13",
+  "09 65 19",
+  "09 68 13",
+  "09 68 16"
+ ],
+ "sources": [
+  {
+   "id": "tcna",
+   "title": "TCNA Handbook for Ceramic, Glass, and Stone Tile Installation",
+   "publisher": "Tile Council of North America",
+   "url": "https://www.tcnatile.com/"
+  },
+  {
+   "id": "pds",
+   "title": "The product data sheet of the coating, adhesive or product you specify (spread rate, coverage, coats)",
+   "publisher": "its manufacturer"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "astm-f710",
+   "title": "ASTM F710, Standard Practice for Preparing Concrete Floors to Receive Resilient Flooring",
+   "publisher": "ASTM International",
+   "url": "https://www.astm.org/"
+  },
+  {
+   "id": "cri-105",
+   "title": "CRI 105, Standard for Installation of Residential Carpet (and CRI 104 for commercial)",
+   "publisher": "The Carpet and Rug Institute",
+   "url": "https://carpet-rug.org/"
+  },
+  {
+   "id": "nwfa",
+   "title": "NWFA Installation Guidelines",
+   "publisher": "National Wood Flooring Association",
+   "url": "https://www.nwfa.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "tile-floor-conc",
+   "type": "area",
+   "csi": "09 30 13",
+   "group": "Tile",
+   "sources": [
+    "tcna",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tile: 10% waste for cuts and breakage (straight lay; diagonal patterns take more).",
+    "Thin-set: one 50 lb bag per 95 SF with a 1/4 x 1/4 in square-notch trowel (a starting figure: use the bag’s coverage chart for your trowel).",
+    "Grout from the joint volume: 12 x 12 in tile, 1/8 in joints, 3/8 in deep = 1.13 cu in per SF, about 0.08 lb per SF (use the grout maker’s calculator for other sizes)."
+   ],
+   "note": "Measure the tiled floor area.",
+   "waste": 0,
+   "name": "Ceramic / porcelain floor tile on concrete, thin-set",
+   "unit": "SF",
+   "twin": "tile-floor-conc-m",
+   "components": [
+    {
+     "name": "Floor tile",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Thin-set mortar, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/95)",
+     "waste": 500
+    },
+    {
+     "name": "Sanded grout",
+     "unit": "lb",
+     "formula": "A*0.08",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "tile-floor-conc-m",
+   "type": "area",
+   "csi": "09 30 13",
+   "group": "Tile",
+   "sources": [
+    "tcna",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tile: 10% waste for cuts and breakage (straight lay; diagonal patterns take more).",
+    "Thin-set: one 50 lb bag per 95 SF with a 1/4 x 1/4 in square-notch trowel (a starting figure: use the bag’s coverage chart for your trowel).",
+    "Grout from the joint volume: 12 x 12 in tile, 1/8 in joints, 3/8 in deep = 1.13 cu in per SF, about 0.08 lb per SF (use the grout maker’s calculator for other sizes)."
+   ],
+   "note": "Measure the tiled floor area.",
+   "waste": 0,
+   "name": "Ceramic / porcelain floor tile on concrete, thin-set (metric)",
+   "unit": "m²",
+   "twin": "tile-floor-conc",
+   "components": [
+    {
+     "name": "Floor tile",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Thin-set mortar, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/8.826)",
+     "waste": 500
+    },
+    {
+     "name": "Sanded grout",
+     "unit": "kg",
+     "formula": "A*0.3906",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "tile-floor-wood",
+   "type": "area",
+   "csi": "09 30 13",
+   "group": "Tile",
+   "sources": [
+    "tcna",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tile: 10% waste for cuts and breakage (straight lay; diagonal patterns take more).",
+    "Thin-set: one 50 lb bag per 95 SF with a 1/4 x 1/4 in square-notch trowel (a starting figure: use the bag’s coverage chart for your trowel).",
+    "Grout from the joint volume: 12 x 12 in tile, 1/8 in joints, 3/8 in deep = 1.13 cu in per SF, about 0.08 lb per SF (use the grout maker’s calculator for other sizes).",
+    "Cement backer board 3 x 5 ft (15 SF) over the wood subfloor, 10% waste; backer screws 8 in o.c. about 1.5 per SF; alkali-resistant mesh tape on the board joints (0.4 LF per SF)."
+   ],
+   "note": "Measure the tiled floor area.",
+   "waste": 0,
+   "name": "Floor tile on wood subfloor, cement backer board, thin-set",
+   "unit": "SF",
+   "twin": "tile-floor-wood-m",
+   "components": [
+    {
+     "name": "Floor tile",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Cement backer board 3 x 5 ft",
+     "unit": "sheet",
+     "formula": "ceil(A/15)",
+     "waste": 1000
+    },
+    {
+     "name": "Backer board screws",
+     "unit": "EA",
+     "formula": "ceil(A*1.5)",
+     "waste": 1000
+    },
+    {
+     "name": "Mesh tape, alkali resistant",
+     "unit": "LF",
+     "formula": "A*0.4",
+     "waste": 1000
+    },
+    {
+     "name": "Thin-set mortar, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A*2/95)",
+     "waste": 500
+    },
+    {
+     "name": "Sanded grout",
+     "unit": "lb",
+     "formula": "A*0.08",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "tile-floor-wood-m",
+   "type": "area",
+   "csi": "09 30 13",
+   "group": "Tile",
+   "sources": [
+    "tcna",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tile: 10% waste for cuts and breakage (straight lay; diagonal patterns take more).",
+    "Thin-set: one 50 lb bag per 95 SF with a 1/4 x 1/4 in square-notch trowel (a starting figure: use the bag’s coverage chart for your trowel).",
+    "Grout from the joint volume: 12 x 12 in tile, 1/8 in joints, 3/8 in deep = 1.13 cu in per SF, about 0.08 lb per SF (use the grout maker’s calculator for other sizes).",
+    "Cement backer board 3 x 5 ft (15 SF) over the wood subfloor, 10% waste; backer screws 8 in o.c. about 1.5 per SF; alkali-resistant mesh tape on the board joints (0.4 LF per SF)."
+   ],
+   "note": "Measure the tiled floor area.",
+   "waste": 0,
+   "name": "Floor tile on wood subfloor, cement backer board, thin-set (metric)",
+   "unit": "m²",
+   "twin": "tile-floor-wood",
+   "components": [
+    {
+     "name": "Floor tile",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Cement backer board 914 x 1524 mm",
+     "unit": "sheet",
+     "formula": "ceil(A/1.3935)",
+     "waste": 1000
+    },
+    {
+     "name": "Backer board screws",
+     "unit": "EA",
+     "formula": "ceil(A*16.146)",
+     "waste": 1000
+    },
+    {
+     "name": "Mesh tape, alkali resistant",
+     "unit": "m",
+     "formula": "A*1.3123",
+     "waste": 1000
+    },
+    {
+     "name": "Thin-set mortar, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A*2/8.826)",
+     "waste": 500
+    },
+    {
+     "name": "Sanded grout",
+     "unit": "kg",
+     "formula": "A*0.3906",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "tile-wall",
+   "type": "area",
+   "csi": "09 30 13",
+   "group": "Tile",
+   "sources": [
+    "tcna",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Wall tile 10% waste; thin-set one 50 lb bag per 95 SF; grout 0.08 lb per SF (starting figures).",
+    "Backer board 3 x 5 ft in wet areas."
+   ],
+   "note": "Measure the tiled wall area.",
+   "waste": 0,
+   "name": "Wall tile on cement backer board",
+   "unit": "SF",
+   "twin": "tile-wall-m",
+   "components": [
+    {
+     "name": "Wall tile",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Cement backer board 3 x 5 ft",
+     "unit": "sheet",
+     "formula": "ceil(A/15)",
+     "waste": 1000
+    },
+    {
+     "name": "Thin-set mortar, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/95)",
+     "waste": 500
+    },
+    {
+     "name": "Sanded grout",
+     "unit": "lb",
+     "formula": "A*0.08",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "tile-wall-m",
+   "type": "area",
+   "csi": "09 30 13",
+   "group": "Tile",
+   "sources": [
+    "tcna",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Wall tile 10% waste; thin-set one 50 lb bag per 95 SF; grout 0.08 lb per SF (starting figures).",
+    "Backer board 3 x 5 ft in wet areas."
+   ],
+   "note": "Measure the tiled wall area.",
+   "waste": 0,
+   "name": "Wall tile on cement backer board (metric)",
+   "unit": "m²",
+   "twin": "tile-wall",
+   "components": [
+    {
+     "name": "Wall tile",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Cement backer board 914 x 1524 mm",
+     "unit": "sheet",
+     "formula": "ceil(A/1.3935)",
+     "waste": 1000
+    },
+    {
+     "name": "Thin-set mortar, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A/8.826)",
+     "waste": 500
+    },
+    {
+     "name": "Sanded grout",
+     "unit": "kg",
+     "formula": "A*0.3906",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "lvp-float",
+   "type": "area",
+   "csi": "09 65 19",
+   "group": "Resilient",
+   "sources": [
+    "astm-f710",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Plank 10% waste (straight lay).",
+    "Underlayment where the product calls for one, 5% waste.",
+    "Transitions are counted by doorway as their own item."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Luxury vinyl plank, floating, with underlayment",
+   "unit": "SF",
+   "twin": "lvp-float-m",
+   "components": [
+    {
+     "name": "Luxury vinyl plank",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Underlayment",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "lvp-float-m",
+   "type": "area",
+   "csi": "09 65 19",
+   "group": "Resilient",
+   "sources": [
+    "astm-f710",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Plank 10% waste (straight lay).",
+    "Underlayment where the product calls for one, 5% waste.",
+    "Transitions are counted by doorway as their own item."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Luxury vinyl plank, floating, with underlayment (metric)",
+   "unit": "m²",
+   "twin": "lvp-float",
+   "components": [
+    {
+     "name": "Luxury vinyl plank",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Underlayment",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "vct",
+   "type": "area",
+   "csi": "09 65 19",
+   "group": "Resilient",
+   "sources": [
+    "astm-f710",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tile 5% waste.",
+    "Adhesive at 150 SF per gallon (a starting figure: use the adhesive’s data sheet for its trowel)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Vinyl composition tile 12 x 12 in, adhesive",
+   "unit": "SF",
+   "twin": "vct-m",
+   "components": [
+    {
+     "name": "Vinyl composition tile",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Flooring adhesive",
+     "unit": "gal",
+     "formula": "A/150",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "vct-m",
+   "type": "area",
+   "csi": "09 65 19",
+   "group": "Resilient",
+   "sources": [
+    "astm-f710",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Tile 5% waste.",
+    "Adhesive at 150 SF per gallon (a starting figure: use the adhesive’s data sheet for its trowel)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Vinyl composition tile 305 x 305 mm, adhesive",
+   "unit": "m²",
+   "twin": "vct",
+   "components": [
+    {
+     "name": "Vinyl composition tile",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 500
+    },
+    {
+     "name": "Flooring adhesive",
+     "unit": "L",
+     "formula": "A/3.681",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "carpet-broadloom",
+   "type": "area",
+   "csi": "09 68 16",
+   "group": "Carpet",
+   "sources": [
+    "cri-105",
+    "geometry"
+   ],
+   "assume": [
+    "Carpet and pad 10% waste for seams and pattern (12 ft rolls: plan the seams and adjust).",
+    "Tack strip along the whole perimeter of each room (P)."
+   ],
+   "note": "Measure each carpeted room as an area in square yards.",
+   "waste": 0,
+   "name": "Broadloom carpet with pad and tack strip",
+   "unit": "SY",
+   "twin": "carpet-broadloom-m",
+   "components": [
+    {
+     "name": "Carpet",
+     "unit": "SY",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Carpet pad",
+     "unit": "SY",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Tack strip",
+     "unit": "LF",
+     "formula": "P",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "carpet-broadloom-m",
+   "type": "area",
+   "csi": "09 68 16",
+   "group": "Carpet",
+   "sources": [
+    "cri-105",
+    "geometry"
+   ],
+   "assume": [
+    "Carpet and pad 10% waste for seams and pattern (12 ft rolls: plan the seams and adjust).",
+    "Tack strip along the whole perimeter of each room (P)."
+   ],
+   "note": "Measure each carpeted room as an area in square yards.",
+   "waste": 0,
+   "name": "Broadloom carpet with pad and tack strip (metric)",
+   "unit": "m²",
+   "twin": "carpet-broadloom",
+   "components": [
+    {
+     "name": "Carpet",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Carpet pad",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Tack strip",
+     "unit": "m",
+     "formula": "P",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "carpet-tile",
+   "type": "area",
+   "csi": "09 68 13",
+   "group": "Carpet",
+   "sources": [
+    "cri-105",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Carpet tile 24 x 24 in (4 SF), 5% waste.",
+    "Release adhesive at 200 SF per gallon (a starting figure: use the data sheet)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Carpet tile 24 x 24 in, release adhesive",
+   "unit": "SF",
+   "twin": "carpet-tile-m",
+   "components": [
+    {
+     "name": "Carpet tile",
+     "unit": "EA",
+     "formula": "ceil(A/4)",
+     "waste": 500
+    },
+    {
+     "name": "Release adhesive",
+     "unit": "gal",
+     "formula": "A/200",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "carpet-tile-m",
+   "type": "area",
+   "csi": "09 68 13",
+   "group": "Carpet",
+   "sources": [
+    "cri-105",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Carpet tile 24 x 24 in (4 SF), 5% waste.",
+    "Release adhesive at 200 SF per gallon (a starting figure: use the data sheet)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Carpet tile 610 x 610 mm, release adhesive",
+   "unit": "m²",
+   "twin": "carpet-tile",
+   "components": [
+    {
+     "name": "Carpet tile",
+     "unit": "EA",
+     "formula": "ceil(A/0.3716)",
+     "waste": 500
+    },
+    {
+     "name": "Release adhesive",
+     "unit": "L",
+     "formula": "A/4.909",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "hardwood-solid",
+   "type": "area",
+   "csi": "09 64 00",
+   "group": "Wood",
+   "sources": [
+    "nwfa",
+    "geometry"
+   ],
+   "assume": [
+    "Solid strip flooring 3/4 in, 7% waste (straight lay; more for diagonals and short boards).",
+    "Underlayment paper on the whole area, 10% for laps.",
+    "Cleats or staples: about 1.25 per SF (one every 8 to 10 in along each 2-1/4 in strip; use the NWFA schedule for your width)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Solid hardwood strip 3/4 in, nail-down, with underlayment",
+   "unit": "SF",
+   "twin": "hardwood-solid-m",
+   "components": [
+    {
+     "name": "Hardwood flooring",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 700
+    },
+    {
+     "name": "Underlayment paper",
+     "unit": "SF",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Flooring cleats",
+     "unit": "EA",
+     "formula": "ceil(A*1.25)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "hardwood-solid-m",
+   "type": "area",
+   "csi": "09 64 00",
+   "group": "Wood",
+   "sources": [
+    "nwfa",
+    "geometry"
+   ],
+   "assume": [
+    "Solid strip flooring 3/4 in, 7% waste (straight lay; more for diagonals and short boards).",
+    "Underlayment paper on the whole area, 10% for laps.",
+    "Cleats or staples: about 1.25 per SF (one every 8 to 10 in along each 2-1/4 in strip; use the NWFA schedule for your width)."
+   ],
+   "note": "Measure the floor area.",
+   "waste": 0,
+   "name": "Solid hardwood strip 19 mm, nail-down, with underlayment",
+   "unit": "m²",
+   "twin": "hardwood-solid",
+   "components": [
+    {
+     "name": "Hardwood flooring",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 700
+    },
+    {
+     "name": "Underlayment paper",
+     "unit": "m²",
+     "formula": "A",
+     "waste": 1000
+    },
+    {
+     "name": "Flooring cleats",
+     "unit": "EA",
+     "formula": "ceil(A*13.455)",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "rubber-base",
+   "type": "linear",
+   "csi": "09 65 13",
+   "group": "Base",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Rubber or vinyl base, 4 in, 5% waste.",
+    "Base adhesive: one cartridge per 25 LF (a starting figure)."
+   ],
+   "note": "Measure the base run along the walls; leave out door openings.",
+   "waste": 0,
+   "name": "Resilient wall base 4 in",
+   "unit": "LF",
+   "twin": "rubber-base-m",
+   "components": [
+    {
+     "name": "Resilient base 4 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "Base adhesive cartridges",
+     "unit": "EA",
+     "formula": "ceil(L/25)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "rubber-base-m",
+   "type": "linear",
+   "csi": "09 65 13",
+   "group": "Base",
+   "sources": [
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Rubber or vinyl base, 4 in, 5% waste.",
+    "Base adhesive: one cartridge per 25 LF (a starting figure)."
+   ],
+   "note": "Measure the base run along the walls; leave out door openings.",
+   "waste": 0,
+   "name": "Resilient wall base 100 mm",
+   "unit": "m",
+   "twin": "rubber-base",
+   "components": [
+    {
+     "name": "Resilient base 4 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "Base adhesive cartridges",
+     "unit": "EA",
+     "formula": "ceil(L/7.62)",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "transition",
+   "type": "count",
+   "csi": "09 65 19",
+   "group": "Base",
+   "sources": [
+    "pds"
+   ],
+   "assume": [
+    "One 3 ft (914 mm) transition strip per doorway."
+   ],
+   "note": "Count each doorway where floor finishes change.",
+   "waste": 0,
+   "name": "Floor transition strip at doorway",
+   "unit": "EA",
+   "twin": "transition-m",
+   "components": [
+    {
+     "name": "Transition strip",
+     "unit": "LF",
+     "formula": "N*3",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "transition-m",
+   "type": "count",
+   "csi": "09 65 19",
+   "group": "Base",
+   "sources": [
+    "pds"
+   ],
+   "assume": [
+    "One 3 ft (914 mm) transition strip per doorway."
+   ],
+   "note": "Count each doorway where floor finishes change.",
+   "waste": 0,
+   "name": "Floor transition strip at doorway (metric)",
+   "unit": "EA",
+   "twin": "transition",
+   "components": [
+    {
+     "name": "Transition strip",
+     "unit": "m",
+     "formula": "N*0.9144",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "self-level",
+   "type": "area",
+   "csi": "03 54 16",
+   "group": "Floor preparation",
+   "sources": [
+    "astm-f710",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Average thickness 1/4 in (change the 0.25 / 6.35).",
+    "One 50 lb bag yields about 0.5 CF (0.0142 m³): a starting figure, use the bag’s yield.",
+    "Primer at 300 SF per gallon (a starting figure)."
+   ],
+   "note": "Measure the area to be leveled.",
+   "waste": 0,
+   "name": "Self-leveling underlayment, 1/4 in average",
+   "unit": "SF",
+   "twin": "self-level-m",
+   "components": [
+    {
+     "name": "Self-leveling underlayment, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A*(0.25/12)/0.5)",
+     "waste": 500
+    },
+    {
+     "name": "Underlayment primer",
+     "unit": "gal",
+     "formula": "A/300",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "self-level-m",
+   "type": "area",
+   "csi": "03 54 16",
+   "group": "Floor preparation",
+   "sources": [
+    "astm-f710",
+    "pds",
+    "geometry"
+   ],
+   "assume": [
+    "Average thickness 1/4 in (change the 0.25 / 6.35).",
+    "One 50 lb bag yields about 0.5 CF (0.0142 m³): a starting figure, use the bag’s yield.",
+    "Primer at 300 SF per gallon (a starting figure)."
+   ],
+   "note": "Measure the area to be leveled.",
+   "waste": 0,
+   "name": "Self-leveling underlayment, 6 mm average",
+   "unit": "m²",
+   "twin": "self-level",
+   "components": [
+    {
+     "name": "Self-leveling underlayment, 50 lb bags",
+     "unit": "bag",
+     "formula": "ceil(A*0.00635/0.014158)",
+     "waste": 500
+    },
+    {
+     "name": "Underlayment primer",
+     "unit": "L",
+     "formula": "A/7.363",
+     "waste": 500
+    }
+   ]
+  }
+ ]
+}

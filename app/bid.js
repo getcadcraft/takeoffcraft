@@ -7,7 +7,7 @@
  *   proposalPdf(PDFLib, input)          → Promise<Uint8Array>   input = { state, est, alts, date, items? }
  *
  * The summary, on the base bid's cost (est: model.baseEstimate):
- *   material + labor = cost
+ *   material + labor + labor burden (burden % × labor: payroll taxes, insurance; 0.5 TK.4) = cost
  *   + sales tax       = tax % × material
  *   + overhead        = overhead % × (cost + tax)
  *   + profit          = profit % × (cost + tax + overhead)
@@ -23,29 +23,32 @@ import { formatCents } from './units.js';
 const pct = (v) => (Number.isInteger(v) && v >= 0 && v <= 100000 ? v : 0);              // basis points, 0–1000 %
 const text = (v, max = 4000) => String(v ?? '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0009\u000b-\u001f\u007f]/g, ' ').slice(0, max);
 
+/** The markups after the cost, in order. `burden` (on labor, part of the cost) comes before them (0.5 TK.4). */
 export const BID_FIELDS = ['tax', 'overhead', 'profit', 'bond'];
+export const BID_PCTS = ['burden', ...BID_FIELDS];
 
 export function normalBid(raw) {
   const b = raw && typeof raw === 'object' ? raw : {};
   return {
-    tax: pct(b.tax), overhead: pct(b.overhead), profit: pct(b.profit), bond: pct(b.bond),
+    burden: pct(b.burden), tax: pct(b.tax), overhead: pct(b.overhead), profit: pct(b.profit), bond: pct(b.bond),
     to: text(b.to, 400), project: text(b.project, 200), by: text(b.by, 400),
     incl: text(b.incl), excl: text(b.excl), terms: text(b.terms),
     items: b.items === false ? false : true,
   };
 }
-export const bidUsed = (b) => !!b && (BID_FIELDS.some((k) => b[k] > 0) || ['to', 'project', 'by', 'incl', 'excl', 'terms'].some((k) => b[k]));
+export const bidUsed = (b) => !!b && (BID_PCTS.some((k) => b[k] > 0) || ['to', 'project', 'by', 'incl', 'excl', 'terms'].some((k) => b[k]));
 
 const share = (cents, bp) => Math.round(cents * bp / 10000);
 
-/** The markups on a cost of `mat` + `lab` cents. */
-function markup(mat, lab, b) {
-  const cost = mat + lab;
+/** The markups on a cost of `mat` + `lab` cents (+ the labor burden). */
+export function markup(mat, lab, b) {
+  const burden = share(lab, b.burden || 0);
+  const cost = mat + lab + burden;
   const tax = share(mat, b.tax);
   const overhead = share(cost + tax, b.overhead);
   const profit = share(cost + tax + overhead, b.profit);
   const bond = share(cost + tax + overhead + profit, b.bond);
-  return { cost, tax, overhead, profit, bond, total: cost + tax + overhead + profit + bond };
+  return { burden, cost, tax, overhead, profit, bond, total: cost + tax + overhead + profit + bond };
 }
 
 export function bidSummary(est, bidRaw, alts = []) {
@@ -54,6 +57,7 @@ export function bidSummary(est, bidRaw, alts = []) {
   const lines = [
     { key: 'mat', label: t('bid.l.mat'), cents: est.matTotal },
     { key: 'lab', label: t('bid.l.lab'), cents: est.labTotal },
+    ...(b.burden > 0 ? [{ key: 'burden', label: t('bid.l.burden'), pct: b.burden, cents: m.burden }] : []),
     { key: 'cost', label: t('bid.l.cost'), cents: m.cost, sub: true },
   ];
   for (const k of BID_FIELDS) if (b[k] > 0) lines.push({ key: k, label: t('bid.l.' + k), pct: b[k], cents: m[k] });

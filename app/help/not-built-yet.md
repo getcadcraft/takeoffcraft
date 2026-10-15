@@ -28,6 +28,8 @@ TakeoffCraft is in development. This list is what the current build does not do,
 | Crews on assembly components, or a working day other than 8 hours | Give the crew to the item; read crew-days for another day length as crew-hours ÷ your day. |
 | Markups other than notes, clouds and highlights (arrows, dimensions, stamps), or replies on a note | Write it in the note's text; change its status as it is settled. |
 | A price library shared by a team, or kept with your account | The library is kept in this browser: export it as a CSV and import it on the other computer. |
+| Trade packs reviewed by working estimators | Every pack is a starter: check its assumptions against your job and your products before you price with it. See [Trade packs](topic:trade-packs). |
+| Prices in trade packs | Packs bring assemblies only: set your own rates, or import your price list as a CSV. |
 | Renaming the takeoff | The name comes from the first PDF; rename the downloaded files. |
 | Naming sheets by hand | Sheets are named from the PDF's page labels; search by file name and page. |
 
@@ -45,7 +47,7 @@ TakeoffCraft is in development. This list is what the current build does not do,
 | One PDF that both shows the marks and carries the takeoff | {{ui:Marked PDF}} for people to see the marks; {{ui:PDF with the takeoff inside}} to reopen in TakeoffCraft. |
 | A CSV of quantities by sheet or of the marks | Use {{ui:XLSX}}: its By sheet and Marks worksheets have them. |
 | Cloud saving | Not available yet. Save project files to your computer and back them up. |
-| Desktop builds | Not available yet. TakeoffCraft runs in the browser. |
+| A separate TakeoffCraft desktop app | From 0.5 the desktop app is CadCraft Studio, with all eight apps in one install. TakeoffCraft also runs in the browser. |
 
 ## Screen and input
 

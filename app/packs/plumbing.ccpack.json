@@ -1,0 +1,952 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.plumbing",
+ "name": "Plumbing",
+ "packVersion": "0.1.0",
+ "trade": "Plumbing",
+ "description": "PVC drain, waste and vent pipe; copper and PEX water lines with hangers at the code spacing; water closets, lavatories, kitchen sinks, shower valves, floor drains, hose bibbs and water heaters with their trim. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "22 11 16",
+  "22 13 16",
+  "22 40 00"
+ ],
+ "sources": [
+  {
+   "id": "ipc-308",
+   "title": "International Plumbing Code, Section 308 Piping Support (Table 308.5 Hanger Spacing)",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "ipc-4",
+   "title": "International Plumbing Code, Chapter 4 Fixtures, Faucets and Fixture Fittings",
+   "edition": "2021",
+   "publisher": "International Code Council",
+   "url": "https://codes.iccsafe.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "pvc-dwv-2",
+   "type": "linear",
+   "csi": "22 13 16",
+   "group": "Drain, waste and vent",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Pipe 10% waste.",
+    "Hangers at 4 ft at most on horizontal PVC (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw horizontal runs; risers as their own runs.",
+   "waste": 0,
+   "name": "PVC DWV pipe 2 in, horizontal, hung",
+   "unit": "LF",
+   "twin": "pvc-dwv-2-m",
+   "components": [
+    {
+     "name": "PVC DWV pipe 2 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Pipe hangers 2 in",
+     "unit": "EA",
+     "formula": "ceil(L/4)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pvc-dwv-2-m",
+   "type": "linear",
+   "csi": "22 13 16",
+   "group": "Drain, waste and vent",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Pipe 10% waste.",
+    "Hangers at 4 ft at most on horizontal PVC (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw horizontal runs; risers as their own runs.",
+   "waste": 0,
+   "name": "PVC DWV pipe 50 mm, horizontal, hung",
+   "unit": "m",
+   "twin": "pvc-dwv-2",
+   "components": [
+    {
+     "name": "PVC DWV pipe 2 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Pipe hangers 2 in",
+     "unit": "EA",
+     "formula": "ceil(L/1.2192)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pvc-dwv-3",
+   "type": "linear",
+   "csi": "22 13 16",
+   "group": "Drain, waste and vent",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Pipe 10% waste.",
+    "Hangers at 4 ft at most on horizontal PVC (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw horizontal runs; risers as their own runs.",
+   "waste": 0,
+   "name": "PVC DWV pipe 3 in, horizontal, hung",
+   "unit": "LF",
+   "twin": "pvc-dwv-3-m",
+   "components": [
+    {
+     "name": "PVC DWV pipe 3 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Pipe hangers 3 in",
+     "unit": "EA",
+     "formula": "ceil(L/4)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pvc-dwv-3-m",
+   "type": "linear",
+   "csi": "22 13 16",
+   "group": "Drain, waste and vent",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Pipe 10% waste.",
+    "Hangers at 4 ft at most on horizontal PVC (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw horizontal runs; risers as their own runs.",
+   "waste": 0,
+   "name": "PVC DWV pipe 75 mm, horizontal, hung",
+   "unit": "m",
+   "twin": "pvc-dwv-3",
+   "components": [
+    {
+     "name": "PVC DWV pipe 3 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Pipe hangers 3 in",
+     "unit": "EA",
+     "formula": "ceil(L/1.2192)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pvc-dwv-4",
+   "type": "linear",
+   "csi": "22 13 16",
+   "group": "Drain, waste and vent",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Pipe 10% waste.",
+    "Hangers at 4 ft at most on horizontal PVC (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw horizontal runs; risers as their own runs.",
+   "waste": 0,
+   "name": "PVC DWV pipe 4 in, horizontal, hung",
+   "unit": "LF",
+   "twin": "pvc-dwv-4-m",
+   "components": [
+    {
+     "name": "PVC DWV pipe 4 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Pipe hangers 4 in",
+     "unit": "EA",
+     "formula": "ceil(L/4)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pvc-dwv-4-m",
+   "type": "linear",
+   "csi": "22 13 16",
+   "group": "Drain, waste and vent",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Pipe 10% waste.",
+    "Hangers at 4 ft at most on horizontal PVC (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw horizontal runs; risers as their own runs.",
+   "waste": 0,
+   "name": "PVC DWV pipe 100 mm, horizontal, hung",
+   "unit": "m",
+   "twin": "pvc-dwv-4",
+   "components": [
+    {
+     "name": "PVC DWV pipe 4 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Pipe hangers 4 in",
+     "unit": "EA",
+     "formula": "ceil(L/1.2192)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "copper-l-12",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tube 10% waste.",
+    "Hangers at 6 ft at most on copper tubing 1-1/4 in and smaller (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "Copper tube type L 1/2 in, hung",
+   "unit": "LF",
+   "twin": "copper-l-12-m",
+   "components": [
+    {
+     "name": "Copper tube type L 1/2 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Copper hangers 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L/6)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "copper-l-12-m",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tube 10% waste.",
+    "Hangers at 6 ft at most on copper tubing 1-1/4 in and smaller (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "Copper tube type L 15 mm, hung",
+   "unit": "m",
+   "twin": "copper-l-12",
+   "components": [
+    {
+     "name": "Copper tube type L 1/2 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Copper hangers 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L/1.8288)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pex-12",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tubing 10% waste.",
+    "Supports at 32 in at most on horizontal PEX (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "PEX tubing 1/2 in, supported",
+   "unit": "LF",
+   "twin": "pex-12-m",
+   "components": [
+    {
+     "name": "PEX tubing 1/2 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "PEX supports 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L*12/32)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pex-12-m",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tubing 10% waste.",
+    "Supports at 32 in at most on horizontal PEX (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "PEX tubing 15 mm, supported",
+   "unit": "m",
+   "twin": "pex-12",
+   "components": [
+    {
+     "name": "PEX tubing 1/2 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "PEX supports 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L/0.8128)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "copper-l-34",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tube 10% waste.",
+    "Hangers at 6 ft at most on copper tubing 1-1/4 in and smaller (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "Copper tube type L 3/4 in, hung",
+   "unit": "LF",
+   "twin": "copper-l-34-m",
+   "components": [
+    {
+     "name": "Copper tube type L 3/4 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Copper hangers 3/4 in",
+     "unit": "EA",
+     "formula": "ceil(L/6)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "copper-l-34-m",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tube 10% waste.",
+    "Hangers at 6 ft at most on copper tubing 1-1/4 in and smaller (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "Copper tube type L 22 mm, hung",
+   "unit": "m",
+   "twin": "copper-l-34",
+   "components": [
+    {
+     "name": "Copper tube type L 3/4 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Copper hangers 3/4 in",
+     "unit": "EA",
+     "formula": "ceil(L/1.8288)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pex-34",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tubing 10% waste.",
+    "Supports at 32 in at most on horizontal PEX (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "PEX tubing 3/4 in, supported",
+   "unit": "LF",
+   "twin": "pex-34-m",
+   "components": [
+    {
+     "name": "PEX tubing 3/4 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "PEX supports 3/4 in",
+     "unit": "EA",
+     "formula": "ceil(L*12/32)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pex-34-m",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tubing 10% waste.",
+    "Supports at 32 in at most on horizontal PEX (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "PEX tubing 22 mm, supported",
+   "unit": "m",
+   "twin": "pex-34",
+   "components": [
+    {
+     "name": "PEX tubing 3/4 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "PEX supports 3/4 in",
+     "unit": "EA",
+     "formula": "ceil(L/0.8128)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "copper-l-1",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tube 10% waste.",
+    "Hangers at 6 ft at most on copper tubing 1-1/4 in and smaller (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "Copper tube type L 1 in, hung",
+   "unit": "LF",
+   "twin": "copper-l-1-m",
+   "components": [
+    {
+     "name": "Copper tube type L 1 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Copper hangers 1 in",
+     "unit": "EA",
+     "formula": "ceil(L/6)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "copper-l-1-m",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tube 10% waste.",
+    "Hangers at 6 ft at most on copper tubing 1-1/4 in and smaller (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "Copper tube type L 28 mm, hung",
+   "unit": "m",
+   "twin": "copper-l-1",
+   "components": [
+    {
+     "name": "Copper tube type L 1 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "Copper hangers 1 in",
+     "unit": "EA",
+     "formula": "ceil(L/1.8288)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pex-1",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tubing 10% waste.",
+    "Supports at 32 in at most on horizontal PEX (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "PEX tubing 1 in, supported",
+   "unit": "LF",
+   "twin": "pex-1-m",
+   "components": [
+    {
+     "name": "PEX tubing 1 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "PEX supports 1 in",
+     "unit": "EA",
+     "formula": "ceil(L*12/32)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "pex-1-m",
+   "type": "linear",
+   "csi": "22 11 16",
+   "group": "Water",
+   "sources": [
+    "ipc-308",
+    "geometry"
+   ],
+   "assume": [
+    "Tubing 10% waste.",
+    "Supports at 32 in at most on horizontal PEX (IPC Table 308.5), plus one per run.",
+    "Fittings are not counted from the length: add them from the riser diagram or as an allowance."
+   ],
+   "note": "Draw the water lines.",
+   "waste": 0,
+   "name": "PEX tubing 28 mm, supported",
+   "unit": "m",
+   "twin": "pex-1",
+   "components": [
+    {
+     "name": "PEX tubing 1 in",
+     "unit": "m",
+     "formula": "L",
+     "waste": 1000
+    },
+    {
+     "name": "PEX supports 1 in",
+     "unit": "EA",
+     "formula": "ceil(L/0.8128)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "wc",
+   "type": "count",
+   "csi": "22 40 00",
+   "group": "Fixtures",
+   "sources": [
+    "ipc-4"
+   ],
+   "assume": [
+    "Rough-in piping is measured as runs; the parts here are the fixture and its trim."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Water closet, floor mounted, with supply",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Water closet (bowl and tank)",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Wax ring",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Closet bolts (set)",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Angle stop",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Supply line",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "lav",
+   "type": "count",
+   "csi": "22 40 00",
+   "group": "Fixtures",
+   "sources": [
+    "ipc-4"
+   ],
+   "assume": [
+    "Rough-in piping is measured as runs; the parts here are the fixture and its trim."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Lavatory with faucet, trap and supplies",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Lavatory",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Faucet",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "P-trap",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Angle stops",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    },
+    {
+     "name": "Supply lines",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "sink-kitchen",
+   "type": "count",
+   "csi": "22 40 00",
+   "group": "Fixtures",
+   "sources": [
+    "ipc-4"
+   ],
+   "assume": [
+    "Rough-in piping is measured as runs; the parts here are the fixture and its trim."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Kitchen sink, double bowl, with faucet and trap",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Kitchen sink, double bowl",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Kitchen faucet",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Basket strainers",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    },
+    {
+     "name": "P-trap with continuous waste",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Angle stops",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    },
+    {
+     "name": "Supply lines",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "shower-valve",
+   "type": "count",
+   "csi": "22 40 00",
+   "group": "Fixtures",
+   "sources": [
+    "ipc-4"
+   ],
+   "assume": [
+    "Rough-in piping is measured as runs; the parts here are the fixture and its trim."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Tub / shower valve with trim",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Pressure-balancing valve",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Trim kit",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Shower head and arm",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "floor-drain",
+   "type": "count",
+   "csi": "22 40 00",
+   "group": "Fixtures",
+   "sources": [
+    "ipc-4"
+   ],
+   "assume": [
+    "Rough-in piping is measured as runs; the parts here are the fixture and its trim."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Floor drain with trap primer",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Floor drain",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Trap",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Trap primer connection",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "hose-bibb",
+   "type": "count",
+   "csi": "22 40 00",
+   "group": "Fixtures",
+   "sources": [
+    "ipc-4"
+   ],
+   "assume": [
+    "Rough-in piping is measured as runs; the parts here are the fixture and its trim."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Frost-free hose bibb",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Frost-free hose bibb",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Vacuum breaker",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "water-heater",
+   "type": "count",
+   "csi": "22 40 00",
+   "group": "Fixtures",
+   "sources": [
+    "ipc-4"
+   ],
+   "assume": [
+    "Rough-in piping is measured as runs; the parts here are the fixture and its trim."
+   ],
+   "note": "Count each water heater.",
+   "waste": 0,
+   "name": "Water heater, 50 gal (190 L), with connections",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Water heater",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Expansion tank",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Water heater connectors",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    },
+    {
+     "name": "T&P discharge pipe and fitting",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Drain pan",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  }
+ ]
+}

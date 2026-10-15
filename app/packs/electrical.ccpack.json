@@ -1,0 +1,1275 @@
+{
+ "format": "takeoffcraft-pack",
+ "version": 1,
+ "id": "trade.electrical",
+ "name": "Electrical",
+ "packVersion": "0.1.0",
+ "trade": "Electrical",
+ "description": "Branch circuits in NM cable and in EMT with their conductors, straps and fittings; receptacles, switches and boxes; light fixtures; panelboards; data outlets and Cat 6 runs. Assemblies only: set your own rates.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "status": "starter",
+ "homepage": "https://getcadcraft.com/addons?kind=pack",
+ "csi": [
+  "26 05 19",
+  "26 05 33",
+  "26 24 16",
+  "26 27 26",
+  "26 51 00",
+  "27 15 00"
+ ],
+ "sources": [
+  {
+   "id": "nec-334",
+   "title": "NFPA 70, National Electrical Code, Article 334 Nonmetallic-Sheathed Cable (334.30 securing and supporting)",
+   "edition": "2023",
+   "publisher": "National Fire Protection Association",
+   "url": "https://www.nfpa.org/"
+  },
+  {
+   "id": "nec-300",
+   "title": "NFPA 70, National Electrical Code, Article 300 General Requirements for Wiring Methods (300.14 free conductor at outlets)",
+   "edition": "2023",
+   "publisher": "National Fire Protection Association",
+   "url": "https://www.nfpa.org/"
+  },
+  {
+   "id": "geometry",
+   "title": "Plain geometry: the quantity follows from the measured length, height or area and the stated module (no outside source needed)"
+  },
+  {
+   "id": "nec-358",
+   "title": "NFPA 70, National Electrical Code, Article 358 Electrical Metallic Tubing (358.30 securing and supporting)",
+   "edition": "2023",
+   "publisher": "National Fire Protection Association",
+   "url": "https://www.nfpa.org/"
+  },
+  {
+   "id": "nec-314",
+   "title": "NFPA 70, National Electrical Code, Article 314 Outlet, Device, Pull, and Junction Boxes",
+   "edition": "2023",
+   "publisher": "National Fire Protection Association",
+   "url": "https://www.nfpa.org/"
+  },
+  {
+   "id": "tia-568",
+   "title": "ANSI/TIA-568, Commercial Building Telecommunications Cabling Standard",
+   "publisher": "Telecommunications Industry Association",
+   "url": "https://tiaonline.org/"
+  },
+  {
+   "id": "tia-569",
+   "title": "ANSI/TIA-569, Telecommunications Pathways and Spaces",
+   "publisher": "Telecommunications Industry Association",
+   "url": "https://tiaonline.org/"
+  }
+ ],
+ "items": [
+  {
+   "key": "nm-14-2",
+   "type": "linear",
+   "csi": "26 05 19",
+   "group": "Branch circuits",
+   "sources": [
+    "nec-334",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "Conductor length: the run plus 1 ft per run (6 in of free conductor at each end, NEC 300.14); add your own allowance for drops to devices that are not drawn.",
+    "Staples: one within 12 in of each box (2 per run) and one every 4-1/2 ft along the run (NEC 334.30).",
+    "Waste on cable: 10%."
+   ],
+   "note": "Draw each home run or circuit run; N = number of runs drawn.",
+   "waste": 0,
+   "name": "Branch circuit, NM-B 14/2 with ground",
+   "unit": "LF",
+   "twin": "nm-14-2-m",
+   "components": [
+    {
+     "name": "NM-B cable 14/2 with ground",
+     "unit": "LF",
+     "formula": "L+N*1",
+     "waste": 1000
+    },
+    {
+     "name": "Cable staples",
+     "unit": "EA",
+     "formula": "ceil(L/4.5)+N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "nm-14-2-m",
+   "type": "linear",
+   "csi": "26 05 19",
+   "group": "Branch circuits",
+   "sources": [
+    "nec-334",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "Conductor length: the run plus 1 ft per run (6 in of free conductor at each end, NEC 300.14); add your own allowance for drops to devices that are not drawn.",
+    "Staples: one within 12 in of each box (2 per run) and one every 4-1/2 ft along the run (NEC 334.30).",
+    "Waste on cable: 10%."
+   ],
+   "note": "Draw each home run or circuit run; N = number of runs drawn.",
+   "waste": 0,
+   "name": "Branch circuit, NM-B cable 2 x 2.08 mm² with ground",
+   "unit": "m",
+   "twin": "nm-14-2",
+   "components": [
+    {
+     "name": "NM-B cable 2 x 2.08 mm² with ground",
+     "unit": "m",
+     "formula": "L+N*0.3048",
+     "waste": 1000
+    },
+    {
+     "name": "Cable staples",
+     "unit": "EA",
+     "formula": "ceil(L/1.4)+N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "nm-12-2",
+   "type": "linear",
+   "csi": "26 05 19",
+   "group": "Branch circuits",
+   "sources": [
+    "nec-334",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "Conductor length: the run plus 1 ft per run (6 in of free conductor at each end, NEC 300.14); add your own allowance for drops to devices that are not drawn.",
+    "Staples: one within 12 in of each box (2 per run) and one every 4-1/2 ft along the run (NEC 334.30).",
+    "Waste on cable: 10%."
+   ],
+   "note": "Draw each home run or circuit run; N = number of runs drawn.",
+   "waste": 0,
+   "name": "Branch circuit, NM-B 12/2 with ground",
+   "unit": "LF",
+   "twin": "nm-12-2-m",
+   "components": [
+    {
+     "name": "NM-B cable 12/2 with ground",
+     "unit": "LF",
+     "formula": "L+N*1",
+     "waste": 1000
+    },
+    {
+     "name": "Cable staples",
+     "unit": "EA",
+     "formula": "ceil(L/4.5)+N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "nm-12-2-m",
+   "type": "linear",
+   "csi": "26 05 19",
+   "group": "Branch circuits",
+   "sources": [
+    "nec-334",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "Conductor length: the run plus 1 ft per run (6 in of free conductor at each end, NEC 300.14); add your own allowance for drops to devices that are not drawn.",
+    "Staples: one within 12 in of each box (2 per run) and one every 4-1/2 ft along the run (NEC 334.30).",
+    "Waste on cable: 10%."
+   ],
+   "note": "Draw each home run or circuit run; N = number of runs drawn.",
+   "waste": 0,
+   "name": "Branch circuit, NM-B cable 2 x 3.31 mm² with ground",
+   "unit": "m",
+   "twin": "nm-12-2",
+   "components": [
+    {
+     "name": "NM-B cable 2 x 3.31 mm² with ground",
+     "unit": "m",
+     "formula": "L+N*0.3048",
+     "waste": 1000
+    },
+    {
+     "name": "Cable staples",
+     "unit": "EA",
+     "formula": "ceil(L/1.4)+N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "nm-12-3",
+   "type": "linear",
+   "csi": "26 05 19",
+   "group": "Branch circuits",
+   "sources": [
+    "nec-334",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "Conductor length: the run plus 1 ft per run (6 in of free conductor at each end, NEC 300.14); add your own allowance for drops to devices that are not drawn.",
+    "Staples: one within 12 in of each box (2 per run) and one every 4-1/2 ft along the run (NEC 334.30).",
+    "Waste on cable: 10%."
+   ],
+   "note": "Draw each home run or circuit run; N = number of runs drawn.",
+   "waste": 0,
+   "name": "Branch circuit, NM-B 12/3 with ground",
+   "unit": "LF",
+   "twin": "nm-12-3-m",
+   "components": [
+    {
+     "name": "NM-B cable 12/3 with ground",
+     "unit": "LF",
+     "formula": "L+N*1",
+     "waste": 1000
+    },
+    {
+     "name": "Cable staples",
+     "unit": "EA",
+     "formula": "ceil(L/4.5)+N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "nm-12-3-m",
+   "type": "linear",
+   "csi": "26 05 19",
+   "group": "Branch circuits",
+   "sources": [
+    "nec-334",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "Conductor length: the run plus 1 ft per run (6 in of free conductor at each end, NEC 300.14); add your own allowance for drops to devices that are not drawn.",
+    "Staples: one within 12 in of each box (2 per run) and one every 4-1/2 ft along the run (NEC 334.30).",
+    "Waste on cable: 10%."
+   ],
+   "note": "Draw each home run or circuit run; N = number of runs drawn.",
+   "waste": 0,
+   "name": "Branch circuit, NM-B cable 3 x 3.31 mm² with ground",
+   "unit": "m",
+   "twin": "nm-12-3",
+   "components": [
+    {
+     "name": "NM-B cable 3 x 3.31 mm² with ground",
+     "unit": "m",
+     "formula": "L+N*0.3048",
+     "waste": 1000
+    },
+    {
+     "name": "Cable staples",
+     "unit": "EA",
+     "formula": "ceil(L/1.4)+N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "nm-10-2",
+   "type": "linear",
+   "csi": "26 05 19",
+   "group": "Branch circuits",
+   "sources": [
+    "nec-334",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "Conductor length: the run plus 1 ft per run (6 in of free conductor at each end, NEC 300.14); add your own allowance for drops to devices that are not drawn.",
+    "Staples: one within 12 in of each box (2 per run) and one every 4-1/2 ft along the run (NEC 334.30).",
+    "Waste on cable: 10%."
+   ],
+   "note": "Draw each home run or circuit run; N = number of runs drawn.",
+   "waste": 0,
+   "name": "Branch circuit, NM-B 10/2 with ground",
+   "unit": "LF",
+   "twin": "nm-10-2-m",
+   "components": [
+    {
+     "name": "NM-B cable 10/2 with ground",
+     "unit": "LF",
+     "formula": "L+N*1",
+     "waste": 1000
+    },
+    {
+     "name": "Cable staples",
+     "unit": "EA",
+     "formula": "ceil(L/4.5)+N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "nm-10-2-m",
+   "type": "linear",
+   "csi": "26 05 19",
+   "group": "Branch circuits",
+   "sources": [
+    "nec-334",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "Conductor length: the run plus 1 ft per run (6 in of free conductor at each end, NEC 300.14); add your own allowance for drops to devices that are not drawn.",
+    "Staples: one within 12 in of each box (2 per run) and one every 4-1/2 ft along the run (NEC 334.30).",
+    "Waste on cable: 10%."
+   ],
+   "note": "Draw each home run or circuit run; N = number of runs drawn.",
+   "waste": 0,
+   "name": "Branch circuit, NM-B cable 2 x 5.26 mm² with ground",
+   "unit": "m",
+   "twin": "nm-10-2",
+   "components": [
+    {
+     "name": "NM-B cable 2 x 5.26 mm² with ground",
+     "unit": "m",
+     "formula": "L+N*0.3048",
+     "waste": 1000
+    },
+    {
+     "name": "Cable staples",
+     "unit": "EA",
+     "formula": "ceil(L/1.4)+N*2",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "emt-12-3",
+   "type": "linear",
+   "csi": "26 05 33",
+   "group": "Raceways",
+   "sources": [
+    "nec-358",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "EMT in 10 ft lengths (metric twin 3.05 m): one coupling per length.",
+    "Straps: within 3 ft of each box (2 per run) and every 10 ft (NEC 358.30).",
+    "Connectors: one at each end of a run.",
+    "Wire: 3 conductors x (run + 1 ft per run for 6 in free conductor at each box, NEC 300.14). Pulling allowance: 10% waste."
+   ],
+   "note": "Draw each conduit run; N = number of runs. Fittings for offsets and bends are not counted.",
+   "waste": 0,
+   "name": "EMT 1/2 in with 3 #12 THHN",
+   "unit": "LF",
+   "twin": "emt-12-3-m",
+   "components": [
+    {
+     "name": "EMT 1/2 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "EMT couplings 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L/10)",
+     "waste": 500
+    },
+    {
+     "name": "EMT connectors 1/2 in",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    },
+    {
+     "name": "One-hole straps 1/2 in",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N*2",
+     "waste": 500
+    },
+    {
+     "name": "THHN #12",
+     "unit": "LF",
+     "formula": "(L+N*1)*3",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "emt-12-3-m",
+   "type": "linear",
+   "csi": "26 05 33",
+   "group": "Raceways",
+   "sources": [
+    "nec-358",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "EMT in 10 ft lengths (metric twin 3.05 m): one coupling per length.",
+    "Straps: within 3 ft of each box (2 per run) and every 10 ft (NEC 358.30).",
+    "Connectors: one at each end of a run.",
+    "Wire: 3 conductors x (run + 1 ft per run for 6 in free conductor at each box, NEC 300.14). Pulling allowance: 10% waste."
+   ],
+   "note": "Draw each conduit run; N = number of runs. Fittings for offsets and bends are not counted.",
+   "waste": 0,
+   "name": "EMT 16 mm (1/2) with 3 THHN 3.31 mm²",
+   "unit": "m",
+   "twin": "emt-12-3",
+   "components": [
+    {
+     "name": "EMT 16 mm (1/2)",
+     "unit": "m",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "EMT couplings 16 mm (1/2)",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)",
+     "waste": 500
+    },
+    {
+     "name": "EMT connectors 16 mm (1/2)",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    },
+    {
+     "name": "One-hole straps 16 mm (1/2)",
+     "unit": "EA",
+     "formula": "ceil(L/3)+N*2",
+     "waste": 500
+    },
+    {
+     "name": "THHN 3.31 mm²",
+     "unit": "m",
+     "formula": "(L+N*0.3048)*3",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "emt-34-4",
+   "type": "linear",
+   "csi": "26 05 33",
+   "group": "Raceways",
+   "sources": [
+    "nec-358",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "EMT in 10 ft lengths (metric twin 3.05 m): one coupling per length.",
+    "Straps: within 3 ft of each box (2 per run) and every 10 ft (NEC 358.30).",
+    "Connectors: one at each end of a run.",
+    "Wire: 4 conductors x (run + 1 ft per run for 6 in free conductor at each box, NEC 300.14). Pulling allowance: 10% waste."
+   ],
+   "note": "Draw each conduit run; N = number of runs. Fittings for offsets and bends are not counted.",
+   "waste": 0,
+   "name": "EMT 3/4 in with 4 #10 THHN",
+   "unit": "LF",
+   "twin": "emt-34-4-m",
+   "components": [
+    {
+     "name": "EMT 3/4 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "EMT couplings 3/4 in",
+     "unit": "EA",
+     "formula": "ceil(L/10)",
+     "waste": 500
+    },
+    {
+     "name": "EMT connectors 3/4 in",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    },
+    {
+     "name": "One-hole straps 3/4 in",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N*2",
+     "waste": 500
+    },
+    {
+     "name": "THHN #10",
+     "unit": "LF",
+     "formula": "(L+N*1)*4",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "emt-34-4-m",
+   "type": "linear",
+   "csi": "26 05 33",
+   "group": "Raceways",
+   "sources": [
+    "nec-358",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "EMT in 10 ft lengths (metric twin 3.05 m): one coupling per length.",
+    "Straps: within 3 ft of each box (2 per run) and every 10 ft (NEC 358.30).",
+    "Connectors: one at each end of a run.",
+    "Wire: 4 conductors x (run + 1 ft per run for 6 in free conductor at each box, NEC 300.14). Pulling allowance: 10% waste."
+   ],
+   "note": "Draw each conduit run; N = number of runs. Fittings for offsets and bends are not counted.",
+   "waste": 0,
+   "name": "EMT 21 mm (3/4) with 4 THHN 5.26 mm²",
+   "unit": "m",
+   "twin": "emt-34-4",
+   "components": [
+    {
+     "name": "EMT 21 mm (3/4)",
+     "unit": "m",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "EMT couplings 21 mm (3/4)",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)",
+     "waste": 500
+    },
+    {
+     "name": "EMT connectors 21 mm (3/4)",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    },
+    {
+     "name": "One-hole straps 21 mm (3/4)",
+     "unit": "EA",
+     "formula": "ceil(L/3)+N*2",
+     "waste": 500
+    },
+    {
+     "name": "THHN 5.26 mm²",
+     "unit": "m",
+     "formula": "(L+N*0.3048)*4",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "emt-1-4",
+   "type": "linear",
+   "csi": "26 05 33",
+   "group": "Raceways",
+   "sources": [
+    "nec-358",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "EMT in 10 ft lengths (metric twin 3.05 m): one coupling per length.",
+    "Straps: within 3 ft of each box (2 per run) and every 10 ft (NEC 358.30).",
+    "Connectors: one at each end of a run.",
+    "Wire: 4 conductors x (run + 1 ft per run for 6 in free conductor at each box, NEC 300.14). Pulling allowance: 10% waste."
+   ],
+   "note": "Draw each conduit run; N = number of runs. Fittings for offsets and bends are not counted.",
+   "waste": 0,
+   "name": "EMT 1 in with 4 #8 THHN",
+   "unit": "LF",
+   "twin": "emt-1-4-m",
+   "components": [
+    {
+     "name": "EMT 1 in",
+     "unit": "LF",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "EMT couplings 1 in",
+     "unit": "EA",
+     "formula": "ceil(L/10)",
+     "waste": 500
+    },
+    {
+     "name": "EMT connectors 1 in",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    },
+    {
+     "name": "One-hole straps 1 in",
+     "unit": "EA",
+     "formula": "ceil(L/10)+N*2",
+     "waste": 500
+    },
+    {
+     "name": "THHN #8",
+     "unit": "LF",
+     "formula": "(L+N*1)*4",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "emt-1-4-m",
+   "type": "linear",
+   "csi": "26 05 33",
+   "group": "Raceways",
+   "sources": [
+    "nec-358",
+    "nec-300",
+    "geometry"
+   ],
+   "assume": [
+    "EMT in 10 ft lengths (metric twin 3.05 m): one coupling per length.",
+    "Straps: within 3 ft of each box (2 per run) and every 10 ft (NEC 358.30).",
+    "Connectors: one at each end of a run.",
+    "Wire: 4 conductors x (run + 1 ft per run for 6 in free conductor at each box, NEC 300.14). Pulling allowance: 10% waste."
+   ],
+   "note": "Draw each conduit run; N = number of runs. Fittings for offsets and bends are not counted.",
+   "waste": 0,
+   "name": "EMT 27 mm (1) with 4 THHN 8.37 mm²",
+   "unit": "m",
+   "twin": "emt-1-4",
+   "components": [
+    {
+     "name": "EMT 27 mm (1)",
+     "unit": "m",
+     "formula": "L",
+     "waste": 500
+    },
+    {
+     "name": "EMT couplings 27 mm (1)",
+     "unit": "EA",
+     "formula": "ceil(L/3.048)",
+     "waste": 500
+    },
+    {
+     "name": "EMT connectors 27 mm (1)",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 500
+    },
+    {
+     "name": "One-hole straps 27 mm (1)",
+     "unit": "EA",
+     "formula": "ceil(L/3)+N*2",
+     "waste": 500
+    },
+    {
+     "name": "THHN 8.37 mm²",
+     "unit": "m",
+     "formula": "(L+N*0.3048)*4",
+     "waste": 1000
+    }
+   ]
+  },
+  {
+   "key": "recep-duplex-20",
+   "type": "count",
+   "csi": "26 27 26",
+   "group": "Devices",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "One box per device, sized for its box fill (NEC 314.16): check it for the conductors you bring in."
+   ],
+   "note": "Count each device on the plans.",
+   "waste": 0,
+   "name": "Duplex receptacle 20 A, new-work box",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Device box, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Duplex receptacle 20 A",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Cover plate, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Ground pigtail with wire nut",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "recep-gfci",
+   "type": "count",
+   "csi": "26 27 26",
+   "group": "Devices",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "One box per device, sized for its box fill (NEC 314.16): check it for the conductors you bring in."
+   ],
+   "note": "Count each device on the plans.",
+   "waste": 0,
+   "name": "GFCI receptacle 20 A, new-work box",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Device box, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "GFCI receptacle 20 A",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Cover plate, decorator",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Ground pigtail with wire nut",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "recep-wr",
+   "type": "count",
+   "csi": "26 27 26",
+   "group": "Devices",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "One box per device, sized for its box fill (NEC 314.16): check it for the conductors you bring in."
+   ],
+   "note": "Count each device on the plans.",
+   "waste": 0,
+   "name": "Weather-resistant GFCI receptacle with in-use cover",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Weatherproof box, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "WR GFCI receptacle 20 A",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "In-use cover",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Ground pigtail with wire nut",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "switch-sp",
+   "type": "count",
+   "csi": "26 27 26",
+   "group": "Devices",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "One box per device, sized for its box fill (NEC 314.16): check it for the conductors you bring in."
+   ],
+   "note": "Count each device on the plans.",
+   "waste": 0,
+   "name": "Single-pole switch, new-work box",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Device box, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Single-pole switch 20 A",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Cover plate, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "switch-3w",
+   "type": "count",
+   "csi": "26 27 26",
+   "group": "Devices",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "One box per device, sized for its box fill (NEC 314.16): check it for the conductors you bring in."
+   ],
+   "note": "Count each three-way switch (a pair controls one light).",
+   "waste": 0,
+   "name": "Three-way switch, new-work box",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Device box, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Three-way switch 20 A",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Cover plate, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "switch-dimmer",
+   "type": "count",
+   "csi": "26 27 26",
+   "group": "Devices",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "One box per device, sized for its box fill (NEC 314.16): check it for the conductors you bring in."
+   ],
+   "note": "Count each device on the plans.",
+   "waste": 0,
+   "name": "Dimmer switch, new-work box",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Device box, single gang",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Dimmer, LED rated",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Cover plate, decorator",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "jbox",
+   "type": "count",
+   "csi": "26 27 26",
+   "group": "Devices",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "One box per device, sized for its box fill (NEC 314.16): check it for the conductors you bring in."
+   ],
+   "note": "Count each device on the plans.",
+   "waste": 0,
+   "name": "Junction box 4 in square with cover",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Box 4 in square",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Blank cover",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Ground screw and pigtail",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "lt-troffer-2x4",
+   "type": "count",
+   "csi": "26 51 00",
+   "group": "Lighting",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "Lamps are integral (LED) unless a lamp line is listed."
+   ],
+   "note": "Count each troffer; the whip ties it to the junction box above.",
+   "waste": 0,
+   "name": "LED troffer 2 x 4, lay-in",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "LED troffer 2 x 4",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Fixture whip, 6 ft flexible",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Seismic / support wires (2 per fixture)",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "lt-troffer-2x2",
+   "type": "count",
+   "csi": "26 51 00",
+   "group": "Lighting",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "Lamps are integral (LED) unless a lamp line is listed."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "LED troffer 2 x 2, lay-in",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "LED troffer 2 x 2",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Fixture whip, 6 ft flexible",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Support wires (2 per fixture)",
+     "unit": "EA",
+     "formula": "N*2",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "lt-downlight",
+   "type": "count",
+   "csi": "26 51 00",
+   "group": "Lighting",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "Lamps are integral (LED) unless a lamp line is listed."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "LED downlight 6 in, new construction",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Recessed housing / canless downlight 6 in",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Ceiling box or junction box",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "lt-surface",
+   "type": "count",
+   "csi": "26 51 00",
+   "group": "Lighting",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "Lamps are integral (LED) unless a lamp line is listed."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Surface-mounted ceiling fixture",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Ceiling fixture",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Ceiling box, fan/fixture rated",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "lt-exit",
+   "type": "count",
+   "csi": "26 51 00",
+   "group": "Lighting",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "Lamps are integral (LED) unless a lamp line is listed."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Exit sign with battery backup",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Exit sign, LED, battery",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Ceiling box",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "lt-wallpack",
+   "type": "count",
+   "csi": "26 51 00",
+   "group": "Lighting",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "Lamps are integral (LED) unless a lamp line is listed."
+   ],
+   "note": "Count each fixture.",
+   "waste": 0,
+   "name": "Exterior LED wall pack",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "LED wall pack",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Weatherproof box",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "panel-42",
+   "type": "count",
+   "csi": "26 24 16",
+   "group": "Distribution",
+   "sources": [
+    "nec-314"
+   ],
+   "assume": [
+    "Breakers by the panel schedule: add them as their own items or components."
+   ],
+   "note": "Count each panelboard.",
+   "waste": 0,
+   "name": "Panelboard 42 circuits, surface or flush",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Panelboard 42 circuits",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Panel directory and labels",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "data-outlet",
+   "type": "count",
+   "csi": "27 15 00",
+   "group": "Communications",
+   "sources": [
+    "tia-568"
+   ],
+   "assume": [
+    "One jack per outlet; add a second jack line for dual outlets."
+   ],
+   "note": "Count each data outlet.",
+   "waste": 0,
+   "name": "Data outlet, Cat 6, single jack",
+   "unit": "EA",
+   "components": [
+    {
+     "name": "Low-voltage mounting bracket / mud ring",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Cat 6 jack",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Faceplate, 1 port",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    },
+    {
+     "name": "Patch panel port",
+     "unit": "EA",
+     "formula": "N",
+     "waste": 0
+    }
+   ]
+  },
+  {
+   "key": "cat6-run",
+   "type": "linear",
+   "csi": "27 15 00",
+   "group": "Communications",
+   "sources": [
+    "tia-569",
+    "tia-568",
+    "geometry"
+   ],
+   "assume": [
+    "J-hooks at 5 ft spacing at most (ANSI/TIA-569), plus one per run.",
+    "Cable: run + 10 ft per run for the service loops at the rack and outlet (a starting figure)."
+   ],
+   "note": "Draw each cable run from the rack to the outlet.",
+   "waste": 0,
+   "name": "Cat 6 cable run on J-hooks",
+   "unit": "LF",
+   "twin": "cat6-run-m",
+   "components": [
+    {
+     "name": "Cat 6 cable",
+     "unit": "LF",
+     "formula": "L+N*10",
+     "waste": 1000
+    },
+    {
+     "name": "J-hooks",
+     "unit": "EA",
+     "formula": "ceil(L/5)+N",
+     "waste": 500
+    }
+   ]
+  },
+  {
+   "key": "cat6-run-m",
+   "type": "linear",
+   "csi": "27 15 00",
+   "group": "Communications",
+   "sources": [
+    "tia-569",
+    "tia-568",
+    "geometry"
+   ],
+   "assume": [
+    "J-hooks at 5 ft spacing at most (ANSI/TIA-569), plus one per run.",
+    "Cable: run + 10 ft per run for the service loops at the rack and outlet (a starting figure)."
+   ],
+   "note": "Draw each cable run from the rack to the outlet.",
+   "waste": 0,
+   "name": "Cat 6 cable run on J-hooks (metric)",
+   "unit": "m",
+   "twin": "cat6-run",
+   "components": [
+    {
+     "name": "Cat 6 cable",
+     "unit": "m",
+     "formula": "L+N*3.048",
+     "waste": 1000
+    },
+    {
+     "name": "J-hooks",
+     "unit": "EA",
+     "formula": "ceil(L/1.524)+N",
+     "waste": 500
+    }
+   ]
+  }
+ ]
+}

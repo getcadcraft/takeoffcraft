@@ -1,9 +1,9 @@
 ---
 title: Bid summary and proposal
-summary: Add sales tax, overhead, profit and bond to the estimate, write inclusions and exclusions, and download a proposal PDF to send.
+summary: Add labor burden, sales tax, overhead, profit and bond to the estimate, write inclusions and exclusions, and download a proposal PDF to send.
 section: tasks
 order: 101
-keywords: bid, proposal, quote, overhead, profit, markup, margin, sales tax, bond, inclusions, exclusions, terms, signature, client, price
+keywords: bid, labor burden, burden, payroll, proposal, quote, overhead, profit, markup, margin, sales tax, bond, inclusions, exclusions, terms, signature, client, price
 ---
 
 The estimate prices what you took off. The **bid summary** turns it into a price: it adds sales tax, overhead, profit and bond, and makes a **proposal PDF** with your inclusions and exclusions.
@@ -12,19 +12,20 @@ Open it from {{ui:Export}} › {{ui:Bid summary & proposal…}}. Everything in i
 
 ## The markups
 
-Type a percent in any of the four (leave the others at 0). They are worked out in this order, each on what is above it:
+Type a percent in any of the five (leave the others at 0). They are worked out in this order, each on what is above it:
 
 | Line | Worked out as |
 |---|---|
 | Material, Labor | The estimate's totals (the base bid when the takeoff has [alternates](topic:bid-areas#alternates-base-bid-plus-adds-and-deducts)). |
-| **Cost** | Material + labor. |
+| Labor burden | Burden % × labor: payroll taxes, insurance and benefits on your crews' wages. |
+| **Cost** | Material + labor + labor burden. |
 | Sales tax on material | Tax % × material. |
 | Overhead | Overhead % × (cost + tax). |
 | Profit | Profit % × (cost + tax + overhead). |
 | Bond | Bond % × everything above. |
 | **Bid** | The sum of the lines. |
 
-Each line is rounded to the cent. The summary updates as you type: {{key:Enter}} takes a percent. Each alternate is shown with the same markups on its own cost, so the owner sees what taking it really changes.
+Each line is rounded to the cent. The workbook shows the same lines under the Estimate worksheet's total, with live formulas. The summary updates as you type: {{key:Enter}} takes a percent. Each alternate is shown with the same markups on its own cost, so the owner sees what taking it really changes.
 
 ## The proposal
 
