@@ -89,7 +89,8 @@ function readUnit(v, type) {
   for (const u of UNITS_FOR[type]) if (key(u).replace('²', '2') === k || key(UNITS[u].label).replace('²', '2') === k) return u;
   return null;
 }
-const typeOfUnit = (v) => { for (const ty of TYPES) if (readUnit(v, ty)) return ty; return null; };
+// a typed quantity (TK.5+) only when the Type column says so: a bare CY or LS row is not guessed into one
+const typeOfUnit = (v) => { for (const ty of TYPES) if (ty !== 'fixed' && readUnit(v, ty)) return ty; return null; };
 
 /** CSV text → library entries. Rows it cannot read are skipped, each with a warning. */
 export function readLibraryCsv(text) {

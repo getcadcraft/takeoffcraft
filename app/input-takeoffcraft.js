@@ -40,6 +40,7 @@ export const COMMANDS = [
   C('export.pdf', 'export', 'bi-file-earmark-pdf', '[data-export-menu] [data-act="export-pdf"]'),
   C('export.embed', 'export', 'bi-file-earmark-zip', '[data-export-menu] [data-act="export-embed"]'),
   C('export.bid', 'export', 'bi-file-earmark-text', '[data-export-menu] [data-act="export-bid"]'),
+  C('export.level', 'export', 'bi-people', '[data-export-menu] [data-act="export-level"]'),   // 0.6 LC.13
 
   C('scale.calibrate', 'scale', 'bi-rulers', T('Scale', 'data-tool="calibrate"'), { defKeys: ['K'] }),
   C('scale.check', 'scale', 'bi-arrows-expand-vertical', T('Scale', 'data-tool="check"'), { defKeys: ['D'] }),
@@ -91,7 +92,7 @@ export const GROUPS = ['file', 'export', 'scale', 'takeoff', 'edit', 'view', 'ma
 const DEFAULT_KEYS = Object.fromEntries(COMMANDS.filter((c) => c.defKeys.length && !c.fixed).map((c) => [c.id, c.defKeys.slice()]));
 
 const m = (label, items) => ({ label: 'input.m.' + label, items });
-const EXPORTS = ['export.xlsx', 'export.csv', 'export.materials', 'export.spots', '-', 'export.pdf', 'export.embed', '-', 'export.bid'];
+const EXPORTS = ['export.xlsx', 'export.csv', 'export.materials', 'export.spots', '-', 'export.pdf', 'export.embed', '-', 'export.bid', 'export.level'];
 
 export const STYLES = {
   takeoffcraft: {

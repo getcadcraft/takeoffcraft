@@ -1,76 +1,53 @@
 ---
-title: What's new in 0.5
-summary: Trade packs of ready-made assemblies for 16 trades, new workbook reports and labor burden, spot elevations for CivilCraft, measuring one job together live, menu styles, and a layout for phones.
+title: What's new in 0.6
+summary: Typed quantities for things that are never drawn, cut and fill from CivilCraft as items, bid packages with leveling of subcontractor bids, and calculations in every length field.
 section: start
 order: 5
-keywords: whats new, what's new, release notes, changelog, changes, 0.5, version, new features, trade packs, packs, assemblies, csi, masterformat, material list, quote request, by division, labor burden, spot elevations, earthwork, live, work together, menu style, takeoff desk, conditions, keys, mouse, phone, fold phone, tablet, studio, settings
+keywords: whats new, what's new, release notes, changelog, changes, 0.6, version, new features, typed quantity, lump sum, allowance, mobilization, cut and fill, earthwork, bid package, bid leveling, subcontractor, scope, calculation, arithmetic, toolbar, interface size, pen, touch, indonesian
 ---
 
-This is what changed in TakeoffCraft 0.5, compared with 0.4. Your 0.4 takeoffs open as they are.
+This is what changed in TakeoffCraft 0.6, compared with 0.5. The estimate now reaches past what is drawn on the sheets, and out to the subcontractors who bid on it.
 
 ## New
 
-### Trade packs
+### Typed quantities
 
-- **Ready-made assemblies for 16 trades.** {{ui:Library}} at the top of the {{ui:Items}} panel, then {{ui:Trade packs…}}: electrical, drywall and framing, painting, concrete, flooring, masonry, residential and commercial roofing, siding, finish carpentry, plumbing, HVAC, insulation, landscape, decking, and a general-contractor pack by CSI division. In all, 432 assemblies. Choose imperial, metric or both. See [Trade packs](topic:trade-packs).
-- **No prices.** Pack items say "set your rate": the rates are yours, from the library, the item editor or your own CSV with {{ui:Update prices}}. See [Price library](topic:price-library).
-- **Starters.** Every pack says "Starter: not reviewed by an estimator yet". {{ui:Sources and details}} shows what each assembly was written from, and each assumption is marked as a starting figure. Check them against your job before you price with them.
-- **Your library stays yours.** Installing keeps your own item of the same name, installing a pack again replaces only its own items, and {{ui:Remove}} takes a pack's items out in one step. Items already in a takeoff stay.
-- **Share your own library as a pack.** {{ui:Export as pack…}} saves a `.ccpack.json` file, without your rates unless you tick {{ui:Include my rates as sample rates}}. {{ui:Open a pack file…}} reads one.
+- **Items for things that are never drawn.** Mobilization, permits, an allowance, a lump sum: choose {{ui:New item}} and pick {{ui:Typed quantity (no drawing)}}, then type the quantity in LS, EA, cubic yards, cubic metres or any length or area unit. Price it like any other item and give it assemblies, where `Q` is its quantity. See [Typed quantities](topic:create-items#typed-quantities-no-drawing).
+- **Bid areas count them too.** When the takeoff has bid areas, a typed quantity counts in the area you choose, alternates included. See [Bid areas](topic:bid-areas).
 
-### Reports and pricing
+### Cut and fill from CivilCraft
 
-- **CSI numbers.** The item editor has a {{ui:CSI number}}, such as `09 21 16`. Items from trade packs have one already. See [Create takeoff items](topic:create-items).
-- **More in the workbook.** The XLSX adds a takeoff summary, a material list (parts added up by name and unit across items), a quote request for suppliers with an empty price column, and costs by CSI division. The Estimate sheet ends with the markups as live formulas. See [Export the estimate](topic:export-estimate).
-- **Material list on its own.** {{ui:Export}} › {{ui:Material list}} saves it as a CSV, for ordering.
-- **Labor burden.** The bid summary adds labor burden as a percentage of labor, before tax, overhead, profit and bond. It shows in the proposal PDF, the CSV and the workbook. See [Bid summary and proposal](topic:bid-summary).
+- **Earthwork arrives as two items to price.** In CivilCraft, {{ui:Send to TakeoffCraft}} under Earthwork saves the project's cut and fill as a quantities file; open it in TakeoffCraft and you get an Earthwork: cut and an Earthwork: fill item, in cubic yards or cubic metres. See [Cut and fill from CivilCraft](topic:earthwork#cut-and-fill-from-civilcraft).
+- **Send again after a design change.** Open the new file and the same two items take the new numbers, keeping your names, rates, waste and assemblies.
 
-### Earthwork
+### Bid packages and leveling
 
-- **Spot elevations for CivilCraft.** A count mark can carry an {{ui:Elevation}} (`102.5`, `102'-6"` or `31.24 m`). {{ui:Export}} › {{ui:Spot elevations}} writes the open sheet's points as a CSV that CivilCraft reads. Northing and easting are sheet coordinates at the sheet's scale: distances are true, but they are not survey coordinates. See [Earthwork and spot elevations](topic:earthwork).
-- The general-contractor pack has bulk excavation and utility trench items for simple digs.
+- **Packages by CSI division.** {{ui:Export}} › {{ui:Bid packages and leveling…}} splits the estimate into one package per CSI division. {{ui:Scope CSV}} downloads a package's scope for subcontractors: items, quantities and sheets, with no prices. See [Bid packages and bid leveling](topic:bid-leveling).
+- **Compare the bids that come back.** Type each bid in and tick the scope it leaves out: left-out items are filled at your own cost, the lowest leveled bid is marked, and each bid shows how it compares with your own number. See [How the bids are leveled](topic:bid-leveling#how-the-bids-are-leveled).
+- **In the workbook.** The XLSX gets a Bid leveling sheet with live formulas. The command is also in every menu style and the command palette.
 
-### From other apps
+### Type a calculation
 
-- CadCraft's HVAC and Piping add-ons can send a duct or pipe schedule to TakeoffCraft as a PDF with the takeoff inside.
-- BimCraft's {{ui:Takeoff}} button sends a house model to TakeoffCraft with every quantity marked on a scaled plan.
-
-### Add-ons
-
-- Add-ons for TakeoffCraft can offer item types with their assembly, add columns to the estimate CSV and XLSX, read the takeoff and add a section to the right panel. A takeoff saved without the add-on keeps its data. No add-on ships with TakeoffCraft yet.
-
-## Changed
-
-- **3D check view.** Small models are framed closely when the view fits them.
+- **Arithmetic in every length field.** Every length field and the type-in box take a calculation, such as `12'6" + 3/4"` or `(24'-0")/3`, read the same way as in CadCraft. A calculation that can't be read says where it went wrong. See [Arithmetic](topic:entry-formats#arithmetic).
 
 ## Fixed
 
-- On a phone, the quantities table ran off the right edge and the status line was cut off.
-- A PDF could not open in a browser joining a live session on your network. It opens now.
+- The message after finishing a room showed the undo key as the literal text "Mod+Z". It now shows your system's key.
 
 ## In every app
 
-- **CadCraft Studio is the desktop app.** From 0.5 the desktop download is CadCraft Studio: all eight apps in one install. The separate installer for each app stops. TakeoffCraft still runs in the browser, and as a browser edition you can download.
-- **Installers are not signed yet.** Code signing comes with 0.6. On Windows, if SmartScreen stops the installer, choose {{ui:More info}}, then {{ui:Run anyway}}. The macOS disk image (Apple silicon and Intel, macOS 13 or later) is not signed or notarized: the first time, right-click the app and choose {{ui:Open}}. iPad, Android and iPhone come with 0.6.
-- **Work together live.** In CadCraft Studio, {{ui:Live}} shares the file you have open: teammates on the same network join with a short code and edit with you, each with their own undo. In TakeoffCraft the host's PDFs come to everyone who joins, and every window works out the same quantities and totals from the marks. Sessions on your own network are free, for everyone. Invite links over the internet aren't open yet. See [Work together live](common:work-together-live) and [Take off one job together, live](topic:work-live).
-- **Menus, keys and mouse.** In {{ui:Settings}} › {{ui:TakeoffCraft}} › {{ui:Menus, keys and mouse}}, pick a menu style ({{ui:TakeoffCraft}}, or {{ui:Takeoff desk}}: a menu bar over one row of takeoff tools, where items are called conditions), give any command your own key, move commands between menus, set the wheel and the mouse buttons, and export or import a style as a `.ccinput.json` file. {{ui:Use this style in every app}} opens every app in its matching style. See [Menus, keys and mouse](topic:menus-keys-and-mouse).
-- **A wider Settings dialog,** in two columns, so more fits without scrolling. See [TakeoffCraft settings](topic:settings).
-- **Floating and bottom panels fit the window.** A floating panel stays above the status bar and shrinks with a small window; on a short window a panel docked at the bottom leaves the drawing room. See [Arrange the panels and use a second monitor](common:arrange-panels).
-- **Phones and fold phones.** On a screen up to 760 px wide, or a phone held sideways, the sheet keeps the screen: panels open as sheets from a bar at the bottom, the {{ui:Quantities}} table slides up from the bottom, the toolbar is one row that scrolls sideways and the sheet bar is the second line. {{ui:Tools}} hides the toolbar and {{ui:Move}} puts it at the bottom. Turning the phone, or opening and closing a fold phone, keeps your work, the selection and an open dialog. The app bar's {{ui:More}} menu holds the version, Find and the links. Phones work, but TakeoffCraft is made for larger screens.
-- **Touch tablets.** On a touch screen each toolbar is one row that scrolls sideways instead of wrapping onto several lines.
-- **Spanish** stays a machine-made draft that has not been reviewed yet. Help topics are in English.
-
-## Files and compatibility
-
-- Takeoffs saved in 0.4 open in 0.5 as they are.
-- A 0.5 takeoff can carry new things: an item's CSI number, a count mark's elevation, the labor burden and an add-on's data.
-- Installed packs live in the price library, in this browser.
+- **The toolbar can't get lost.** While full screen hides the bars, a small {{ui:Show bars}} tab stays at the top of the window. {{ui:Settings}} › {{ui:General}} › {{ui:Reset the layout}} puts the toolbar, panels, screen mode and menu style back to how the app starts (your interface size and panel text size stay). In CadCraft Studio, its own {{ui:Settings}} has {{ui:Reset the layout in every app}}. See [Where did my toolbar go?](common:lost-toolbar).
+- **A menu on the toolbar.** Right-click the toolbar, or press and hold it, to arrange it, lock it so nothing moves by accident, or reset it. Ribbon menu styles collapse to their tab names: a tab opens its tools for one command; double-click a tab or use the pin to keep the ribbon open. See [The toolbar's own menu](common:lost-toolbar#the-toolbars-own-menu).
+- **Interface size.** {{ui:Settings}} › {{ui:General}} › {{ui:Interface size}} makes the bars, toolbars, panels and dialogs 80 % to 140 % of normal, for this app only, so two apps side by side on one monitor both fit. The drawing keeps its own zoom. See [Everything is too big or too small](common:lost-toolbar#everything-is-too-big-or-too-small).
+- **Pen and touch.** On a tablet or a touch-screen laptop with a pen, your palm is ignored while you draw, fingers can be left to moving the view, a two-finger tap undoes and a three-finger tap redoes, and the pen's side button and eraser end can undo or redo. {{ui:Settings}} › {{ui:General}} › {{ui:Pen and touch}}. See [Draw with a pen on a tablet](common:pen-and-touch).
+- **Live sessions can grow past 20 people.** In CadCraft Studio, when more people knock than the usual 20, Studio tells you what to expect and you choose {{ui:Allow anyway}} for this session or {{ui:Keep it at 20}}. {{ui:Recent edits}} in the Live panel shows who changed what. See [Work together live](common:work-together-live#when-many-people-join).
+- **Bahasa Indonesia** is new in {{ui:Settings}} › {{ui:General}} › {{ui:Language}}: a machine-made draft of every word, not yet reviewed by a native speaker. **Spanish (Mexico)** is still a draft too. Help topics are in English.
+- **Installers are still not signed** (signing comes next, in 0.7), and CadCraft Studio is not in an app store yet. Check the SHA-256 beside each file on getcadcraft.com/download. On Windows, if SmartScreen stops the installer, choose {{ui:More info}}, then {{ui:Run anyway}}. On a Mac, the first time, right-click CadCraft Studio and choose {{ui:Open}}. There is no iPad or iPhone build yet.
+- **Fixed:** with the bars hidden, {{ui:Arrange the toolbar…}} in Settings was grayed out, and from the keyboard it lost its place after the first move.
 
 ## Not in this version yet
 
-- Trade packs reviewed by working estimators, and prices in packs.
-- Cut and fill quantities coming back from CivilCraft.
-- Spot elevations from more than the open sheet, or in survey coordinates.
-- In a live session, PDFs opened after joining stay on that person's screen, and page changes are not shared.
-- Box (window) selection, and finding mirrored symbols with auto count.
-- More is listed in [What is not built yet](topic:not-built-yet).
+- Using the chosen subcontractor's bid as the package's price in the estimate isn't built yet, and neither is inviting and collecting bids through the site: email the scope yourself and type the bids in.
+- A typed quantity is the number you type: TakeoffCraft does not convert a unit it doesn't know, and any text works as a label.
+- Trade packs still can't be installed from the add-ons page.
+- Everything else is in [What is not built yet](topic:not-built-yet).

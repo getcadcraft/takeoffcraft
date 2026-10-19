@@ -15,6 +15,17 @@ Each item has a type (and can take other kinds of marks too, see [One item, seve
 | Linear | Runs of connected points | Length, number of runs, and wall area when it has a height | LF or m |
 | Area | Closed outlines, with cut-outs | Area, perimeter, number of areas | SF, SY or m² |
 | Count | One click per thing | How many | EA |
+| Typed quantity | Nothing: you type the quantity | The number you typed (or one brought in from CivilCraft) | LS, EA, CY, m³, LF, m, SF, SY or m² |
+
+## Typed quantities (no drawing)
+
+Some things in an estimate are never drawn: mobilization, permits, a contingency, a lump-sum subcontract, the cut and fill CivilCraft worked out. Make them a **Typed quantity**:
+
+1. Choose {{ui:New item}}, type a name, pick {{ui:Typed quantity (no drawing)}} and choose {{ui:Add}}.
+2. In the item editor pick the {{ui:Unit}} (LS for a lump sum) and type the {{ui:Quantity}}: `1`, `2.5` or `1,250`.
+3. Set waste and rates as for any other item. An assembly's formulas use `Q`, the quantity, for example `ceil(Q / 12)` truck loads.
+
+A typed quantity takes no marks and never makes the estimate incomplete. When the takeoff has bid areas, the editor also has {{ui:Bid area}}: the quantity then counts in that area, its alternates and its totals, just as a mark there would. Quantities brought in from another app say where they came from, see [Earthwork and spot elevations](topic:earthwork#cut-and-fill-from-civilcraft).
 
 ## Make an item
 

@@ -25,3 +25,19 @@ Northing and easting are the sheet's own coordinates in feet, measured from the 
 :::note
 Points from different sheets do not share coordinates, so the export takes the open sheet only. Elevations are saved with the takeoff and carried by copy and paste.
 :::
+
+## Cut and fill from CivilCraft
+
+CivilCraft's earthwork comes back as two items you can price:
+
+1. In CivilCraft, grade your pads and corridors, then choose {{ui:Send to TakeoffCraft}} under **Earthwork** ([Earthwork volumes](app:civilcraft/volumes)). It saves a quantities file (`.quantities.json`).
+2. In TakeoffCraft, open it with {{ui:Open takeoff}}, or drop it on the app. Your takeoff stays open: the file adds **Earthwork: cut** and **Earthwork: fill** as [typed quantities](topic:create-items#typed-quantities-no-drawing) in cubic yards (CY) for a feet project, or cubic metres (m³) for a metre project. It is one step: {{key:Mod+Z}} takes it back.
+3. Rename them, set waste, rates and assemblies as you like.
+
+When the design changes, send again from CivilCraft and open the new file: the same two items get the new quantities. Their names, rates, waste and assemblies stay as you set them. If the project's unit changed, the status bar says so: check the rates. A file from another CivilCraft project adds its own two items.
+
+The quantities are bank volumes, as CivilCraft measured them (grid method): no shrink or swell. Add those as waste, or with a formula such as `Q * 1.25` for loose volume. The item editor shows where each one came from and when; the estimate's notes column says it too.
+
+:::note
+The quantities file is plain JSON (`"format": "cadcraft-quantities"`), so a script or another program can write one too: an app name, a project, and items with a key, a name, a unit and a quantity.
+:::

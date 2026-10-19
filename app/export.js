@@ -13,6 +13,8 @@ import { estimate, baseEstimate, alternates, quantities, sheetBreakdown, measure
 import { UNITS, formatFtIn, describeScale, roundTo, formatPitch } from './units.js';
 import { t } from './i18n.js';
 import { bidSummary, bidUsed, normalBid } from './bid.js';
+import { originText } from './fixedqty.js';
+import { leveling } from './level.js';
 
 /** The estimate's column headers (CSV and the Estimate worksheet), in the language the page runs in. */
 export const estimateHead = () => ['item', 'type', 'unit', 'qty', 'waste', 'qtyw', 'matu', 'labu', 'mat', 'lab', 'total', 'notes'].map((k) => t('x.head.' + k));
@@ -26,6 +28,7 @@ const rowNote = (r) => {
   if (r.perimeter) n.push(t('x.note.perimeter', { value: roundTo(r.perimeter.value, 2), unit: r.perimeter.unit }));
   if (r.backout) n.push(t('export.backout.note', { value: roundTo(r.backout.value, 2), unit: r.backout.unit }));
   if (r.kind === 'condition') n.push(t('export.cond.note', { type: TYPE_LABELS[r.cond].toLowerCase() }));
+  if (r.kind === 'item' && r.type === 'fixed') n.push(r.origin ? originText(r.origin) : t('x.note.typed'));    // TK.5+: typed, not measured
   if (r.work) n.push(t('export.crew.note', { hours: roundTo(r.work.hours, 2), size: r.crew.size, wh: roundTo(r.work.workerHours, 2), days: roundTo(r.work.days, 2), prod: roundTo(r.crew.prod, 4), unit: r.unit, wage: roundTo(r.crew.wage / 10000, 4) }));
   return n.join('; ');
 };
@@ -332,6 +335,24 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
     const n = bd.length + 1;
     rowsD.push([null, { v: t('x.total'), s: 'bold' }, null, { v: dollars(est.matTotal), f: 'SUM(D2:D' + n + ')', s: 'boldMoney' }, { v: dollars(est.labTotal), f: 'SUM(E2:E' + n + ')', s: 'boldMoney' }, { v: dollars(est.total), f: 'SUM(F2:F' + n + ')', s: 'boldMoney' }]);
     out.push({ name: t('div.sheet'), rows: rowsD, cols: [8, 48, 8, 14, 14, 14], freeze: 1 });
+  }
+  // LC.13 (last, so the other sheets keep their places): the bids per package side by side, leveled with plugs at our cost
+  const lv = leveling(state, est, { title: (k) => (k ? divisionTitle(k) : t('csi.div.none')) });
+  if (lv.length) {
+    const rowsL = [];
+    for (const p of lv) {
+      if (rowsL.length) rowsL.push([]);
+      rowsL.push([{ v: (p.pkg.key ? p.pkg.key + ' ' : '') + p.pkg.title, s: 'bold' }]);
+      rowsL.push(['bidder', 'bid', 'plug', 'leveled', 'diff', 'low', 'left'].map((k) => ({ v: t('lvl.head.' + k), s: 'head' })));
+      const o = rowsL.length + 1;
+      rowsL.push([{ v: t('lvl.ours'), s: 'bold' }, { v: dollars(p.ours), s: 'money' }, { v: 0, s: 'money' }, { v: dollars(p.ours), f: 'B' + o + '+C' + o, s: 'money' }, null, null, null]);
+      for (const r of p.bids) {
+        const n = rowsL.length + 1;
+        rowsL.push([r.bid.bidder, { v: dollars(r.bid.amount), s: 'money' }, { v: dollars(r.plug), s: 'money' }, { v: dollars(r.leveled), f: 'B' + n + '+C' + n, s: 'boldMoney' },
+          { v: dollars(r.diff), f: 'D' + n + '-D' + o, s: 'money' }, r.bid.id === p.low ? t('lvl.low') : '', r.plugs.map((x) => x.name).join('; ') + (r.bid.note ? (r.plugs.length ? ' — ' : '') + r.bid.note : '')]);
+      }
+    }
+    out.push({ name: t('lvl.sheet'), rows: rowsL, cols: [36, 14, 14, 14, 14, 8, 50] });
   }
   return out;
 }

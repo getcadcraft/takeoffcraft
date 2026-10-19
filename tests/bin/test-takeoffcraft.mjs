@@ -1893,6 +1893,190 @@ section('Earthwork hand-off: spot elevations to CivilCraft (TK.5)');
   ok(clip.marks[0].z === 101.25, 'copy and paste carry a mark\'s elevation');
 }
 
+section('Typed quantities and the cut/fill hand-off from CivilCraft (0.6 TK.5+)');
+{
+  const FQ = await load('fixedqty.js');
+  const t = new M.Takeoff();
+  // a lump sum: 1 LS, $2,500.00 material + $750.00 labor = $3,250.00
+  const mob = t.addItem({ name: 'Mobilization', type: 'fixed', unit: 'LS', qty: 1, mat: 25000000, lab: 7500000 });
+  // a volume: 1,234.5 CY + 10 % = 1,357.95 CY; × $12.3456 = 16,764.70752 → $16,764.71; × $4.00 = $5,431.80; trucks ceil(Q / 12) = 103
+  const cut = t.addItem({ name: 'Cut', type: 'fixed', unit: 'CY', qty: 1234.5, waste: 1000, mat: 123456, lab: 40000, components: [{ id: 'c', name: 'Truck loads', unit: 'EA', formula: 'ceil(Q / 12)', mat: 0, lab: 0 }] });
+  const it = t.item(cut);
+  ok(it.type === 'fixed' && it.qty === 1234.5 && it.unit === 'CY' && M.kindsOf(it).length === 0, 'a typed quantity: its own quantity and unit, no kinds of mark');
+  let est = M.estimate(t.state);
+  const rm = est.rows.find((r) => r.itemId === mob && r.kind === 'item'), rc = est.rows.find((r) => r.itemId === cut && r.kind === 'item'), rt = est.rows.find((r) => r.kind === 'component');
+  ok(rm.qty === 1 && rm.total === 325000, 'lump sum: 1 LS, $3,250.00', rm);
+  ok(near(rc.qtyW, 1357.95) && rc.matExt === 1676471 && rc.labExt === 543180 && rc.total === 2219651, 'cut: 1,357.95 CY with waste, $16,764.71 + $5,431.80 = $22,196.51 (by hand)', rc);
+  eq(rt.qty, 103, 'its assembly runs on Q: ceil(1,234.5 / 12) = 103 truck loads');
+  eq(est.total, 325000 + 2219651, 'job total $25,446.51');
+  ok(!est.incomplete && est.unscaled === 0, 'a typed quantity never makes the estimate incomplete (nothing to scale)');
+  // no marks on a typed quantity, and an item with marks can't become one
+  const hash = '8'.repeat(64);
+  t.addFile({ hash, name: 'p.pdf', size: 1, pages: 1 });
+  const s0 = M.sheetKey(hash, 0);
+  let threw = false; try { t.addMark({ item: cut, sheet: s0, pts: [{ x: 0, y: 0 }] }); } catch { threw = true; }
+  ok(threw, 'a mark on a typed quantity is refused');
+  const run = t.addItem({ name: 'Run', type: 'linear' });
+  t.addMark({ item: run, sheet: s0, pts: [{ x: 0, y: 0 }, { x: 72, y: 0 }] });
+  threw = false; try { t.updateItem(run, { type: 'fixed', unit: 'LS' }); } catch { threw = true; }
+  ok(threw && t.item(run).type === 'linear', 'an item with marks can\'t become a typed quantity');
+  ok(!t.setCond(cut, 'count', true) || !t.item(cut).conds, 'a typed quantity takes no second conditions');
+  t.updateItem(cut, { qty: 1000 }, 'qty');
+  ok(t.item(cut).qty === 1000 && (t.undo(), t.item(cut).qty === 1234.5), 'changing the quantity is one undo step');
+  t.updateItem(cut, { qty: -5 }); ok(t.item(cut).qty === 0, 'a negative quantity becomes 0 (never negative)');
+  t.undo();
+  // bid areas: a typed quantity sits in one, like a mark
+  const b1 = t.addArea('Phase 1'), b2 = t.addArea('Phase 2');
+  t.updateItem(cut, { area: b1 }); t.updateItem(mob, { area: 'nope' });
+  ok(t.item(cut).area === b1 && !('area' in t.item(mob)), 'a typed quantity takes a bid area that exists, never one that doesn\'t');
+  const parts = M.areaEstimates(t.state);
+  ok(parts.map((p) => p.area?.name ?? '—').join('|') === 'Phase 1|—', 'by bid area: Phase 1 (the cut), then no bid area (the lump sum and the run)', parts.map((p) => p.area?.name));
+  eq(parts.reduce((n, p) => n + p.est.total, 0), M.estimate(t.state).total, 'the bid areas add up to the job');
+  t.setAreaAlt(b1, 'add');
+  eq(M.baseEstimate(t.state).total, 325000, 'Phase 1 an add alternate: the base bid leaves the cut out');
+  const alts = M.alternates(t.state);
+  ok(alts.length === 1 && alts[0].amount === 2219651, 'and the alternate prices it: + $22,196.51', alts.map((a) => a.amount));
+  t.setAreaAlt(b1, null);
+  t.removeArea(b1);
+  ok(!('area' in t.item(cut)), 'removing a bid area leaves its typed quantity in none');
+  void b2;
+  // the project file
+  const json = JSON.parse(JSON.stringify(t.toJSON()));
+  const back = M.readProject(json);
+  ok(back.ok && JSON.stringify(back.state.items.find((i) => i.id === cut)) === JSON.stringify(t.item(cut)), 'saved and read back exactly');
+  const bad = M.readProject({ ...json, items: json.items.map((i) => (i.id === cut ? { ...i, qty: '9', area: 'ghost', origin: { app: 'X', key: 'bad key!' } } : i)), marks: [...json.marks, { id: 'mx', item: cut, sheet: s0, kind: 'fixed', pts: [[1, 1]] }] });
+  const bi = bad.state.items.find((i) => i.id === cut);
+  ok(bi.qty === 0 && !('area' in bi) && !('origin' in bi), 'a tampered file: text quantity → 0, unknown bid area and bad origin dropped', bi);
+  ok(!bad.state.marks.some((m) => m.id === 'mx') && bad.warnings.some((w) => /1/.test(w)), 'a mark on a typed quantity in a file is dropped and said');
+
+  // the quantities file: untrusted, read, brought in, updated
+  const file = (over = {}) => ({ format: 'cadcraft-quantities', version: 1, app: 'CivilCraft', project: 'North lot', made: '2026-10-18T12:00:00Z',
+    items: [{ key: 'earthwork:cut', name: 'Earthwork: cut', unit: 'CY', qty: 100 }, { key: 'earthwork:fill', name: 'Earthwork: fill', unit: 'CY', qty: 200 }], ...over });
+  ok(!FQ.readQuantities({ format: 'x' }).ok && !FQ.readQuantities(file({ version: 2 })).ok && /newer version/.test(FQ.readQuantities(file({ version: 2 })).error), 'not a quantities file, or a newer one: refused, saying why');
+  ok(!FQ.readQuantities(file({ app: '' })).ok, 'a file that does not say which app made it: refused');
+  const rq = FQ.readQuantities(file({ items: [...file().items, { key: 'earthwork:cut', unit: 'CY', qty: 1 }, { key: 'bad key', unit: 'CY', qty: 1 }, { key: 'k1', unit: 'gallons', qty: 1 }, { key: 'k2', unit: 'CY', qty: -1 }, { key: 'k3', unit: 'CY', qty: '5' }, null] }) );
+  ok(rq.ok && rq.items.length === 2 && rq.skipped === 6, 'six bad entries skipped and counted (a repeated key, a bad key, an unknown unit, a negative and a text quantity, nothing)', rq);
+  ok(!FQ.readQuantities(file({ items: [] })).ok, 'a file with nothing usable: refused');
+  const t2 = new M.Takeoff();
+  const u0 = t2.undoStack.length;
+  const o1 = FQ.importQuantities(t2, FQ.readQuantities(file()));
+  ok(o1.added === 2 && o1.updated === 0 && t2.undoStack.length === u0 + 1, 'brought in: two typed quantities, one undo step', o1);
+  const ci = t2.state.items[0];
+  ok(ci.type === 'fixed' && ci.qty === 100 && ci.unit === 'CY' && ci.origin.app === 'CivilCraft' && ci.origin.key === 'earthwork:cut' && ci.origin.at === '2026-10-18T12:00:00Z', 'with where it came from', ci);
+  t2.updateItem(ci.id, { name: 'Bulk excavation', mat: 85000, waste: 1500 });
+  const o2 = FQ.importQuantities(t2, FQ.readQuantities(file()));
+  ok(o2.same === 2 && o2.added === 0 && t2.undoStack.length === u0 + 2, 'the same file again: nothing changes, no undo step');
+  const o3 = FQ.importQuantities(t2, FQ.readQuantities(file({ made: '2026-10-19T08:00:00Z', items: [{ key: 'earthwork:cut', name: 'x', unit: 'CY', qty: 150 }, { key: 'earthwork:fill', name: 'y', unit: 'm³', qty: 80 }] })));
+  const c2 = t2.item(ci.id);
+  ok(o3.updated === 2 && c2.qty === 150 && c2.name === 'Bulk excavation' && c2.mat === 85000 && c2.waste === 1500 && c2.origin.at === '2026-10-19T08:00:00Z', 'a newer file updates the quantity; the name, rate and waste stay the estimator\'s', c2);
+  ok(o3.unitChanged.length === 1 && o3.unitChanged[0] === 'Earthwork: fill' && t2.state.items[1].unit === 'm³', 'a changed unit is taken and said (check the rates)');
+  t2.undo();
+  ok(t2.item(ci.id).qty === 100 && t2.state.items[1].unit === 'CY', 'one undo takes the update back');
+  const o4 = FQ.importQuantities(t2, FQ.readQuantities(file({ project: 'South lot' })));
+  ok(o4.added === 2 && t2.state.items.length === 4, 'another project\'s file adds its own items');
+  // the estimate's notes and the XLSX, recalculated independently
+  t2.updateItem(ci.id, { mat: 123456, lab: 40000, waste: 1000, qty: 1234.5 });
+  const est2 = M.baseEstimate(t2.state);
+  const csv = E.estimateCsv(t2.state);
+  ok(csv.includes('From CivilCraft, North lot (earthwork:cut), 2026-10-18') && csv.includes('Typed quantity'), 'the CSV says where each typed quantity came from', csv.split('\r\n')[1]);
+  ok(E.estimateCsv(t.state).includes('Typed quantity (not measured)'), 'and that a hand-typed one is typed, not measured');
+  const xf = path.join(tmp, 'typed.xlsx');
+  fs.writeFileSync(xf, await E.estimateXlsx(t2.state, () => 'Sheet 1'));
+  try {
+    const py = fs.existsSync(path.join(TOOLS, 'venv/bin/python')) ? path.join(TOOLS, 'venv/bin/python') : 'python3';
+    const out = JSON.parse(execFileSync(py, [path.join(TOOLS, 'xlsx_check.py'), xf], { encoding: 'utf8' }));
+    const cached = out.sheets.Estimate.cached;
+    let mism = 0;
+    for (const [k, v] of Object.entries(out.recalc)) if (Math.abs(v - cached[k]) > 1e-9) mism++;
+    eq(mism, 0, `XLSX with typed quantities: every formula equals the independent recalculation (${Object.keys(out.recalc).length} formulas)`);
+    const totalRow = est2.rows.length + 3;
+    eq(out.recalc['K' + totalRow], est2.total / 100, `its job total, re-calculated = ${est2.total / 100}`);
+    eq(out.sheets.Estimate.cells.A2, 'Bulk excavation', 'the imported item under its own name');
+  } catch (err) { ok(false, 'xlsx_check.py reads the typed-quantity workbook', String(err.stderr || err.message).slice(0, 300)); }
+  // a copy is not the import: pasting drops where it came from (a re-import updates the original), and a bid area that isn't there
+  const t3 = new M.Takeoff();
+  const pr = C.pasteClip(t3, C.readClip(JSON.parse(JSON.stringify(C.copyItems(t2.state, [ci.id])))).clip);
+  const pi = t3.state.items[0];
+  ok(pr && pi.type === 'fixed' && pi.qty === 1234.5 && !('origin' in pi) && !('area' in pi), 'copy and paste of a typed quantity: its quantity, not its origin', pi);
+  // the file CivilCraft writes for bin/test-civilcraft-quantities.mjs's fill pad: 20 × 20 ft at +2 on flat ground, 2:1 slopes =
+  // (800 + 320 + 33.34 corner cones) cu ft ÷ 27 = 42.72 CY (CivilCraft's suite checks its writer and reads it with fixedqty.js)
+  const qf = { format: 'cadcraft-quantities', version: 1, app: 'CivilCraft', project: 'Flat site', made: '2026-10-18T12:00:00Z', items: [{ key: 'earthwork:cut', name: 'Earthwork: cut', unit: 'CY', qty: 0 }, { key: 'earthwork:fill', name: 'Earthwork: fill', unit: 'CY', qty: 42.72 }] };
+  const t4 = new M.Takeoff();
+  FQ.importQuantities(t4, FQ.readQuantities(qf));
+  t4.updateItem(t4.state.items[1].id, { mat: 180000 });
+  eq(M.estimate(t4.state).total, 76896, 'the pad\'s 42.72 CY of fill at $18.00 = $768.96 (and 0 CY of cut = $0)');
+}
+
+section('Bid packages and leveling (0.6 LC.13)');
+{
+  const Lv = await load('level.js');
+  const t = new M.Takeoff();
+  const hash = '9'.repeat(64);
+  t.addFile({ hash, name: 'A-101.pdf', size: 1, pages: 1 });
+  const s0 = M.sheetKey(hash, 0);
+  t.setScale(s0, { method: 'preset', preset: 'a1/4', ftPerUnit: 4 / 72, label: '1/4" = 1\'-0"', cal: null });
+  // by hand: 09 = board $1,500 + $2,000, paint $400 + $600, base 4 LF × $1.00 = $4.00 → $4,504.00; 03 = 20 CY × ($150 + $50) = $4,000.00;
+  // no CSI number: mobilization $2,000.00
+  const board = t.addItem({ name: 'Gypsum board', type: 'fixed', unit: 'SF', qty: 1000, mat: 15000, lab: 20000, csi: '09 21 16' });
+  const paint = t.addItem({ name: 'Paint', type: 'fixed', unit: 'SF', qty: 1000, mat: 4000, lab: 6000, csi: '09 91 23' });
+  const base = t.addItem({ name: 'Base', type: 'linear', mat: 10000, csi: '09 65 13' });
+  t.addMark({ item: base, sheet: s0, pts: [{ x: 0, y: 0 }, { x: 72, y: 0 }] });       // 1 inch at 1/4" = 4 ft
+  const slab = t.addItem({ name: 'Concrete slab', type: 'fixed', unit: 'CY', qty: 20, mat: 1500000, lab: 500000, csi: '03 30 00' });
+  t.addItem({ name: 'Mobilization', type: 'fixed', unit: 'LS', qty: 1, mat: 20000000 });
+  const est = M.baseEstimate(t.state);
+  const title = (k) => (k ? E.divisionTitle(k) : 'No CSI number');
+  const pk = Lv.bidPackages(t.state, est, { title });
+  ok(pk.map((p) => p.key + ':' + p.cost).join('|') === '03:400000|09:450400|:200000', 'three packages by CSI division, our costs $4,000.00 | $4,504.00 | $2,000.00 (no number last)', pk.map((p) => p.key + ':' + p.cost));
+  const p09 = pk[1];
+  ok(p09.title === E.divisionTitle('09') && p09.items.map((x) => x.name).join(',') === 'Gypsum board,Paint,Base' && p09.sheets.join() === s0, 'package 09: its title, its three items, the sheet its marks are on');
+  ok(p09.items[2].qty === 4 && p09.items[2].unit === 'LF' && p09.items[2].cost === 400, 'scope lines carry quantity, unit and our cost (base 4 LF, $4.00)');
+  const csv = Lv.packageCsv(p09, () => 'A-101');
+  ok(csv.startsWith('Scope: ' + p09.title + '\r\nItem,CSI,Quantity,Unit,Sheets\r\nGypsum board,09 21 16,1000,SF,\r\n') && csv.includes('Base,09 65 13,4,LF,A-101') && !/\$|1500/.test(csv), 'the scope CSV: items, CSI, quantities, units, sheets — no prices', csv);
+  // three bids on 09: X $4,200 complete; Y $3,600 without paint (plug $1,000 → $4,600); Z $4,400 complete → X is low, $304 under ours
+  const u0 = t.undoStack.length;
+  const x = Lv.addBid(t, { pkg: '09', bidder: 'Xavier Drywall', amount: 420000 });
+  const y = Lv.addBid(t, { pkg: '09', bidder: 'Yates Interiors', amount: 360000, excl: [paint, slab] });
+  const z = Lv.addBid(t, { pkg: '09', bidder: 'Zed & Co', amount: 440000, note: 'Valid 30 days' });
+  ok(t.undoStack.length === u0 + 3 && t.state.bids.length === 3, 'each bid is one undo step');
+  ok(JSON.stringify(t.state.bids[1].excl) === JSON.stringify([paint]), 'a bid can only leave out items of its own package (the slab is 03): dropped');
+  let lv = Lv.leveling(t.state, M.baseEstimate(t.state), { title });
+  ok(lv.length === 1 && lv[0].pkg.key === '09' && lv[0].ours === 450400, 'leveling: only the package with bids, against our $4,504.00');
+  const by = Object.fromEntries(lv[0].bids.map((r) => [r.bid.bidder[0], r]));
+  ok(by.X.plug === 0 && by.X.leveled === 420000 && by.Y.plug === 100000 && by.Y.leveled === 460000 && by.Z.leveled === 440000, 'leveled: X $4,200.00, Y $3,600.00 + $1,000.00 paint = $4,600.00, Z $4,400.00 (by hand)');
+  ok(lv[0].low === x && by.X.diff === -30400 && by.Y.diff === 9600, 'low: X, $304.00 under our cost; Y $96.00 over once leveled — though its bid was lowest');
+  Lv.updateBid(t, y, { excl: [] });
+  lv = Lv.leveling(t.state, M.baseEstimate(t.state), { title });
+  ok(lv[0].low === y && lv[0].bids.find((r) => r.bid.id === y).leveled === 360000, 'Y confirms paint is in: $3,600.00, now the low bid');
+  t.undo();
+  ok(t.state.bids.find((b) => b.id === y).excl[0] === paint, 'one undo puts the left-out paint back');
+  Lv.updateBid(t, z, { amount: -5 });
+  ok(t.state.bids.find((b) => b.id === z).amount === 0 && (t.undo(), t.state.bids.find((b) => b.id === z).amount === 440000), 'a negative amount becomes 0; undo');
+  // the file
+  const json = JSON.parse(JSON.stringify(t.toJSON()));
+  ok(M.readProject(json).state.bids.length === 3 && JSON.stringify(M.readProject(json).state.bids) === JSON.stringify(t.state.bids), 'bids are saved with the takeoff and read back exactly');
+  const bad = M.readProject({ ...json, bids: [...json.bids, { id: 'v900', pkg: '9', bidder: 'x', amount: 1 }, { id: 'v901', pkg: '09', bidder: '', amount: 1 }, { id: 'v902', pkg: '09', bidder: 'Q', amount: 1.5, excl: ['nope', slab] }, { id: json.bids[0].id, pkg: '09', bidder: 'dup', amount: 1 }] });
+  ok(bad.state.bids.length === 4 && bad.state.bids[3].amount === 0 && bad.state.bids[3].excl.length === 0, 'a tampered file: a bad package, no bidder and a repeated id dropped; a fractional amount → 0, unknown or other-package items left out', bad.state.bids);
+  t.removeItem(paint);
+  ok(t.state.bids.every((b) => !b.excl.includes(paint)), 'deleting an item takes it out of every bid\'s left-out list');
+  t.undo();
+  // the workbook: a Bid leveling sheet, recalculated independently
+  const xf = path.join(tmp, 'leveling.xlsx');
+  fs.writeFileSync(xf, await E.estimateXlsx(t.state, () => 'A-101'));
+  try {
+    const py = fs.existsSync(path.join(TOOLS, 'venv/bin/python')) ? path.join(TOOLS, 'venv/bin/python') : 'python3';
+    const out = JSON.parse(execFileSync(py, [path.join(TOOLS, 'xlsx_check.py'), xf], { encoding: 'utf8' }));
+    ok(out.names[out.names.length - 1] === 'Bid leveling', 'the workbook ends with a Bid leveling sheet', out.names);
+    const sh = out.sheets['Bid leveling'], rc = out.recalcOther['Bid leveling'];
+    let mism = 0;
+    for (const [k, v] of Object.entries(rc)) if (Math.abs(v - sh.cached[k]) > 1e-9) mism++;
+    eq(mism, 0, `every leveling formula equals the independent recalculation (${Object.keys(rc).length} formulas)`);
+    eq(sh.cells.A1, '09 ' + E.divisionTitle('09'), 'the package heading');
+    eq(sh.cells.A3 + ' ' + rc.D3, 'Our estimate 4504', 'our estimate row: $4,504.00');
+    eq([rc.D4, rc.D5, rc.D6, rc.E4, rc.E5].join(), '4200,4600,4400,-304,96', 'leveled $4,200 / $4,600 / $4,400; against ours −$304 / +$96 (re-calculated)');
+    eq(sh.cells.F4 + '|' + sh.cells.G5 + '|' + sh.cells.G6, 'Low|Paint|Valid 30 days', 'the low bid marked; what Y left out; Z\'s note');
+  } catch (err) { ok(false, 'xlsx_check.py reads the leveling workbook', String(err.stderr || err.message).slice(0, 300)); }
+}
+
 section('Scales from the sheets\' text (T20)');
 {
   const St = await load('scaletext.js');
@@ -2587,7 +2771,7 @@ async function browserTest() {
       await T((q) => { const m = document.querySelector(q)?.closest('details'); if (m && !m.open) m.querySelector('summary').click(); }, sel);
       const [d] = await Promise.all([page.waitForEvent('download', { timeout: 20000 }), page.click(sel)]); const f = path.join(tmp, d.suggestedFilename()); await d.saveAs(f); return f;
     };
-    ok(await T(() => [...document.querySelectorAll('[data-export-menu] [role="menuitem"]')].map((b) => b.dataset.act).join() === 'export-xlsx,export-csv,export-materials,export-spots,export-pdf,export-embed,export-bid'), 'Export is one menu: XLSX, CSV, Material list (TK.4), Spot elevations (TK.5), Marked PDF, PDF with the takeoff inside (T10), Bid summary & proposal (T19)');
+    ok(await T(() => [...document.querySelectorAll('[data-export-menu] [role="menuitem"]')].map((b) => b.dataset.act).join() === 'export-xlsx,export-csv,export-materials,export-spots,export-pdf,export-embed,export-bid,export-level'), 'Export is one menu: XLSX, CSV, Material list (TK.4), Spot elevations (TK.5), Marked PDF, PDF with the takeoff inside (T10), Bid summary & proposal (T19), Bid packages and leveling (0.6 LC.13)');
     const fx = await dl('[data-act="export-xlsx"]');
     ok(fx.endsWith('.xlsx') && /No errors detected/.test(execFileSync('unzip', ['-t', fx], { encoding: 'utf8' })), 'XLSX downloads and unzips cleanly');
     const fc = await dl('[data-act="export-csv"]');

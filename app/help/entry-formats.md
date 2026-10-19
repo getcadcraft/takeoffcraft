@@ -42,6 +42,16 @@ Messages:
 
 To clear an item's height or depth, empty the field.
 
+### Arithmetic
+
+Every length field, and the type-in box while you draw, also takes a calculation with `+`, `-`, `*`, `/` and brackets:
+`4+7/16` (4.4375 in the default unit), `12'6" + 3/4"`, `(24'-0")/3` (8 feet), `2*450mm`.
+
+- A dash written into a length is still part of it: `24'-6"` is 24 feet 6 inches and `6-1/2` is 6½. Put spaces round a
+  dash to subtract: `24' - 6"` is 23'-6".
+- A plain number multiplies or divides a length as a number; added to a length it is in the default unit.
+- `abs`, `round`, `ceil` and `floor` work too. A calculation that cannot be read is refused with where it went wrong.
+
 ## How lengths are shown
 
 Lengths show as feet, inches and sixteenths: `12'-6 1/2"`, `0'-0 3/4"`. Values round to the nearest 1/16 inch for display; the quantities themselves are not rounded. Decimal values show with two decimals and thousands separators, like `1,234.50 LF`.

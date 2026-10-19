@@ -36,6 +36,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         ['act', 'export-pdf', 'file-earmark-pdf', 'tool.export-pdf', 'tool.export-pdf.title'],
         ['act', 'export-embed', 'file-earmark-zip', 'tool.export-embed', 'tool.export-embed.title'],
         ['act', 'export-bid', 'file-earmark-text', 'tool.export-bid', 'tool.export-bid.title'],
+        ['act', 'export-level', 'people', 'tool.export-level', 'tool.export-level.title'],
     ],
     'Scale' => [   // i18n-ignore: the group's key (data-tb-key); its name is Lang 'group.*'
         ['tool', 'calibrate', 'rulers', 'tool.calibrate', 'tool.calibrate.title'],
@@ -249,6 +250,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
             <option value="linear"><?= Lang::e('type.linear.long') ?></option>
             <option value="area"><?= Lang::e('type.area') ?></option>
             <option value="count"><?= Lang::e('type.count') ?></option>
+            <option value="fixed"><?= Lang::e('type.fixed.long') ?></option>
           </select>
           <button type="submit" class="btn-plot btn-sm-cc"><?= Lang::e('btn.add') ?></button>
         </div>

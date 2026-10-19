@@ -29,7 +29,8 @@ import * as U from './units.js';
 import * as G from './geom.js';
 import { parse, evaluate } from './formula.js';
 import { openPdf, sheetTitle, matchFiles } from './pdfset.js';
-import { estimateCsv, estimateXlsx, materialList, materialCsv, spotElevationsCsv } from './export.js';
+import { estimateCsv, estimateXlsx, materialList, materialCsv, spotElevationsCsv, divisionTitle } from './export.js';
+import { bidPackages, leveling, packageCsv, addBid, updateBid, removeBid } from './level.js';
 import { pdfWithMarks, cloudPath, NOTE_COLORS } from './pdfmarks.js';
 import { toInk, crop, trim, templateProblem, suppress, workScale, ANY_ANGLES } from './match.js';
 import { copyMarks, copyItems, readClip, scaleProblem, sizeProblem, pasteClip, measured } from './clipboard.js';
@@ -45,12 +46,13 @@ import { bidSummary, proposalPdf } from './bid.js';
 import { sheetScale, pageText } from './scaletext.js';
 import { roomAt } from './roomfill.js';
 import { embedTakeoff, readEmbedded } from './embed.js';
+import { isQuantities, readQuantities, importQuantities, originText } from './fixedqty.js';
 import { t } from './i18n.js';
 import { installAgents } from './agents.js';
 import { panButton, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: the menu style's wheel and pan buttons (input-takeoffcraft.js)
 import { startAddons, columnsNow } from './addons/takeoffcraft-api.js';
 
-const TYPE_ICONS = { linear: 'bezier2', area: 'pentagon', count: 'plus-circle' };
+const TYPE_ICONS = { linear: 'bezier2', area: 'pentagon', count: 'plus-circle', fixed: '123' };
 const HIT = 7;          // screen px for picking marks and handles
 const CLOSE = 9;        // screen px: clicking this near the first point closes an outline
 const FLAG_COLOR = '#FF7F0E';   // marks to check after a revision (T13)
@@ -339,6 +341,7 @@ function init(root) {
   async function openProject(file) {
     let json;
     try { json = JSON.parse(await file.text()); } catch { status(t('open.notjson', { file: file.name }), 10000); return; }
+    if (isQuantities(json)) { importQuantityFile(json, file.name); return; }     // TK.5+: quantities from another app join this takeoff
     if (!(await confirmDiscard('open', { file: file.name }))) return;
     const r = await loadProject(json);
     if (!r.ok) { status(r.error, 10000); return; }
@@ -348,6 +351,19 @@ function init(root) {
     for (const w of r.warnings) msg.push(w);
     status(msg.join(' '), 12000);
   }
+  /** A quantities file (fixedqty.js, e.g. CivilCraft's cut and fill): its items join the takeoff as typed quantities, one undo step. */
+  function importQuantityFile(json, name) {
+    const r = readQuantities(json);
+    if (!r.ok) { status(t('qty.in.failed', { file: name, error: r.error }), 12000); return; }
+    let o;
+    try { o = importQuantities(model, r); } catch (err) { status(err.message, 12000); return; }
+    const msg = [t('qty.in.done', { file: name, app: r.app, added: o.added, updated: o.updated, same: o.same })];
+    if (o.unitChanged.length) msg.push(t('qty.in.unit', { items: itemList(o.unitChanged) }));
+    if (r.skipped) msg.push(t('qty.in.skipped', { n: r.skipped }));
+    if (o.ids.length) setActive(o.ids[0], false);
+    status(msg.join(' '), 12000);
+  }
+
   /** Replace the takeoff with a parsed project (a file, or an autosaved copy); the open PDFs stay open. */
   async function loadProject(json) {
     const r = model.load(json);
@@ -441,6 +457,7 @@ function init(root) {
   }
 
   function renderSheetBar() {
+    renderToolbar();
     ui.sheetbar.hidden = !cur;
     ui.preset.disabled = !cur;
     if (!cur) return;
@@ -1459,8 +1476,10 @@ function init(root) {
     unit.addEventListener('change', () => commit({ unit: unit.value }, t('undo.item.unit')));
 
     const rows = [...fieldRow(t('item.f.name'), name), ...fieldRow(t('item.f.type'), type), ...fieldRow(t('item.f.color'), color), ...fieldRow(t('item.f.unit'), unit)];
-    rows.push(el('span', { className: 'k', id: 'tc-i-also-l' }, t('item.f.also')), condFields(it));
-    if (it.type !== 'count') {
+    const typed = it.type === 'fixed';
+    if (typed) rows.push(...fixedFields(it, commit, fail));                 // TK.5+: typed, not drawn
+    else rows.push(el('span', { className: 'k', id: 'tc-i-also-l' }, t('item.f.also')), condFields(it));
+    if (it.type !== 'count' && !typed) {
       const hv = it.heightFt ? (lu === 'm' ? U.fixed(it.heightFt * U.M_PER_FT, 3) + ' m' : U.formatFtIn(it.heightFt)) : '';
       const h = textInput('tc-i-height', 'height', hv, (v, n) => {
         if (!v.trim()) return commit({ heightFt: 0 }, t('undo.item.height'));
@@ -1471,8 +1490,8 @@ function init(root) {
       rows.push(...fieldRow(it.type === 'linear' ? t('item.f.height') : t('item.f.depth'), h));
     }
     if (it.type === 'area') rows.push(...backoutFields(it));
-    if (it.type !== 'count') rows.push(...pitchFields(it));
-    const shape = it.type !== 'count' ? el('div', { className: 'tc-props' }, shapeFields(it, lu, fail)) : null;
+    if (it.type !== 'count' && !typed) rows.push(...pitchFields(it));
+    const shape = it.type !== 'count' && !typed ? el('div', { className: 'tc-props' }, shapeFields(it, lu, fail)) : null;
     const waste = textInput('tc-i-waste', 'waste', U.percentInput(it.waste), (v, n) => { const r = U.parsePercent(v); if (!r.ok) return fail(n, r.error); commit({ waste: r.bp }, t('undo.item.waste')); }, { inputmode: 'decimal' });
     const mat = textInput('tc-i-mat', 'mat', U.rateInput(it.mat), (v, n) => { const r = U.parseRate(v); if (!r.ok) return fail(n, r.error); commit({ mat: r.rate4 }, t('undo.item.mat')); }, { inputmode: 'decimal' });
     const lab = textInput('tc-i-lab', 'lab', U.rateInput(it.lab), (v, n) => { const r = U.parseRate(v); if (!r.ok) return fail(n, r.error); commit({ lab: r.rate4 }, t('undo.item.lab')); }, { inputmode: 'decimal' });
@@ -1497,7 +1516,8 @@ function init(root) {
       if (it.heightFt > 0) out.push(...kv(t('item.m.wall'), U.fixed(v.A, 2) + ' ' + U.areaUnitOf(it.unit)));
     } else if (it.type === 'area') {
       out.push(...kv(t('item.m.area'), U.fixed(v.A, 2) + ' ' + U.UNITS[it.unit].label), ...kv(t('item.m.perimeter'), U.fixed(v.P, 2) + ' ' + lunit), ...kv(t('item.m.areas'), String(v.N)));
-    } else out.push(...kv(t('item.m.count'), String(v.N)));
+    } else if (typed) out[0].textContent = t('item.typed.sub');            // nothing measured: the quantity is the one typed above
+    else out.push(...kv(t('item.m.count'), String(v.N)));
     if (tq.unscaled) out.push(el('p', { className: 'tc-field-err' }, t('item.unscaled', { n: tq.unscaled })));
 
     // assembly
@@ -1505,7 +1525,7 @@ function init(root) {
       el('div', { className: 'tc-comps-head' }, el('h3', { className: 'tc-h' }, t('asm.h')),
         el('button', { type: 'button', className: 'tc-linkbtn', dataset: { compAdd: id }, onclick: () => { const c = model.addComponent(id, { name: t('comp.default'), unit: 'EA', formula: VARS[it.type][0] }); setTimeout(() => ui.itemProps.querySelector('[data-field="c:' + c + ':name"]')?.select(), 0); } }, icon('plus-lg'), ' ' + t('asm.add'))),
       el('p', { className: 'tc-vars' }, t('asm.vars.a'), ' ', VARS[it.type].flatMap((k, i) => [i ? ', ' : '', el('code', {}, k), ' ' + VAR_HELP[it.type][k]]), t('asm.vars.b'), ' ',
-        el('code', {}, it.type === 'linear' ? 'ceil(L / 1.333) + N' : it.type === 'area' ? 'ceil(A / 32 * 1.1)' : 'N * 2'), '.'),
+        el('code', {}, it.type === 'linear' ? 'ceil(L / 1.333) + N' : it.type === 'area' ? 'ceil(A / 32 * 1.1)' : typed ? 'Q * 1.25' : 'N * 2'), '.'),
       it.components.map((c) => compEditor(it, c, v)));
 
     const actions = el('div', { className: 'tc-actions' },
@@ -1515,6 +1535,26 @@ function init(root) {
       el('button', { type: 'button', className: 'tc-linkbtn', onclick: () => model.moveItem(id, 1) }, t('item.down')),
       el('button', { type: 'button', className: 'tc-linkbtn is-danger', onclick: () => deleteItem(it) }, t('item.delete')));
     ui.itemProps.replaceChildren(el('div', { className: 'tc-props' }, rows), ...(shape ? [shape] : []), el('div', { className: 'tc-props' }, out), comps, actions);
+  }
+
+  /** TK.5+: a typed quantity's own fields — the quantity, its bid area, and where it came from when it was imported. */
+  function fixedFields(it, commit, fail) {
+    const q = textInput('tc-i-qty', 'qty', it.qty ? String(+it.qty.toFixed(6)) : '0', (v, n) => {
+      const s2 = String(v).trim().replace(/,/g, '');
+      const x = /^\d*\.?\d+$/.test(s2) ? Number(s2) : NaN;
+      if (!(x >= 0 && x <= 1e12)) return fail(n, t('item.qty.err'));
+      commit({ qty: x }, t('undo.item.qty'));
+    }, { inputmode: 'decimal' });
+    const out = [...fieldRow(t('item.f.qty', { unit: U.UNITS[it.unit].label }), q)];
+    const areas = model.state.areas || [];
+    if (areas.length) {
+      const sel = el('select', { className: 'tc-select', id: 'tc-i-area', dataset: { field: 'area' } },
+        el('option', { value: '' }, t('area.none')), areas.map((a) => el('option', { value: a.id, selected: a.id === it.area }, a.name)));
+      sel.addEventListener('change', () => commit({ area: sel.value || undefined }, t('undo.item.area')));
+      out.push(...fieldRow(t('item.f.area'), sel));
+    }
+    out.push(el('span', { className: 'k' }), el('p', { className: 'tc-note', dataset: { itemOrigin: '' } }, it.origin ? originText(it.origin) : t('item.typed.note')));
+    return out;
   }
 
   /** T5: fields that only shape the 3D view — a wall's thickness, base height and opening head; an area's base height. */
@@ -1625,6 +1665,7 @@ function init(root) {
 
   // ---- the selected mark ----
   function renderMarkProps() {
+    renderToolbar();
     if (d3.on) d3.view?.setSelection(selIds());
     const m = app.sel && model.mark(app.sel);
     ui.markSec.hidden = !m;
@@ -2544,6 +2585,7 @@ function init(root) {
     'export-spots': exportSpots,
     'export-pdf': exportPdf,
     'export-bid': bidDialog,
+    'export-level': levelDialog,
     'export-embed': exportEmbed,
     undo: () => { endPaste(true); cancelDraft(); const l = model.undo(); status(l ? t('undo.did', { what: l }) : t('undo.nothing')); },
     redo: () => { endPaste(true); cancelDraft(); const l = model.redo(); status(l ? t('redo.did', { what: l }) : t('redo.nothing')); },
@@ -2683,7 +2725,7 @@ function init(root) {
       if (why) { status(why, 9000); return; }
       app.sel = model.addMark({ item: it.id, sheet: sheet.key, pts, kind: 'area', ...inArea() });
       const m = measureMark(model.mark(app.sel), sc.ftPerUnit, it);
-      status(t('room.done', { sf: U.fixed(m.areaSqft, 2), n: pts.length }), 9000);
+      status(t('room.done', { sf: U.fixed(m.areaSqft, 2), n: pts.length, mod: modKey }), 9000);
       renderMarkProps();
     } finally { roomBusy = false; }
   }
@@ -2947,6 +2989,65 @@ function init(root) {
       host.download(bytesOut, file, 'application/pdf');
       status(t('bid.pdf.done', { file, total: U.formatCents(bidSummary(est, model.bid(), alternates(model.state)).total) }), 9000);
     } catch (err) { status(t('bid.pdf.failed', { reason: err.message }), 12000); }
+  }
+
+  // ---- bid packages and leveling (0.6 LC.13, level.js): scope by trade out, subcontractors' bids side by side ----
+  async function levelDialog() {
+    if (!model.state.items.length) { status(t('bid.empty')); return; }
+    const title = (k) => (k ? divisionTitle(k) : t('csi.div.none'));
+    const msg = el('p', { className: 'tc-lib-msg', role: 'status', dataset: { lvlMsg: '' } });
+    const say = (s2) => { msg.textContent = s2; };
+    const cents = (v) => { const r = U.parseRate(v); return r.ok ? { ok: true, c: Math.round(r.rate4 / 100) } : r; };
+    const box = el('div', { className: 'tc-lvl', dataset: { lvl: '' } });
+    const draw = () => {
+      const e = baseEstimate(model.state), pkgs = bidPackages(model.state, e, { title });
+      const lv = new Map(leveling(model.state, e, { title }).map((p) => [p.pkg.key, p]));
+      box.replaceChildren(...pkgs.map((p) => {
+        const key = p.key || 'none', L = lv.get(p.key);
+        const csvBtn = el('button', { type: 'button', className: 'tc-linkbtn', dataset: { lvlCsv: key }, onclick: () => {
+          const file = t('pkg.csv.file', { name: safeName(model.state.name || 'Takeoff'), pkg: safeName((p.key ? p.key + ' ' : '') + p.title) }) + '.csv';
+          host.download(new Blob(['﻿' + packageCsv(p, sheetLabel)], { type: 'text/csv' }), file, 'text/csv');
+          say(t('pkg.csv.done', { file }));
+        } }, icon('filetype-csv'), ' ' + t('pkg.csv.btn'));
+        const rows = (L?.bids || []).map((r) => {
+          const b = r.bid;
+          const name = el('input', { type: 'text', className: 'tc-input', value: b.bidder, maxLength: 120, 'aria-label': t('lvl.head.bidder'), dataset: { lvlBidder: b.id } });
+          name.addEventListener('change', () => { if (!updateBid(model, b.id, { bidder: name.value })) name.value = b.bidder; draw(); });
+          const amt = el('input', { type: 'text', className: 'tc-input pct', inputmode: 'decimal', value: U.formatCents(b.amount), 'aria-label': t('lvl.head.bid'), dataset: { lvlAmount: b.id } });
+          amt.addEventListener('change', () => { const r2 = cents(amt.value); if (!r2.ok) { amt.classList.add('is-invalid'); say(r2.error); return; } updateBid(model, b.id, { amount: r2.c }); draw(); });
+          const left = el('details', { className: 'tc-lvl-left' }, el('summary', {}, b.excl.length ? t('lvl.left.n', { n: b.excl.length }) : t('lvl.left.none')),
+            ...p.items.map((x) => {
+              const cb = el('input', { type: 'checkbox', checked: b.excl.includes(x.itemId), dataset: { lvlLeft: b.id + ':' + x.itemId } });
+              cb.addEventListener('change', () => { updateBid(model, b.id, { excl: cb.checked ? [...b.excl, x.itemId] : b.excl.filter((i) => i !== x.itemId) }, t('undo.bid.left')); draw(); });
+              return el('label', { className: 'tc-check' }, cb, ' ' + x.name);
+            }));
+          return el('tr', { className: b.id === L.low ? 'is-low' : '', dataset: { lvlRow: b.id } }, el('td', {}, name), el('td', {}, amt), el('td', {}, left),
+            el('td', { className: 'num' }, U.formatCents(r.plug)), el('td', { className: 'num', dataset: { lvlLeveled: b.id } }, U.formatCents(r.leveled)),
+            el('td', { className: 'num' }, (r.diff >= 0 ? '+' : '−') + U.formatCents(Math.abs(r.diff))), el('td', {}, b.id === L.low ? t('lvl.low') : ''),
+            el('td', {}, el('button', { type: 'button', className: 'tc-linkbtn is-danger', 'aria-label': t('lvl.remove', { bidder: b.bidder }), onclick: () => { removeBid(model, b.id); draw(); } }, icon('x-lg'))));
+        });
+        const nb = el('input', { type: 'text', className: 'tc-input', placeholder: t('lvl.new.bidder'), maxLength: 120, dataset: { lvlNewBidder: key } });
+        const na = el('input', { type: 'text', className: 'tc-input pct', inputmode: 'decimal', placeholder: '$0.00', dataset: { lvlNewAmount: key } });
+        const add = el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { lvlAdd: key }, onclick: () => {
+          const r2 = cents(na.value);
+          if (!nb.value.trim()) { nb.focus(); say(t('lvl.err.bidder')); return; }
+          if (!r2.ok) { na.classList.add('is-invalid'); say(r2.error); return; }
+          addBid(model, { pkg: p.key, bidder: nb.value, amount: r2.c });
+          say(t('lvl.added', { bidder: nb.value.trim(), pkg: p.title }));
+          draw();
+        } }, t('lvl.add'));
+        return el('section', { className: 'tc-lvl-pkg', dataset: { lvlPkg: key } },
+          el('h3', { className: 'tc-h' }, (p.key ? p.key + ' ' : '') + p.title),
+          el('p', { className: 'tc-note' }, t('lvl.pkg.facts', { items: t('n.items', { n: p.items.length }), sheets: t('n.sheets', { n: p.sheets.length }), cost: U.formatCents(p.cost) }), ' ', csvBtn),
+          el('table', { className: 'tc-qty-table tc-lvl-table' },
+            el('thead', {}, el('tr', {}, ...['bidder', 'bid', 'left', 'plug', 'leveled', 'diff', 'low'].map((k) => el('th', { scope: 'col' }, t('lvl.head.' + k))), el('th', {}))),
+            el('tbody', {}, ...rows, el('tr', {}, el('td', {}, nb), el('td', {}, na), el('td', { colSpan: 6 }, add)))));
+      }));
+    };
+    draw();
+    const asked = ask(root, { title: t('lvl.h'), text: t('lvl.text'), body: el('div', {}, box, msg), buttons: [['cancel', t('btn.close'), 'btn-line']] });
+    root.querySelector('dialog.tc-dialog[open]')?.classList.add('is-wide');
+    await asked;
   }
 
   // ---- the assembly and price library (T9): per viewer, kept in this browser for every takeoff ----
@@ -3402,6 +3503,37 @@ function init(root) {
     leaving = true;
     setTimeout(() => location.assign(url.href), model.dirty ? 0 : 800);
   });
+
+  // =========================================================================
+  // Toolbar availability: a button that cannot do anything right now is greyed out
+
+  const NEEDS_SHEET = new Set(['fit-page', 'fit-width', 'arc', 'deduct', 'select-all', 'paste', 'paste-in-place']);
+  const NEEDS_SELECTION = new Set(['copy', 'cut', 'duplicate', 'delete', 'select-none']);
+  const NEEDS_PDF = new Set(['export-pdf', 'export-embed']);
+  const NEEDS_WORK = new Set(['save-project', 'export-xlsx', 'export-csv', 'export-materials', 'export-spots', 'export-bid', 'export-level']);
+  const exportSummary = root.querySelector('[data-export-menu] > summary');
+  function renderToolbar() {
+    const st = model.state;
+    const hasPdf = files.length > 0;
+    const hasWork = hasPdf || st.items.length > 0;
+    const hasSel = !!app.sel || selMore.size > 0;
+    for (const b of root.querySelectorAll('[data-act]')) {
+      const a = b.dataset.act;
+      if (a === 'new-takeoff') b.disabled = !(hasWork || st.marks.length || model.dirty);
+      else if (NEEDS_SHEET.has(a)) b.disabled = !cur;
+      else if (NEEDS_SELECTION.has(a)) b.disabled = !hasSel;
+      else if (NEEDS_PDF.has(a)) b.disabled = !hasPdf;
+      else if (NEEDS_WORK.has(a)) b.disabled = !hasWork;
+    }
+    for (const b of root.querySelectorAll('button[data-tool]')) if (b.dataset.tool !== 'select') b.disabled = !cur;
+    if (exportSummary) {
+      const off = !hasWork;
+      exportSummary.setAttribute('aria-disabled', String(off));
+      exportSummary.tabIndex = off ? -1 : 0;
+      if (off) exportSummary.parentElement.open = false;
+    }
+  }
+  renderToolbar();
 
   // =========================================================================
   // Refresh on every change

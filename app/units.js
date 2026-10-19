@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 import { t } from './i18n.js';
+import { calc, hasArithmetic } from './lencalc.js';   // 0.6 DF.3: + - * / and brackets (a copy: tools/lencalc/sync.mjs)
 /**
  * units.js — lengths, scales and money for TakeoffCraft. DOM-free (tested in Node).
  *
@@ -28,6 +29,8 @@ const WORDS = [
  * Parse a typed distance into feet.
  *   24'-0"  12' 6 1/2"  12'-6-1/2"  6 1/2"  3/4"  24.5'  24.5 (→ defaultUnit)  24 ft 6 in
  *   3.2 m   3200 mm   320 cm
+ * and arithmetic over those (0.6 DF.3, lencalc.js): 4+7/16, 12'6" + 3/4", (24'-0")/3, 2*450mm; spaces round a dash
+ * subtract (24' - 6" = 23'-6"), a dash written into a length is its own (24'-6", 6-1/2").
  * Returns { ok: true, ft } or { ok: false, error }. Negative and zero values are refused.
  */
 export function parseLength(text, { defaultUnit = 'ft' } = {}) {
@@ -36,6 +39,17 @@ export function parseLength(text, { defaultUnit = 'ft' } = {}) {
   s = s.replace(/[′’‘`]/g, "'").replace(/[″“”]/g, '"').replace(/''/g, '"').replace(/[−–—]/g, '-').replace(/,/g, '');
   for (const [re, to] of WORDS) s = s.replace(re, to);
   s = s.replace(/\s+/g, ' ').trim();
+  if (hasArithmetic(s)) {
+    // a bare number is plain (a factor) until it is used as a length: then it is in the default unit (plain: its feet)
+    const r = calc(s, (x) => { const bare = /^[\d.\s/-]+$/.test(x), one = parseOne(x, bare ? 'ft' : defaultUnit); return one.ok ? { value: one.ft, unit: !bare } : null; }, { plain: toFt(1, defaultUnit) });
+    if (!r.ok) return { ok: false, error: t('calc.err.' + r.code, { pos: r.pos + 1, text: r.text }) };
+    return positive(r.value);
+  }
+  return parseOne(s, defaultUnit);
+}
+
+/** One length, already normalized (lower case, marks for the words): → { ok, ft } | { ok: false, error }. */
+function parseOne(s, defaultUnit) {
   if (s.startsWith('-')) return { ok: false, error: t('len.err.positive') };
 
   // metric: one number and a unit
@@ -189,9 +203,14 @@ export const UNITS = {
   SY:   { kind: 'area', label: 'SY', get name() { return t('unit.sy.name'); }, perSqFt: 1 / 9, system: 'imperial' },
   'm²': { kind: 'area', label: 'm²', get name() { return t('unit.m2.name'); }, perSqFt: SQM_PER_SQFT, system: 'metric' },
   EA:   { kind: 'count', label: 'EA', get name() { return t('unit.ea.name'); }, system: 'any' },
+  // typed quantities only (0.6 TK.5+): a lump sum, and volumes (CivilCraft's cut and fill arrive in these)
+  LS:   { kind: 'fixed', label: 'LS', get name() { return t('unit.ls.name'); }, system: 'any' },
+  CY:   { kind: 'fixed', label: 'CY', get name() { return t('unit.cy.name'); }, system: 'imperial' },
+  'm³': { kind: 'fixed', label: 'm³', get name() { return t('unit.m3.name'); }, system: 'metric' },
 };
-export const UNITS_FOR = { linear: ['LF', 'm'], area: ['SF', 'SY', 'm²'], count: ['EA'] };
-export const DEFAULT_UNIT = { linear: 'LF', area: 'SF', count: 'EA' };
+/** A typed quantity (0.6 TK.5+) may be in any unit: it is typed or imported, never measured. */
+export const UNITS_FOR = { linear: ['LF', 'm'], area: ['SF', 'SY', 'm²'], count: ['EA'], fixed: ['LS', 'EA', 'CY', 'm³', 'LF', 'm', 'SF', 'SY', 'm²'] };
+export const DEFAULT_UNIT = { linear: 'LF', area: 'SF', count: 'EA', fixed: 'LS' };
 
 /** The length unit that goes with an item unit (for P, L and H): LF/SF/SY → ft, m/m² → m. */
 export function lengthUnitOf(unit) { return UNITS[unit]?.system === 'metric' ? 'm' : 'ft'; }

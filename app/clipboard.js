@@ -199,7 +199,10 @@ export function pasteClip(model, clip, { sheet = null, dx = 0, dy = 0, label = '
       if (target) { map.set(ci.id, target.id); out.reused.push(target.id); continue; }
       if (s.items.length >= LIMITS.items) throw new Error(t('err.items.many'));
       const id = model.nextId('i');
-      s.items.push(normalItem({ ...clone(ci), id, name: freeName(ci.name, s.items), components: ci.components.map((c) => ({ ...clone(c), id: model.nextId('c') })) }));
+      const ni = normalItem({ ...clone(ci), id, name: freeName(ci.name, s.items), components: ci.components.map((c) => ({ ...clone(c), id: model.nextId('c') })) });
+      if (ni.area && !(s.areas || []).some((a) => a.id === ni.area)) delete ni.area;    // a typed quantity's bid area (TK.5+) only if it is here
+      delete ni.origin;                                                                   // a copy is not the imported quantity: a re-import updates the original
+      s.items.push(ni);
       map.set(ci.id, id);
       out.items.push(id);
     }

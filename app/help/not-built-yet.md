@@ -64,6 +64,14 @@ TakeoffCraft is in development. This list is what the current build does not do,
 | Lining up stacked floors plotted at different places on their pages | Stack floors plotted alike; check the others one sheet at a time. |
 | Count posts sized like the counted object | Every post on a sheet is the same size; it marks where a count is, not what it is. |
 
+## Bidding
+
+| Not built yet | Instead, today |
+|---|---|
+| Sending invitations to bid, collecting bidders' prices through a form, reminders and addenda | Email the [scope CSV](topic:bid-leveling) yourself and type the bids in. |
+| Using the chosen subcontractor's bid as the package's price in the estimate | Make a [typed quantity](topic:create-items#typed-quantities-no-drawing) for the bid and set the package's own items' rates to zero, or keep the leveling as a report. |
+| Subcontractor records: contacts, trades, qualification answers, insurance and license dates | Keep them in your own list. |
+
 ## Panels
 
 | Not built yet | Instead, today |

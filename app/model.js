@@ -12,6 +12,8 @@
  *              backout (area items: its marks are back-outs, T14), backoutOf [area item ids it deducts from],
  *              pitch (rise per 12: area items' surface, linear items' rakes and hips — T15), slope (linear: 'rake' | 'hip'),
  *              csi (a CSI MasterFormat number, "09 21 16": groups the estimate by division — 0.5 TK.4),
+ *              type 'fixed' only (0.6 TK.5+): qty (typed, in its unit), area (a bid area id), origin { app, project, key, at }
+ *              (where an imported quantity came from: a later import of the same key updates it instead of adding another),
  *              3D only (T5): thickFt (linear: wall thickness), baseFt (linear, area: height above the floor), headFt (linear: an
  *              opening's head — a deducted segment keeps the wall above it) }]
  *   marks   [{ id, item, sheet, kind, pts: [{x,y}], holes: [[{x,y}]], …extras }]   PDF user space
@@ -28,6 +30,7 @@
  *   groups  [{ id, name, repeat }]   typical groups (T16): a unit taken off once and counted `repeat` times
  *   notes   [{ id, sheet, kind: 'note' | 'cloud' | 'highlight', pts, text, status: 'open' | 'answered' | 'closed' }]   markups
  *           (T22): a note pins a point, a cloud or a highlight spans two corners; never counted, drawn in the marked PDF
+ *   bids    [{ id, pkg, bidder, amount (cents), excl: [item ids], note }]   subcontractor bids by package, for leveling (0.6 LC.13, level.js)
  *   bid     { burden (labor burden, TK.4), tax, overhead, profit, bond (basis points), to, project, by, incl, excl, terms, items }   the bid summary and
  *           proposal (T19, bid.js)
  *
@@ -38,22 +41,29 @@
 import { cleanAddonData } from './addons.js';
 import { segmentLengths, areaWithHoles, isConvex, overlapArea, bounds } from './geom.js';
 import { normalBid, bidUsed } from './bid.js';
+import { cleanBids } from './level.js';
 import { UNITS, UNITS_FOR, DEFAULT_UNIT, lengthUnitOf, areaUnitOf, ftTo, sqftTo, withWaste, extendCents, MAX_PITCH, slopeFactor, hipFactor, roundTo } from './units.js';
 import { parse, evaluate } from './formula.js';
 import { t } from './i18n.js';
 
 export const FORMAT = 'takeoffcraft-project';
 export const FORMAT_VERSION = 1;
-export const TYPES = ['linear', 'area', 'count'];
+/**
+ * Item types. `fixed` (0.6 TK.5+) is a typed quantity: a lump sum, an allowance or a number that came from elsewhere (CivilCraft's
+ * cut and fill, fixedqty.js) — it takes no marks; its quantity is `qty` in its unit, and `area` may put it in one bid area.
+ */
+export const TYPES = ['linear', 'area', 'count', 'fixed'];
+/** The kinds a mark can be (every type but `fixed`). */
+export const MARK_KINDS = ['linear', 'area', 'count'];
 /** Item type names (from the language file, read when used). */
-export const TYPE_LABELS = { get linear() { return t('type.linear'); }, get area() { return t('type.area'); }, get count() { return t('type.count'); } };
+export const TYPE_LABELS = { get linear() { return t('type.linear'); }, get area() { return t('type.area'); }, get count() { return t('type.count'); }, get fixed() { return t('type.fixed'); } };
 export const PALETTE = ['#D62728', '#1F77B4', '#2CA02C', '#FF7F0E', '#9467BD', '#8C564B', '#E377C2', '#17BECF', '#BCBD22', '#5A5A5A'];
-export const LIMITS = { items: 2000, marks: 200000, points: 5000, holes: 200, components: 50, name: 200, formula: 500, areas: 200, groups: 500, repeat: 10000, notes: 5000, noteText: 2000 };
+export const LIMITS = { items: 2000, marks: 200000, points: 5000, holes: 200, components: 50, name: 200, formula: 500, areas: 200, groups: 500, repeat: 10000, notes: 5000, noteText: 2000, qty: 1e12 };
 
 /** Variables a component formula may use, by item type. */
-export const VARS = { linear: ['L', 'H', 'A', 'N'], area: ['A', 'P', 'H', 'N'], count: ['N'] };
+export const VARS = { linear: ['L', 'H', 'A', 'N'], area: ['A', 'P', 'H', 'N'], count: ['N'], fixed: ['Q'] };
 const varHelp = (type, names) => Object.defineProperties({}, Object.fromEntries(names.map((k) => [k, { enumerable: true, get: () => t('var.' + type + '.' + k.toLowerCase()) }])));
-export const VAR_HELP = { linear: varHelp('linear', VARS.linear), area: varHelp('area', VARS.area), count: varHelp('count', VARS.count) };
+export const VAR_HELP = { linear: varHelp('linear', VARS.linear), area: varHelp('area', VARS.area), count: varHelp('count', VARS.count), fixed: varHelp('fixed', VARS.fixed) };
 
 /**
  * Multi-condition items (T8): an item measured with more than one kind of mark. `type` is its main condition (unit,
@@ -63,9 +73,9 @@ export const VAR_HELP = { linear: varHelp('linear', VARS.linear), area: varHelp(
  */
 /** The unit an item measures marks of `kind` in: its own, or that condition's. */
 export const unitOf = (it, kind) => (kind === it.type ? it.unit : it.conds?.find((c) => c.kind === kind)?.unit || DEFAULT_UNIT[kind]);
-export const kindsOf = (it) => (it ? [it.type, ...(it.conds || []).map((c) => c.kind)] : []);
+export const kindsOf = (it) => (it && it.type !== 'fixed' ? [it.type, ...(it.conds || []).map((c) => c.kind)] : []);
 export function normalCond(f, type) {
-  const kind = TYPES.includes(f?.kind) && f.kind !== type ? f.kind : null;
+  const kind = type !== 'fixed' && MARK_KINDS.includes(f?.kind) && f.kind !== type ? f.kind : null;
   if (!kind) return null;
   return { kind, unit: UNITS_FOR[kind].includes(f.unit) ? f.unit : DEFAULT_UNIT[kind], waste: int(f.waste, 0, 100000), mat: int(f.mat, 0, 1e13), lab: int(f.lab, 0, 1e13) };
 }
@@ -296,7 +306,8 @@ export class Takeoff {
       const kinds = new Set(kindsOf(next));
       if (next.type !== it.type && s.marks.some((m) => m.item === id && m.kind === it.type)) throw new Error(t('err.item.type'));
       if (s.marks.some((m) => m.item === id && !kinds.has(m.kind))) throw new Error(t('err.item.cond'));
-      for (const k of ['backout', 'backoutOf', 'pitch', 'slope', 'thickFt', 'baseFt', 'headFt', 'conds', 'crew', 'xd', 'csi']) if (!(k in next)) delete it[k];     // turned off: the fields go
+      if (next.type === 'fixed' && next.area && !(s.areas || []).some((a) => a.id === next.area)) delete next.area;
+      for (const k of ['backout', 'backoutOf', 'pitch', 'slope', 'thickFt', 'baseFt', 'headFt', 'conds', 'crew', 'xd', 'csi', 'qty', 'area', 'origin']) if (!(k in next)) delete it[k];     // turned off: the fields go
       Object.assign(it, next);
     });
   }
@@ -320,6 +331,7 @@ export class Takeoff {
       s.items = s.items.filter((i) => i.id !== id);
       if (s.items.length === n) return false;
       s.marks = s.marks.filter((m) => m.item !== id);
+      for (const b of s.bids || []) b.excl = b.excl.filter((x) => x !== id);   // LC.13: a bid can't leave out an item that's gone
     });
   }
   moveItem(id, dir) {
@@ -544,13 +556,14 @@ export class Takeoff {
       if (v) a.alt = v; else delete a.alt;
     });
   }
-  /** Remove a bid area: its marks stay, in no bid area. */
+  /** Remove a bid area: its marks (and typed quantities) stay, in no bid area. */
   removeArea(id) {
     return this.change(t('undo.area.delete'), (s) => {
       const n = (s.areas || []).length;
       s.areas = (s.areas || []).filter((a) => a.id !== id);
       if (s.areas.length === n) return false;
       for (const m of s.marks) if (m.area === id) delete m.area;
+      for (const it of s.items) if (it.area === id) delete it.area;
     });
   }
   moveArea(id, dir) {
@@ -620,6 +633,7 @@ export class Takeoff {
       ...(bidUsed(s.bid) ? { bid: normalBid(s.bid) } : {}),
       ...(s.notes?.length ? { notes: s.notes.map((n) => ({ id: n.id, sheet: n.sheet, kind: n.kind, pts: n.pts.map((p) => [p.x, p.y]), text: n.text, status: n.status })) } : {}),
       ...(s.groups?.length ? { groups: s.groups.map((g) => ({ id: g.id, name: g.name, repeat: g.repeat })) } : {}),
+      ...(s.bids?.length ? { bids: s.bids.map((b) => ({ ...b, excl: b.excl.slice() })) } : {}),
       items: s.items,
       marks: s.marks.map((m) => ({ id: m.id, item: m.item, sheet: m.sheet, kind: m.kind, pts: m.pts.map(arr), ...(m.holes?.length ? { holes: m.holes.map((h) => h.map(arr)) } : {}), ...markExtras(m) })),
     };
@@ -671,7 +685,22 @@ export function normalItem(f) {
     ...(cleanAddonData(f.xd) ? { xd: cleanAddonData(f.xd) } : {}),   // add-ons' own data on the item (0.5 AO.6); kept without the add-on
     ...(csiOk(f.csi) ? { csi: f.csi } : {}),                          // a CSI MasterFormat number (0.5 TK.4: the estimate by division)
     ...(type === 'area' && f.backout === true ? { backout: true, backoutOf: [...new Set((Array.isArray(f.backoutOf) ? f.backoutOf : []).filter((x) => typeof x === 'string' && x !== String(f.id)).slice(0, LIMITS.items))] } : {}),
+    ...(type === 'fixed' ? fixedFields(f) : {}),
   };
+}
+/** A typed quantity's own fields (0.6 TK.5+): qty ≥ 0, a bid area id, where it came from. */
+function fixedFields(f) {
+  const o = { qty: typeof f.qty === 'number' && Number.isFinite(f.qty) && f.qty >= 0 && f.qty <= LIMITS.qty ? f.qty : 0 };
+  if (typeof f.area === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(f.area)) o.area = f.area;
+  const g = cleanOrigin(f.origin);
+  if (g) o.origin = g;
+  return o;
+}
+/** Where an imported quantity came from: { app, project, key, at } (key: what the other app calls it, e.g. "earthwork:cut"). */
+export function cleanOrigin(g) {
+  if (!g || typeof g !== 'object' || typeof g.key !== 'string' || !/^[a-z0-9][a-z0-9:._-]{0,79}$/i.test(g.key)) return null;
+  const at = typeof g.at === 'string' && /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/.test(g.at) && g.at.length <= 40 ? g.at : null;
+  return { app: str(g.app, 40) || '?', project: str(g.project), key: g.key, ...(at ? { at } : {}) };
 }
 function conds(list, type) {
   const out = [];
@@ -732,6 +761,8 @@ export function readProject(json) {
     if (!a || typeof a.id !== 'string' || !/^[A-Za-z0-9_-]{1,40}$/.test(a.id) || state.areas.some((x) => x.id === a.id) || !str(a.name)) continue;
     state.areas.push({ id: a.id, name: str(a.name), ...(a.alt === 'add' || a.alt === 'deduct' ? { alt: a.alt } : {}) });
   }
+  const aids = areaIds(state);
+  for (const it of state.items) if (it.area && !aids.has(it.area)) delete it.area;      // a typed quantity's bid area must exist
   if (json.bid && typeof json.bid === 'object') state.bid = normalBid(json.bid);
   const nids = new Set();
   for (const raw of Array.isArray(json.notes) ? json.notes.slice(0, LIMITS.notes) : []) {
@@ -743,6 +774,8 @@ export function readProject(json) {
     if (!g || typeof g.id !== 'string' || !/^[A-Za-z0-9_-]{1,40}$/.test(g.id) || (state.groups ??= []).some((x) => x.id === g.id) || !str(g.name)) continue;
     state.groups.push({ id: g.id, name: str(g.name), repeat: repeatOk(g.repeat) ? g.repeat : 1 });
   }
+  const bids = cleanBids(json.bids, new Map(state.items.map((i) => [i.id, i])));   // 0.6 LC.13
+  if (bids.length) state.bids = bids;
   const types = new Map(state.items.map((i) => [i.id, i.type]));
   const kinds = new Map(state.items.map((i) => [i.id, kindsOf(i)]));
   for (const it of state.items) if (it.backout) it.backoutOf = it.backoutOf.filter((id) => types.get(id) === 'area' && !state.items.find((x) => x.id === id)?.backout);
@@ -760,7 +793,7 @@ export function readProject(json) {
   }
   if (dropped) warnings.push(t('file.warn.dropped', { n: dropped }));
   // keep ids unique going forward
-  const maxN = Math.max(0, ...[...ids, ...mids, ...state.areas.map((a) => a.id), ...(state.groups || []).map((g) => g.id), ...(state.notes || []).map((n) => n.id), ...state.items.flatMap((i) => i.components.map((c) => c.id))].map((id) => parseInt(String(id).slice(1), 10) || 0));
+  const maxN = Math.max(0, ...[...ids, ...mids, ...state.areas.map((a) => a.id), ...(state.groups || []).map((g) => g.id), ...(state.notes || []).map((n) => n.id), ...(state.bids || []).map((b) => b.id), ...state.items.flatMap((i) => i.components.map((c) => c.id))].map((id) => parseInt(String(id).slice(1), 10) || 0));
   state.seq = Math.max(state.seq, maxN);
   return { ok: true, state, warnings };
 }
@@ -805,7 +838,14 @@ export function segSlope(m, it, i) {
  */
 export function quantities(state, { area, exclude } = {}) {
   const out = new Map();
-  for (const it of state.items) out.set(it.id, { item: it, lengthFt: 0, areaSqft: 0, perimeterFt: 0, count: 0, marks: 0, unscaled: 0, backoutSqft: 0, bySheet: new Map() });
+  for (const it of state.items) {
+    const q = { item: it, lengthFt: 0, areaSqft: 0, perimeterFt: 0, count: 0, marks: 0, unscaled: 0, backoutSqft: 0, bySheet: new Map() };
+    if (it.type === 'fixed') {                             // a typed quantity (TK.5+): in its bid area like a mark would be
+      const a = it.area || null;
+      q.fixed = (area !== undefined && a !== area) || (exclude && a && exclude.has(a)) ? 0 : it.qty || 0;
+    }
+    out.set(it.id, q);
+  }
   const bo = backouts(state);
   const rep = new Map((state.groups || []).map((g) => [g.id, g.repeat]));
   for (const m of state.marks) {
@@ -881,6 +921,7 @@ export function itemVars(it, t) {
     return { L: ftTo(t.lengthFt, lu), H: ftTo(it.heightFt, lu), A: sqftTo(t.lengthFt * it.heightFt, areaUnitOf(it.unit)), N: t.count };
   }
   if (it.type === 'area') return { A: sqftTo(t.areaSqft, it.unit), P: ftTo(t.perimeterFt, lu), H: ftTo(it.heightFt, lu), N: t.count };
+  if (it.type === 'fixed') return { Q: t.fixed ?? it.qty ?? 0 };
   return { N: t.count };
 }
 /** A second condition's quantity (T8) in its unit, from its totals ({ lengthFt, areaSqft, count } or none). */
@@ -891,7 +932,7 @@ export function condQty(c, t) {
 /** The item's own quantity in its unit. */
 export function itemQty(it, t) {
   const v = itemVars(it, t);
-  return it.type === 'linear' ? v.L : it.type === 'area' ? v.A : v.N;
+  return it.type === 'linear' ? v.L : it.type === 'area' ? v.A : it.type === 'fixed' ? v.Q : v.N;
 }
 
 /**
@@ -913,6 +954,7 @@ export function estimate(state, q = quantities(state)) {
     if (t.backoutSqft > 0) row.backout = { value: sqftTo(t.backoutSqft, it.unit), unit: UNITS[it.unit].label };
     if (it.type === 'linear' && it.heightFt > 0) row.wallArea = { value: vars.A, unit: areaUnitOf(it.unit) };
     if (it.type === 'area') row.perimeter = { value: vars.P, unit: lengthUnitOf(it.unit) === 'm' ? 'm' : 'LF' };
+    if (it.type === 'fixed' && it.origin) row.origin = it.origin;
     unscaled += t.unscaled;
     rows.push(row);
     mat += row.matExt; lab += row.labExt;
@@ -948,6 +990,7 @@ export function estimate(state, q = quantities(state)) {
 export function areaEstimates(state) {
   const out = [];
   const used = new Set(state.marks.map((m) => m.area || null));
+  for (const it of state.items) if (it.type === 'fixed' && it.qty > 0) used.add(it.area || null);   // typed quantities (TK.5+) too
   for (const a of state.areas || []) if (used.has(a.id)) out.push({ area: a, est: estimate(state, quantities(state, { area: a.id })) });
   if (used.has(null) && (state.areas || []).length) out.push({ area: null, est: estimate(state, quantities(state, { area: null })) });
   return out;
@@ -972,7 +1015,7 @@ export function alternates(state) {
   for (const a of state.areas || []) {
     if (!a.alt) continue;
     const est = estimate(state, quantities(state, { area: a.id }));
-    const live = new Set(est.rows.filter((r) => (r.kind === 'item' || r.kind === 'condition') && r.marks > 0).map((r) => r.itemId));
+    const live = new Set(est.rows.filter((r) => (r.kind === 'item' || r.kind === 'condition') && (r.marks > 0 || (r.type === 'fixed' && r.qty > 0))).map((r) => r.itemId));
     const rows = est.rows.filter((r) => live.has(r.itemId));
     const total = rows.reduce((n, r) => n + (r.error ? 0 : r.total), 0);
     out.push({ area: a, alt: a.alt, est: { ...est, rows, total, matTotal: rows.reduce((n, r) => n + (r.error ? 0 : r.matExt), 0), labTotal: rows.reduce((n, r) => n + (r.error ? 0 : r.labExt), 0) }, amount: a.alt === 'add' ? total : -total });
