@@ -182,7 +182,7 @@ tr.is-alt td { font-style: italic; }
 .tc-check input { accent-color: var(--action); }
 .tc-progress { flex: 1 1 10rem; height: .6rem; accent-color: var(--action); }
 .tc-sheetbar {
-  position: absolute; z-index: 2; left: .5rem; top: .5rem; display: flex; gap: .75rem; align-items: baseline; max-width: calc(100% - 1rem);
+  position: absolute; z-index: 2; left: .5rem; top: .5rem; display: flex; flex-wrap: wrap; gap: .25rem .75rem; align-items: baseline; max-width: calc(100% - 1rem);
   padding: .2rem .6rem; font-size: .8125rem; background: var(--sheet-2); border: var(--pen-1) solid var(--line); border-radius: var(--radius);
 }
 .tc-sheetbar-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -400,6 +400,17 @@ tr.is-alt td { font-style: italic; }
 .tc-lvl-table tr.is-low td { font-weight: 600; }
 .tc-lvl-left summary { cursor: pointer; white-space: nowrap; }
 .tc-lvl-left .tc-check { display: block; font-size: .8125rem; }
+/* 0.7 LC.13 B4: the Send for bids dialog */
+.tc-dialog.is-wide:has(.tc-bids) { width: min(44rem, calc(100vw - 2rem)); }
+.tc-bids { display: grid; gap: .6rem; max-height: 65vh; overflow: auto; }
+.tc-bids .tc-field { display: grid; gap: .15rem; }
+.tc-bids .tc-label { display: grid; gap: .2rem; font-weight: 600; }
+.tc-bids .tc-input { width: 100%; font-weight: 400; }
+.tc-bids-conn { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.tc-bids-sub { border-top: var(--pen-1) solid var(--line); padding: .3rem 0; }
+.tc-bids-sub .tc-check { font-weight: 400; font-size: .8125rem; }
+.tc-lvl-table td [data-lvl-web] { white-space: nowrap; }
+.tc-lvl-table button.is-on { font-weight: 700; border-color: var(--ink); }
 .tc-bid-sum { width: 100%; border-collapse: collapse; font-size: .875rem; font-variant-numeric: tabular-nums; }
 .tc-bid-sum td { padding: .2rem .4rem; border-bottom: 1px solid var(--line); }
 .tc-bid-sum td:last-child { text-align: right; }
@@ -434,3 +445,79 @@ html.cc-compact .tc-preset-label { position: absolute; width: 1px; height: 1px; 
 html.cc-compact .tc-preset .tc-select { width: 7rem; }
 html.cc-compact .tc-sheetbar .tc-3d-toggle { font-size: .75rem; min-height: 2.5rem; white-space: nowrap; }
 html.cc-compact .tc-sheetbar-name, html.cc-compact .tc-sheetbar-scale { font-size: .75rem; white-space: nowrap; }
+
+/* count from the drawing (0.7 TD.3) */
+.tc-dialog:has(.tc-cc) { width: min(40rem, calc(100vw - 2rem)); }
+.tc-cc { display: grid; gap: .6rem; }
+.tc-cc-scope { display: grid; gap: .15rem; }
+.tc-cc-opt { display: flex; align-items: baseline; gap: .45rem; font-size: .875rem; font-weight: 400; cursor: pointer; }
+.tc-cc-tabs { display: flex; gap: .25rem; border-bottom: var(--pen-1) solid var(--line); }
+.tc-cc-tab { padding: .3rem .7rem; border: 1px solid transparent; border-bottom: 0; border-radius: 4px 4px 0 0; background: none; color: var(--ink-2); font: inherit; font-size: .875rem; cursor: pointer; }
+.tc-cc-tab[aria-selected="true"] { color: var(--ink); background: var(--sheet); border-color: var(--line); font-weight: 600; }
+.tc-cc-panel { display: grid; gap: .5rem; }
+.tc-cc-search, .tc-cc-text, .tc-cc-newname { width: 100%; }
+.tc-cc-list { list-style: none; margin: 0; padding: 0; max-height: 14rem; overflow: auto; border: 1px solid var(--line); border-radius: 4px; }
+.tc-cc-list > li { border-bottom: 1px solid var(--line); padding: .25rem .5rem; }
+.tc-cc-list > li:last-child { border-bottom: 0; }
+.tc-cc-list > li.is-on { background: var(--sheet); }
+.tc-cc-list .tc-cc-opt { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; gap: .5rem; align-items: baseline; }
+.tc-cc-name { font-weight: 600; overflow-wrap: anywhere; }
+.tc-cc-n { font-variant-numeric: tabular-nums; text-align: right; }
+.tc-cc-sub, .tc-cc-tag, .tc-cc-more { color: var(--ink-2); font-size: .8125rem; }
+.tc-cc-variants { list-style: none; margin: .2rem 0 .1rem 1.6rem; padding: 0; display: grid; gap: .1rem; }
+.tc-cc-variants .tc-cc-opt { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; }
+.tc-cc-opts { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: end; }
+.tc-cc-field { display: grid; gap: .15rem; font-size: .8125rem; font-weight: 600; }
+.tc-cc-chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+.tc-cc-chip { padding: .1rem .5rem; border: 1px solid var(--line); border-radius: 1rem; background: none; color: var(--ink); font: inherit; font-size: .8125rem; cursor: pointer; }
+.tc-cc-chip:hover { background: var(--sheet); }
+.tc-cc-notes { list-style: none; margin: 0; padding: 0; display: grid; gap: .2rem; font-size: .8125rem; }
+.tc-cc-notes .is-warn { color: var(--layer-red); }
+.tc-cc-result { margin: 0; font-weight: 600; }
+.tc-cc-target { display: grid; gap: .35rem; }
+
+/* a drawing's layers (0.7 TD.5) */
+.tc-layers-menu > .tc-menu-list { right: 0; left: auto; min-width: 20rem; max-height: 60vh; overflow: auto; }
+.tc-layers-actions { display: flex; gap: .4rem; padding: .35rem .5rem; }
+.tc-layers-note { margin: 0; padding: 0 .6rem .35rem; font-size: .8125rem; color: var(--ink-2); }
+.tc-layers-list { list-style: none; margin: 0; padding: 0; }
+.tc-layers-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto auto; gap: .5rem; align-items: center; padding: .2rem .6rem; font-size: .875rem; font-weight: 400; cursor: pointer; }
+.tc-layers-row:hover { background: var(--sheet); }
+.tc-layers-sw { width: .75rem; height: .75rem; border: 1px solid var(--line); border-radius: 2px; }
+.tc-layers-name { overflow-wrap: anywhere; }
+.tc-layers-state, .tc-layers-n { color: var(--ink-2); font-size: .8125rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* ---- 0.7 WS.11: the workspace layouts (Settings › Global › Layout; the shell's engine + workspace-takeoffcraft.js) ----
+   The sheet's own parts float over the stage: in a layout they keep clear of the blocks the engine puts there (its --ws-* insets). */
+.tc-stage.ws-stage > .tc-sheetbar { top: calc(var(--ws-st, 0px) + var(--ws-vt, 0px) + .5rem); left: calc(var(--ws-sl, 0px) + .5rem); max-width: calc(100% - var(--ws-sl, 0px) - var(--ws-sr, 0px) - 1rem); }
+.tc-stage.ws-stage > .tc-hint { top: calc(var(--ws-st, 0px) + var(--ws-vt, 0px) + 1rem); left: calc(var(--ws-sl, 0px) + 1rem); }
+.tc-stage.ws-stage > .tc-acbar { bottom: calc(var(--ws-sb, 0px) + var(--ws-vb, 0px) + .5rem); left: calc(var(--ws-sl, 0px) + .5rem); right: calc(var(--ws-sr, 0px) + .5rem); }
+.tc-stage.ws-stage > .tc-touchbar { bottom: calc(var(--ws-sb, 0px) + var(--ws-vb, 0px) + .75rem); }
+.tc-stage.ws-stage > :is(.tc-drop, .tc-busy) {
+  top: calc(var(--ws-st, 0px) + var(--ws-vt, 0px) + .75rem); bottom: calc(var(--ws-sb, 0px) + var(--ws-vb, 0px) + .75rem);
+  left: calc(var(--ws-sl, 0px) + .75rem); right: calc(var(--ws-sr, 0px) + .75rem);
+}
+/* Toolbox and info box: the sheet bar is the info box's Sheet group (a row of its tools, not a floating card); the bid area picker
+   its first group, and the picker's section in the right panel folds away while it is there */
+.tbx-info .tc-sheetbar { position: static; max-width: none; padding: 0; background: none; border: 0; }
+.tbx-info .tc-area-row .tc-h { display: none; }
+.tc-area-sec:not(:has(.tc-area-row)) { display: none; }
+/* Ribbon and project browser: Properties (the selected condition, note or mark) and the Takeoff browser */
+.tc-ws-props > .tc-sec { border: 0; padding: 0 0 .75rem; }
+.tc-ws-note { margin: .5rem; font-size: .8125rem; color: var(--ink-2); }
+.tc-pb { font-size: .8125rem; padding: .25rem 0; }
+.tc-pb-group > summary { padding: .25rem .5rem; font-weight: 700; cursor: pointer; }
+.tc-pb-list { list-style: none; margin: 0; padding: 0 0 .35rem; }
+.tc-pb-go { display: grid; grid-template-columns: auto minmax(2.5rem, 1fr) minmax(0, max-content); align-items: center; gap: .4rem; width: 100%; padding: .15rem .5rem .15rem 1.25rem; font: inherit; color: var(--ink); text-align: left; background: none; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: pointer; }
+.tc-pb-go:hover { border-color: var(--line); }
+.tc-pb-go:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: -2px; }
+.tc-pb-go:is([aria-current="true"], [aria-pressed="true"]) { border-color: var(--layer, var(--action)); font-weight: 600; }
+.tc-pb-go:not(:has(> :first-child:is(i, .tc-chip))) { grid-template-columns: minmax(2.5rem, 1fr) minmax(0, max-content); }
+.tc-pb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tc-pb-meta { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.tc-pb-meta.is-unscaled { color: var(--layer-orange); }
+.tc-pb-empty { padding: .15rem .5rem .15rem 1.25rem; color: var(--ink-2); }
+.tc-pb-total { margin: 0; padding: .25rem .5rem .25rem 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; border-top: var(--pen-1) solid var(--line); }
+.tc-pb-group > .tc-linkbtn { margin: .25rem .5rem .5rem 1.25rem; }
+/* the scale presets in the view bar (Ribbon and project browser): one line, the name beside the list */
+.ws-view-controls .tc-preset { flex-direction: row; align-items: center; gap: .35rem; }

@@ -5,7 +5,7 @@
  *
  * State (plain data; what the .takeoff.json file holds):
  *   files   [{ hash (sha-256 hex), name, size, pages }]            the PDFs it was taken off
- *   sheets  { "<hash>:<page index>": { scale: {method, ftPerUnit, preset, label, cal} | null, level?: feet (T4: its floor's
+ *   sheets  { "<hash>:<page index>": { scale: {method (preset | calibrated | drawing: read from a CAD drawing), ftPerUnit, preset, label, cal} | null, level?: feet (T4: its floor's
  *           elevation, to stack sheets in 3D) } }
  *   items   [{ id, name, type: linear|area|count, color, unit, heightFt, waste (bp), mat, lab (1/10000 $),
  *              components: [{ id, name, unit, formula, waste, mat, lab }],
@@ -31,6 +31,8 @@
  *   notes   [{ id, sheet, kind: 'note' | 'cloud' | 'highlight', pts, text, status: 'open' | 'answered' | 'closed' }]   markups
  *           (T22): a note pins a point, a cloud or a highlight spans two corners; never counted, drawn in the marked PDF
  *   bids    [{ id, pkg, bidder, amount (cents), excl: [item ids], note }]   subcontractor bids by package, for leveling (0.6 LC.13, level.js)
+ *   bidreqs [{ uuid, pkg, title, at, due, opens, n }]   packages sent to the website for bids (0.7 LC.13 B4, level.js)
+ *   awards  [{ pkg, bid }]   the bid chosen for a package: in the base bid it is the package's price (0.7 LC.13 B3, level.js applyAwards)
  *   bid     { burden (labor burden, TK.4), tax, overhead, profit, bond (basis points), to, project, by, incl, excl, terms, items }   the bid summary and
  *           proposal (T19, bid.js)
  *
@@ -41,7 +43,7 @@
 import { cleanAddonData } from './addons.js';
 import { segmentLengths, areaWithHoles, isConvex, overlapArea, bounds } from './geom.js';
 import { normalBid, bidUsed } from './bid.js';
-import { cleanBids } from './level.js';
+import { cleanBids, cleanAwards, applyAwards, cleanRequests } from './level.js';
 import { UNITS, UNITS_FOR, DEFAULT_UNIT, lengthUnitOf, areaUnitOf, ftTo, sqftTo, withWaste, extendCents, MAX_PITCH, slopeFactor, hipFactor, roundTo } from './units.js';
 import { parse, evaluate } from './formula.js';
 import { t } from './i18n.js';
@@ -401,6 +403,31 @@ export class Takeoff {
     });
     return ids;
   }
+  /**
+   * Marks counted from a drawing (0.7 TD.3), on an existing count item (`item`) or on a new one made with them (`create` = its fields) —
+   * ONE undo step either way. `list` = [{ sheet, pts: [[x, y]], …extras }]. → { item, ids }
+   */
+  addCounted({ item = null, create = null, list, label }) {
+    let itemId = item;
+    const ids = [];
+    if (!list.length) return { item: itemId, ids };
+    if (itemId && !kindsOf(this.item(itemId) || {}).includes('count')) throw new Error(t('err.mark.kind'));
+    this.change(label, (s) => {
+      if (!itemId) {
+        if (s.items.length >= LIMITS.items) throw new Error(t('err.items.many'));
+        itemId = this.nextId('i');
+        s.items.push(normalItem({ ...(create || {}), id: itemId, type: 'count', color: create?.color || PALETTE[s.items.length % PALETTE.length] }));
+      }
+      if (s.marks.length + list.length > LIMITS.marks) throw new Error(t('err.marks.many'));
+      for (const m of list) {
+        const id = this.nextId('m');
+        ids.push(id);
+        const nm = { id, item: itemId, sheet: m.sheet, kind: 'count', pts: m.pts.map(pt), holes: [] };
+        s.marks.push(Object.assign(nm, readExtras(m, nm, extrasCtx(s))));
+      }
+    });
+    return { item: itemId, ids };
+  }
   updateMark(id, patch, label = t('undo.mark.edit')) {
     return this.change(label, (s) => {
       const m = s.marks.find((x) => x.id === id);
@@ -634,6 +661,8 @@ export class Takeoff {
       ...(s.notes?.length ? { notes: s.notes.map((n) => ({ id: n.id, sheet: n.sheet, kind: n.kind, pts: n.pts.map((p) => [p.x, p.y]), text: n.text, status: n.status })) } : {}),
       ...(s.groups?.length ? { groups: s.groups.map((g) => ({ id: g.id, name: g.name, repeat: g.repeat })) } : {}),
       ...(s.bids?.length ? { bids: s.bids.map((b) => ({ ...b, excl: b.excl.slice() })) } : {}),
+      ...(s.awards?.length ? { awards: s.awards.map((a) => ({ pkg: a.pkg, bid: a.bid })) } : {}),
+      ...(s.bidreqs?.length ? { bidreqs: s.bidreqs.map((r) => ({ ...r })) } : {}),
       items: s.items,
       marks: s.marks.map((m) => ({ id: m.id, item: m.item, sheet: m.sheet, kind: m.kind, pts: m.pts.map(arr), ...(m.holes?.length ? { holes: m.holes.map((h) => h.map(arr)) } : {}), ...markExtras(m) })),
     };
@@ -743,7 +772,7 @@ export function readProject(json) {
     if (!sheetOk(k)) continue;
     const sc = v?.scale;
     let scale = null;
-    if (sc && finite(sc.ftPerUnit) && sc.ftPerUnit > 0 && ['preset', 'calibrated'].includes(sc.method)) {
+    if (sc && finite(sc.ftPerUnit) && sc.ftPerUnit > 0 && ['preset', 'calibrated', 'drawing'].includes(sc.method)) {
       scale = { method: sc.method, ftPerUnit: sc.ftPerUnit, preset: typeof sc.preset === 'string' ? sc.preset.slice(0, 20) : null, label: str(sc.label, 80), cal: null };
       if (sc.cal && ptsOk([sc.cal.a, sc.cal.b], 2) && finite(sc.cal.ft)) scale.cal = { a: sc.cal.a.slice(0, 2), b: sc.cal.b.slice(0, 2), ft: sc.cal.ft, text: str(sc.cal.text, 40) };
     }
@@ -776,6 +805,10 @@ export function readProject(json) {
   }
   const bids = cleanBids(json.bids, new Map(state.items.map((i) => [i.id, i])));   // 0.6 LC.13
   if (bids.length) state.bids = bids;
+  const bidreqs = cleanRequests(json.bidreqs);                                        // 0.7 LC.13 B4
+  if (bidreqs.length) state.bidreqs = bidreqs;
+  const awards = cleanAwards(json.awards, bids);                                      // 0.7 LC.13 B3
+  if (awards.length) state.awards = awards;
   const types = new Map(state.items.map((i) => [i.id, i.type]));
   const kinds = new Map(state.items.map((i) => [i.id, kindsOf(i)]));
   for (const it of state.items) if (it.backout) it.backoutOf = it.backoutOf.filter((id) => types.get(id) === 'area' && !state.items.find((x) => x.id === id)?.backout);
@@ -999,10 +1032,15 @@ export function areaEstimates(state) {
 /** The bid areas that are add alternates (T17): their marks are not in the base bid. */
 export const addAlternates = (state) => new Set((state.areas || []).filter((a) => a.alt === 'add').map((a) => a.id));
 
-/** The base bid (T17): the estimate without the add alternates' marks. Without alternates, the whole estimate. */
-export function baseEstimate(state) {
+/**
+ * The base bid (T17): the estimate without the add alternates' marks. Without alternates, the whole estimate. The bids chosen
+ * for packages (0.7 B3, `state.awards`) are the packages' prices in it; `{ awards: false }` is the estimate at our own prices
+ * (what leveling compares the bids with).
+ */
+export function baseEstimate(state, { awards = true } = {}) {
   const ex = addAlternates(state);
-  return estimate(state, ex.size ? quantities(state, { exclude: ex }) : quantities(state));
+  const est = estimate(state, ex.size ? quantities(state, { exclude: ex }) : quantities(state));
+  return awards ? applyAwards(state, est) : est;
 }
 
 /**

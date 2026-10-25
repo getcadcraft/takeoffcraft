@@ -39,7 +39,7 @@ If the tab crashes, the browser or computer stops, or you leave with unsaved cha
 ## Reopen
 
 1. Open TakeoffCraft.
-2. Drop the `.takeoff.json` file and its PDFs on the page together. Or choose {{ui:Open PDFs}} for the PDFs and {{ui:Open takeoff}} for the project, in either order.
+2. Drop the `.takeoff.json` file and its PDFs on the page together. Or choose {{ui:Open plans}} for the PDFs and {{ui:Open takeoff}} for the project, in either order.
    The status bar says "Opened (name): 12 items, 340 marks." Every sheet gets its scale back and the marks appear on their sheets.
 
 The order of the PDFs does not matter, and neither do their file names or folders. TakeoffCraft recognizes each PDF by a fingerprint of its contents.

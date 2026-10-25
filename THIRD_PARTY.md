@@ -23,6 +23,7 @@ names both).
 | File | Follows | License (SPDX) | Source |
 |---|---|---|---|
 | `app/m3d/earcut.js` | earcut (Mapbox) | ISC | https://github.com/mapbox/earcut |
+| `app/usd/earcut.js` | earcut (Mapbox) | ISC | https://github.com/mapbox/earcut |
 
 ## License texts
 

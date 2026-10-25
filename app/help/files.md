@@ -10,7 +10,7 @@ keywords: files, formats, pdf, takeoff.json, project file, xlsx, csv, marked pdf
 
 | File | How | Notes |
 |---|---|---|
-| PDF (`.pdf`) | {{ui:Open PDFs}}, {{key:Mod+O}}, or drop on the page | Several at once. Each page becomes a sheet. |
+| PDF (`.pdf`) | {{ui:Open plans}}, {{key:Mod+O}}, or drop on the page | Several at once. Each page becomes a sheet. |
 | Takeoff project (`.takeoff.json`) | {{ui:Open takeoff}}, or drop on the page | Your items, scales and marks. You can drop it together with its PDFs. |
 
 Other files dropped on the page are skipped, and the status bar names them.

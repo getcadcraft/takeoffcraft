@@ -119,7 +119,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         </div>
       </div>
     <?php endforeach; ?>
-    <input type="file" class="visually-hidden" accept=".pdf,application/pdf" multiple tabindex="-1" aria-hidden="true" data-file-pdf>
+    <input type="file" class="visually-hidden" accept=".pdf,.dwg,.dxf,application/pdf" multiple tabindex="-1" aria-hidden="true" data-file-pdf>
     <input type="file" class="visually-hidden" accept=".json,application/json" tabindex="-1" aria-hidden="true" data-file-project>
   </div>
 
@@ -173,6 +173,14 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         <button type="button" class="btn-plot btn-sm-cc" data-ac-accept><?= Lang::e('btn.add') ?></button>
       </div>
     </div>
+    <?php /* 0.7 TD.4: measure from geometry (takeoffcraft.js fills it) */ ?>
+    <div class="tc-acbar tc-geombar" data-geombar hidden role="region" aria-label="<?= Lang::e('tool.cad-geom') ?>">
+      <div class="tc-acbar-row">
+        <span class="tc-ac-summary" data-geom-summary role="status"></span>
+        <button type="button" class="btn-line btn-sm-cc" data-geom-clear><?= Lang::e('cad.geom.clear') ?></button>
+        <button type="button" class="btn-plot btn-sm-cc" data-geom-add><?= Lang::e('btn.add') ?></button>
+      </div>
+    </div>
     <div class="tc-touchbar" data-touchbar hidden role="toolbar" aria-label="<?= Lang::e('touch.bar') ?>">
       <button type="button" class="btn-plot btn-sm-cc" data-touch="finish"><?= Lang::e('touch.finish') ?></button>
       <button type="button" class="btn-line btn-sm-cc" data-touch="back"><?= Lang::e('touch.back') ?></button>
@@ -199,6 +207,8 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         <button type="button" class="tc-3d-btn" data-3d-levels title="<?= Lang::e('d3.levels.title') ?>"><?= Lang::e('d3.levels') ?></button>
         <button type="button" class="tc-3d-btn" data-3d-stack aria-pressed="false" title="<?= Lang::e('d3.stack.title') ?>"><?= Lang::e('d3.stack') ?></button>
         <button type="button" class="tc-3d-btn" data-3d-glb title="<?= Lang::e('d3.glb.title') ?>"><i class="bi bi-download" aria-hidden="true"></i> <?= Lang::e('d3.glb') ?></button>
+        <?php /* 0.7 XF.8 (session usd): takeoffcraft.js "exportUsd" → usd-takeoffcraft.js on cc-usd (./usd/) */ ?>
+        <button type="button" class="tc-3d-btn" data-3d-usd title="<?= Lang::e('usd.export.title') ?>"><i class="bi bi-download" aria-hidden="true"></i> <?= Lang::e('usd.menu.usdz') ?></button>
         <button type="button" class="tc-3d-btn" data-3d-png title="<?= Lang::e('d3.png.title') ?>"><i class="bi bi-image" aria-hidden="true"></i> <?= Lang::e('d3.png') ?></button>
         <button type="button" class="tc-3d-btn" data-3d-close title="<?= Lang::e('d3.close.title') ?>"><?= Lang::e('d3.close') ?></button>
       </div>
@@ -219,6 +229,15 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         </div>
       </details>
       <button type="button" class="tc-3d-toggle" data-act="compare" aria-pressed="false" title="<?= Lang::e('cmp.button.title') ?>"><i class="bi bi-layers-half" aria-hidden="true"></i> <?= Lang::e('cmp.button') ?></button>
+      <?php /* 0.7 TD.5: a drawing's layers, on and off (takeoffcraft.js fills it when it opens; only on a DWG / DXF sheet) */ ?>
+      <details class="tc-menu tc-layers-menu" data-layers-menu hidden>
+        <summary class="tc-3d-toggle" title="<?= Lang::e('cad.layers.title') ?>"><i class="bi bi-layers" aria-hidden="true"></i> <?= Lang::e('cad.layers') ?></summary>
+        <div class="tc-menu-list tc-layers" data-layers-list></div>
+      </details>
+      <?php /* 0.7 TD.4: pick the drawing's lines, arcs, polylines and hatches as a linear or area item (a DWG / DXF sheet only) */ ?>
+      <button type="button" class="tc-3d-toggle" data-tool="cadgeom" hidden aria-pressed="false" title="<?= Lang::e('tool.cad-geom.title') ?>"><i class="bi bi-bounding-box" aria-hidden="true"></i> <?= Lang::e('tool.cad-geom') ?></button>
+      <?php /* 0.7 TD.3: only on a DWG / DXF sheet (takeoffcraft.js shows it) */ ?>
+      <button type="button" class="tc-3d-toggle" data-act="cad-count" hidden title="<?= Lang::e('tool.cad-count.title') ?>"><i class="bi bi-diagram-3" aria-hidden="true"></i> <?= Lang::e('tool.cad-count') ?></button>
       <button type="button" class="tc-3d-toggle" data-act="next-flag" hidden title="<?= Lang::e('flag.next.title') ?>"><i class="bi bi-flag" aria-hidden="true"></i> <span data-flag-count></span></button>
       <button type="button" class="tc-3d-toggle" data-act="view-3d" aria-pressed="false" title="<?= Lang::e('d3.button.title') ?>"><i class="bi bi-box" aria-hidden="true"></i> <?= Lang::e('d3.button') ?></button>
     </div>

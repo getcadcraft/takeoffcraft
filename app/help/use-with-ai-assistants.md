@@ -1,6 +1,6 @@
 ---
 title: Use TakeoffCraft with an AI assistant
-summary: Let your own AI assistant or script read the takeoff's quantities and estimate, and export it: permissions, connecting through CadCraft Studio, and the activity log.
+summary: Let your own AI assistant or script read the takeoff's quantities and estimate, add items and marks, count and measure on a DWG or DXF, and export: permissions, connecting through CadCraft Studio, and the activity log.
 section: tasks
 order: 118
 keywords: ai, assistant, agent, mcp, model context protocol, script, automation, quantities, estimate, permissions, disconnect, activity
@@ -43,13 +43,23 @@ A browser tab can't open a connection for an assistant: in the browser apps the 
 | `takeoff_quantities` | Read | Quantities per item or per sheet; marks on sheets with no scale are listed, never counted as zero |
 | `takeoff_estimate` | Read | The priced estimate as TakeoffCraft computes it, with its totals |
 | `takeoff_export` | Export | TakeoffCraft's own CSV or XLSX export |
+| `items_add` | Edit | Adds items with their units, rates and waste |
+| `marks_add` | Edit | Measures runs, areas and counts on a sheet. Lengths and areas only on a sheet with a scale, never on an unscaled one |
+| `cad_sheets`, `cad_catalog`, `cad_count` | Read | On a DWG or DXF you opened: its sheets and their scales, what can be counted (blocks, layers and types, texts), and exact counts, as {{ui:CAD count}} makes them ([Count from a drawing](topic:count-from-a-drawing)) |
+| `cad_count_add` | Edit | Counts in the drawing and puts a count mark on each object found, in one step; counting again adds only what is new |
+| `cad_measure` | Edit | Measures a linear or an area item from the drawing's own lines, arcs, polylines and hatches, as {{ui:Measure drawing}} does ([Measure from a drawing](topic:measure-from-a-drawing)); only on a sheet with a scale |
+| `usd_export` | Export | A scaled sheet's measured runs, areas and counts as a 3D check model in USD (`.usdz`, `.usda` or `.usdc`), as {{ui:USD package (.usdz)}} in the 3D check view writes it ([Export the 3D check view as USD](topic:usd)) |
 
-An assistant can't draw or change marks in TakeoffCraft yet: it reads, and exports when you allow it.
+With **Edit** ticked, an assistant adds items and marks (each call one undo step); it cannot move, change or delete marks that are already there.
 
-The same quantities and estimate are available without opening TakeoffCraft: the CadCraft MCP server opens a `.takeoff.json` file in a folder you name (`takeoff_open`, `takeoff_quantities`, `takeoff_estimate`, `takeoff_export`), and `cadcraft info Job.takeoff.json` prints them on the command line.
+The same quantities and estimate are available without opening TakeoffCraft: the CadCraft MCP server opens a `.takeoff.json` file in a folder you name (`takeoff_open`, `takeoff_quantities`, `takeoff_estimate`, `takeoff_export`), and `cadcraft info Job.takeoff.json` prints them on the command line. It also opens a DWG or DXF as a new takeoff on its sheets (scaled from the drawing as TakeoffCraft scales them), counts and measures on it with the same `cad_*` tools, adds items and saves the takeoff (`takeoff_save`); `cadcraft count plan.dwg --block SHELF-18X48 --sheet K-101` counts from the command line.
 
 ## If something doesn't work
 
 - **The assistant sees no TakeoffCraft tools:** check that the switch is on in this window, and that the window is open in Studio.
 - **"needs the export permission":** tick **Export** under {{ui:Assistants}}, then ask again.
 - **"401" or "token" errors:** the token changed (Studio restarted, or {{ui:New token}}). Copy the new one into the assistant's settings.
+
+## See also
+
+- [Recipes for AI assistants](common:assistants-recipes): worked examples, each with the tools it calls.

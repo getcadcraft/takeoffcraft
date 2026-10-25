@@ -232,8 +232,7 @@ export function distToSegment(p, a, b) {
 
 /** Distance from p to an open polyline (or a closed outline when closed). */
 export function distToPath(p, pts0, closed = false) {
-  const pts = hasArcs(pts0) ? flatten(pts0, closed) : pts0;
-  if (pts !== pts0) closed = false;
+  const pts = hasArcs(pts0) ? flatten(pts0, closed) : pts0;   // (a closed outline's flattened chords stop short of the first point: the closing segment below covers it)
   let d = Infinity;
   for (let i = 1; i < pts.length; i++) d = Math.min(d, distToSegment(p, pts[i - 1], pts[i]));
   if (closed && pts.length > 2) d = Math.min(d, distToSegment(p, pts[pts.length - 1], pts[0]));

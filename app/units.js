@@ -2,6 +2,8 @@
 
 import { t } from './i18n.js';
 import { calc, hasArithmetic } from './lencalc.js';   // 0.6 DF.3: + - * / and brackets (a copy: tools/lencalc/sync.mjs)
+import { parseTo, unit as tableUnit, unitName } from './unit-table.js';   // 0.7 UNITS: the shared table (lib/units; a copy: tools/units/sync.mjs)
+import { choices, defaultUnit } from './unit-prefs.js';
 /**
  * units.js — lengths, scales and money for TakeoffCraft. DOM-free (tested in Node).
  *
@@ -41,15 +43,17 @@ export function parseLength(text, { defaultUnit = 'ft' } = {}) {
   s = s.replace(/\s+/g, ' ').trim();
   if (hasArithmetic(s)) {
     // a bare number is plain (a factor) until it is used as a length: then it is in the default unit (plain: its feet)
-    const r = calc(s, (x) => { const bare = /^[\d.\s/-]+$/.test(x), one = parseOne(x, bare ? 'ft' : defaultUnit); return one.ok ? { value: one.ft, unit: !bare } : null; }, { plain: toFt(1, defaultUnit) });
+    const r = calc(s, (x) => { const bare = /^[\d.\s/-]+$/.test(x), one = parseOne(x, bare ? 'ft' : defaultUnit, x); return one.ok ? { value: one.ft, unit: !bare } : null; }, { plain: toFt(1, defaultUnit) });
     if (!r.ok) return { ok: false, error: t('calc.err.' + r.code, { pos: r.pos + 1, text: r.text }) };
     return positive(r.value);
   }
-  return parseOne(s, defaultUnit);
+  return parseOne(s, defaultUnit, String(text));
 }
 
-/** One length, already normalized (lower case, marks for the words): → { ok, ft } | { ok: false, error }. */
-function parseOne(s, defaultUnit) {
+/** One length, already normalized (lower case, marks for the words): → { ok, ft } | { ok: false, error }. `raw` = as typed
+ *  (0.7 UNITS: any other length mark of the shared table, 3 yd, 2 ch, 10 US ft, 1.5 km; inside a sum the marks are read
+ *  in lower case, so there nm is the nanometre — type nmi for the nautical mile). */
+function parseOne(s, defaultUnit, raw = null) {
   if (s.startsWith('-')) return { ok: false, error: t('len.err.positive') };
 
   // metric: one number and a unit
@@ -59,7 +63,10 @@ function parseOne(s, defaultUnit) {
     const meters = m[2] === 'mm' ? v / 1000 : m[2] === 'cm' ? v / 100 : v;
     return positive(meters / M_PER_FT);
   }
-  if (/[a-z]/.test(s)) return { ok: false, error: t('len.err.units') };
+  if (/[a-z]/.test(s)) {
+    const u = raw === null ? null : parseTo(String(raw).replace(/,/g, ''), 'length', 'ft');
+    return u && u.ok ? positive(u.value) : { ok: false, error: t('len.err.units') };
+  }
 
   const tokens = tokenize(s);
   if (!tokens) return { ok: false, error: t('len.err.read') };
@@ -207,10 +214,42 @@ export const UNITS = {
   LS:   { kind: 'fixed', label: 'LS', get name() { return t('unit.ls.name'); }, system: 'any' },
   CY:   { kind: 'fixed', label: 'CY', get name() { return t('unit.cy.name'); }, system: 'imperial' },
   'm³': { kind: 'fixed', label: 'm³', get name() { return t('unit.m3.name'); }, system: 'metric' },
+  // 0.7 UNITS: roofing squares, acres and hectares (names are the shell's words, shell.units.*)
+  SQ:   { kind: 'area', label: 'SQ', get name() { return unitName('square'); }, perSqFt: 1 / 100, system: 'imperial' },
+  ac:   { kind: 'area', label: 'ac', get name() { return unitName('acre'); }, perSqFt: 1 / 43560, system: 'imperial' },
+  ha:   { kind: 'area', label: 'ha', get name() { return unitName('ha'); }, perSqFt: SQM_PER_SQFT / 10000, system: 'metric' },
 };
 /** A typed quantity (0.6 TK.5+) may be in any unit: it is typed or imported, never measured. */
-export const UNITS_FOR = { linear: ['LF', 'm'], area: ['SF', 'SY', 'm²'], count: ['EA'], fixed: ['LS', 'EA', 'CY', 'm³', 'LF', 'm', 'SF', 'SY', 'm²'] };
+export const UNITS_FOR = { linear: ['LF', 'm'], area: ['SF', 'SY', 'SQ', 'ac', 'm²', 'ha'], count: ['EA'], fixed: ['LS', 'EA', 'CY', 'm³', 'LF', 'm', 'SF', 'SY', 'SQ', 'ac', 'm²', 'ha'] };
 export const DEFAULT_UNIT = { linear: 'LF', area: 'SF', count: 'EA', fixed: 'LS' };
+/** An item unit → the shared table's id (EA and LS are not units of a kind: always listed). */
+export const TABLE_ID = Object.freeze({ LF: 'ft', m: 'm', SF: 'ft2', SY: 'yd2', SQ: 'square', ac: 'acre', 'm²': 'm2', ha: 'ha', CY: 'yd3', 'm³': 'm3' });
+const TABLE_KIND = { linear: 'length', area: 'area' };
+/**
+ * The item units a dropdown lists (0.7 UNITS): UNITS_FOR[kind] less the ones turned off in Settings › General › Units,
+ * and always `keep` (the item's own unit).
+ */
+export function unitsFor(kind, keep = []) {
+  const list = UNITS_FOR[kind] || [];
+  const on = new Map();
+  const isOn = (k) => {
+    const id = TABLE_ID[k];
+    if (!id) return true;   // EA, LS
+    const tk = tableUnit(id).kind;
+    if (!on.has(tk)) on.set(tk, new Set(choices(tk)));
+    return on.get(tk).has(id);
+  };
+  const out = list.filter((k) => isOn(k) || keep.includes(k));
+  return out.length ? out : list.slice(0, 1);
+}
+/** The unit of a new item of a kind: the starred unit when it is one of this kind's, else DEFAULT_UNIT. */
+export function defaultUnitFor(kind) {
+  const tk = TABLE_KIND[kind];
+  if (!tk) return DEFAULT_UNIT[kind];
+  const byId = Object.fromEntries((UNITS_FOR[kind] || []).filter((k) => TABLE_ID[k]).map((k) => [TABLE_ID[k], k]));
+  const s = defaultUnit(tk, { offer: Object.keys(byId) });
+  return s ? byId[s] : DEFAULT_UNIT[kind];
+}
 
 /** The length unit that goes with an item unit (for P, L and H): LF/SF/SY → ft, m/m² → m. */
 export function lengthUnitOf(unit) { return UNITS[unit]?.system === 'metric' ? 'm' : 'ft'; }

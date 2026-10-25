@@ -3,7 +3,7 @@ title: Units
 summary: The units an item can report in, the units its formula variables use, and how imperial and metric mix.
 section: reference
 order: 50
-keywords: units, lf, sf, sy, square yards, meters, square meters, ea, each, metric, imperial, conversion
+keywords: units, lf, sf, sy, sq, square yards, roofing squares, acres, hectares, meters, square meters, ea, each, metric, imperial, conversion, default unit
 ---
 
 ## Item units
@@ -14,10 +14,15 @@ keywords: units, lf, sf, sy, square yards, meters, square meters, ea, each, metr
 | Linear | m | meters |
 | Area | SF | square feet (default) |
 | Area | SY | square yards |
+| Area | SQ | roofing squares (100 square feet) |
+| Area | ac | acres |
 | Area | m² | square meters |
+| Area | ha | hectares |
 | Count | EA | each |
 
 Change it with {{ui:Unit}} in the item editor at any time, even after measuring; the quantity is converted at once.
+
+The {{ui:Unit}} list shows the units turned on in {{ui:Settings}} › {{ui:General}} › {{ui:Units}}, and always the item's own unit. A new item starts in the length or area unit starred there, when it is one of the item's units; otherwise in LF or SF. See [Units, typed values and the unit lists](common:unit-lists).
 
 ## Units of the formula variables
 
@@ -27,7 +32,10 @@ Change it with {{ui:Unit}} in the item editor at any time, even after measuring;
 | m | meters | square meters (wall area) |
 | SF | feet | square feet |
 | SY | feet | square yards |
+| SQ | feet | squares |
+| ac | feet | acres |
 | m² | meters | square meters |
+| ha | meters | hectares |
 
 For SY items, `A` is in square yards while `P` and `H` stay in feet. A volume from an SY item is `A * 9 * H / 27` cubic yards; using SF for slabs is simpler.
 

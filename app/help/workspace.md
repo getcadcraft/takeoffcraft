@@ -3,7 +3,7 @@ title: The TakeoffCraft screen
 summary: A tour of the window by on-screen name - the toolbar, the sheets list, the sheet, the Items panel, the Quantities table and the status bar.
 section: start
 order: 20
-keywords: screen, layout, toolbar, panels, sheets list, items panel, quantities, status bar, tour, interface
+keywords: screen, layout, layouts, ribbon, project browser, toolbox, info box, toolbar, panels, sheets list, items panel, quantities, status bar, tour, interface
 ---
 
 TakeoffCraft fills the browser window under the CadCraft app bar. From top to bottom and left to right:
@@ -77,6 +77,17 @@ From left to right: the live measurement while you draw (length, area, radius or
 :::tip
 Read the status bar when something does not happen. TakeoffCraft explains there why it refused a click, for example "This sheet has no scale yet".
 :::
+
+## Other layouts
+
+Everything above is the {{ui:CadCraft classic}} layout, the start. {{ui:Settings}} ({{key:Mod+,}}) › {{ui:Global}} › {{ui:Layout}} offers two more; the same tools and keys work in all three, and picking {{ui:CadCraft classic}} again puts every control back where it was.
+
+| Layout | In TakeoffCraft |
+|---|---|
+| {{ui:Ribbon and project browser}} | The {{ui:Takeoff ribbon}} across the top ([Menus, keys and mouse](topic:menus-keys-and-mouse)), a bar for the running tool, a tab for each sheet you open (a drawing's Model and layouts are sheets too) with the scale presets and {{ui:Fit page}} under the sheet. The left panel holds {{ui:Properties}} (the selected item, note or mark) over the {{ui:Takeoff browser}}: {{ui:Sheets}} (click one to open it in a tab), {{ui:Conditions}} (click one to draw with it) and {{ui:Estimate}} (each item's total and the job total); the thumbnails are its second tab. |
+| {{ui:Toolbox and info box}} | The toolbar over the sheet, an info box with the {{ui:Bid area}}, the running tool or the selection and the sheet bar, a column of the takeoff tools on the left, a tab for every sheet, and {{ui:Snap}} and the zoom under the sheet. |
+
+While the [3D check view](topic:check-in-3d) is open, the sheet tabs and the bar under the sheet step aside; close the 3D view to measure again. On a phone the phone layout always runs.
 
 ## Full screen and themes
 

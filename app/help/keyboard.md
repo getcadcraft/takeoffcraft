@@ -74,7 +74,7 @@ The letters on their own still pick tools ({{key:C}} is {{ui:Count}}, {{key:D}} 
 
 | Key | What it does |
 |---|---|
-| {{key:Mod+O}} | {{ui:Open PDFs}} |
+| {{key:Mod+O}} | {{ui:Open plans}} |
 | {{key:Mod+S}} | {{ui:Save takeoff}} |
 
 These two work even while you are typing in a field.

@@ -51,6 +51,8 @@ export class PageView {
     else this.fit('page');
     this.renderWhole();
   }
+  /** What is behind the page changed (a drawing's layer shown or hidden): draw it again, whole page and sharp. */
+  rerender() { if (!this.page) return; this.task?.cancel(); this.full = null; this.whole = null; this.gen++; this.renderWhole(); this.invalidate(true); }
   clear() { this.task?.cancel(); this.page = null; this.info = null; this.full = null; this.whole = null; this.invalidate(); }
   get view() { return { z: this.z, ox: this.ox, oy: this.oy }; }
 

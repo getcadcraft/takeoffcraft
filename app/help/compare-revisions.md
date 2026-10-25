@@ -10,7 +10,7 @@ When a sheet is reissued, you do not have to take it off again. Open the old PDF
 
 ## Compare
 
-1. Open both PDFs: the old set and the revised one ({{ui:Open PDFs}}; they can be in one file or several).
+1. Open both PDFs: the old set and the revised one ({{ui:Open plans}}; they can be in one file or several).
 2. Show the **new** sheet.
 3. Choose {{ui:Compare}} on the sheet bar under the drawing.
 4. Pick the old sheet in the list. TakeoffCraft suggests the sheet with the same number in the other PDF, or the same page. Choose **Compare**.

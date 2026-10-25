@@ -33,6 +33,19 @@ TakeoffCraft is in development. This list is what the current build does not do,
 | Renaming the takeoff | The name comes from the first PDF; rename the downloaded files. |
 | Naming sheets by hand | Sheets are named from the PDF's page labels; search by file name and page. |
 
+## Drawings (DWG and DXF)
+
+| Not built yet | Instead, today |
+|---|---|
+| Plot style tables, pen assignments and CTB files on a drawing's sheets | A drawing is drawn black, or in its colors darkened for paper; line weights come from the drawing. |
+| Opening a binary DXF, or a DWG older than AutoCAD 2000 | Save it as an ASCII DXF or a newer DWG. |
+| Finding a linked drawing (xref) by the folder it sits in | Open the linked drawing's file too, with the host: it is found by file name among the open files. |
+| Measuring 3D polylines, meshes, solids and regions | Count them by layer and type, or measure the plan view with the Linear and Area tools. |
+| Text in a marked PDF from a drawing in scripts other than Latin | Characters Helvetica has no glyph for print as "?" in the marked PDF; the drawing on screen is unaffected. |
+| A hand-over of a drawing to another app from the sheet bar | Open the same file in that app. |
+| A drawing that carries the takeoff inside it, as {{ui:PDF with the takeoff inside}} does for PDFs | {{ui:Save takeoff}}: the `.takeoff.json` reopens on the same drawing, found by its contents. |
+| Drawing or counting PDF underlays, images and OLE objects placed in a drawing | Images show as a frame only. Open the underlay PDF itself as a sheet. |
+
 ## Auto count
 
 | Not built yet | Instead, today |
@@ -68,9 +81,11 @@ TakeoffCraft is in development. This list is what the current build does not do,
 
 | Not built yet | Instead, today |
 |---|---|
-| Sending invitations to bid, collecting bidders' prices through a form, reminders and addenda | Email the [scope CSV](topic:bid-leveling) yourself and type the bids in. |
-| Using the chosen subcontractor's bid as the package's price in the estimate | Make a [typed quantity](topic:create-items#typed-quantities-no-drawing) for the bid and set the package's own items' rates to zero, or keep the leveling as a report. |
-| Subcontractor records: contacts, trades, qualification answers, insurance and license dates | Keep them in your own list. |
+| Addenda to a package that was already sent, award letters, a scope sheet each bidder signs off | Send a new package, and write the award yourself. [Send a package for bids](topic:bid-invitations) covers what is built. |
+| Sending bid invitations from any account: while it is tested, mail to outside bidders is switched off except for accounts the CadCraft team has enabled | Download the {{ui:Scope CSV}}, email it yourself and type the bids in. |
+| Sending bid packages from a Studio window | Send from TakeoffCraft in the browser. |
+| Repricing an alternate's bid area with a chosen bid | Alternates and bid-area subtotals use your own prices; adjust the alternate by hand. |
+| Automatic reminders before a subcontractor's insurance or license date runs out | The date is flagged on the Subcontractors page once it is past or within 30 days; check it when you invite. |
 
 ## Panels
 

@@ -6,7 +6,7 @@ order: 10
 keywords: start, first takeoff, quick start, introduction, estimate, quantity takeoff, plan set, pdf
 ---
 
-TakeoffCraft measures PDF plan sets and turns the measurements into a priced estimate. You open the PDFs, give each sheet a scale, make **items** (a wall type, a floor finish, a fixture), and click on the sheets to take them off. Quantities, costs and the job total update as you go. You can export the estimate as a spreadsheet and a copy of the PDFs with your takeoff drawn in.
+TakeoffCraft measures plan sets, PDFs and DWG or DXF drawings, and turns the measurements into a priced estimate. You open the files (a drawing counts straight from its blocks: see [Open a DWG or DXF drawing](topic:open-a-drawing)), give each sheet a scale (a drawing brings its own), make **items** (a wall type, a floor finish, a fixture), and click on the sheets to take them off. Quantities, costs and the job total update as you go. You can export the estimate as a spreadsheet and a copy of the PDFs with your takeoff drawn in.
 
 If you have done takeoff in other programs, read [Coming from other takeoff software](topic:coming-from) next. Some things work differently here.
 
@@ -23,7 +23,7 @@ TakeoffCraft runs in your web browser. Open TakeoffCraft and the screen is ready
 
 This walk-through measures one wall type and prices it. It takes a few minutes on any plan you have.
 
-1. Choose {{ui:Open PDFs}} in the {{ui:File}} group of the toolbar (or press {{key:Mod+O}}), pick one or more PDFs, and choose Open. You can also drop the PDFs anywhere on the page.
+1. Choose {{ui:Open plans}} in the {{ui:File}} group of the toolbar (or press {{key:Mod+O}}), pick one or more PDFs, and choose Open. You can also drop the PDFs anywhere on the page.
    The sheets appear on the left and the first sheet opens in the middle.
 2. Find the sheet's printed scale in its title block or under a drawing title.
 3. Open the {{ui:Preset}} list in the {{ui:Scale}} group and pick that scale, for example `1/4" = 1'-0"`.

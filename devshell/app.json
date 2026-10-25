@@ -7,7 +7,7 @@
         "layer": "ochre",
         "role": "Quantity takeoff & estimating",
         "tagline": "Measure the drawings. Count the work. Price the job.",
-        "short": "Calibrated linear, area and count takeoff from PDF plans, with assemblies, cost columns and quantities that export."
+        "short": "Calibrated linear, area and count takeoff from PDF plans and DWG or DXF drawings, with assemblies, cost columns and quantities that export."
     },
     "others": {
         "cadcraft": "CadCraft",
@@ -28,7 +28,7 @@
     },
     "origin": "https://getcadcraft.com",
     "packed": {
-        "at": "2026-10-19T00:35:16Z",
+        "at": "2026-10-25T02:50:34Z",
         "build": "dev"
     }
 }

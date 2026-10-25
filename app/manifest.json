@@ -27,5 +27,13 @@
     "live"
   ],
   "addons": "own",
-  "input": "input-takeoffcraft.js"
+  "input": "input-takeoffcraft.js",
+  "workspaces": {
+    "layouts": [
+      "docked",
+      "toolbox"
+    ],
+    "adapter": "workspace-takeoffcraft.js"
+  },
+  "hardware": true
 }

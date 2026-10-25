@@ -27,6 +27,8 @@ const rowNote = (r) => {
   if (r.wallArea) n.push(t('x.note.wall', { value: roundTo(r.wallArea.value, 2), unit: r.wallArea.unit }));
   if (r.perimeter) n.push(t('x.note.perimeter', { value: roundTo(r.perimeter.value, 2), unit: r.perimeter.unit }));
   if (r.backout) n.push(t('export.backout.note', { value: roundTo(r.backout.value, 2), unit: r.backout.unit }));
+  if (r.kind === 'subcontract') n.push(t('export.sub.note', { pkg: (r.pkg ? r.pkg + ' ' : '') + (r.pkg ? divisionTitle(r.pkg) : t('csi.div.none')) }));
+  if (r.awarded) n.push(t('export.awarded.note', { bidder: r.awarded, own: dollars(r.ownTotal) }));
   if (r.kind === 'condition') n.push(t('export.cond.note', { type: TYPE_LABELS[r.cond].toLowerCase() }));
   if (r.kind === 'item' && r.type === 'fixed') n.push(r.origin ? originText(r.origin) : t('x.note.typed'));    // TK.5+: typed, not measured
   if (r.work) n.push(t('export.crew.note', { hours: roundTo(r.work.hours, 2), size: r.crew.size, wh: roundTo(r.work.workerHours, 2), days: roundTo(r.work.days, 2), prod: roundTo(r.crew.prod, 4), unit: r.unit, wage: roundTo(r.crew.wage / 10000, 4) }));
@@ -62,7 +64,7 @@ export function estimateCsv(state, est = baseEstimate(state), columns = []) {
   const lines = [csvLine([...estimateHead(), ...columns.map((c) => c.name)])];
   for (const r of est.rows) {
     const name = r.kind === 'component' ? '  ' + r.name : r.name;
-    const type = r.kind === 'component' ? t('x.component') : TYPE_LABELS[r.type];
+    const type = r.kind === 'component' ? t('x.component') : r.kind === 'subcontract' ? t('x.sub') : TYPE_LABELS[r.type];
     if (r.error) lines.push(csvLine([name, type, r.unit, null, r.waste / 100, null, rate(r.mat), rate(r.lab), null, null, null, rowNote(r), ...colCells(columns, r, state)]));
     else lines.push(csvLine([name, type, r.unit, q4(r.qty), r.waste / 100, q4(r.qtyW), rate(r.mat), rate(r.lab), dollars(r.matExt), dollars(r.labExt), dollars(r.total), rowNote(r), ...colCells(columns, r, state)]));
   }
@@ -100,7 +102,7 @@ export function materialList(state, est = baseEstimate(state)) {
   const items = new Map(state.items.map((i) => [i.id, i]));
   const by = new Map();
   for (const r of est.rows) {
-    if (r.error || !(r.qty > 0)) continue;
+    if (r.error || r.awarded || r.kind === 'subcontract' || !(r.qty > 0)) continue;     // an awarded package's material is the sub's
     if (r.kind !== 'component' && !(r.mat > 0)) continue;
     const it = items.get(r.itemId);
     const name = String(r.name).trim();
@@ -137,9 +139,9 @@ export function byDivision(state, est = baseEstimate(state)) {
   for (const r of est.rows) {
     if (r.error) continue;
     const it = items.get(r.itemId);
-    const div = it?.csi ? it.csi.slice(0, 2) : '';
+    const div = r.kind === 'subcontract' ? r.pkg : it?.csi ? it.csi.slice(0, 2) : '';
     const g = by.get(div) || { div, title: div ? divisionTitle(div) : t('csi.div.none'), mat: 0, lab: 0, total: 0, items: new Set() };
-    g.mat += r.matExt; g.lab += r.labExt; g.total += r.total; g.items.add(r.itemId);
+    g.mat += r.matExt; g.lab += r.labExt; g.total += r.total; if (r.itemId) g.items.add(r.itemId);
     by.set(div, g);
   }
   return [...by.values()].sort((a, b) => (a.div || '99').localeCompare(b.div || '99')).map((g) => ({ ...g, items: g.items.size }));
@@ -190,7 +192,7 @@ function markupRows(est, bid, totalRow, firstRow) {
   const I = 'I' + totalRow, J = 'J' + totalRow;
   if (L('burden')) pctRow('burden', J, est.labTotal);
   push([{ v: L('cost').label, s: 'bold' }, null, null, null, null, null, null, null, null, null,
-    { v: dollars(L('cost').cents), f: [I, J, ...(at.burden ? ['K' + at.burden] : [])].join('+'), s: 'boldMoney' }, ''], 'cost');
+    { v: dollars(L('cost').cents), f: [...(est.subTotal > 0 ? ['K' + totalRow] : [I, J]), ...(at.burden ? ['K' + at.burden] : [])].join('+'), s: 'boldMoney' }, ''], 'cost');   // 0.7 B3: K holds the chosen sub bids too
   const above = ['cost'];
   const refs = () => above.filter((k) => at[k]).map((k) => 'K' + at[k]).join('+');
   const cents = () => above.reduce((n, k) => n + (L(k)?.cents || 0), 0);
@@ -206,7 +208,16 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
   for (const r of est.rows) {
     const n = rows.length; // 0-based row index of this row
     const name = r.kind === 'component' ? { v: '    ' + r.name } : { v: r.name, s: 'bold' };
-    const type = r.kind === 'component' ? t('x.component') : TYPE_LABELS[r.type];
+    const type = r.kind === 'component' ? t('x.component') : r.kind === 'subcontract' ? t('x.sub') : TYPE_LABELS[r.type];
+    if (r.kind === 'subcontract') {                       // 0.7 B3: the chosen bid, typed in column K (a number, not a formula)
+      rows.push([{ v: r.name, s: 'bold' }, type, r.unit, { v: 1, s: 'qty' }, null, null, null, null, null, null, { v: dollars(r.total), s: 'money' }, rowNote(r), ...colCells(columns, r, state)]);
+      continue;
+    }
+    if (r.awarded) {                                      // 0.7 B3: our rates stay for reference; the amounts are the chosen bid's, not ours
+      rows.push([name, type, r.unit, { v: r.qty, s: 'qty' }, { v: r.waste / 10000, s: 'pct' }, { v: r.qtyW, s: 'qty' }, { v: rate(r.mat), s: 'rate' }, { v: rate(r.lab), s: 'rate' },
+        { v: 0, s: 'money' }, { v: 0, s: 'money' }, { v: 0, s: 'money' }, rowNote(r), ...colCells(columns, r, state)]);
+      continue;
+    }
     if (r.error) {
       rows.push([name, type, r.unit, null, { v: r.waste / 10000, s: 'pct' }, null, { v: rate(r.mat), s: 'rate' }, { v: rate(r.lab), s: 'rate' }, null, null, null, rowNote(r), ...colCells(columns, r, state)]);
       continue;
@@ -337,7 +348,7 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
     out.push({ name: t('div.sheet'), rows: rowsD, cols: [8, 48, 8, 14, 14, 14], freeze: 1 });
   }
   // LC.13 (last, so the other sheets keep their places): the bids per package side by side, leveled with plugs at our cost
-  const lv = leveling(state, est, { title: (k) => (k ? divisionTitle(k) : t('csi.div.none')) });
+  const lv = leveling(state, baseEstimate(state, { awards: false }), { title: (k) => (k ? divisionTitle(k) : t('csi.div.none')) });
   if (lv.length) {
     const rowsL = [];
     for (const p of lv) {

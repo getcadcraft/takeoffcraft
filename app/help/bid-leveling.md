@@ -1,9 +1,9 @@
 ---
 title: Bid packages and bid leveling
-summary: Split the estimate into packages by trade, send each package's scope to subcontractors, and compare the bids that come back on the same scope.
+summary: Split the estimate into packages by trade, send each package's scope to subcontractors, compare the bids that come back on the same scope, and use the chosen bid as the package's price.
 section: tasks
 order: 102
-keywords: bid leveling, leveling, bid package, subcontractor, sub bid, scope, plug, trade, csi division, compare bids, low bid, bid tab, bidder
+keywords: bid leveling, leveling, bid package, subcontractor, sub bid, scope, plug, trade, csi division, compare bids, low bid, bid tab, bidder, award, chosen bid, use a bid, subcontract price
 ---
 
 A general contractor sends each trade's scope to subcontractors and compares what comes back. TakeoffCraft does both from the takeoff: open {{ui:Export}} › {{ui:Bid packages and leveling…}}.
@@ -32,6 +32,18 @@ The lowest leveled bid is marked **Low**; on a tie, the one entered first. **Aga
 
 The workbook gets a **Bid leveling** sheet with every package that has bids: our estimate, each bid, its plugs, the leveled total and the difference, as live formulas, and what each bid left out.
 
+## Use a bid as the package's price
+
+Choose {{ui:Use}} on a bid and it becomes the price of the whole package in your estimate: the package's own pricing (the items, their second conditions and assembly parts) drops out of the job total, the items stay as quantities with your own rates for reference, and one line, **Chosen bid**, carries the bid's amount. Items the bid leaves out stay at your own cost, which is what leveling already counted as the plug. Choose another bid, or choose the same one again to take it back; each is one step that {{key:Mod+Z}} undoes.
+
+In the bid summary the sub bids are one line inside the cost: overhead, profit and bond are added on top of them like any other cost; sales tax (on material only) and labor burden (on labor) are not. The workbook's Estimate sheet carries the chosen bid as its own row and the markups block adds it, with live formulas. The material list leaves out an awarded package's material, because the subcontractor supplies it.
+
+A package inside an alternate's bid area is not repriced: alternates and bid-area subtotals still use your own prices.
+
+## Bids that come back by email
+
+You do not have to type the bids in. {{ui:Send for bids…}} under a package emails each subcontractor a link to a page where they type a price for every line; {{ui:Get prices}} pulls what they sent into this table. See [Send a package for bids](topic:bid-invitations).
+
 :::note
-TakeoffCraft does not send the invitations or collect the prices: email the scope yourself and type the bids in. The chosen bid does not replace the package's pricing in your estimate yet. See [Not built yet](topic:not-built-yet).
+Typing a bid in by hand still works, and a hand-typed bid and one from the site sit side by side. Bids that came back from the site are flagged **web** (or **web, late** when they arrived after the due time); their price changes only when the bidder sends a new version, so your own edits to it stay until then.
 :::

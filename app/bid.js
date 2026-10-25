@@ -7,7 +7,7 @@
  *   proposalPdf(PDFLib, input)          → Promise<Uint8Array>   input = { state, est, alts, date, items? }
  *
  * The summary, on the base bid's cost (est: model.baseEstimate):
- *   material + labor + labor burden (burden % × labor: payroll taxes, insurance; 0.5 TK.4) = cost
+ *   material + labor + labor burden (burden % × labor: payroll taxes, insurance; 0.5 TK.4) + chosen sub bids (0.7 B3) = cost
  *   + sales tax       = tax % × material
  *   + overhead        = overhead % × (cost + tax)
  *   + profit          = profit % × (cost + tax + overhead)
@@ -41,9 +41,9 @@ export const bidUsed = (b) => !!b && (BID_PCTS.some((k) => b[k] > 0) || ['to', '
 const share = (cents, bp) => Math.round(cents * bp / 10000);
 
 /** The markups on a cost of `mat` + `lab` cents (+ the labor burden). */
-export function markup(mat, lab, b) {
+export function markup(mat, lab, b, subcontract = 0) {
   const burden = share(lab, b.burden || 0);
-  const cost = mat + lab + burden;
+  const cost = mat + lab + burden + subcontract;      // a chosen sub bid (0.7 B3): no tax on it, no burden; overhead, profit and bond do apply
   const tax = share(mat, b.tax);
   const overhead = share(cost + tax, b.overhead);
   const profit = share(cost + tax + overhead, b.profit);
@@ -53,11 +53,13 @@ export function markup(mat, lab, b) {
 
 export function bidSummary(est, bidRaw, alts = []) {
   const b = normalBid(bidRaw);
-  const m = markup(est.matTotal, est.labTotal, b);
+  const subc = est.subTotal || 0;
+  const m = markup(est.matTotal, est.labTotal, b, subc);
   const lines = [
     { key: 'mat', label: t('bid.l.mat'), cents: est.matTotal },
     { key: 'lab', label: t('bid.l.lab'), cents: est.labTotal },
     ...(b.burden > 0 ? [{ key: 'burden', label: t('bid.l.burden'), pct: b.burden, cents: m.burden }] : []),
+    ...(subc > 0 ? [{ key: 'sub', label: t('bid.l.sub'), cents: subc }] : []),
     { key: 'cost', label: t('bid.l.cost'), cents: m.cost, sub: true },
   ];
   for (const k of BID_FIELDS) if (b[k] > 0) lines.push({ key: k, label: t('bid.l.' + k), pct: b[k], cents: m[k] });

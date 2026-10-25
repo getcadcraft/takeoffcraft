@@ -67,7 +67,7 @@ export function sheetNumber(label, index) {
 
 /** The name a sheet goes by: "A-101", "A-101 — Set B" (several files open), or "Set B, page 3". */
 export function sheetTitle(file, page, multiFile) {
-  const fname = file.name.replace(/\.pdf$/i, '');
+  const fname = file.name.replace(/\.(pdf|dwg|dxf)$/i, '');
   if (!page.number) return fname + ', page ' + (page.index + 1);
   return multiFile ? page.number + ' — ' + fname : page.number;
 }

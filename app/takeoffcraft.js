@@ -26,11 +26,13 @@ import { el, icon, bytes, frame, safeName, ask } from './ui-util.js';
 import { PageView, renderThumb } from './viewer.js';
 import { Takeoff, FORMAT, TYPES, TYPE_LABELS, VARS, VAR_HELP, sheetKey, quantities, estimate, itemVars, itemQty, measureMark, sheetBreakdown, areaEstimates, baseEstimate, alternates, backouts, segSlope, kindsOf, unitOf, condQty, csiOk } from './model.js';
 import * as U from './units.js';
+import { onUnitsChange } from './unit-prefs.js';   // 0.7 UNITS: Settings › General › Units
 import * as G from './geom.js';
 import { parse, evaluate } from './formula.js';
-import { openPdf, sheetTitle, matchFiles } from './pdfset.js';
+import { openPdf, sheetTitle, matchFiles, sha256Hex } from './pdfset.js';
 import { estimateCsv, estimateXlsx, materialList, materialCsv, spotElevationsCsv, divisionTitle } from './export.js';
-import { bidPackages, leveling, packageCsv, addBid, updateBid, removeBid } from './level.js';
+import { bidPackages, leveling, packageCsv, addBid, updateBid, removeBid, setAward } from './level.js';
+import { createBidsUi } from './bids-ui.js';
 import { pdfWithMarks, cloudPath, NOTE_COLORS } from './pdfmarks.js';
 import { toInk, crop, trim, templateProblem, suppress, workScale, ANY_ANGLES } from './match.js';
 import { copyMarks, copyItems, readClip, scaleProblem, sizeProblem, pasteClip, measured } from './clipboard.js';
@@ -77,7 +79,11 @@ function init(root) {
   const urls = { cmaps: root.dataset.pdfCmaps, fonts: root.dataset.pdfFonts, wasm: root.dataset.pdfWasm, icc: root.dataset.pdfIcc };
 
   const model = new Takeoff();
-  const files = [];          // open PDFs: { hash, name, size, doc, pages, bytes }
+  const files = [];          // open plan files: PDFs and (0.7 TD.1) DWG / DXF drawings: { hash, name, size, doc, pages, bytes, kind? ('cad' for a drawing; its `cad` is cadset.js's) }
+  const CAD_RE = /\.(dwg|dxf)$/i;                           // i18n-ignore: file name extensions
+  let cadMod = null;                                       // cadset.js, loaded the first time a drawing is opened
+  let geomMod = null;                                      // cadgeom.js (0.7 TD.4), loaded with it
+  const isCad = (f) => f?.kind === 'cad';
   let sheets = [];           // [{ key, file, info, title }]
   let cur = null;            // the sheet on screen
   const views = new Map();   // sheet key → { z, ox, oy }
@@ -95,6 +101,9 @@ function init(root) {
   let est = baseEstimate(model.state), qmap = quantities(model.state);
   // the 3D check view (scene3d.js + view3d.js, loaded on first use): on, the module, the view, the sheet it shows, sheet textures
   const d3 = { on: false, mod: null, view: null, sheet: null, scene: null, grounds: new Map(), ground: null, stack: false };
+  // 0.7 WS.11: the workspace layouts (workspace-takeoffcraft.js; mounted near the end of init when the build lists them): told of every change
+  let ws = null;
+  const wsChanged = () => ws?.changed();
 
   const view = new PageView(ui.base, ui.over, {
     onOverlay: drawOverlay,
@@ -114,7 +123,7 @@ function init(root) {
   // ---- status ----
   let statusTimer = 0;
   function status(s, ms = 6000) { ui.status.textContent = s; clearTimeout(statusTimer); if (ms) statusTimer = setTimeout(() => { ui.status.textContent = ''; }, ms); }
-  function busy(text) { ui.busy.hidden = !text; if (text) ui.busyText.textContent = text; }
+  function busy(text) { ui.busy.hidden = !text; if (text) ui.busyText.textContent = text; wsChanged(); }
 
   // ---- settings (Settings › TakeoffCraft; per viewer conveniences, localStorage only) ----
   const SET_KEY = 'takeoffcraft.settings';
@@ -204,16 +213,31 @@ function init(root) {
     await ready;
     if (!pdfjs) return;
     const all = [...list];
-    const pdfs = all.filter((f) => /\.pdf$/i.test(f.name) || f.type === 'application/pdf');
+    const cads = all.filter((f) => CAD_RE.test(f.name));
+    const pdfs = all.filter((f) => !cads.includes(f) && (/\.pdf$/i.test(f.name) || f.type === 'application/pdf'));
     const projects = all.filter((f) => /\.json$/i.test(f.name));
-    const other = all.filter((f) => !pdfs.includes(f) && !projects.includes(f));
+    const other = all.filter((f) => !pdfs.includes(f) && !cads.includes(f) && !projects.includes(f));
     if (other.length) status(t('open.skipped', { files: other.map((f) => f.name).join(', ') }));
     let first = null, embedded = null;
-    for (const f of pdfs) {
+    for (const f of [...pdfs, ...cads]) {
       busy(t('open.busy', { file: f.name }));
       await frame();
       try {
         const data = new Uint8Array(await f.arrayBuffer());
+        if (cads.includes(f)) {          // 0.7 TD.1: a drawing opens as sheets (model space and every layout), read by the shared readers
+          cadMod ??= await import('./cadset.js');
+          geomMod ??= await import('./cadgeom.js');
+          const hash = await sha256Hex(data);
+          if (files.some((x) => x.hash === hash)) { status(t('open.already', { file: f.name })); continue; }
+          const set = await cadMod.openCad(data, f.name, { hash, readers: await cadMod.defaultReaders() });
+          files.push({ ...set, bytes: data });
+          model.addFile({ hash: set.hash, name: set.name, size: set.size, pages: set.pages.length });
+          if (model.state.name === 'Takeoff' && !model.state.items.length) model.state.name = f.name.replace(CAD_RE, '');   // i18n-ignore
+          applyDrawingScales(set);
+          if (set.cad.warnings.length) status(set.cad.warnings.join(' '), 12000);
+          first ??= sheetKey(set.hash, 0);
+          continue;
+        }
         const set = await openPdf(pdfjs, data, f.name, urls);
         // T10: a PDF saved with its takeoff inside stands for the PDF it was made from (its marks are keyed by that one)
         const emb = await readEmbedded(set.doc);
@@ -230,8 +254,11 @@ function init(root) {
       }
     }
     busy(null);
-    if (pdfs.length) {
+    if (pdfs.length || cads.length) {
+      const resolved = cads.length ? resolveXrefs() : [];
       rebuildSheets();
+      if (resolved.length && cur) { const k = cur.key; cur = sheets.find((x) => x.key === k) || null; if (cur) await showSheet(k); }
+      if (resolved.length) status(t('cad.xref.resolved', { n: resolved.length, list: resolved.join(', ') }), 12000);
       if (first && (!cur || !projects.length)) await showSheet(first);
       if (files.length) ui.hint.hidden = true;
     }
@@ -252,6 +279,46 @@ function init(root) {
     status([t('embed.opened', { file: emb.file, ...n }), ...r.warnings].join(' '), 12000);
   }
 
+  /**
+   * TD.5: a drawing's linked drawings (xrefs) are found among the open drawings by file name (an xref's path's last part, else its
+   * name); found ones are drawn and counted where they are inserted. → the linked files' names that were found now
+   */
+  function resolveXrefs() {
+    const cads = files.filter(isCad), now = [];
+    const cands = cads.map((f) => ({ name: f.name, model: f.cad.model }));
+    for (const f of cads) {
+      if (!f.cad.xrefs.some((x) => !x.loaded)) continue;
+      const found = cadMod.matchXrefs(f.cad.model, cands);
+      if (!found.size) continue;
+      const next = cadMod.withXrefs(f, found);
+      if (next.cad.xrefs.filter((x) => !x.loaded).length >= f.cad.xrefs.filter((x) => !x.loaded).length) continue;   // nothing new loaded
+      for (const x of next.cad.xrefs) if (x.loaded) now.push(x.name);
+      Object.assign(f, { cad: next.cad, doc: next.doc, pages: next.pages });
+      snaps.clear();
+    }
+    return [...new Set(now)];
+  }
+
+  /**
+   * TD.2: a drawing's sheets start with the scale the drawing itself gives (INSUNITS, a layout's viewport scale), for the sheets that have
+   * none yet — one undo step. A sheet with no usable units stays "No scale"; Calibrate and the scale menu override at any time.
+   */
+  function applyDrawingScales(set) {
+    const map = {};
+    for (const sh of set.cad.sheets) {
+      const key = sheetKey(set.hash, sh.index);
+      if (!sh.scale || model.scaleOf(key)) continue;
+      const sc = sh.scale;
+      if (sh.kind === 'model') map[key] = U.scaleRecord({ method: 'drawing', ftPerUnit: sc.ftPerUnit, label: t('cad.scale.units', { units: cadMod.unitLabel(set.cad.units) }) });
+      else {
+        const pm = U.matchPreset(sc.ftPerUnit);
+        map[key] = pm ? U.scaleRecord({ method: 'preset', preset: pm.key, ftPerUnit: U.presetFtPerUnit(pm.key), label: pm.label })
+          : U.scaleRecord({ method: 'drawing', ftPerUnit: sc.ftPerUnit, label: t('cad.scale.viewport', { scale: U.describeScale(sc.ftPerUnit) }) });
+      }
+    }
+    if (Object.keys(map).length) model.setScales(map, t('cad.scale.undo', { file: set.name }));
+  }
+
   function rebuildSheets() {
     const multi = files.length > 1;
     sheets = files.flatMap((f) => f.pages.map((p) => ({ key: sheetKey(f.hash, p.index), file: f, info: p, title: sheetTitle(f, p, multi) })));
@@ -265,7 +332,7 @@ function init(root) {
     if (s) return s.title;
     const [hash, idx] = key.split(':');
     const f = model.state.files.find((x) => x.hash === hash);
-    return t('sheet.page', { file: f ? f.name.replace(/\.pdf$/i, '') : t('sheet.unknown'), n: Number(idx) + 1 });
+    return t('sheet.page', { file: f ? f.name.replace(/\.(pdf|dwg|dxf)$/i, '') : t('sheet.unknown'), n: Number(idx) + 1 });
   }
 
   async function showSheet(key) {
@@ -286,6 +353,7 @@ function init(root) {
     renderSheets();
     renderMarkProps();
     ui.sheets.querySelector('[aria-current="true"]')?.scrollIntoView({ block: 'nearest' });
+    ws?.sheetShown(key);
   }
 
   function moveSheet(dir) {
@@ -300,7 +368,7 @@ function init(root) {
   // dialogs, drops, the recent list on the start screen, files handed over at launch or double-clicked while running.
   // Saving the takeoff writes it in place on the desktop (the .takeoff.json it was opened from) and downloads in the browser.
   const host = getHost({ app: 'takeoffcraft' });
-  const PDF_TYPES = [{ description: 'PDF', extensions: ['.pdf'] }];                       // i18n-ignore: a file type the OS shows
+  const PDF_TYPES = [{ description: 'PDF, DWG, DXF', extensions: ['.pdf', '.dwg', '.dxf'] }];                       // i18n-ignore: a file type the OS shows
   const PROJECT_TYPES = [{ description: 'TakeoffCraft', extensions: ['.json'] }];          // i18n-ignore: a file type the OS shows
   let projectTarget = null;      // the HostFile the takeoff was opened from, when it can be written in place
   async function openHostFiles(list) {
@@ -451,6 +519,7 @@ function init(root) {
 
   function scaleText(sc, userUnit = 1, short = false) {
     if (sc.method === 'preset') return sc.label;
+    if (sc.method === 'drawing') return sc.label;                  // 0.7 TD.2: read from the drawing (units, a layout's viewport)
     const m = U.matchPreset(sc.ftPerUnit, userUnit);
     if (short) return m ? m.label : U.describeScale(sc.ftPerUnit, userUnit);
     return t(sc.cal?.text ? 'scale.cal.on' : 'scale.cal', { scale: U.describeScale(sc.ftPerUnit, userUnit), text: sc.cal?.text || '' }) + (m ? ' ' + t('scale.matches', { preset: m.label }) : '');
@@ -458,18 +527,65 @@ function init(root) {
 
   function renderSheetBar() {
     renderToolbar();
+    wsChanged();
     ui.sheetbar.hidden = !cur;
-    ui.preset.disabled = !cur;
+    const handoff = root.querySelector('[data-handoff-pdf]');
+    if (handoff) handoff.hidden = !!cur && isCad(cur.file);   // the hand-over to the review app is for PDFs
+    renderLayers();
+    renderGeomBar();
+    const geomBtn = root.querySelector('[data-tool="cadgeom"]');
+    if (geomBtn) geomBtn.hidden = !(cur && isCad(cur.file));    // 0.7 TD.4
+    if (app.tool === 'cadgeom' && !(cur && isCad(cur.file))) setTool('select');
+    const cadBtn = root.querySelector('[data-act="cad-count"]');
+    if (cadBtn) cadBtn.hidden = !(cur && isCad(cur.file));      // 0.7 TD.3: counting from a drawing is for a drawing's sheet
+    ui.preset.disabled = !cur || (isCad(cur.file) && cur.info.cad.kind === 'model');   // a model sheet has no paper: its scale is the drawing's units, or Calibrate
     if (!cur) return;
     ui.sheetName.textContent = cur.title;
     const sc = model.scaleOf(cur.key);
     ui.sheetScale.textContent = sc ? t('sheetbar.scale', { scale: scaleText(sc, cur.info.userUnit) }) : t('sheetbar.noscale');
     ui.sheetScale.classList.toggle('is-unscaled', !sc);
-    ui.preset.value = sc?.method === 'preset' && sc.preset ? sc.preset : (sc ? 'cal' : '');
+    ui.preset.value = sc?.method === 'preset' && sc.preset ? sc.preset : (sc ? (sc.method === 'drawing' ? 'drawing' : 'cal') : '');
   }
+
+  // ---- a drawing's layers (0.7 TD.5): on and off, the file's choice respected; what is hidden is not counted unless chosen
+  const layersMenu = root.querySelector('[data-layers-menu]');
+  function renderLayers() {
+    if (!layersMenu) return;
+    const isDwg = !!cur && isCad(cur.file);
+    layersMenu.hidden = !isDwg;
+    if (!isDwg || !layersMenu.open) return;
+    const box = layersMenu.querySelector('[data-layers-list]');
+    const cad = cur.file.cad, ix = cad.index(), here = cad.sheets[cur.info.index];
+    const counts = new Map();
+    for (const e of cadMod.sheetRefs(here, ix)) counts.set(e.ref.layer, (counts.get(e.ref.layer) || 0) + 1);
+    const names = [...new Set([...cad.drawing.layers.map((l) => l.name), ...counts.keys()])].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    const change = (name, on) => {
+      const fileHidden = !!(ix.layers.get(name)?.off || ix.layers.get(name)?.frozen);
+      if (on === !fileHidden) cad.layerOverride.delete(name); else cad.layerOverride.set(name, on);
+      view.rerender(); renderLayers();
+    };
+    box.replaceChildren(
+      el('div', { className: 'tc-layers-actions' },
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => { for (const n of names) if (!cadMod.layerShown(cad, n)) cad.layerOverride.set(n, true); view.rerender(); renderLayers(); } }, t('cad.layers.showall')),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', disabled: !cad.layerOverride.size, onclick: () => { cad.layerOverride.clear(); view.rerender(); renderLayers(); } }, t('cad.layers.reset'))),
+      el('p', { className: 'tc-layers-note' }, t('cad.layers.note')),
+      el('ul', { className: 'tc-layers-list' }, names.map((n) => {
+        const f = ix.layers.get(n), shown = cadMod.layerShown(cad, n);
+        const state = f?.frozen ? t('cad.layers.frozen') : f?.off ? t('cad.layers.off') : '';
+        const lay = cad.layerByName.get(n);
+        return el('li', {}, el('label', { className: 'tc-layers-row' },
+          el('input', { type: 'checkbox', checked: shown, dataset: { layer: n }, onchange: (e) => change(n, e.target.checked) }),
+          el('span', { className: 'tc-layers-sw', style: { background: lay && lay.color !== 'ink' ? lay.color : 'currentColor' }, 'aria-hidden': 'true' }),
+          el('span', { className: 'tc-layers-name' }, n),
+          el('span', { className: 'tc-layers-state' }, [state, cad.layerOverride.has(n) ? t('cad.layers.here') : ''].filter(Boolean).join(', ')),
+          el('span', { className: 'tc-layers-n' }, counts.has(n) ? t('cad.layers.n', { n: counts.get(n) }) : '')));
+      })));
+  }
+  layersMenu?.addEventListener('toggle', renderLayers);
 
   // preset scales
   ui.preset.append(el('option', { value: 'cal', disabled: true, hidden: true }, t('x.calibrated')));
+  ui.preset.append(el('option', { value: 'drawing', disabled: true, hidden: true }, t('cad.scale.fromdrawing')));
   ui.preset.append(el('option', { value: '__detect' }, t('scale.detect')));
   for (const [group, list] of U.SCALE_GROUPS) ui.preset.append(el('optgroup', { label: group }, list.map(([key, label]) => el('option', { value: key }, label))));
   ui.preset.addEventListener('change', async () => {
@@ -491,7 +607,7 @@ function init(root) {
     try {
       for (const s of sheets) {
         let r;
-        try { r = sheetScale(pageText(await (await s.file.doc.getPage(s.info.index + 1)).getTextContent())); } catch { r = { preset: null, why: 'none', others: [] }; }
+        try { r = isCad(s.file) && s.info.cad.kind === 'model' ? { preset: null, why: 'none', others: [] } : sheetScale(pageText(await (await s.file.doc.getPage(s.info.index + 1)).getTextContent())); } catch { r = { preset: null, why: 'none', others: [] }; }
         found.push({ s, r, cur: model.scaleOf(s.key) });
       }
     } finally { busy(null); }
@@ -547,6 +663,11 @@ function init(root) {
     if (tool === 'linear' || tool === 'area' || tool === 'count' || tool === 'circle' || tool === 'autocount' || tool === 'room') {
       if (!ensureItem(tool === 'circle' || tool === 'room' ? 'area' : tool === 'autocount' ? 'count' : tool)) return false;
     }
+    if (tool === 'cadgeom') {                                // 0.7 TD.4: needs a drawing's sheet, a scale and a linear or area item
+      if (!isCad(cur.file) || !geomMod) { status(t('cad.count.needs')); return false; }
+      if (!model.scaleOf(cur.key)) { status(t('tool.err.noscale'), 9000); return false; }
+      if (!geomKind()) { status(t('cad.geom.item'), 9000); return false; }
+    }
     if (NOTE_TOOLS.has(tool)) { app.selNote = null; renderNoteProps(); }
     if (tool === 'cutout' || tool === 'cutcircle') {
       const m = app.sel && model.mark(app.sel);
@@ -556,14 +677,17 @@ function init(root) {
     }
     cancelDraft();
     if (app.ac && tool !== 'autocount') discardAutoCount();
+    app.geom = tool === 'cadgeom' ? { sel: new Set(), tag: '' } : null;
     app.tool = tool;
     app.check = tool === 'check' ? app.check : null;
     for (const b of toolButtons) b.setAttribute('aria-pressed', String(b.dataset.tool === tool || (tool === 'cutcircle' && b.dataset.tool === 'cutout')));
     ui.over.dataset.tool = tool;
     renderAcBar();
+    renderGeomBar();
     const help = tool === 'room' ? t('help.room', { gap: U.formatFtIn(settings.roomGap) }) : t('help.' + tool);
     status(help, 0);
     view.overlayOnly();
+    wsChanged();
     return true;
   }
 
@@ -702,6 +826,7 @@ function init(root) {
     }
     if (e.button === 0 && app.tool === 'select' && !app.paste) app.drag = handleAt(p);
     if (e.button === 0 && app.tool === 'autocount' && !app.ac?.running) app.box = { a: view.toUser(p), b: view.toUser(p), sa: p };
+    if (e.button === 0 && app.tool === 'cadgeom') app.box = { a: view.toUser(p), b: view.toUser(p), sa: p, geom: true };   // a window takes everything inside it; a click, one object
   });
   ui.over.addEventListener('pointermove', (e) => {
     const p = pos(e);
@@ -753,6 +878,12 @@ function init(root) {
       if (dbl && app.draft && !app.draft.mid && (app.tool === 'linear' || app.tool === 'area' || app.tool === 'cutout')) { finishDraft(); return; }
     }
     if (app.drag) { const g = app.drag; app.drag = null; if (d.moved) { commitDrag(g); return; } }
+    if (app.box?.geom) {
+      const bx = app.box; app.box = null;
+      if (d.moved && Math.hypot(p.x - bx.sa.x, p.y - bx.sa.y) > 6) geomWindow(bx.a, view.toUser(p), app.shift);
+      else geomClick(view.toUser(p), app.shift);
+      return;
+    }
     if (app.box) {
       const bx = app.box; app.box = null;
       if (d.moved && Math.hypot(p.x - bx.sa.x, p.y - bx.sa.y) > 6) { runAutoCount(bx.a, view.toUser(p)); return; }
@@ -802,7 +933,7 @@ function init(root) {
     rec.pending = (async () => {
       try {
         const page = await s.file.doc.getPage(s.info.index + 1);
-        const lw = await pageLinework(pdfjs, page);
+        const lw = isCad(s.file) ? cadMod.cadLinework(s.file.cad, s.info.index) : await pageLinework(pdfjs, page);   // a drawing's own lines (cadset.js)
         rec.n = lw.n; rec.truncated = lw.truncated;
         rec.idx = lw.n ? new SnapIndex(lw) : null;
         if (cur?.key === s.key && settings.snap && rec.truncated) status(t('snap.truncated', { n: MAX_SEGS.toLocaleString() }), 9000);
@@ -1304,6 +1435,7 @@ function init(root) {
       label(ctx, a, b, app.check.text);
     }
     drawAutoCount(ctx, S, line);
+    drawCadGeom(ctx, S, trace);
     drawPaste(ctx, trace);
     drawSnap(ctx, S);
     // the cursor's crosshair while picking points
@@ -1350,7 +1482,7 @@ function init(root) {
     if (!name) { ui.itemForm.elements.name.focus(); return; }
     const type = ui.itemForm.elements.type.value;
     // an add-on's item type (0.5 AO.6): "addon:<add-on id>:<kind>", made with that type's defaults
-    const id = type.startsWith('addon:') ? addonsApi?.createFromSelect(type, { name }) : model.addItem({ name, type, waste: settings.waste });
+    const id = type.startsWith('addon:') ? addonsApi?.createFromSelect(type, { name }) : model.addItem({ name, type, waste: settings.waste, unit: U.defaultUnitFor(type) });
     if (!id) return;
     ui.itemForm.reset(); ui.itemForm.elements.type.value = type; ui.itemForm.hidden = true;
     setActive(id);
@@ -1413,6 +1545,7 @@ function init(root) {
     return n;
   };
 
+  onUnitsChange(() => renderItemProps());   // 0.7 UNITS: the unit lists changed in Settings
   function renderItemProps() {
     const it = app.active && model.item(app.active);
     ui.itemSec.hidden = !it;
@@ -1449,7 +1582,7 @@ function init(root) {
       const row = el('div', { className: 'tc-also-row' }, el('label', { className: 'tc-check', title: n ? t('item.cond.locked', { n }) : t('item.cond.title', { type: TYPE_LABELS[k].toLowerCase() }) }, cb, ' ' + TYPE_LABELS[k]));
       if (c) {
         const u = el('select', { className: 'tc-select', id: 'tc-i-also-unit-' + k, dataset: { field: 'cond-unit:' + k }, 'aria-label': t('item.cond.unit', { type: TYPE_LABELS[k] }) },
-          U.UNITS_FOR[k].map((x) => el('option', { value: x, selected: x === c.unit }, U.UNITS[x].label)));
+          U.unitsFor(k, [c.unit]).map((x) => el('option', { value: x, selected: x === c.unit }, U.UNITS[x].label)));   // 0.7 UNITS: the units turned on + its own
         u.addEventListener('change', () => model.updateCond(it.id, k, { unit: u.value }, t('undo.item.unit')));
         row.append(u);
       }
@@ -1469,10 +1602,10 @@ function init(root) {
     const name = textInput('tc-i-name', 'name', it.name, (v, n) => { if (!v.trim()) return fail(n, t('item.err.name')); commit({ name: v }, t('undo.item.rename')); }, { maxlength: 200 });
     const type = el('select', { className: 'tc-select', id: 'tc-i-type', dataset: { field: 'type' }, disabled: nMarks > 0, title: nMarks ? t('item.type.locked') : '' },
       TYPES.map((ty) => el('option', { value: ty, selected: ty === it.type }, TYPE_LABELS[ty])));
-    type.addEventListener('change', () => commit({ type: type.value, unit: U.DEFAULT_UNIT[type.value] }, t('undo.item.type')));
+    type.addEventListener('change', () => commit({ type: type.value, unit: U.defaultUnitFor(type.value) }, t('undo.item.type')));
     const color = el('input', { type: 'color', className: 'tc-input', id: 'tc-i-color', dataset: { field: 'color' }, value: it.color.toLowerCase() });
     color.addEventListener('change', () => commit({ color: color.value }, t('undo.item.color')));
-    const unit = el('select', { className: 'tc-select', id: 'tc-i-unit', dataset: { field: 'unit' } }, U.UNITS_FOR[it.type].map((u) => el('option', { value: u, selected: u === it.unit }, t('unit.option', { unit: U.UNITS[u].label, name: U.UNITS[u].name }))));
+    const unit = el('select', { className: 'tc-select', id: 'tc-i-unit', dataset: { field: 'unit' } }, U.unitsFor(it.type, [it.unit]).map((u) => el('option', { value: u, selected: u === it.unit }, t('unit.option', { unit: U.UNITS[u].label, name: U.UNITS[u].name }))));
     unit.addEventListener('change', () => commit({ unit: unit.value }, t('undo.item.unit')));
 
     const rows = [...fieldRow(t('item.f.name'), name), ...fieldRow(t('item.f.type'), type), ...fieldRow(t('item.f.color'), color), ...fieldRow(t('item.f.unit'), unit)];
@@ -1665,6 +1798,7 @@ function init(root) {
 
   // ---- the selected mark ----
   function renderMarkProps() {
+    wsChanged();
     renderToolbar();
     if (d3.on) d3.view?.setSelection(selIds());
     const m = app.sel && model.mark(app.sel);
@@ -2474,10 +2608,15 @@ function init(root) {
       return el('td', {}, n);
     };
     const body = est.rows.map((r) => {
+      if (r.kind === 'subcontract') {                       // 0.7 B3: the chosen bid, standing in for its package's own pricing
+        return el('tr', { className: 'is-sub', dataset: { qtySub: r.pkg } }, el('td', { colSpan: 7 }, t('qty.sub.row', { bidder: r.bidder, pkg: (r.pkg ? r.pkg + ' ' : '') + (r.pkg ? divisionTitle(r.pkg) : t('csi.div.none')) })),
+          el('td', {}), el('td', {}), el('td', {}, U.formatCents(r.total)));
+      }
       const it = items.get(r.itemId);
       const isItem = r.kind === 'item', isCond = r.kind === 'condition';
       const first = el('td', {}, isItem || isCond ? el('span', { className: 'tc-chip', style: { background: it.color } }) : null, isCond ? t('qty.cond.name', { item: r.name, type: TYPE_LABELS[r.cond].toLowerCase() }) : r.name,
-        isItem && r.unscaled ? el('span', { className: 'tc-flag', title: t('qty.unscaled.title') }, t('qty.unscaled', { n: r.unscaled })) : null);
+        isItem && r.unscaled ? el('span', { className: 'tc-flag', title: t('qty.unscaled.title') }, t('qty.unscaled', { n: r.unscaled })) : null,
+        isItem && r.awarded ? el('span', { className: 'tc-flag', dataset: { qtyAwarded: r.itemId }, title: t('qty.awarded.title', { own: U.formatCents(r.ownTotal) }) }, t('qty.awarded', { bidder: r.awarded })) : null);
       const dec = (isItem && it.type === 'count') || (isCond && r.cond === 'count') ? 0 : 2;
       const tr = el('tr', { className: (isItem ? 'is-item' : isCond ? 'is-item is-cond' : 'is-comp') + (app.hl === r.itemId && isItem ? ' is-hl' : ''), dataset: isItem ? { qtyRow: r.itemId } : isCond ? { qtyCond: r.itemId + ':' + r.cond } : {} }, first,
         r.error ? el('td', { className: 'is-err', colSpan: 2 }, t('x.note.error', { error: r.error })) : [el('td', {}, U.fixed(r.qty, dec)), el('td', { className: 'tl' }, r.unit)],
@@ -2545,8 +2684,15 @@ function init(root) {
     try {
       const PDFLib = await import('pdf-lib');
       for (const f of withMarks) {
-        const out = await pdfWithMarks(PDFLib, f.bytes, f.hash, model.state);
-        host.download(out.bytes, safeName(f.name.replace(/\.pdf$/i, '')) + ' (takeoff).pdf', 'application/pdf');
+        let src = f.bytes, state = model.state;
+        if (isCad(f)) {                    // 0.7 TD.6: a drawing's sheets with marks are drawn as a PDF first (cadpdf.js), no plotting step for anyone
+          const { cadSheetsPdf, remapState } = await import('./cadpdf.js');
+          const used = new Set([...model.state.marks, ...(model.state.notes || [])].filter((m) => m.sheet.startsWith(f.hash + ':')).map((m) => Number(m.sheet.split(':')[1])));
+          const made = await cadSheetsPdf(PDFLib, f, [...used].sort((x, y) => x - y));
+          src = made.bytes; state = remapState(model.state, f.hash, made.pages);
+        }
+        const out = await pdfWithMarks(PDFLib, src, f.hash, state);
+        host.download(out.bytes, safeName(f.name.replace(/\.(pdf|dwg|dxf)$/i, '')) + ' (takeoff).pdf', 'application/pdf');
       }
       status(t('export.pdf.done', { n: withMarks.length }));
     } catch (err) {
@@ -2557,25 +2703,147 @@ function init(root) {
 
   /** T10: each open PDF as a copy with the takeoff inside (its pages untouched), to reopen the takeoff from the PDF alone. */
   async function exportEmbed() {
-    if (!files.length) { status(t('handoff.nopdf')); return; }
+    if (!files.some((f) => !isCad(f))) { status(t('handoff.nopdf')); return; }
     if (!model.state.items.length) { status(t('embed.none')); return; }
     busy(t('embed.busy'));
     await frame();
     try {
       const PDFLib = await import('pdf-lib');
       const json = model.toJSON();
-      for (const f of files) {
+      const pdfFiles = files.filter((f) => !isCad(f));          // a drawing cannot carry a takeoff inside it: the PDFs do
+      for (const f of pdfFiles) {
         const out = await embedTakeoff(PDFLib, f.bytes, json, f.hash);
         host.download(out, t('embed.file', { name: safeName(f.name.replace(/\.pdf$/i, '')) }) + '.pdf', 'application/pdf');
       }
-      status(t('embed.done', { n: files.length }), 9000);
+      status(t('embed.done', { n: pdfFiles.length }), 9000);
     } catch (err) {
       console.error(err);
       status(t('embed.failed', { reason: err.message }), 12000);
     } finally { busy(null); }
   }
 
+  // =========================================================================
+  // Count from the drawing (0.7 TD.3): by block, by layer + entity type, by text — exact, from the DWG / DXF itself
+
+  const countItems = () => model.state.items.filter((i) => kindsOf(i).includes('count'));
+  /** The counting pieces (cadcount.js, cadmarks.js), loaded the first time a drawing is counted. */
+  let cadCountMods = null;
+  const loadCadCount = async () => (cadCountMods ??= { cc: await import('./cadcount.js'), cm: await import('./cadmarks.js'), ui: await import('./cadcount-ui.js') });
+  const countDone = (r) => status(t('cad.count.done', { n: r.n, item: model.item(r.item)?.name || '', already: r.already, mod: modKey }), 12000);
+
+  async function cadCount(preset = null) {
+    const s = cur;
+    if (!s || !isCad(s.file)) { status(t('cad.count.needs')); return; }
+    busy(t('cad.count.busy'));
+    await frame();
+    let mods;
+    try { mods = await loadCadCount(); s.file.cad.index(); } catch (err) { console.error(err); busy(null); status(t('cad.count.failed', { reason: err.message }), 12000); return; }
+    busy(null);
+    const r = await mods.ui.openCadCount({
+      root, ask, t, set: s.file, sheetIndex: s.info.index, preset,
+      items: countItems().map((i) => ({ id: i.id, name: i.name, marks: model.state.marks.filter((m) => m.item === i.id).length })),
+      activeId: app.active,
+      existingFor: (id) => model.state.marks.filter((m) => m.item === id && m.kind === 'count'),
+      commit: (a) => model.addCounted({ ...a, list: a.list.map((m) => ({ ...m, ...inArea() })) }),
+    });
+    if (!r) return;
+    setActive(r.item, true);
+    countDone(r);
+  }
+
+  // =========================================================================
+  // Measure from geometry (0.7 TD.4): pick the drawing's own lines, arcs, polylines and hatches, take them as a linear or area item
+
+  const geomCache = new Map();                                // sheet key → { tag, items, skipped, clipped }
+  const geomBar = root.querySelector('[data-geombar]');
+  function geomList(s) {
+    const tag = [...s.file.cad.layerOverride].join(';');     // the layer panel changes what is offered
+    let c = geomCache.get(s.key);
+    if (!c || c.tag !== tag) { c = { tag, ...geomMod.collectGeometry(s.file, s.info.index) }; geomCache.set(s.key, c); if (app.geom) app.geom.sel.clear(); }
+    return c;
+  }
+  const geomItems = () => (cur && isCad(cur.file) && geomMod ? geomList(cur).items : []);
+  /** The kind the active item measures by: 'linear' or 'area' (its own type, else a second condition it has), else null. */
+  function geomKind() {
+    const it = model.item(app.active);
+    if (!it) return null;
+    if (it.type === 'linear' || it.type === 'area') return it.type;
+    const ks = kindsOf(it);
+    return ks.includes('area') ? 'area' : ks.includes('linear') ? 'linear' : null;
+  }
+  const geomSelected = () => (app.geom ? geomItems().filter((i) => app.geom.sel.has(i.id)) : []);
+  function geomClick(p, additive) {
+    const hit = geomMod.hitTest(geomItems(), p, hitPx() / view.z);
+    if (!app.geom) return;
+    if (!hit) { if (!additive) geomClear(); return; }
+    if (app.geom.sel.has(hit.id)) app.geom.sel.delete(hit.id);
+    else app.geom.sel.add(hit.id);                           // a click adds: several objects, one after another
+    renderGeomBar(); view.overlayOnly();
+  }
+  function geomWindow(a, b, additive) {
+    if (!app.geom) return;
+    if (!additive) app.geom.sel.clear();
+    for (const it of geomMod.inWindow(geomItems(), a, b)) app.geom.sel.add(it.id);
+    renderGeomBar(); view.overlayOnly();
+  }
+  function geomClear() { if (app.geom) app.geom.sel.clear(); renderGeomBar(); view.overlayOnly(); }
+  function renderGeomBar() {
+    if (!geomBar) return;
+    geomBar.hidden = app.tool !== 'cadgeom';
+    if (geomBar.hidden) return;
+    const kind = geomKind(), sel = geomSelected(), sc = cur && model.scaleOf(cur.key);
+    const it = model.item(app.active);
+    const sum = geomBar.querySelector('[data-geom-summary]'), add = geomBar.querySelector('[data-geom-add]'), clr = geomBar.querySelector('[data-geom-clear]');
+    if (!sel.length) sum.textContent = t(kind === 'area' ? 'cad.geom.hint.area' : 'cad.geom.hint.linear', { item: it?.name || '' });
+    else if (sc && kind) {
+      const tot = geomMod.totals(sel, kind);
+      const marks = geomMod.marksFor(sel, kind);
+      sum.textContent = (kind === 'area' ? t('cad.geom.sel.area', { n: marks.list.length, area: U.fixed(tot.area * sc.ftPerUnit * sc.ftPerUnit, 2) }) : t('cad.geom.sel.linear', { n: marks.list.length, len: ftIn(tot.len * sc.ftPerUnit) }))
+        + (marks.skipped.open ? ' ' + t('cad.geom.left.open', { n: marks.skipped.open }) : '') + (marks.skipped.hatch ? ' ' + t('cad.geom.left.hatch', { n: marks.skipped.hatch }) : '')
+        + (marks.approx ? ' ' + t('cad.geom.approx', { n: marks.approx }) : '');
+    }
+    add.textContent = t('cad.geom.add', { n: geomMod && kind ? geomMod.marksFor(sel, kind).list.length : 0, item: it?.name || '' });
+    add.disabled = !sel.length || !kind || !geomMod.marksFor(sel, kind).list.length;
+    clr.disabled = !sel.length;
+  }
+  geomBar?.querySelector('[data-geom-add]').addEventListener('click', () => addGeometry());
+  geomBar?.querySelector('[data-geom-clear]').addEventListener('click', () => geomClear());
+  /** Take the picked objects as marks of the active item: a run for each line, arc or polyline (a closed one by its perimeter) or an outline for each closed shape — ONE undo step. */
+  function addGeometry() {
+    const kind = geomKind(), it = model.item(app.active), sel = geomSelected();
+    if (!kind || !it || !sel.length || !cur) return;
+    if (!model.scaleOf(cur.key)) { status(t('tool.err.noscale.measure'), 9000); return; }
+    const r = geomMod.marksFor(sel, kind);
+    if (!r.list.length) { status(t(kind === 'area' ? 'cad.geom.none.area' : 'cad.geom.none.linear'), 9000); return; }
+    const ids = model.addMarks(it.id, r.list.map((m) => ({ sheet: cur.key, pts: m.pts, holes: m.holes, ...inArea() })), t('cad.geom.undo', { n: r.list.length, item: it.name }), kind);
+    const sc = model.scaleOf(cur.key);
+    const qty = ids.reduce((n, id) => { const m = measureMark(model.mark(id), sc.ftPerUnit, it); return n + (kind === 'area' ? m.areaSqft : m.lengthFt); }, 0);
+    app.geom.sel.clear();
+    app.sel = ids[0] || null;
+    status(t('cad.geom.done', { n: r.list.length, item: it.name, qty: kind === 'area' ? U.fixed(qty, 2) + ' ' + t('cad.geom.sf') : ftIn(qty), mod: modKey }) + (r.approx ? ' ' + t('cad.geom.approx', { n: r.approx }) : ''), 12000);
+    renderGeomBar(); view.overlayOnly();
+  }
+  function drawCadGeom(ctx, S, trace) {
+    if (app.tool !== 'cadgeom' || !app.geom || !cur || !isCad(cur.file)) return;
+    const it = model.item(app.active), color = it?.color || colors.action;
+    const items = geomItems();
+    const sel = app.geom.sel;
+    ctx.save(); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    const hover = app.cursor && !app.box ? geomMod.hitTest(items, app.cursor, hitPx() / view.z) : null;
+    const draw = (g, w, alpha, fillA) => {
+      ctx.beginPath(); trace(g.pts, g.closed);
+      for (const h of g.holes) trace(h, true);
+      ctx.globalAlpha = alpha; ctx.strokeStyle = color; ctx.lineWidth = w;
+      if (g.closed && fillA) { ctx.save(); ctx.globalAlpha = fillA; ctx.fillStyle = color; ctx.fill('evenodd'); ctx.restore(); }
+      ctx.stroke();
+    };
+    if (hover && !sel.has(hover.id)) draw(hover, 2, 0.55, 0);
+    for (const g of items) if (sel.has(g.id)) draw(g, 3, 1, 0.18);
+    ctx.restore();
+  }
+
   const actions = {
+    'cad-count': () => cadCount(),
     'open-pdf': async () => { const l = await host.openFile({ types: PDF_TYPES, multiple: true }); if (l.length) await openHostFiles(l); },
     'open-project': async () => { const l = await host.openFile({ types: PROJECT_TYPES }); if (l.length) await openHostFiles(l); },
     'save-project': saveProject,
@@ -2894,6 +3162,7 @@ function init(root) {
     ui3d.btn?.setAttribute('aria-pressed', 'true');
     update3d();
     if (d3.on) d3.view.canvas.focus({ preventScroll: true });
+    wsChanged();
   }
 
   function close3d() {
@@ -2903,6 +3172,7 @@ function init(root) {
     ui.stage.classList.remove('is-3d');
     ui3d.btn?.setAttribute('aria-pressed', 'false');
     view.invalidate(true);
+    wsChanged();
   }
 
   /** Rebuild from the model (after any edit, a new sheet or a selection made elsewhere). */
@@ -2992,6 +3262,9 @@ function init(root) {
   }
 
   // ---- bid packages and leveling (0.6 LC.13, level.js): scope by trade out, subcontractors' bids side by side ----
+  // 0.7 B4: bids-ui.js sends a package to the website (email invitations, the bidder's page) and pulls the prices back into the bids.
+  const bidsUi = createBidsUi({ root, model, status, files: () => files, sheetLabel, divisionTitle, loadPdfLib: () => import('pdf-lib'),
+    loadCad: async () => { const m = await import('./cadpdf.js'); return { cadSheetsPdf: m.cadSheetsPdf, remapState: m.remapState }; } });
   async function levelDialog() {
     if (!model.state.items.length) { status(t('bid.empty')); return; }
     const title = (k) => (k ? divisionTitle(k) : t('csi.div.none'));
@@ -3000,15 +3273,23 @@ function init(root) {
     const cents = (v) => { const r = U.parseRate(v); return r.ok ? { ok: true, c: Math.round(r.rate4 / 100) } : r; };
     const box = el('div', { className: 'tc-lvl', dataset: { lvl: '' } });
     const draw = () => {
-      const e = baseEstimate(model.state), pkgs = bidPackages(model.state, e, { title });
+      const e = baseEstimate(model.state, { awards: false }), pkgs = bidPackages(model.state, e, { title });
       const lv = new Map(leveling(model.state, e, { title }).map((p) => [p.pkg.key, p]));
       box.replaceChildren(...pkgs.map((p) => {
-        const key = p.key || 'none', L = lv.get(p.key);
+        const key = p.key || 'none', L = lv.get(p.key), reqs = bidsUi.requests(p.key);
+        const sendBtn = el('button', { type: 'button', className: 'tc-linkbtn', dataset: { lvlSend: key }, onclick: async () => { await bidsUi.sendDialog(p); draw(); } }, icon('send'), ' ' + t('lvl.send'));
+        const getBtn = el('button', { type: 'button', className: 'tc-linkbtn', dataset: { lvlGet: key }, onclick: async () => {
+          say(t('lvl.get.busy'));
+          const r = await bidsUi.getPrices(p.key);
+          say(r.needConnect ? t('bids.err.connect') : r.failed ? t('lvl.get.failed') : (r.added + r.updated) ? t('lvl.get.done', { added: r.added, updated: r.updated }) + (r.late ? ' ' + t('lvl.get.late', { n: r.late }) : '') : r.sealed ? t('lvl.get.sealed') : t('lvl.get.none', { waiting: r.waiting }));
+          draw();
+        } }, icon('arrow-repeat'), ' ' + t('lvl.get'));
         const csvBtn = el('button', { type: 'button', className: 'tc-linkbtn', dataset: { lvlCsv: key }, onclick: () => {
           const file = t('pkg.csv.file', { name: safeName(model.state.name || 'Takeoff'), pkg: safeName((p.key ? p.key + ' ' : '') + p.title) }) + '.csv';
           host.download(new Blob(['﻿' + packageCsv(p, sheetLabel)], { type: 'text/csv' }), file, 'text/csv');
           say(t('pkg.csv.done', { file }));
         } }, icon('filetype-csv'), ' ' + t('pkg.csv.btn'));
+        const chosen = (model.state.awards || []).find((a) => a.pkg === p.key)?.bid || null;
         const rows = (L?.bids || []).map((r) => {
           const b = r.bid;
           const name = el('input', { type: 'text', className: 'tc-input', value: b.bidder, maxLength: 120, 'aria-label': t('lvl.head.bidder'), dataset: { lvlBidder: b.id } });
@@ -3021,9 +3302,11 @@ function init(root) {
               cb.addEventListener('change', () => { updateBid(model, b.id, { excl: cb.checked ? [...b.excl, x.itemId] : b.excl.filter((i) => i !== x.itemId) }, t('undo.bid.left')); draw(); });
               return el('label', { className: 'tc-check' }, cb, ' ' + x.name);
             }));
-          return el('tr', { className: b.id === L.low ? 'is-low' : '', dataset: { lvlRow: b.id } }, el('td', {}, name), el('td', {}, amt), el('td', {}, left),
+          return el('tr', { className: b.id === L.low ? 'is-low' : '', dataset: { lvlRow: b.id } }, el('td', {}, name, b.src ? el('span', { className: 'tc-flag', dataset: { lvlWeb: b.id }, title: t('lvl.web.title') }, b.src.late ? t('lvl.web.late') : t('lvl.web')) : null), el('td', {}, amt), el('td', {}, left),
             el('td', { className: 'num' }, U.formatCents(r.plug)), el('td', { className: 'num', dataset: { lvlLeveled: b.id } }, U.formatCents(r.leveled)),
             el('td', { className: 'num' }, (r.diff >= 0 ? '+' : '−') + U.formatCents(Math.abs(r.diff))), el('td', {}, b.id === L.low ? t('lvl.low') : ''),
+            el('td', {}, el('button', { type: 'button', className: 'btn-line btn-sm-cc' + (chosen === b.id ? ' is-on' : ''), 'aria-pressed': String(chosen === b.id), dataset: { lvlAward: b.id },
+              title: chosen === b.id ? t('lvl.award.off.title') : t('lvl.award.title'), onclick: () => { setAward(model, p.key, chosen === b.id ? null : b.id); draw(); } }, chosen === b.id ? t('lvl.award.on') : t('lvl.award'))),
             el('td', {}, el('button', { type: 'button', className: 'tc-linkbtn is-danger', 'aria-label': t('lvl.remove', { bidder: b.bidder }), onclick: () => { removeBid(model, b.id); draw(); } }, icon('x-lg'))));
         });
         const nb = el('input', { type: 'text', className: 'tc-input', placeholder: t('lvl.new.bidder'), maxLength: 120, dataset: { lvlNewBidder: key } });
@@ -3038,16 +3321,22 @@ function init(root) {
         } }, t('lvl.add'));
         return el('section', { className: 'tc-lvl-pkg', dataset: { lvlPkg: key } },
           el('h3', { className: 'tc-h' }, (p.key ? p.key + ' ' : '') + p.title),
-          el('p', { className: 'tc-note' }, t('lvl.pkg.facts', { items: t('n.items', { n: p.items.length }), sheets: t('n.sheets', { n: p.sheets.length }), cost: U.formatCents(p.cost) }), ' ', csvBtn),
+          el('p', { className: 'tc-note' }, t('lvl.pkg.facts', { items: t('n.items', { n: p.items.length }), sheets: t('n.sheets', { n: p.sheets.length }), cost: U.formatCents(p.cost) }), ' ', csvBtn, ' ', sendBtn, reqs.length ? [' ', getBtn] : null),
+          ...reqs.map((r) => el('p', { className: 'tc-note', dataset: { lvlReq: r.req.uuid } }, icon('envelope'), ' ' + r.text,
+            r.info ? ' ' + (r.info.sealed ? t('lvl.req.sealed', { until: r.info.sealedUntil ? new Date(r.info.sealedUntil).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '', answered: r.info.answered, invited: r.info.invited })
+              : t('lvl.req.opened', { answered: r.info.answered, invited: r.info.invited })) + (r.info.status !== 'open' ? ' ' + t('lvl.req.' + r.info.status) : '') : null)),
           el('table', { className: 'tc-qty-table tc-lvl-table' },
-            el('thead', {}, el('tr', {}, ...['bidder', 'bid', 'left', 'plug', 'leveled', 'diff', 'low'].map((k) => el('th', { scope: 'col' }, t('lvl.head.' + k))), el('th', {}))),
-            el('tbody', {}, ...rows, el('tr', {}, el('td', {}, nb), el('td', {}, na), el('td', { colSpan: 6 }, add)))));
+            el('thead', {}, el('tr', {}, ...['bidder', 'bid', 'left', 'plug', 'leveled', 'diff', 'low', 'award'].map((k) => el('th', { scope: 'col' }, t('lvl.head.' + k))), el('th', {}))),
+            el('tbody', {}, ...rows, el('tr', {}, el('td', {}, nb), el('td', {}, na), el('td', { colSpan: 7 }, add)))));
       }));
     };
     draw();
+    if ((model.state.bidreqs || []).length && bidsUi.connected()) bidsUi.getPrices(undefined, { quiet: true }).then((r) => { if (r.added || r.updated) say(t('lvl.get.done', { added: r.added, updated: r.updated })); draw(); });    // quietly, when this tab is already signed in
+    const stopWatching = bidsUi.onConnectionChange(() => draw());
     const asked = ask(root, { title: t('lvl.h'), text: t('lvl.text'), body: el('div', {}, box, msg), buttons: [['cancel', t('btn.close'), 'btn-line']] });
     root.querySelector('dialog.tc-dialog[open]')?.classList.add('is-wide');
     await asked;
+    stopWatching();
   }
 
   // ---- the assembly and price library (T9): per viewer, kept in this browser for every takeoff ----
@@ -3336,6 +3625,16 @@ function init(root) {
     status(t('d3.glb.done', { file: name, n: d3.scene.objects.filter((o) => o.kind !== 'frame').length }), 9000);
   }
 
+  /** The 3D check view as a USD package (.usdz; usd-takeoffcraft.js on cc-usd, ./usd/; 0.7 XF.8). */
+  async function exportUsd() {
+    if (!d3.scene?.objects?.some((o) => o.kind !== 'frame' && (o.tris.length || o.kind === 'run'))) { status(t('d3.glb.empty')); return; }
+    const { checkUsd } = await import('./usd-takeoffcraft.js');
+    const name = safeName(model.state.name || 'Takeoff') + (d3.stack ? '' : ' - ' + safeName(cur.title)) + '.usdz';   // i18n-ignore: a file name
+    const r = checkUsd(d3.scene, { format: 'usdz', name: model.state.name });
+    host.download(r.data, name, 'model/vnd.usdz+zip');
+    status(t('usd.done', { name, n: r.report.objects }), 9000);
+  }
+
   /** The 3D view as a PNG (model 1.7); Shift + click: twice the size. */
   async function exportPng(scale) {
     if (!d3.view) return;
@@ -3415,6 +3714,7 @@ function init(root) {
   $('[data-3d-stack]')?.addEventListener('click', () => toggleStack());
   $('[data-3d-levels]')?.addEventListener('click', () => levelsDialog());
   $('[data-3d-glb]')?.addEventListener('click', () => exportGlb());
+  $('[data-3d-usd]')?.addEventListener('click', () => exportUsd());   // 0.7 XF.8
   $('[data-3d-png]')?.addEventListener('click', (e) => exportPng(e.shiftKey ? 2 : 1));
   ui3d.ground?.addEventListener('change', () => d3.view?.showGround(ui3d.ground.checked));
 
@@ -3461,6 +3761,8 @@ function init(root) {
     if (e.key === 'Shift') { app.shift = true; if (app.cursor && app.draft) { view.overlayOnly(); } return; }
     if (e.key === ' ') { e.preventDefault(); app.space = true; return; }
     if (e.key === 'Escape' && app.cmp) { if (app.cmp.align) { app.cmp.align = null; status(''); view.overlayOnly(); } else closeCompare(); return; }
+    if (e.key === 'Escape' && app.tool === 'cadgeom' && app.geom?.sel.size) { geomClear(); return; }
+    if (e.key === 'Enter' && app.tool === 'cadgeom') { e.preventDefault(); addGeometry(); return; }
     if (e.key === 'Escape') { if (app.paste) endPaste(); else if (app.ac?.running) cancelAutoCount(); else if (app.ac) { discardAutoCount(); status(t('ac.discarded')); } else if (app.draft?.mid) { app.draft.mid = null; liveMeasure(); view.overlayOnly(); } else if (app.draft) cancelDraft(); else if (app.tool !== 'select') setTool('select'); else selectNone(); return; }
     if (e.key === 'Enter') { if (app.draft) { e.preventDefault(); finishDraft(); } return; }
     if (e.key === 'Backspace' || e.key === 'Delete') {
@@ -3510,6 +3812,7 @@ function init(root) {
   const NEEDS_SHEET = new Set(['fit-page', 'fit-width', 'arc', 'deduct', 'select-all', 'paste', 'paste-in-place']);
   const NEEDS_SELECTION = new Set(['copy', 'cut', 'duplicate', 'delete', 'select-none']);
   const NEEDS_PDF = new Set(['export-pdf', 'export-embed']);
+  const NEEDS_CAD = new Set(['cad-count']);                   // counting from a drawing needs a drawing's sheet on screen
   const NEEDS_WORK = new Set(['save-project', 'export-xlsx', 'export-csv', 'export-materials', 'export-spots', 'export-bid', 'export-level']);
   const exportSummary = root.querySelector('[data-export-menu] > summary');
   function renderToolbar() {
@@ -3523,6 +3826,7 @@ function init(root) {
       else if (NEEDS_SHEET.has(a)) b.disabled = !cur;
       else if (NEEDS_SELECTION.has(a)) b.disabled = !hasSel;
       else if (NEEDS_PDF.has(a)) b.disabled = !hasPdf;
+      else if (NEEDS_CAD.has(a)) b.disabled = !(cur && isCad(cur.file));
       else if (NEEDS_WORK.has(a)) b.disabled = !hasWork;
     }
     for (const b of root.querySelectorAll('button[data-tool]')) if (b.dataset.tool !== 'select') b.disabled = !cur;
@@ -3562,7 +3866,7 @@ function init(root) {
   const autosave = new Autosave({ app: 'takeoffcraft' });
   const adoc = autosave.doc({ id: 'takeoff', name: model.state.name, snapshot: async () => {
     const total = files.reduce((n, f) => n + f.size, 0);
-    const pdfs = total <= AUTOSAVE_PDF_MAX ? files.map((f) => ({ name: f.name, blob: (f.blob ??= new Blob([f.bytes], { type: 'application/pdf' })) })) : [];
+    const pdfs = total <= AUTOSAVE_PDF_MAX ? files.map((f) => ({ name: f.name, blob: (f.blob ??= new Blob([f.bytes], { type: isCad(f) ? 'application/octet-stream' : 'application/pdf' })) })) : [];
     return { data: { project: model.toJSON(), pdfs }, meta: { name: model.state.name, pdfs: files.map((f) => f.name), kept: pdfs.length } };
   } });
   model.on(() => {
@@ -3594,12 +3898,57 @@ function init(root) {
   // sheet's scale, and go back when the style is the toolbar again (the shell fires cc-input-mouse on every style change)
   const presetLabel = ui.preset.closest('label'), presetHome = presetLabel?.parentElement;
   const placePreset = () => {
-    if (!presetLabel || !presetHome) return;
+    if (!presetLabel || !presetHome || presetLabel.closest('.ws-block')) return;   // a workspace layout holds it in its view bar (0.7 WS.11)
     const styled = !!root.querySelector(':scope > [role="toolbar"].cc-in-styled');
     if (styled && presetLabel.parentElement !== ui.sheetbar) ui.sheetScale.after(presetLabel);
     else if (!styled && presetLabel.parentElement !== presetHome) presetHome.append(presetLabel);
   };
   window.addEventListener('cc-input-mouse', () => requestAnimationFrame(placePreset));
+
+  // ---- 0.7 WS.11: the workspace layouts (Settings › Global › Layout): the shell's engine, filled by workspace-takeoffcraft.js ----
+  /** Why a command's own button can't run now, in words (the layouts grey the tool with it); '' = no better reason than its own. */
+  function whyOff(c, b) {
+    const a = b.dataset.act, tool = b.dataset.tool;
+    if ((c.sheet || NEEDS_SHEET.has(a) || (tool && tool !== 'select')) && !cur) return t('input.why.pdf');
+    if (NEEDS_CAD.has(a) || tool === 'cadgeom') return t('ws.why.cad');
+    if (a === 'next-flag') return t('ws.why.flag');
+    if (b.hasAttribute('data-handoff-pdf')) return t('handoff.nopdf');
+    if (NEEDS_SELECTION.has(a)) return t('ws.why.sel');
+    if (NEEDS_PDF.has(a)) return t('ws.why.pdffile');
+    if (NEEDS_WORK.has(a) || b.closest('[data-export-menu]')) return t('ws.why.work');
+    if (a === 'undo') return t('ws.why.undo');
+    if (a === 'redo') return t('ws.why.redo');
+    if (a === 'new-takeoff') return t('ws.why.new');
+    return '';
+  }
+  const wsHost = {
+    root, stage: ui.stage, panels: { left: $('.tc-left'), right: $('.tc-right') }, status: ui.status,
+    say: (text, bad) => status(text || '', bad ? 8000 : 6000),
+    sheets: () => sheets.map((s) => { const sc = model.scaleOf(s.key); return { key: s.key, title: s.title, cad: isCad(s.file), scale: sc ? scaleText(sc, s.info.userUnit, true) : '' }; }),
+    current: () => cur?.key || null,
+    show: (key) => showSheet(key),
+    tool: () => app.tool,
+    selection: () => selIds(),
+    name: () => model.state.name || '',
+    dirty: () => !!model.dirty,
+    busy: () => !ui.busy.hidden,
+    hasFiles: () => files.length > 0,
+    is3d: () => d3.on,
+    endTool: () => { if (app.tool !== 'select') setTool('select'); },
+    conditions: () => model.state.items.map((it) => ({ id: it.id, name: it.name, color: it.color, qty: qtyLabel(it), active: app.active === it.id })),
+    estimate: () => ({ rows: est.rows.filter((r) => r.kind === 'item').map((r) => ({ id: r.itemId, name: r.name, total: Number.isFinite(r.total) ? U.formatCents(r.total) : '' })),
+      total: model.state.items.length ? ui.jobTotal.textContent : '' }),
+    focusItem: (id) => focusItem(id),
+    openQty: () => { if (root.classList.contains('is-qty-closed')) ui.qtyToggle.click(); },
+    reason: whyOff, presetLabel, placePreset: () => placePreset(),
+    propSections: [ui.itemSec, ui.noteSec, ui.markSec],
+    areaRow: $('.tc-area-row'), sheetbar: ui.sheetbar, snap: $('[data-snap-toggle]'), zoom: ui.zoom,
+    resized: () => view.resize(),
+  };
+  if (document.getElementById('cc-workspace')) {   // the build lists layouts (manifest "workspaces"); the engine is in the import map then
+    import('./workspace-takeoffcraft.js').then((m) => m.mountTakeoffcraftWorkspace(wsHost)).then((w) => { ws = w; if (!w) document.documentElement.removeAttribute('data-cc-ws-boot'); })
+      .catch((err) => { console.error(err); document.documentElement.removeAttribute('data-cc-ws-boot'); });   // a failed start shows the page in classic
+  }
 
   // ---- API for tests and the console ----
   window.takeoffcraft = {
@@ -3616,6 +3965,7 @@ function init(root) {
     autocount: () => (app.ac ? { running: app.ac.running, found: acVisible().length, adding: acVisible().filter((c) => !c.rejected).length, threshold: app.ac.threshold,
       boxes: acVisible().filter((c) => c.sheet === cur?.key).map((c) => ({ center: c.center, score: c.score, rejected: c.rejected })) } : null),
     selection: () => selIds(),
+    tool: () => app.tool,   // 0.7 WS.11: the running tool (tools/workspace-test/apps/takeoffcraft.mjs)
     view3d: () => state3d(),
     clip: () => currentClip(),
     autosave: () => ({ autosave, doc: adoc }),
@@ -3630,6 +3980,28 @@ function init(root) {
     snapLoaded: () => (cur ? loadSnap(cur).then(() => snaps.get(cur.key)?.n ?? 0) : Promise.resolve(0)),
     pasting: () => !!app.paste,
     settings,
+    cad: {                                                   // 0.7 TD.3: counts without the dialog (tests; same code path as the dialog)
+      info: () => (cur && isCad(cur.file) ? { file: cur.file.name, format: cur.file.cad.format, sheet: { ...cur.info.cad, name: cur.info.label }, scale: model.scaleOf(cur.key), warnings: cur.file.cad.warnings, units: cur.file.cad.units } : null),
+      sheets: () => files.filter(isCad).flatMap((f) => f.cad.sheets.map((s) => ({ key: sheetKey(f.hash, s.index), name: s.name, kind: s.kind, scale: model.scaleOf(sheetKey(f.hash, s.index)), viewports: s.viewports.length, note: s.note }))),
+      geometry: () => { const l = geomItems(); return { n: l.length, selected: app.geom ? [...app.geom.sel] : null, types: l.reduce((o, i) => ((o[i.type] = (o[i.type] || 0) + 1), o), {}), bbox: l.length ? { minX: Math.min(...l.map((i) => i.bbox.minX)), maxX: Math.max(...l.map((i) => i.bbox.maxX)), minY: Math.min(...l.map((i) => i.bbox.minY)), maxY: Math.max(...l.map((i) => i.bbox.maxY)) } : null, page: cur ? { w: cur.info.width, h: cur.info.height } : null }; },
+      pick: (a, b, additive = false) => geomWindow(a, b, additive),
+      catalog: async (scope = 'sheet') => { const { cc } = await loadCadCount(); const ix = cur.file.cad.index(); return cc.catalog(ix, scope === 'sheet' ? cadMod.sheetRefs(cur.file.cad.sheets[cur.info.index], ix).map((e) => e.ref) : ix.all); },
+      count: async (kind, query, scope = 'sheet') => {
+        const { cc } = await loadCadCount(); const ix = cur.file.cad.index();
+        const refs = scope === 'sheet' ? cadMod.sheetRefs(cur.file.cad.sheets[cur.info.index], ix).map((e) => e.ref) : ix.all;
+        const r = kind === 'block' ? cc.countBlocks(ix, refs, query) : kind === 'shape' ? cc.countShapes(ix, refs, { ...query, inside: query.inside ? { model: cur.file.cad.model } : null }) : cc.countTexts(ix, refs, query);
+        return { total: r.total, hiddenSkipped: r.hiddenSkipped, byVariant: r.byVariant, byLayer: r.byLayer, points: r.found.map((x) => [x.x, x.y]) };
+      },
+      add: async (kind, query, { scope = 'sheet', item = null, name = '' } = {}) => {
+        const { cc, cm } = await loadCadCount(); const set = cur.file, ix = set.cad.index();
+        const refs = scope === 'sheet' ? cadMod.sheetRefs(set.cad.sheets[cur.info.index], ix).map((e) => e.ref) : ix.all;
+        const r = kind === 'block' ? cc.countBlocks(ix, refs, query) : kind === 'shape' ? cc.countShapes(ix, refs, { ...query, inside: query.inside ? { model: set.cad.model } : null }) : cc.countTexts(ix, refs, query);
+        const plan = cm.planMarks({ set, sheetIndex: cur.info.index, scope, found: r.found, existing: item ? model.state.marks.filter((m) => m.item === item && m.kind === 'count') : [] });
+        const out = model.addCounted({ item, create: item ? null : { name: name || 'Count', type: 'count' }, list: plan.list.map((m) => ({ ...m, ...inArea() })), label: t('cad.count.undo', { n: plan.list.length, what: name || query.name || query.text || '' }) });
+        setActive(out.item, true);
+        return { added: plan.list.length, already: plan.already, stacked: plan.stacked, item: out.item };
+      },
+    },
     reset: () => { model.load({ format: 'takeoffcraft-project', version: 1, files: [], items: [], marks: [] }); for (const f of files) model.addFile({ hash: f.hash, name: f.name, size: f.size, pages: f.pages.length }); app.active = app.sel = app.hl = null; refresh(); },
   };
 
@@ -3640,7 +4012,20 @@ function init(root) {
     refresh: () => { renderItems(); renderItemProps(); renderQty(); } })
     .then((a) => { addonsApi = a; }).catch((err) => console.warn('add-ons did not start:', err));   // i18n-ignore (developer message)
 
-  installAgents({ model, sheetLabel, sheets: () => sheets.map((s) => ({ key: s.key, title: s.title })), current: () => (cur ? cur.key : null), exportCsv, exportXlsx });
+  installAgents({ model, sheetLabel, sheets: () => sheets.map((s) => ({ key: s.key, title: s.title, view: s.info.view })), current: () => (cur ? cur.key : null), exportCsv, exportXlsx,
+    cadSets: () => files.filter(isCad),   // 0.7 AS.6 (assistants-gaps): the open DWG / DXF drawings for cad_count, cad_measure
+    usd: async (key, format) => {   // 0.7 AS.6: the sheet's 3D check view as OpenUSD, as exportUsd makes it (needs a scaled sheet; the 3D view need not be open)
+      const s = sheets.find((x) => x.key === key);
+      if (!s) throw new Error('No such sheet.');   // i18n-ignore: read by the assistant
+      const { buildScene } = await import('./scene3d.js');
+      const r = buildScene(model.state, s.key, { transform: s.info.transform, width: s.info.width, height: s.info.height });
+      if (!r.ok) throw new Error(r.reason);
+      if (!r.objects?.some((o) => o.kind !== 'frame' && (o.tris.length || o.kind === 'run'))) throw new Error('Nothing is measured on this sheet to show in 3D.');   // i18n-ignore: read by the assistant
+      const { checkUsd } = await import('./usd-takeoffcraft.js');
+      const u = checkUsd(r, { format, name: model.state.name });
+      return { data: u.data, report: u.report, name: safeName(model.state.name || 'Takeoff') + ' - ' + safeName(s.title), type: format === 'usda' ? 'model/vnd.usda' : format === 'usdz' ? 'model/vnd.usdz+zip' : 'application/octet-stream' };
+    },
+    download: (data, name, type) => host.download(data, name, type) });   // view: 0.7 AS.5 (marks as fractions of the page)
 
   readColors();
   booted = true;
@@ -3667,7 +4052,7 @@ function init(root) {
   const handoffBtn = root.querySelector('[data-handoff-pdf]');
   handoffBtn?.addEventListener('click', () => {
     const f = cur?.file;
-    if (!f) { status(t('handoff.nopdf')); return; }
+    if (!f || isCad(f)) { status(t('handoff.nopdf')); return; }    // the hand-over is for PDFs
     const app = handoffBtn.dataset.handoffApp;
     // sendHandoff opens the tab inside the click (pop-up blockers); the new page waits for the file to arrive
     sendHandoff(handoffBtn.dataset.handoffUrl, new File([f.bytes], f.name, { type: 'application/pdf' }), 'takeoffcraft').then(

@@ -2077,6 +2077,214 @@ section('Bid packages and leveling (0.6 LC.13)');
   } catch (err) { ok(false, 'xlsx_check.py reads the leveling workbook', String(err.stderr || err.message).slice(0, 300)); }
 }
 
+section('The chosen bid in the estimate (0.7 LC.13 B3)');
+{
+  const Lv = await load('level.js'), Bd = await load('bid.js');
+  const t = new M.Takeoff();
+  const hash = '8'.repeat(64);
+  t.addFile({ hash, name: 'A-101.pdf', size: 1, pages: 1 });
+  const s0 = M.sheetKey(hash, 0);
+  t.setScale(s0, { method: 'preset', preset: 'a1/4', ftPerUnit: 4 / 72, label: '1/4" = 1\'-0"', cal: null });
+  // by hand, our own prices: 09 = board $3,500 + paint $1,000 + base $4.00 = $4,504.00; 03 = 20 CY × $200 = $4,000.00; mobilization $2,000.00 → $10,504.00
+  const board = t.addItem({ name: 'Gypsum board', type: 'fixed', unit: 'SF', qty: 1000, mat: 15000, lab: 20000, csi: '09 21 16' });
+  const paint = t.addItem({ name: 'Paint', type: 'fixed', unit: 'SF', qty: 1000, mat: 4000, lab: 6000, csi: '09 91 23' });
+  const base = t.addItem({ name: 'Base', type: 'linear', mat: 10000, csi: '09 65 13' });
+  t.addMark({ item: base, sheet: s0, pts: [{ x: 0, y: 0 }, { x: 72, y: 0 }] });
+  t.addItem({ name: 'Concrete slab', type: 'fixed', unit: 'CY', qty: 20, mat: 1500000, lab: 500000, csi: '03 30 00' });
+  t.addItem({ name: 'Mobilization', type: 'fixed', unit: 'LS', qty: 1, mat: 20000000 });
+  const x = Lv.addBid(t, { pkg: '09', bidder: 'Xavier Drywall', amount: 420000 });
+  const y = Lv.addBid(t, { pkg: '09', bidder: 'Yates Interiors', amount: 360000, excl: [paint] });
+  const z = Lv.addBid(t, { pkg: '03', bidder: 'Zed Concrete', amount: 390000 });
+  eq(M.baseEstimate(t.state).total, 1050400, 'no award: the base bid is our own $10,504.00');
+  const u0 = t.undoStack.length;
+  Lv.setAward(t, '09', x);
+  let e = M.baseEstimate(t.state);
+  // 09 at X's $4,200.00 instead of $4,504.00 → $4,000.00 + $2,000.00 + $4,200.00
+  eq(e.total, 1020000, 'X chosen for 09: the base bid is $10,200.00');
+  eq([e.matTotal, e.labTotal, e.subTotal].join(), '500000,100000,420000', 'material $5,000.00 and labor $1,000.00 are the slab and mobilization; the bid is its own $4,200.00');
+  const brow = e.rows.find((r) => r.itemId === board), sub = e.rows.find((r) => r.kind === 'subcontract');
+  ok(brow.qty === 1000 && brow.awarded === 'Xavier Drywall' && brow.total === 0 && brow.ownTotal === 350000 && brow.mat === 15000, 'the package\'s items stay as quantities with our rates; their amounts drop out ($3,500.00 was ours)');
+  ok(sub && sub.pkg === '09' && sub.total === 420000 && sub.bidder === 'Xavier Drywall' && sub.unit === 'LS', 'one subcontract row carries the bid');
+  eq(e.rows.find((r) => r.itemId === base).qty, 4, 'the base molding is still 4 LF of quantity');
+  eq(Lv.leveling(t.state, M.baseEstimate(t.state, { awards: false }), {}).map((p) => p.ours).join(), '400000,450400', 'leveling still compares with our own prices (the chosen bid does not move "ours")');
+  // Y chosen instead: the paint it leaves out stays at our $1,000.00
+  Lv.setAward(t, '09', y);
+  e = M.baseEstimate(t.state);
+  eq(e.total, 1060000, 'Y chosen (leaves out paint): $4,000.00 + $2,000.00 + our $1,000.00 for the paint + $3,600.00 = $10,600.00');
+  ok(!e.rows.find((r) => r.itemId === paint).awarded && e.rows.find((r) => r.itemId === board).awarded === 'Yates Interiors', 'the left-out item keeps our price; the rest is the bid\'s');
+  eq(t.undoStack.length, u0 + 2, 'each choice, switching included, is one undo step');
+  t.undo();
+  eq(M.baseEstimate(t.state).total, 1020000, 'one undo switches back to X');
+  t.undo();
+  eq(M.baseEstimate(t.state).total, 1050400, 'and one more to our own prices');
+  t.redo(); t.redo();
+  Lv.setAward(t, '03', z);
+  e = M.baseEstimate(t.state);
+  eq(e.total, 1060000 - 400000 + 390000, 'two packages awarded: 03 at Zed\'s $3,900.00 too');
+  ok(Lv.setAward(t, '09', z) === false && t.state.awards.length === 2, 'a bid of another package cannot be chosen');
+  ok(Lv.setAward(t, '09', y) === false, 'choosing what is already chosen is not an undo step');
+  // the bid summary: sub bids carry overhead but no tax (tax is on material only)
+  t.setBid({ tax: 1000, overhead: 1000 });
+  e = M.baseEstimate(t.state);
+  const sum = Bd.bidSummary(e, t.bid());
+  // cost = 5,000 + 1,000 mat/lab (slab ×0 → the 03 package is Zed's now) …
+  const matLab = e.matTotal + e.labTotal;
+  eq(sum.lines.find((l) => l.key === 'sub').cents, 360000 + 390000, 'the summary shows the sub bids as a line');
+  eq(sum.lines.find((l) => l.key === 'tax').cents, Math.round(e.matTotal * 0.1), 'sales tax is on our material only, not on the sub bids');
+  eq(sum.lines.find((l) => l.key === 'cost').cents, matLab + 750000, 'cost = material + labor + sub bids');
+  // the file
+  const json = JSON.parse(JSON.stringify(t.toJSON()));
+  eq(JSON.stringify(M.readProject(json).state.awards), JSON.stringify([{ pkg: '09', bid: y }, { pkg: '03', bid: z }]), 'the choices are saved and read back');
+  const bad = M.readProject({ ...json, awards: [{ pkg: '09', bid: z }, { pkg: '09', bid: y }, { pkg: '09', bid: x }, { pkg: '', bid: 'nope' }, null] });
+  eq(JSON.stringify(bad.state.awards), JSON.stringify([{ pkg: '09', bid: y }]), 'a tampered file: a bid of another package, an unknown bid, a repeated package and junk are dropped');
+  // removing the chosen bid takes the choice with it; undo brings both back
+  Lv.removeBid(t, y);
+  ok(t.state.awards.length === 1 && t.state.awards[0].pkg === '03', 'removing the chosen bid clears its choice');
+  t.undo();
+  eq(t.state.awards.length, 2, 'undo restores bid and choice');
+  // CSV and workbook
+  const csv = E.estimateCsv(t.state, M.baseEstimate(t.state));
+  ok(/Yates Interiors,Subcontract,LS,1,,,,,,,3600,/.test(csv.replace(/\r/g, '')) || /Yates Interiors,Subcontract/.test(csv), 'the estimate CSV has the subcontract row');
+  const xf = path.join(tmp, 'award.xlsx');
+  fs.writeFileSync(xf, await E.estimateXlsx(t.state, () => 'A-101'));
+  try {
+    const py = fs.existsSync(path.join(TOOLS, 'venv/bin/python')) ? path.join(TOOLS, 'venv/bin/python') : 'python3';
+    const out = JSON.parse(execFileSync(py, [path.join(TOOLS, 'xlsx_check.py'), xf], { encoding: 'utf8' }));
+    const sh = out.sheets.Estimate;
+    let mism = 0;
+    for (const [k, v] of Object.entries(out.recalc)) if (Math.abs(v - sh.cached[k]) > 1e-9) mism++;
+    eq(mism, 0, `every Estimate formula (the job total and the markups block included) equals the independent recalculation (${Object.keys(out.recalc).length} formulas)`);
+    const cells = Object.entries(sh.cells);
+    const totRow = cells.find(([k, v]) => /^A\d+$/.test(k) && v === 'Job total')?.[0].slice(1);
+    eq(out.recalc['K' + totRow] * 100, M.baseEstimate(t.state).total, 'the workbook\'s job total is the app\'s base bid');
+  } catch (err) { ok(false, 'xlsx_check.py reads the award workbook', String(err.stderr || err.message).slice(0, 300)); }
+  const ml = E.materialList(t.state, M.baseEstimate(t.state));
+  ok(!ml.some((g) => /gypsum|paint/i.test(g.name) && g.name !== 'Paint') && !ml.some((g) => g.name === 'Gypsum board'), 'the material list leaves out an awarded package\'s material (the sub supplies it)');
+  eq(E.byDivision(t.state, M.baseEstimate(t.state)).find((d) => d.div === '03').total, 390000, 'by division: 03 is the chosen bid');
+}
+
+section('Sending a package to the website and getting prices back (0.7 LC.13 B4 + B6)');
+{
+  const Lv = await load('level.js'), Bs = await load('bidsend.js'), Pm = await load('pdfmarks.js');
+  // who to invite
+  const pi = Bs.parseInvitees('Sam Sub <SAM@Sub.example>; "Doe, Jane" <jane@doe.example>\nbob@bob.example, plain@x.example\nsam@sub.example\nnot an address\n<>\nfoo@bar');
+  eq(pi.people.map((p) => p.email + '|' + p.name).join(), 'sam@sub.example|Sam Sub,jane@doe.example|Doe, Jane,bob@bob.example|,plain@x.example|', 'invitees: "Name <addr>", quoted names with commas, commas and semicolons between addresses, case folded, a repeat once');
+  eq(pi.bad.join('|'), 'not an address|<>|foo@bar', 'invitees: what is not an address is listed back');
+  // a takeoff with a package and marks on two of three pages
+  const t = new M.Takeoff();
+  const hash = 'a'.repeat(64);
+  t.addFile({ hash, name: 'A-100.pdf', size: 1, pages: 3 });
+  const k0 = M.sheetKey(hash, 0), k1 = M.sheetKey(hash, 1), k2 = M.sheetKey(hash, 2);
+  for (const k of [k0, k1, k2]) t.setScale(k, { method: 'preset', preset: 'a1/4', ftPerUnit: 4 / 72, label: '1/4"', cal: null });
+  const base = t.addItem({ name: 'Base', type: 'linear', mat: 10000, csi: '09 65 13' });
+  const wall = t.addItem({ name: 'Wall', type: 'linear', mat: 20000, csi: '05 40 00' });
+  t.addMark({ item: base, sheet: k1, pts: [{ x: 10, y: 10 }, { x: 82, y: 10 }] });
+  t.addMark({ item: wall, sheet: k0, pts: [{ x: 10, y: 20 }, { x: 82, y: 20 }] });
+  t.addMark({ item: wall, sheet: k2, pts: [{ x: 10, y: 20 }, { x: 82, y: 20 }] });
+  const est = M.baseEstimate(t.state, { awards: false });
+  const pkgs = Lv.bidPackages(t.state, est, { title: (k) => (k ? E.divisionTitle(k) : 'None') });
+  const p09 = pkgs.find((p) => p.key === '09'), p05 = pkgs.find((p) => p.key === '05');
+  const lines = Bs.scopeLines(p09, (k) => 'Sheet ' + (Number(k.split(':')[1]) + 1));
+  eq(JSON.stringify(lines), JSON.stringify([{ key: base, name: 'Base', csi: '09 65 13', qty: 4, unit: 'LF', sheets: 'Sheet 2' }]), 'scope lines: item id as the key, quantity, unit, the sheets its marks are on');
+  const body = Bs.packagePayload(p09, { title: ' Library: 09 ', project: 'Library', message: 'Hi', due: new Date('2026-11-02T22:00:00Z'), opens: new Date('2026-11-02T23:00:00Z'), senderName: 'Pat', tz: 'America/Toronto', takeoff: 'Library' }, (k) => k);
+  ok(body.title === 'Library: 09' && body.due === '2026-11-02T22:00:00.000Z' && body.opens === '2026-11-02T23:00:00.000Z' && body.pkg === '09' && body.tz === 'America/Toronto' && body.lines.length === 1, 'the create body: trimmed title, ISO times, package key, zone, lines');
+  eq(Bs.packagePayload(p09, { title: 'x', due: new Date('2026-11-02T22:00:00Z'), opens: null }).opens, '', 'no opening time = "" (prices show as they arrive)');
+  ok(!/10000|mat|price|cost/i.test(JSON.stringify(body.lines)), 'no price of ours is in what is sent');
+  // the client against a stand-in server
+  const calls = [];
+  const fake = async ({ method, path, body: b, contentType }) => {
+    calls.push({ method, path, b, contentType });
+    if (path.endsWith('/status')) return { status: 200, json: { status: 'success', data: { can_send: true } }, headers: {} };
+    if (path === '/api/v1/bids/packages') return { status: 201, json: { status: 'success', data: { package: { uuid: 'p'.repeat(8) + '-0000-4000-8000-000000000000', title: 'x', due: '2026-11-02T22:00:00Z', opens: null } } }, headers: {} };
+    if (path.endsWith('/invite')) return { status: 200, json: { status: 'success', data: { results: [{ email: 'a@b.co', state: 'invited' }] } }, headers: {} };
+    if (path.endsWith('/sheets')) return { status: 200, json: { status: 'success', data: {} }, headers: {} };
+    if (path === '/api/v1/bids/boom') return { status: 403, json: { status: 'error', error: 'Sending bid packages is not open', code: 'bids_closed', errors: {} }, headers: {} };
+    if (path === '/api/v1/bids/gone') return { status: 401, json: { status: 'error', error: 'x', code: 'token_revoked' }, headers: {} };
+    if (path === '/api/v1/bids/slow') return { status: 429, json: { status: 'error', error: 'slow', code: 'throttled' }, headers: { 'retry-after': '60' } };
+    if (path === '/api/v1/bids/bad') return { status: 422, json: { status: 'error', error: 'The package could not be saved.', code: 'invalid', errors: { title: 'Give the package a title.' } }, headers: {} };
+    return { status: 500, json: null, headers: {} };
+  };
+  const c = new Bs.BidsClient(fake);
+  eq((await c.status()).can_send, true, 'client: status');
+  const created = await c.createPackage(body);
+  ok(calls.at(-1).method === 'POST' && calls.at(-1).contentType === 'application/json' && JSON.parse(calls.at(-1).b).title === 'Library: 09' && created.uuid.length === 36, 'client: createPackage posts the JSON body and returns the package');
+  await c.uploadSheets(created.uuid, new Uint8Array([37, 80, 68, 70]));
+  ok(calls.at(-1).path === `/api/v1/bids/packages/${created.uuid}/sheets` && calls.at(-1).contentType === 'application/pdf' && calls.at(-1).b instanceof Uint8Array, 'client: the sheets go as the raw PDF body');
+  eq((await c.invite(created.uuid, [{ email: 'a@b.co' }]))[0].state, 'invited', 'client: invite → results');
+  const fails = [];
+  for (const p of ['boom', 'gone', 'slow', 'bad', 'dead']) { try { await c.call('GET', '/api/v1/bids/' + p); } catch (e) { fails.push(`${e.code}/${e.status}`); if (p === 'bad') ok(e.errors.title === 'Give the package a title.', 'client: field errors come back on the error'); if (p === 'slow') eq(e.retryAfter, 60, 'client: Retry-After is kept'); } }
+  eq(fails.join(), 'bids_closed/403,token_revoked/401,throttled/429,invalid/422,server/500', 'client: the site\'s codes (and a 5xx as "server") become BidsError codes');
+  ok(Bs.CONNECT_AGAIN.has('token_revoked') && Bs.CONNECT_AGAIN.has('invalid_token') && !Bs.CONNECT_AGAIN.has('bids_closed'), 'sign-in codes ask to connect again; others do not');
+  let off; try { await new Bs.BidsClient(async () => { throw new Error('net'); }).status(); } catch (e) { off = e.code; }
+  eq(off, 'offline', 'client: a network failure is "offline"');
+  let na; try { await new Bs.BidsClient(async () => { throw Object.assign(new Error('x'), { code: 'not_allowed' }); }).status(); } catch (e) { na = e.code; }
+  eq(na, 'not_allowed', 'client: the desktop shell refusing the path is "not_allowed"');
+  // transports
+  const seen = [];
+  const bt = Bs.browserTransport({ token: 'ccu_' + 'A'.repeat(40), fetchFn: async (path, init) => { seen.push({ path, init }); return { status: 200, json: async () => ({ status: 'success', data: {} }), headers: { get: (k) => (k === 'retry-after' ? '5' : null) } }; } });
+  const rr = await bt({ method: 'GET', path: '/api/v1/bids/status' });
+  ok(seen[0].init.headers.Authorization === 'Bearer ccu_' + 'A'.repeat(40) && seen[0].init.credentials === 'omit' && seen[0].init.cache === 'no-store' && rr.headers['retry-after'] === '5', 'browser transport: Bearer header, no cookies, never cached');
+  const dseen = [];
+  const dt = Bs.desktopTransport({ request: async (r) => { dseen.push(r); return { status: 200, json: () => ({ status: 'success', data: { x: 1 } }), headers: {} }; } });
+  const dr = await dt({ method: 'POST', path: '/api/v1/bids/packages', body: '{"a":1}', contentType: 'application/json' });
+  ok(dseen[0].body instanceof Uint8Array && dr.json.data.x === 1, 'desktop transport: a string body goes as bytes through cadcraftDesktop.cloud.request; the shell adds the sign-in');
+  // requests in the file
+  const u0 = t.undoStack.length;
+  const uuidA = 'aaaaaaaa-0000-4000-8000-000000000001', uuidB = 'bbbbbbbb-0000-4000-8000-000000000002';
+  Lv.addRequest(t, { uuid: uuidA, pkg: '09', title: 'Library: 09', at: '2026-10-23T12:00:00.000Z', due: '2026-11-02T22:00:00.000Z', opens: '2026-11-02T23:00:00.000Z', n: 2 });
+  Lv.addRequest(t, { uuid: uuidA, pkg: '09', title: 'Library: 09', at: '2026-10-23T12:00:00.000Z', due: '2026-11-02T22:00:00.000Z', opens: '', n: 3 });
+  eq(t.state.bidreqs.length, 1, 'a request is recorded once; more invitations update it');
+  ok(t.state.bidreqs[0].n === 3 && t.undoStack.length === u0 + 2, '…its count only grows; each recording is one undo step');
+  const j0 = JSON.parse(JSON.stringify(t.toJSON()));
+  const rp = M.readProject({ ...j0, bidreqs: [...j0.bidreqs, { uuid: 'nope', pkg: '09' }, { uuid: uuidB, pkg: 'x' }, { ...j0.bidreqs[0] }, null, { uuid: uuidB, pkg: '', title: 'T\u0000\u0001', n: -4, due: 'soon' }] });
+  eq(rp.state.bidreqs.map((r) => r.uuid + '|' + r.pkg + '|' + r.n + '|' + JSON.stringify(r.due)).join(), `${uuidA}|09|3|"2026-11-02T22:00:00.000Z",${uuidB}||0|""`, 'a tampered file: bad uuids, a bad package, a repeat and junk dropped; a negative count is 0, a bad date is empty');
+  // prices come back
+  const ra = 'cccccccc-0000-4000-8000-000000000001', rb = 'cccccccc-0000-4000-8000-000000000002', rc = 'cccccccc-0000-4000-8000-000000000003';
+  const review = (over = {}) => ({ package: { uuid: uuidA, pkg: '09', status: 'open' }, sealed: false, sealed_until: null,
+    invitations: [{ answered: true }, { answered: true }, { answered: true }, { answered: false }],
+    bids: [{ response: ra, bidder: 'Sub One', declined: false, amount_cents: 420000, excl: [base, 'ghost', wall], note: 'valid 30 days', late: false, revision: 1 },
+      { response: rb, bidder: 'Sub Two', declined: false, amount_cents: 300000, excl: [], note: '', late: true, revision: 1 },
+      { response: rc, bidder: 'Sub Three', declined: true, amount_cents: 0, excl: [], note: '', late: false, revision: 1 }], ...over });
+  const u1 = t.undoStack.length;
+  const sealed = Lv.mergeReview(t, review({ sealed: true, bids: [] }));
+  ok(sealed.sealed && sealed.waiting === 1 && t.undoStack.length === u1 && !(t.state.bids || []).length, 'sealed: nothing comes in, no undo step, but the app learns who has not answered yet');
+  const m1 = Lv.mergeReview(t, review());
+  eq([m1.added, m1.updated, m1.declined, m1.late].join(), '2,0,1,1', 'opened: two bids in, one declined (not added), one late');
+  ok(t.undoStack.length === u1 + 1, 'the whole merge is one undo step');
+  const b1 = t.state.bids.find((b) => b.src?.r === ra);
+  ok(b1.bidder === 'Sub One' && b1.amount === 420000 && b1.pkg === '09' && JSON.stringify(b1.excl) === JSON.stringify([base]) && b1.note === 'valid 30 days' && b1.src.v === 1 && b1.src.late === false, 'a bid: bidder, cents, only its own package\'s items left out (the other package\'s and unknown ones dropped), note, source');
+  ok(t.state.bids.find((b) => b.src?.r === rb).src.late === true, 'late is kept on the bid');
+  const n1 = t.state.bids.length;
+  const again = Lv.mergeReview(t, review());
+  ok(again.added === 0 && again.updated === 0 && t.undoStack.length === u1 + 1 && t.state.bids.length === n1, 'merging the same answer again changes nothing and is no undo step');
+  Lv.updateBid(t, b1.id, { amount: 410000 });
+  Lv.mergeReview(t, review());
+  eq(t.state.bids.find((b) => b.src?.r === ra).amount, 410000, 'the estimator\'s own edit stays until the bidder sends a new version');
+  const m3 = Lv.mergeReview(t, review({ bids: [{ ...review().bids[0], amount_cents: 400000, revision: 2, excl: [] }] }));
+  ok(m3.updated === 1 && t.state.bids.find((b) => b.src?.r === ra).amount === 400000 && t.state.bids.find((b) => b.src?.r === ra).src.v === 2 && t.state.bids.length === n1, 'a new version (revision 2) replaces the price and the left-out lines, in place');
+  Lv.setAward(t, '09', t.state.bids.find((b) => b.src?.r === ra).id);
+  eq(M.baseEstimate(t.state).subTotal, 400000, 'a bid that came back from the website can be chosen as the package\'s price (B3)');
+  Lv.mergeReview(t, review({ bids: [{ ...review().bids[0], amount_cents: 380000, revision: 3, excl: [] }] }));
+  eq(M.baseEstimate(t.state).subTotal, 380000, '…and a later version moves the estimate with it');
+  const json1 = JSON.parse(JSON.stringify(t.toJSON()));
+  const back = M.readProject(json1).state;
+  ok(JSON.stringify(back.bids) === JSON.stringify(t.state.bids) && back.bids.some((b) => b.src), 'bids with their source are saved with the takeoff and read back exactly');
+  const forged = M.readProject({ ...json1, bids: json1.bids.map((b) => ({ ...b, src: { p: 'x', r: 'y', v: -3 } })) }).state;
+  ok(forged.bids.every((b) => !b.src), 'a forged source (not uuids) is dropped');
+  const wrong = Lv.mergeReview(t, { package: { uuid: 'bad', pkg: '09' }, bids: [{ response: ra }] });
+  ok(wrong.added === 0 && wrong.updated === 0, 'a review with a bad package uuid does nothing');
+  // the sheets PDF
+  const src = await PDFLib.PDFDocument.create();
+  for (let i = 0; i < 3; i++) src.addPage([612, 792]);
+  const srcBytes = await src.save();
+  const mk = await Bs.packageSheetsPdf(PDFLib, { files: [{ hash, name: 'A-100.pdf', bytes: srcBytes }], state: t.state, itemIds: [base], pdfWithMarks: Pm.pdfWithMarks });
+  ok(mk && mk.pages === 1 && (await PDFLib.PDFDocument.load(mk.bytes)).getPageCount() === 1, 'sheets PDF for the 09 package: only the one sheet that holds its marks (1 of 3 pages)');
+  const mk2 = await Bs.packageSheetsPdf(PDFLib, { files: [{ hash, name: 'A-100.pdf', bytes: srcBytes }], state: t.state, itemIds: [wall], pdfWithMarks: Pm.pdfWithMarks });
+  ok(mk2 && mk2.pages === 2, 'sheets PDF for the 05 package: its two sheets, in order');
+  eq(await Bs.packageSheetsPdf(PDFLib, { files: [{ hash, name: 'A-100.pdf', bytes: srcBytes }], state: t.state, itemIds: ['none'], pdfWithMarks: Pm.pdfWithMarks }), null, 'a package with no marks has no sheets (null)');
+  ok(Buffer.from(mk.bytes).subarray(0, 5).toString() === '%PDF-', 'the sheets PDF is a PDF');
+}
+
 section('Scales from the sheets\' text (T20)');
 {
   const St = await load('scaletext.js');
