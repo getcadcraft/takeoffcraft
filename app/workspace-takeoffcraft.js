@@ -27,7 +27,7 @@ import { el } from './ui-util.js';
 // the well-known actions (titlebar, File menu, options bar) → TakeoffCraft's registry
 const MAP = { open: 'file.open-pdf', save: 'file.save', undo: 'edit.undo', redo: 'edit.redo', select: 'takeoff.select', clear: 'edit.select-none', fit: 'view.fit-page' };
 const TOOLBOX = [
-  ['measure', ['takeoff.select', 'takeoff.linear', 'takeoff.area', 'takeoff.count', 'takeoff.circle', 'takeoff.room', 'takeoff.autocount']],
+  ['measure', ['takeoff.select', 'takeoff.linear', 'takeoff.area', 'takeoff.count', 'takeoff.circle', 'takeoff.room', 'takeoff.path', 'takeoff.autocount']],
   ['shape', ['takeoff.arc', 'takeoff.deduct', 'takeoff.cutout']],
   ['scale', ['scale.calibrate', 'scale.check']],
   ['drawing', ['takeoff.cad-count', 'takeoff.cad-geom']],
@@ -35,7 +35,7 @@ const TOOLBOX = [
   ['view', ['view.fit-page', 'view.fit-width', 'view.3d', 'view.compare']],
 ];
 // the app's tool name (app.tool) → its command
-const TOOL_CMD = { select: 'takeoff.select', linear: 'takeoff.linear', area: 'takeoff.area', circle: 'takeoff.circle', room: 'takeoff.room', cutout: 'takeoff.cutout',
+const TOOL_CMD = { select: 'takeoff.select', linear: 'takeoff.linear', area: 'takeoff.area', circle: 'takeoff.circle', room: 'takeoff.room', path: 'takeoff.path', cutout: 'takeoff.cutout',
   cutcircle: 'takeoff.cutout', count: 'takeoff.count', autocount: 'takeoff.autocount', calibrate: 'scale.calibrate', check: 'scale.check', cadgeom: 'takeoff.cad-geom',
   note: 'markup.note', cloud: 'markup.cloud', highlight: 'markup.highlight' };
 

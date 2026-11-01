@@ -107,7 +107,7 @@ export function templateProblem(tpl) {
   return null;
 }
 
-function integrals(img) {
+export function integrals(img) {
   const W = img.w + 1;
   const s = new Float64Array(W * (img.h + 1)), s2 = new Float64Array(W * (img.h + 1));
   for (let y = 0; y < img.h; y++) {
@@ -126,9 +126,12 @@ function integrals(img) {
  * NCC of one template over the image → local peaks ≥ floor: [{ x, y, score }] (top-left, px).
  * `tick(rowsDone)` is called now and then; returning true from `stop()` aborts (returns null).
  */
-export function nccPeaks(img, t, { floor = 0.5, minStd = 0.02, I = integrals(img), tick = null, stop = null } = {}) {
+export function nccPeaks(img, t, { floor = 0.5, minStd = 0.02, I = integrals(img), tick = null, stop = null, gate = null } = {}) {
   const { mean: tm, std: ts } = stats(t);
   const n = t.w * t.h;
+  // 0.8 EG.67: gate = [lo, hi] — skip a window whose ink is outside lo..hi times the symbol's (turning a symbol keeps its ink), so a big plan
+  // costs a fraction of a full correlation; a symbol with a long line through it can fall outside (Auto count has no gate)
+  const mass = gate ? tm * n : 0, gLo = gate ? gate[0] * mass : 0, gHi = gate ? gate[1] * mass : 0;
   const tz = new Float32Array(n);
   for (let i = 0; i < n; i++) tz[i] = t.data[i] - tm;
   const tnorm = ts * Math.sqrt(n);
@@ -143,6 +146,7 @@ export function nccPeaks(img, t, { floor = 0.5, minStd = 0.02, I = integrals(img
       const sum = s[e] - s[b] - s[c] + s[a], sum2 = s2[e] - s2[b] - s2[c] + s2[a];
       const v = sum2 / n - (sum / n) * (sum / n);
       if (v < minStd * minStd) continue;                  // blank (or solid) paper: no match
+      if (gate && (sum < gLo || sum > gHi)) continue;
       let dot = 0;
       for (let ty = 0, k = 0; ty < t.h; ty++) {
         const row = (y + ty) * iw + x;
@@ -181,9 +185,9 @@ export function nccPeaks(img, t, { floor = 0.5, minStd = 0.02, I = integrals(img
  * Search one image for a template at each of `rotations` (degrees clockwise; 0/90/180/270 by default, ANY_ANGLES for any
  * angle). → [{ x, y, w, h, rot, score }] in image px. progress(fraction) is called as it goes; stop() → true aborts (null).
  */
-export function findSymbol(img0, template0, { rotations = [0, 90, 180, 270], floor = 0.5, smooth = BLUR, progress = null, stop = null } = {}) {
+export function findSymbol(img0, template0, { rotations = [0, 90, 180, 270], floor = 0.5, smooth = BLUR, progress = null, stop = null, I: shared = null, gate = null } = {}) {
   const img = smooth ? blur(img0, smooth) : img0, template = smooth ? blur(template0, smooth) : template0;
-  const I = integrals(img);
+  const I = shared && !smooth ? shared : integrals(img);      // 0.8 EG.67: a legend run searches many symbols on one sheet — one integral image
   const out = [];
   const list = [...new Set(rotations.map((r) => ((Math.round(r) % 360) + 360) % 360))];
   // any angle: a coarse pass at a lower floor, then each candidate's angle refined on a small window around it
@@ -191,7 +195,7 @@ export function findSymbol(img0, template0, { rotations = [0, 90, 180, 270], flo
   const coarseFloor = fine ? Math.max(0.3, floor - 0.2) : floor;
   for (let i = 0; i < list.length; i++) {
     const r = list[i], tt = rotate(template, r);
-    const peaks = nccPeaks(img, tt, { floor: coarseFloor, I, stop, tick: progress ? (done, total) => progress((i + done / total) / list.length * (fine ? 0.8 : 1)) : null });
+    const peaks = nccPeaks(img, tt, { floor: coarseFloor, I, stop, gate, tick: progress ? (done, total) => progress((i + done / total) / list.length * (fine ? 0.8 : 1)) : null });
     if (!peaks) return null;
     for (const p of peaks) out.push({ x: p.x, y: p.y, w: tt.w, h: tt.h, rot: r, score: p.score });
   }

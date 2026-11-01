@@ -31,6 +31,7 @@ Letter keys work when the pointer is anywhere on the page and you are not typing
 | Key or action | What it does |
 |---|---|
 | Click | Place a point (a dot, with Count). |
+| {{key:P}} | Path: pick a PDF line's whole connected path, or the outline around a click ([Pick the PDF's lines](topic:pick-the-lines)). |
 | {{key:F3}} | Snap to the drawing's lines on or off ([Snap to the drawing's lines](topic:snap-to-the-drawing)). |
 | {{key:Shift}} held while clicking | Snap the segment to 0°, 45°, 90° or 135° from the last point. Not for arc points or circles. |
 | Double-click | Finish a run, or close an area or cut-out. |
@@ -170,3 +171,7 @@ A keyboard and mouse or trackpad is the better way to do takeoff today.
 ## Keys the browser keeps
 
 Browsers keep some shortcuts for themselves, and a page cannot use them: closing the tab ({{key:Mod+W}}), new tab or window ({{key:Mod+T}}, {{key:Mod+N}}), and browser zoom ({{key:Mod+Plus}}, {{key:Mod+Minus}}). That is why TakeoffCraft zooms the sheet with the wheel and the bare {{key:Plus}} and {{key:Minus}} keys. If you press {{key:Mod+Plus}} by mistake, the whole page grows; {{key:Mod+0}} puts it back. See [Keys, mice and trackpads](common:keys).
+
+## Where Move lives
+
+There is no Move command: select a count dot and drag it, or select an area or a line and drag its corner handles.

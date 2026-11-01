@@ -40,6 +40,7 @@ import { Autosave } from './app-autosave.js';
 import { handoffParam, takeHandoff, sendHandoff } from './handoff.js';
 import { getHost } from './host.js';
 import { pageLinework, SnapIndex, MAX_SEGS } from './snap.js';
+import * as PP from './pickpath.js';   // 0.8 SU.880: pick the PDF's own linework
 import { parseEntry } from './typein.js';
 import { IDENTITY, fitTwoPoints, scaleOf, pixelMap, warp, changeMask, markChange, changed, movePts } from './overlay.js';
 import { readLibraryCsv, libraryCsv, mergeEntries, entryFromItem, itemFromEntry, readStored, repricePatches } from './library.js';
@@ -51,8 +52,17 @@ import { embedTakeoff, readEmbedded } from './embed.js';
 import { isQuantities, readQuantities, importQuantities, originText } from './fixedqty.js';
 import { t } from './i18n.js';
 import { installAgents } from './agents.js';
+import { mountTakeoffShell } from './shell-mount.js';   // 0.8 round 3: the shell's seven modules (calc, reasons, totals, lessons, Suggest, activity, Ask)
+import { calcCarbon } from './carbon.js';
+import { mountCarbon } from './carbon-ui.js';
+import { mountTagQty } from './tagqty-ui.js';   // 0.8 EG.14
+import { PadDetector } from './wheel-pad.js';   // 0.7 D7.56 (CadCraft's copy, byte-identical): a trackpad's two-finger swipe pans
 import { panButton, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: the menu style's wheel and pan buttons (input-takeoffcraft.js)
 import { startAddons, columnsNow } from './addons/takeoffcraft-api.js';
+import { mountSupply } from './supply-ui.js';   // 0.8 EG.51 (takeoff_PART_2): supplier stock and lead-time files
+import { mountPrices } from './prices-ui.js';   // 0.8 EG.68 (takeoff_PART_2): price memory from your own jobs
+import { mountCountAll } from './countall-ui.js';   // 0.8 EG.67 (takeoff_PART_2): count every symbol of a legend across the whole set
+import { mountLearn } from './learn-ui.js';   // 0.8 SU.811 (sx-learn): what it learned from your takeoffs
 
 const TYPE_ICONS = { linear: 'bezier2', area: 'pentagon', count: 'plus-circle', fixed: '123' };
 const HIT = 7;          // screen px for picking marks and handles
@@ -93,11 +103,15 @@ function init(root) {
   // others (Select all, Shift+click). Setting app.sel starts a new selection.
   let selMain = null;
   const selMore = new Set();
-  Object.defineProperty(app, 'sel', { enumerable: true, get: () => selMain, set: (v) => { selMain = v || null; selMore.clear(); } });
+  const selListeners = new Set();     // the shell's design reasons listen for the selection (shell-mount.js)
+  const selChanged = () => { for (const fn of selListeners) { try { fn(); } catch (err) { console.error(err); } } };
+  Object.defineProperty(app, 'sel', { enumerable: true, get: () => selMain, set: (v) => { selMain = v || null; selMore.clear(); selChanged(); } });
   const selIds = () => [selMain, ...selMore].filter((id) => id && model.mark(id));
   const isSel = (id) => id === selMain || selMore.has(id);
   function setSelection(ids) { app.sel = ids[0] || null; for (const id of ids.slice(1)) selMore.add(id); }
   let pdfjs = null;
+  let carbonUi = null, tagQtyUi = null;   // 0.8 takeoff_PART_3
+  let shellMount = null;               // the shell's seven modules (shell-mount.js), attached after the assistants' tools exist
   let est = baseEstimate(model.state), qmap = quantities(model.state);
   // the 3D check view (scene3d.js + view3d.js, loaded on first use): on, the module, the view, the sheet it shows, sheet textures
   const d3 = { on: false, mod: null, view: null, sheet: null, scene: null, grounds: new Map(), ground: null, stack: false };
@@ -127,7 +141,7 @@ function init(root) {
 
   // ---- settings (Settings › TakeoffCraft; per viewer conveniences, localStorage only) ----
   const SET_KEY = 'takeoffcraft.settings';
-  const SET_DEFAULTS = { denom: 16, waste: 0, threshold: 0.75, snap45: false, corner: 'cube', snap: true, roomGap: 4 };
+  const SET_DEFAULTS = { denom: 16, waste: 0, threshold: 0.75, snap45: false, corner: 'cube', snap: true, roomGap: 4, pickGap: PP.GAP_DEFAULT };
   const ROOM_GAPS = [3, 3.5, 4, 5, 6, 8];
   const WASTE_CHOICES = [0, 200, 300, 500, 750, 1000, 1500, 2000];
   const settings = { ...SET_DEFAULTS };
@@ -142,6 +156,7 @@ function init(root) {
       if (typeof v.snap === 'boolean') settings.snap = v.snap;
       if (['cube', 'axes', 'none'].includes(v.corner)) settings.corner = v.corner;
       if (ROOM_GAPS.includes(v.roomGap)) settings.roomGap = v.roomGap;
+      if (typeof v.pickGap === 'number' && v.pickGap >= PP.GAP_MIN && v.pickGap <= PP.GAP_MAX) settings.pickGap = v.pickGap;
     } catch { /* private window or damaged: the defaults */ }
   }
   loadSettings();
@@ -155,6 +170,7 @@ function init(root) {
     settingsDlg.querySelectorAll('input[name="tcDenom"]').forEach((r) => { r.checked = Number(r.value) === settings.denom; });
     const w = q('select[name="tcWaste"]'); if (w) w.value = String(settings.waste);
     const rg = q('select[name="tcRoomGap"]'); if (rg) rg.value = String(settings.roomGap);
+    const pg = q('input[name="tcPickGap"]'); if (pg && document.activeElement !== pg) pg.value = String(Math.round(settings.pickGap * 100) / 100);
     const th = q('input[name="tcThreshold"]'); if (th) th.value = String(settings.threshold);
     const out = q('[data-tc-th-out]'); if (out) out.textContent = Math.round(settings.threshold * 100) + '%';
     const sn = q('input[name="tcSnap45"]'); if (sn) sn.checked = settings.snap45;
@@ -178,6 +194,7 @@ function init(root) {
       else if (t.name === 'tcWaste') settings.waste = WASTE_CHOICES.includes(Number(t.value)) ? Number(t.value) : 0;
       else if (t.name === 'tcRoomGap') settings.roomGap = ROOM_GAPS.includes(Number(t.value)) ? Number(t.value) : 4;
       else if (t.name === 'tcThreshold') settings.threshold = Number(t.value);
+      else if (t.name === 'tcPickGap') { const v = Number(t.value); settings.pickGap = Number.isFinite(v) ? Math.min(PP.GAP_MAX, Math.max(PP.GAP_MIN, v)) : PP.GAP_DEFAULT; t.value = String(Math.round(settings.pickGap * 100) / 100); }   // 0.8 takeoff_PART_3: the Path tool's gap, also on [ and ]
       else if (t.name === 'tcSnap45') settings.snap45 = t.checked;
       else if (t.name === 'tcSnap') settings.snap = t.checked;
       else if (t.name === 'tcCorner') settings.corner = ['cube', 'axes', 'none'].includes(t.value) ? t.value : 'cube';
@@ -212,11 +229,17 @@ function init(root) {
   async function openFiles(list) {
     await ready;
     if (!pdfjs) return;
-    const all = [...list];
+    let all = [...list];
+    if (all.some((f) => /\.ccbundle$|ccbundle\.zip$/i.test(f.name || ''))) {   // 0.8 BIM-BUNDLE-OPEN: a project bundle opens as its sheets (shared reader, ./bundle/plan.js)
+      const r = await (await import('./bundle/plan.js')).expandBundles(all, 'takeoffcraft', { prefer: ['pdf', 'dwg'] });
+      for (const n of r.notes) status(n.code === 'bundle' ? t('bundle.sheets', { file: n.file, n: n.n }) : n.code === 'empty' ? t('bundle.nosheets', { file: n.file }) : t('bundle.failed', { file: n.file, why: n.why }));
+      all = r.files;
+    }
     const cads = all.filter((f) => CAD_RE.test(f.name));
     const pdfs = all.filter((f) => !cads.includes(f) && (/\.pdf$/i.test(f.name) || f.type === 'application/pdf'));
     const projects = all.filter((f) => /\.json$/i.test(f.name));
-    const other = all.filter((f) => !pdfs.includes(f) && !cads.includes(f) && !projects.includes(f));
+    const ifcs = all.filter((f) => /\.ifc$/i.test(f.name));     // 0.8 SU.882: an IFC file's infrastructure quantities join the takeoff as typed quantities
+    const other = all.filter((f) => !pdfs.includes(f) && !cads.includes(f) && !projects.includes(f) && !ifcs.includes(f));
     if (other.length) status(t('open.skipped', { files: other.map((f) => f.name).join(', ') }));
     let first = null, embedded = null;
     for (const f of [...pdfs, ...cads]) {
@@ -262,6 +285,7 @@ function init(root) {
       if (first && (!cur || !projects.length)) await showSheet(first);
       if (files.length) ui.hint.hidden = true;
     }
+    for (const f of ifcs) await importIfcFile(f);
     if (projects.length) await openProject(projects[0]);
     else if (embedded) await openEmbedded(embedded);
     refresh();
@@ -354,6 +378,7 @@ function init(root) {
     renderMarkProps();
     ui.sheets.querySelector('[aria-current="true"]')?.scrollIntoView({ block: 'nearest' });
     ws?.sheetShown(key);
+    learnUi?.sheetShown(key);   // 0.8 SU.811: offer what it learned on this page
   }
 
   function moveSheet(dir) {
@@ -419,6 +444,19 @@ function init(root) {
     for (const w of r.warnings) msg.push(w);
     status(msg.join(' '), 12000);
   }
+  /** 0.8 SU.882: an IFC 4.3 file (roads, rails, bridges, earthworks …) becomes a quantities file: a count per class and predefined type, and the lengths, areas and volumes the file states. */
+  async function importIfcFile(f) {
+    busy(t('open.busy', { file: f.name }));
+    try {
+      const [{ IfcFile }, I43] = await Promise.all([import('./ifc/model.js'), import('./ifc/ifc43.js')]);
+      const r = I43.read43(IfcFile.open(new Uint8Array(await f.arrayBuffer())));
+      if (!r.elements.length) { status(t('ifc43.none', { file: f.name, schema: r.schema }), 12000); return; }
+      importQuantityFile(I43.quantitiesFile(r, { project: f.name.replace(/\.ifc$/i, ''), app: 'IFC' }), f.name);   // i18n-ignore: the origin label
+    } catch (err) {
+      status(t('ifc43.failed', { file: f.name, error: String(err?.message || err) }), 12000);
+    } finally { busy(null); }
+  }
+
   /** A quantities file (fixedqty.js, e.g. CivilCraft's cut and fill): its items join the takeoff as typed quantities, one undo step. */
   function importQuantityFile(json, name) {
     const r = readQuantities(json);
@@ -452,6 +490,7 @@ function init(root) {
     if (!r.ok) { if (!r.cancelled) status(t('file.save_failed', { error: String(r.error?.message || r.error || '') }), 12000); return false; }
     if (r.target?.writable) projectTarget = r.target;
     model.markSaved();
+    pricesUi?.saved();   // 0.8 EG.68: this job's prices are remembered
     status(r.how === 'written' ? t('file.written', { file: r.path || r.name || name }) : t('file.saved', { file: name }));
     return true;
   }
@@ -656,7 +695,7 @@ function init(root) {
     if (d3.on && tool !== 'select') close3d();         // drawing happens on the flat sheet
     if (tool !== 'select' && !cur) { status(t('handoff.nopdf')); return false; }
     endPaste(true);
-    if ((tool === 'linear' || tool === 'area' || tool === 'circle' || tool === 'room') && !model.scaleOf(cur.key)) {
+    if ((tool === 'linear' || tool === 'area' || tool === 'circle' || tool === 'room' || tool === 'path') && !model.scaleOf(cur.key)) {
       status(t('tool.err.noscale'), 9000);
       return false;
     }
@@ -677,14 +716,17 @@ function init(root) {
     }
     cancelDraft();
     if (app.ac && tool !== 'autocount') discardAutoCount();
+    if (tool !== 'legend') countAllUi?.close();
     app.geom = tool === 'cadgeom' ? { sel: new Set(), tag: '' } : null;
     app.tool = tool;
     app.check = tool === 'check' ? app.check : null;
     for (const b of toolButtons) b.setAttribute('aria-pressed', String(b.dataset.tool === tool || (tool === 'cutcircle' && b.dataset.tool === 'cutout')));
     ui.over.dataset.tool = tool;
+    app.pick = tool === 'path' ? { staged: [], hover: [], hi: 0, sheet: cur.key } : null;
+    if (tool === 'path') loadSnap(cur).then(() => { const r = cur && snaps.get(cur.key); if (app.tool === 'path' && r && !r.n) status(t('sx.su880.nolines'), 9000); });
     renderAcBar();
     renderGeomBar();
-    const help = tool === 'room' ? t('help.room', { gap: U.formatFtIn(settings.roomGap) }) : t('help.' + tool);
+    const help = tool === 'legend' ? t('help.legend') : tool === 'room' ? t('help.room', { gap: U.formatFtIn(settings.roomGap) }) : tool === 'path' ? t('help.path', { gap: pickGapText() }) : t('help.' + tool);
     status(help, 0);
     view.overlayOnly();
     wsChanged();
@@ -702,7 +744,7 @@ function init(root) {
     return false;
   }
 
-  function cancelDraft() { app.draft = null; app.drag = null; app.noteStart = null; ui.measure.textContent = ''; closeTypeIn(); view.overlayOnly(); }
+  function cancelDraft() { app.draft = null; app.drag = null; if (app.pick) app.pick.staged = []; app.noteStart = null; ui.measure.textContent = ''; closeTypeIn(); view.overlayOnly(); }
 
   /** Backspace / the touch bar's Back: the pending arc point first, then the last point (and the arc that led to it). */
   function dropLastPoint() {
@@ -720,14 +762,15 @@ function init(root) {
   const touchBar = root.querySelector('[data-touchbar]');
   function renderTouchBar() {
     if (!touchBar) return;
-    const show = coarse && !!app.draft?.pts.length && ['linear', 'area', 'cutout', 'circle', 'cutcircle', 'calibrate', 'check'].includes(app.tool);
+    const show = coarse && ((!!app.draft?.pts.length && ['linear', 'area', 'cutout', 'circle', 'cutcircle', 'calibrate', 'check'].includes(app.tool)) || (app.tool === 'path' && !!app.pick?.staged.length));   // 0.8 SU.880: Path has no keys on a tablet
     if (touchBar.hidden === !show) return;
     touchBar.hidden = !show;
   }
   touchBar?.addEventListener('click', (e) => {
     const b = e.target.closest('[data-touch]');
     if (!b) return;
-    if (b.dataset.touch === 'finish') finishDraft();
+    if (app.tool === 'path') { if (b.dataset.touch === 'finish') pickCommit(); else if (b.dataset.touch === 'back') pickTrim(); else if (b.dataset.touch === 'cancel') pickClear(); }
+    else if (b.dataset.touch === 'finish') finishDraft();
     else if (b.dataset.touch === 'back') { dropLastPoint(); }
     else if (b.dataset.touch === 'cancel') cancelDraft();
     renderTouchBar();
@@ -825,6 +868,7 @@ function init(root) {
       }, 550);
     }
     if (e.button === 0 && app.tool === 'select' && !app.paste) app.drag = handleAt(p);
+    if (e.button === 0 && app.tool === 'legend' && !app.ca?.running) app.box = { a: view.toUser(p), b: view.toUser(p), sa: p };
     if (e.button === 0 && app.tool === 'autocount' && !app.ac?.running) app.box = { a: view.toUser(p), b: view.toUser(p), sa: p };
     if (e.button === 0 && app.tool === 'cadgeom') app.box = { a: view.toUser(p), b: view.toUser(p), sa: p, geom: true };   // a window takes everything inside it; a click, one object
   });
@@ -850,6 +894,7 @@ function init(root) {
     if (app.box && down) { app.box.b = view.toUser(p); view.overlayOnly(); return; }
     if (!cur) return;
     app.cursor = pointFor(view.toUser(p));
+    if (app.tool === 'path') pickHover(app.cursor);
     if (app.drag && down?.moved) dragTo(app.cursor);
     liveMeasure();
     view.overlayOnly();
@@ -886,25 +931,40 @@ function init(root) {
     }
     if (app.box) {
       const bx = app.box; app.box = null;
-      if (d.moved && Math.hypot(p.x - bx.sa.x, p.y - bx.sa.y) > 6) { runAutoCount(bx.a, view.toUser(p)); return; }
+      if (d.moved && Math.hypot(p.x - bx.sa.x, p.y - bx.sa.y) > 6) { if (app.tool === 'legend') countAllUi?.boxed(bx.a, view.toUser(p)); else runAutoCount(bx.a, view.toUser(p)); return; }
       view.overlayOnly();
+      if (app.tool === 'legend') { if (!countAllUi?.toggleAt(view.toUser(p))) status(t('help.legend')); return; }
       if (app.ac && !app.ac.running) { toggleCandidate(view.toUser(p)); return; }
       status(t('ac.start.short'));
       return;
     }
-    if (d.button === 2) { if (!d.moved) finishDraft(); return; }
+    if (d.button === 2) { if (!d.moved) { if (app.tool === 'path') pickCommit(); else finishDraft(); } return; }
     if (d.button !== 0 || d.moved) return;
     click(pointFor(view.toUser(p)), p);
   });
-  ui.over.addEventListener('pointerleave', () => { app.cursor = null; view.overlayOnly(); });
-  ui.over.addEventListener('dblclick', (e) => { e.preventDefault(); if (app.draft && !app.draft.mid && (app.tool === 'linear' || app.tool === 'area' || app.tool === 'cutout')) finishDraft(); });
+  ui.over.addEventListener('pointerleave', () => { app.cursor = null; if (app.pick) app.pick.hover = []; view.overlayOnly(); });
+  ui.over.addEventListener('dblclick', (e) => { e.preventDefault(); if (app.tool === 'path') { pickCommit(); return; } if (app.draft && !app.draft.mid && (app.tool === 'linear' || app.tool === 'area' || app.tool === 'cutout')) finishDraft(); });
+  const padDetector = new PadDetector();
   ui.over.addEventListener('wheel', (e) => {
     if (!cur) return;
     e.preventDefault();
+    if (padDetector.isSwipe(e)) { view.panBy(-e.deltaX, -e.deltaY); return; }   // D7.56: two fingers pan (the sheet follows them); a pinch and a mouse wheel zoom
     const p = pos(e);
     const step = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
     view.zoomAt(p.x, p.y, Math.pow(1.0018, -step * (e.ctrlKey ? 1 : wheelFactor())));   // IP.3: the style's wheel (a pinch stays as it is)
   }, { passive: false });
+  // 0.8 Track ID: hand the view to the input-device layer (assets/js/app-devices-ui.js) — the middle drag's pan, the wheel's zoom at (x, y),
+  // Fit page; nothing without a sheet, as the wheel. While the 3D view is open the sheet's canvases are only visibility-hidden (their box
+  // still counts as "under the pointer"), so each move goes on to the 3D view's own (view3d.js devView) with (x, y) moved into its box.
+  const dev3d = () => (d3.on && d3.view?.devView) || null;
+  const devAt3d = (x, y) => { const a = ui.over.getBoundingClientRect(), b = dev3d().el.getBoundingClientRect(); return [x + a.left - b.left, y + a.top - b.top]; };
+  (window.ccViews ||= []).push({
+    el: ui.over, kind: '2d',
+    pan(dx, dy) { if (dev3d()) return dev3d().pan(dx, dy); if (cur) view.panBy(dx, dy); },
+    zoom(f, x = view.w / 2, y = view.h / 2) { if (!(f > 0)) return; if (dev3d()) return dev3d().zoom(f, ...devAt3d(x, y)); if (cur) view.zoomAt(x, y, f); },
+    orbit(dx, dy) { dev3d()?.orbit(dx, dy); },   // the sheet is flat: only the 3D view turns
+    fit() { if (dev3d()) return dev3d().fit(); if (cur) view.fit('page'); },
+  });
 
   /**
    * Where a pick lands: on the drawing's own linework when Snap is on and it is near (T1; snap.js), else 45° from the
@@ -948,6 +1008,196 @@ function init(root) {
     if (!rec?.idx) return null;
     return rec.idx.snap(raw, snapPx() / view.z);
   }
+  // ---- pick the PDF's own linework (0.8 SU.880; pickpath.js) ----
+  // Click a line: the whole path joined to it end to end within the gap tolerance. Click inside a closed outline: its area.
+  // Shift adds, Tab tries the next path, Backspace (or Ctrl+Z) takes the last segment off, [ ] set the tolerance, Enter adds the marks.
+  const pickIdx = () => { const r = cur && snaps.get(cur.key); return r?.idx || null; };
+  const pickTolUnits = () => (coarse ? 14 : 8) / view.z;                        // how close a click must be to a line
+  const pickGapText = () => { const sc = cur && model.scaleOf(cur.key); return sc ? ftIn(settings.pickGap * sc.ftPerUnit) : U.fixed(settings.pickGap, 2) + ' pt'; };
+  let pickChains = { key: '', idx: null, map: new Map() };                       // the chains of the sheet at this tolerance, so hovering stays quick
+  function pickChain(idx, seed, gap) {
+    const key = (cur?.key || '') + '|' + gap;
+    if (pickChains.key !== key || pickChains.idx !== idx) pickChains = { key, idx, map: new Map() };
+    let c = pickChains.map.get(seed);
+    if (!c) {
+      c = PP.chainFrom(idx, seed, gap);
+      if (pickChains.map.size > 400) pickChains.map.clear();
+      for (const e of c.segs) if (!pickChains.map.has(e.s)) pickChains.map.set(e.s, c);
+      pickChains.map.set(seed, c);
+    }
+    return c;
+  }
+  function pickCands(p) {
+    const idx = pickIdx();
+    return idx ? PP.candidatesAt(idx, p, pickTolUnits(), settings.pickGap, 6, pickChain) : [];
+  }
+  function pickHover(p) {
+    const pk = app.pick;
+    if (!pk || !cur) return;
+    const cands = pickCands(p);
+    const same = cands[0] && pk.hover[0] && cands[0].seed === pk.hover[0].seed;
+    if (!same) pk.hi = 0;
+    pk.hover = cands;
+    if (cands.length) {
+      const sc = model.scaleOf(cur.key), i = Math.min(pk.hi, cands.length - 1), c = cands[i];
+      if (sc && !pk.staged.length) ui.measure.textContent = t('sx.su880.measure.hover', { segs: t('sx.su880.seg', { n: c.segs.length }), len: ftIn(PP.pathLength(c) * sc.ftPerUnit), i: i + 1, n: cands.length, tol: t('sx.su880.tol', { gap: pickGapText() }) });
+    } else if (!pk.staged.length) ui.measure.textContent = '';
+  }
+  function pickClick(p) {
+    const idx = pickIdx(), pk = app.pick;
+    if (!pk || !cur) return;
+    if (!idx) { status(t('sx.su880.nolines'), 9000); return; }
+    if (pk.sheet !== cur.key) { pk.sheet = cur.key; pk.staged = []; }
+    const cands = pickCands(p);
+    let entry;
+    if (cands.length) entry = { kind: 'line', path: cands[Math.min(pk.hi, cands.length - 1)] };
+    else {
+      const loops = PP.loopsAround(idx, p, settings.pickGap);
+      if (!loops.length) { status(t(pk.staged.length ? 'sx.su880.none' : 'sx.su880.noloop', { gap: pickGapText() }), 9000); return; }
+      entry = { kind: 'loop', path: loops[0], alts: loops, ai: 0 };
+    }
+    if (app.shift) { if (!pk.staged.some((e) => e.path.segs.some((x) => x.s === entry.path.seed))) pk.staged.push(entry); }
+    else pk.staged = [entry];
+    pickReport(); view.overlayOnly();
+  }
+  /** The live text under the toolbar: lengths and areas of what is picked, the tolerance, how many gaps were bridged. */
+  function pickReport() {
+    const pk = app.pick, sc = cur && model.scaleOf(cur.key);
+    if (!pk?.staged.length || !sc) return;
+    const k = sc.ftPerUnit, tol = t('sx.su880.tol', { gap: pickGapText() });
+    const bridged = (e) => (e.path.gaps.length ? t('sx.su880.bridged', { n: e.path.gaps.length }) : '');
+    if (pk.staged.length === 1) {
+      const e = pk.staged[0], segs = t('sx.su880.seg', { n: e.path.segs.length }), len = ftIn(PP.pathLength(e.path) * k);
+      ui.measure.textContent = e.kind === 'loop' ? t('sx.su880.measure.area', { area: U.fixed(PP.pathArea(e.path) * k * k, 2), len, segs, tol, bridged: bridged(e) })
+        : t(e.path.closed ? 'sx.su880.measure.closed' : 'sx.su880.measure.line', { segs, len, tol, bridged: bridged(e) });
+    } else {
+      let len = 0, area = 0;
+      for (const e of pk.staged) { if (e.kind === 'loop') area += PP.pathArea(e.path) * k * k; else len += PP.pathLength(e.path) * k; }
+      ui.measure.textContent = t('sx.su880.measure.many', { n: pk.staged.length, len: ftIn(len), area: U.fixed(area, 2), tol });
+    }
+  }
+  function pickTrim() {
+    const pk = app.pick;
+    if (!pk?.staged.length) return;
+    const last = pk.staged.at(-1), np = PP.trimLast(last.path);
+    if (!np) pk.staged.pop(); else { last.path = np; last.kind = 'line'; last.alts = null; }
+    if (pk.staged.length) pickReport(); else ui.measure.textContent = '';
+    status(t('sx.su880.trim'));
+    view.overlayOnly();
+  }
+  function pickGapStep(dir) {
+    const pk = app.pick;
+    settings.pickGap = PP.stepGap(settings.pickGap, dir);
+    saveSettings(); syncSettingsForm();
+    const idx = pickIdx();
+    if (pk?.staged.length && idx) {                                       // the same picks, joined again at the new tolerance
+      pk.staged = pk.staged.map((e) => {
+        const path = PP.chainFrom(idx, e.path.seed, settings.pickGap);
+        return e.kind === 'loop' && path.closed ? { ...e, path, alts: [path], ai: 0 } : { kind: 'line', path };
+      });
+      pickReport();
+    }
+    if (app.cursor) pickHover(app.cursor);
+    status(t('sx.su880.tol.set', { gap: pickGapText(), pt: U.fixed(settings.pickGap, 2) }), 7000);
+    view.overlayOnly();
+  }
+  function pickCycle() {
+    const pk = app.pick;
+    if (!pk) return;
+    if (pk.hover.length > 1) { pk.hi = (pk.hi + 1) % pk.hover.length; status(t('sx.su880.cycle', { i: pk.hi + 1, n: pk.hover.length })); }
+    else {
+      const e = pk.staged.at(-1);
+      if (e?.alts?.length > 1) { e.ai = (e.ai + 1) % e.alts.length; e.path = e.alts[e.ai]; pickReport(); status(t('sx.su880.cycle.loop', { i: e.ai + 1, n: e.alts.length })); }
+    }
+    view.overlayOnly();
+  }
+  function pickClear() { if (app.pick) app.pick.staged = []; ui.measure.textContent = ''; status(t('sx.su880.cleared')); view.overlayOnly(); }
+  /** Keys of the Path tool; true when one was taken. */
+  function pickKey(e) {
+    if (e.key === 'Tab') { e.preventDefault(); pickCycle(); return true; }
+    if (e.key === '[' || e.key === ']') { e.preventDefault(); pickGapStep(e.key === ']' ? 1 : -1); return true; }
+    if (e.key === 'Enter') { e.preventDefault(); pickCommit(); return true; }
+    if ((e.key === 'Backspace' || e.key === 'Delete') && app.pick?.staged.length) { e.preventDefault(); pickTrim(); return true; }
+    if (e.key === 'Escape' && app.pick?.staged.length) { pickClear(); return true; }
+    return false;
+  }
+  /** An item of `type` for the picked marks: the active one, else the newest; none → the new-item form opens. */
+  function pickItem(type) {
+    const a = app.active && model.item(app.active);
+    if (a && kindsOf(a).includes(type)) return a;
+    const last = [...model.state.items].reverse().find((i) => i.type === type);
+    if (last) return last;
+    openItemForm(type);
+    status(t('sx.su880.item.' + type), 9000);
+    return null;
+  }
+  function pickCommit() {
+    const pk = app.pick;
+    if (!pk?.staged.length || !cur) return;
+    const sc = model.scaleOf(cur.key);
+    if (!sc) { status(t('tool.err.noscale.measure'), 9000); return; }
+    const lines = pk.staged.filter((e) => e.kind === 'line'), loops = pk.staged.filter((e) => e.kind === 'loop');
+    const itL = lines.length ? pickItem('linear') : null, itA = loops.length ? pickItem('area') : null;
+    if ((lines.length && !itL) || (loops.length && !itA)) return;          // the item form is open; Enter again once it exists
+    for (const e of loops) { const why = G.outlineProblem(PP.pathPoints(e.path)); if (why) { status(why, 9000); return; } }
+    let ids = [];
+    try {
+      if (lines.length) ids = ids.concat(model.addMarks(itL.id, lines.map((e) => {
+        const pts = PP.pathPoints(e.path);
+        return { sheet: cur.key, pts: e.path.closed ? [...pts, pts[0]] : pts, ...inArea() };
+      }), t('sx.su880.undo.linear'), 'linear'));
+      if (loops.length) ids = ids.concat(model.addMarks(itA.id, loops.map((e) => ({ sheet: cur.key, pts: PP.pathPoints(e.path), ...inArea() })), t('sx.su880.undo.area'), 'area'));
+    } catch (err) { status(err.message, 9000); return; }
+    pk.staged = [];
+    ui.measure.textContent = '';
+    app.sel = ids.at(-1) ?? app.sel;
+    status(t('sx.su880.added', { n: ids.length }), 8000);
+    renderMarkProps();
+    view.overlayOnly();
+  }
+  /** The overlay: the path under the pointer (dashed; the others it could be, thin), what is picked (solid), bridged gaps and the tolerance. */
+  function drawPick(ctx, S) {
+    const pk = app.pick;
+    if (!pk || app.tool !== 'path' || !cur) return;
+    if (pk.sheet !== cur.key) { pk.sheet = cur.key; pk.staged = []; pk.hover = []; }
+    const trace = (pts, close) => { ctx.beginPath(); pts.forEach((q, i) => { const s = S(q); if (i) ctx.lineTo(s.x, s.y); else ctx.moveTo(s.x, s.y); }); if (close) ctx.closePath(); };
+    const tolR = Math.max(3, settings.pickGap * view.z);
+    ctx.save();
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    if (!pk.staged.length || app.shift) {
+      const hotI = Math.min(pk.hi, pk.hover.length - 1);
+      pk.hover.forEach((c, i) => {
+        const hot = i === hotI;
+        ctx.strokeStyle = colors.action; ctx.globalAlpha = hot ? 0.8 : 0.3; ctx.lineWidth = hot ? 3 : 1.5; ctx.setLineDash(hot ? [8, 5] : [3, 4]);
+        trace(PP.pathPoints(c), c.closed); ctx.stroke();
+      });
+      ctx.setLineDash([]);
+      const hot = pk.hover[hotI];
+      if (hot && !hot.closed) {                                       // where the path was searched on, so the tolerance can be seen
+        const pts = PP.pathPoints(hot);
+        ctx.globalAlpha = 0.9; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+        for (const q of [pts[0], pts.at(-1)]) { const s = S(q); ctx.beginPath(); ctx.arc(s.x, s.y, tolR, 0, Math.PI * 2); ctx.stroke(); }
+      }
+    }
+    ctx.setLineDash([]);
+    for (const e of pk.staged) {
+      const pts = PP.pathPoints(e.path);
+      ctx.strokeStyle = colors.action; ctx.fillStyle = colors.action; ctx.lineWidth = 4;
+      if (e.kind === 'loop') { ctx.globalAlpha = 0.16; trace(pts, true); ctx.fill(); }
+      ctx.globalAlpha = 0.85; trace(pts, e.path.closed); ctx.stroke();
+      ctx.globalAlpha = 1; ctx.lineWidth = 1;
+      if (pts.length <= 300) for (const q of pts) { const s = S(q); ctx.fillRect(s.x - 2.5, s.y - 2.5, 5, 5); }
+      ctx.strokeStyle = FLAG_COLOR; ctx.lineWidth = 2;                // the holes that were bridged: a ring as wide as the tolerance
+      for (const g of e.path.gaps) { const s = S(g); ctx.beginPath(); ctx.arc(s.x, s.y, tolR, 0, Math.PI * 2); ctx.stroke(); }
+    }
+    if (app.cursor) {                                                  // the tolerance at the pointer
+      const s = S(app.cursor);
+      ctx.strokeStyle = colors.layer; ctx.globalAlpha = 0.8; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.arc(s.x, s.y, tolR, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function toggleSnap(on = !settings.snap) {
     settings.snap = on;
     saveSettings();
@@ -983,9 +1233,9 @@ function init(root) {
     if (app.paste) { placePaste(p); return; }
     if (tool === 'select') { selectAt(p, app.shift); return; }
     // the sheet may have changed (or its scale been undone) since the tool was picked
-    if (tool === 'autocount') return;
+    if (tool === 'autocount' || tool === 'legend') return;
     if ((tool === 'linear' || tool === 'area' || tool === 'count' || tool === 'circle' || tool === 'room') && !model.item(app.active)) { setTool('select'); status(t('tool.err.item')); return; }
-    if ((tool === 'linear' || tool === 'area' || tool === 'cutout' || tool === 'circle' || tool === 'cutcircle' || tool === 'room') && !model.scaleOf(cur.key)) {
+    if ((tool === 'linear' || tool === 'area' || tool === 'cutout' || tool === 'circle' || tool === 'cutcircle' || tool === 'room' || tool === 'path') && !model.scaleOf(cur.key)) {
       app.draft = null;
       status(t('tool.err.noscale.measure'), 9000);
       view.overlayOnly();
@@ -998,6 +1248,7 @@ function init(root) {
       return;
     }
     if (tool === 'room') { fillRoom(p); return; }
+    if (tool === 'path') { pickClick(p); return; }
     if (tool === 'note') { noteAt(p); return; }
     if (tool === 'cloud' || tool === 'highlight') {          // T22: two corners
       if (!app.noteStart) { app.noteStart = p; status(t('help.' + tool + '.2'), 0); view.overlayOnly(); return; }
@@ -1435,8 +1686,10 @@ function init(root) {
       label(ctx, a, b, app.check.text);
     }
     drawAutoCount(ctx, S, line);
+    countAllUi?.draw(ctx, S, line);
     drawCadGeom(ctx, S, trace);
     drawPaste(ctx, trace);
+    drawPick(ctx, S);
     drawSnap(ctx, S);
     // the cursor's crosshair while picking points
     if (app.cursor && app.tool !== 'select') {
@@ -1492,6 +1745,7 @@ function init(root) {
 
   function setActive(id, highlight = true) {
     app.active = id;
+    selChanged();
     if (highlight) app.hl = id;
     renderItems(); renderItemProps(); renderSheets(); renderQty();
     view.overlayOnly();
@@ -1599,44 +1853,70 @@ function init(root) {
     const fail = (input, msg) => { input.classList.add('is-invalid'); status(msg, 8000); };
     const commit = (patch, label) => { try { model.updateItem(id, patch, label); } catch (err) { status(err.message); renderItemProps(); } };
 
-    const name = textInput('tc-i-name', 'name', it.name, (v, n) => { if (!v.trim()) return fail(n, t('item.err.name')); commit({ name: v }, t('undo.item.rename')); }, { maxlength: 200 });
-    const type = el('select', { className: 'tc-select', id: 'tc-i-type', dataset: { field: 'type' }, disabled: nMarks > 0, title: nMarks ? t('item.type.locked') : '' },
-      TYPES.map((ty) => el('option', { value: ty, selected: ty === it.type }, TYPE_LABELS[ty])));
-    type.addEventListener('change', () => commit({ type: type.value, unit: U.defaultUnitFor(type.value) }, t('undo.item.type')));
-    const color = el('input', { type: 'color', className: 'tc-input', id: 'tc-i-color', dataset: { field: 'color' }, value: it.color.toLowerCase() });
-    color.addEventListener('change', () => commit({ color: color.value }, t('undo.item.color')));
-    const unit = el('select', { className: 'tc-select', id: 'tc-i-unit', dataset: { field: 'unit' } }, U.unitsFor(it.type, [it.unit]).map((u) => el('option', { value: u, selected: u === it.unit }, t('unit.option', { unit: U.UNITS[u].label, name: U.UNITS[u].name }))));
-    unit.addEventListener('change', () => commit({ unit: unit.value }, t('undo.item.unit')));
-
-    const rows = [...fieldRow(t('item.f.name'), name), ...fieldRow(t('item.f.type'), type), ...fieldRow(t('item.f.color'), color), ...fieldRow(t('item.f.unit'), unit)];
+    const gridApply = {};   // grid row id → (text, node) the same handlers the old form used
+    const GP = window.ccPropGrid ? [] : null;   // 0.8 PANEL-COMPACT: the simple fields go in the shared grid where the shell has it
+    let rows = [];
+    if (GP) {
+      const typeLocked = nMarks > 0;
+      GP.push({ id: 'name', category: t('item.grid.item'), label: t('item.f.name'), type: 'text', value: it.name, maxLength: 200 },
+        { id: 'type', category: t('item.grid.item'), label: t('item.f.type'), type: 'select', value: it.type, readonly: typeLocked, hint: typeLocked ? t('item.type.locked') : '', options: TYPES.map((ty) => ({ value: ty, label: TYPE_LABELS[ty] })) },
+        { id: 'color', category: t('item.grid.item'), label: t('item.f.color'), type: 'color', value: it.color.toLowerCase() },
+        { id: 'unit', category: t('item.grid.item'), label: t('item.f.unit'), type: 'select', value: it.unit, options: U.unitsFor(it.type, [it.unit]).map((u) => ({ value: u, label: t('unit.option', { unit: U.UNITS[u].label, name: U.UNITS[u].name }) })) });
+    } else {
+      const name = textInput('tc-i-name', 'name', it.name, (v, n) => { if (!v.trim()) return fail(n, t('item.err.name')); commit({ name: v }, t('undo.item.rename')); }, { maxlength: 200 });
+      const type = el('select', { className: 'tc-select', id: 'tc-i-type', dataset: { field: 'type' }, disabled: nMarks > 0, title: nMarks ? t('item.type.locked') : '' },
+        TYPES.map((ty) => el('option', { value: ty, selected: ty === it.type }, TYPE_LABELS[ty])));
+      type.addEventListener('change', () => commit({ type: type.value, unit: U.defaultUnitFor(type.value) }, t('undo.item.type')));
+      const color = el('input', { type: 'color', className: 'tc-input', id: 'tc-i-color', dataset: { field: 'color' }, value: it.color.toLowerCase() });
+      color.addEventListener('change', () => commit({ color: color.value }, t('undo.item.color')));
+      const unit = el('select', { className: 'tc-select', id: 'tc-i-unit', dataset: { field: 'unit' } }, U.unitsFor(it.type, [it.unit]).map((u) => el('option', { value: u, selected: u === it.unit }, t('unit.option', { unit: U.UNITS[u].label, name: U.UNITS[u].name }))));
+      unit.addEventListener('change', () => commit({ unit: unit.value }, t('undo.item.unit')));
+      rows = [...fieldRow(t('item.f.name'), name), ...fieldRow(t('item.f.type'), type), ...fieldRow(t('item.f.color'), color), ...fieldRow(t('item.f.unit'), unit)];
+    }
     const typed = it.type === 'fixed';
     if (typed) rows.push(...fixedFields(it, commit, fail));                 // TK.5+: typed, not drawn
     else rows.push(el('span', { className: 'k', id: 'tc-i-also-l' }, t('item.f.also')), condFields(it));
     if (it.type !== 'count' && !typed) {
       const hv = it.heightFt ? (lu === 'm' ? U.fixed(it.heightFt * U.M_PER_FT, 3) + ' m' : U.formatFtIn(it.heightFt)) : '';
-      const h = textInput('tc-i-height', 'height', hv, (v, n) => {
+      const applyHeight = (v, n) => {
         if (!v.trim()) return commit({ heightFt: 0 }, t('undo.item.height'));
         const r = U.parseLength(v, { defaultUnit: lu });
         if (!r.ok) return fail(n, r.error);
         commit({ heightFt: r.ft }, t('undo.item.height'));
-      }, { placeholder: lu === 'm' ? '3.0 m' : '9\'-0"' });
-      rows.push(...fieldRow(it.type === 'linear' ? t('item.f.height') : t('item.f.depth'), h));
+      };
+      if (GP) GP.push({ id: 'height', category: t('item.grid.measure'), label: it.type === 'linear' ? t('item.f.height') : t('item.f.depth'), type: 'text', value: hv, hint: lu === 'm' ? '3.0 m' : '9\'-0"' });
+      else rows.push(...fieldRow(it.type === 'linear' ? t('item.f.height') : t('item.f.depth'), textInput('tc-i-height', 'height', hv, applyHeight, { placeholder: lu === 'm' ? '3.0 m' : '9\'-0"' })));
+      gridApply.height = applyHeight;
     }
     if (it.type === 'area') rows.push(...backoutFields(it));
     if (it.type !== 'count' && !typed) rows.push(...pitchFields(it));
     const shape = it.type !== 'count' && !typed ? el('div', { className: 'tc-props' }, shapeFields(it, lu, fail)) : null;
-    const waste = textInput('tc-i-waste', 'waste', U.percentInput(it.waste), (v, n) => { const r = U.parsePercent(v); if (!r.ok) return fail(n, r.error); commit({ waste: r.bp }, t('undo.item.waste')); }, { inputmode: 'decimal' });
-    const mat = textInput('tc-i-mat', 'mat', U.rateInput(it.mat), (v, n) => { const r = U.parseRate(v); if (!r.ok) return fail(n, r.error); commit({ mat: r.rate4 }, t('undo.item.mat')); }, { inputmode: 'decimal' });
-    const lab = textInput('tc-i-lab', 'lab', U.rateInput(it.lab), (v, n) => { const r = U.parseRate(v); if (!r.ok) return fail(n, r.error); commit({ lab: r.rate4 }, t('undo.item.lab')); }, { inputmode: 'decimal' });
-    if (it.crew) { lab.disabled = true; lab.title = t('crew.lab.locked'); lab.value = U.rateInput(est.rows.find((r) => r.kind === 'item' && r.itemId === it.id)?.lab ?? 0); }
-    rows.push(...fieldRow(t('item.f.waste'), waste), ...fieldRow(t('item.f.mat', { unit: U.UNITS[it.unit].label }), mat), ...fieldRow(t('item.f.lab', { unit: U.UNITS[it.unit].label }), lab));
-    rows.push(...crewFields(it, commit, fail));
-    const csi = textInput('tc-i-csi', 'csi', it.csi || '', (v, n) => {           // TK.4: groups the workbook's "By division"
+    const crewLab = it.crew ? U.rateInput(est.rows.find((r) => r.kind === 'item' && r.itemId === it.id)?.lab ?? 0) : null;
+    const ul = U.UNITS[it.unit].label;
+    const applyWaste = (v, n) => { const r = U.parsePercent(v); if (!r.ok) return fail(n, r.error); commit({ waste: r.bp }, t('undo.item.waste')); };
+    const applyMat = (v, n) => { const r = U.parseRate(v); if (!r.ok) return fail(n, r.error); commit({ mat: r.rate4 }, t('undo.item.mat')); };
+    const applyLab = (v, n) => { const r = U.parseRate(v); if (!r.ok) return fail(n, r.error); commit({ lab: r.rate4 }, t('undo.item.lab')); };
+    const applyCsi = (v, n) => {           // TK.4: groups the workbook's "By division"
       const x = v.trim().replace(/\s+/g, ' ');
       if (x && !csiOk(x)) return fail(n, t('item.csi.err'));
       commit({ csi: x || undefined }, t('undo.item.csi'));
-    }, { placeholder: t('item.csi.ph'), maxlength: 11 });
-    rows.push(...fieldRow(t('item.f.csi'), csi));
+    };
+    if (GP) {
+      const C = t('item.grid.cost');
+      GP.push({ id: 'waste', category: C, label: t('item.f.waste'), type: 'text', value: U.percentInput(it.waste) },
+        { id: 'mat', category: C, label: t('item.f.mat', { unit: ul }), type: 'text', value: U.rateInput(it.mat) },
+        { id: 'lab', category: C, label: t('item.f.lab', { unit: ul }), type: 'text', value: it.crew ? crewLab : U.rateInput(it.lab), readonly: !!it.crew, hint: it.crew ? t('crew.lab.locked') : '' },
+        { id: 'csi', category: C, label: t('item.f.csi'), type: 'text', value: it.csi || '', maxLength: 11, hint: t('item.csi.ph') });
+      Object.assign(gridApply, { waste: applyWaste, mat: applyMat, lab: applyLab, csi: applyCsi, name: (v, n) => { if (!v.trim()) return fail(n, t('item.err.name')); commit({ name: v }, t('undo.item.rename')); } });
+    } else {
+      const waste = textInput('tc-i-waste', 'waste', U.percentInput(it.waste), applyWaste, { inputmode: 'decimal' });
+      const mat = textInput('tc-i-mat', 'mat', U.rateInput(it.mat), applyMat, { inputmode: 'decimal' });
+      const lab = textInput('tc-i-lab', 'lab', U.rateInput(it.lab), applyLab, { inputmode: 'decimal' });
+      if (it.crew) { lab.disabled = true; lab.title = t('crew.lab.locked'); lab.value = crewLab; }
+      rows.push(...fieldRow(t('item.f.waste'), waste), ...fieldRow(t('item.f.mat', { unit: ul }), mat), ...fieldRow(t('item.f.lab', { unit: ul }), lab));
+    }
+    rows.push(...crewFields(it, commit, fail));
+    if (!GP) rows.push(...fieldRow(t('item.f.csi'), textInput('tc-i-csi', 'csi', it.csi || '', applyCsi, { placeholder: t('item.csi.ph'), maxlength: 11 })));
 
     // measured values
     const tq = qmap.get(id);
@@ -1667,7 +1947,20 @@ function init(root) {
       el('button', { type: 'button', className: 'tc-linkbtn', onclick: () => model.moveItem(id, -1) }, t('item.up')),
       el('button', { type: 'button', className: 'tc-linkbtn', onclick: () => model.moveItem(id, 1) }, t('item.down')),
       el('button', { type: 'button', className: 'tc-linkbtn is-danger', onclick: () => deleteItem(it) }, t('item.delete')));
-    ui.itemProps.replaceChildren(el('div', { className: 'tc-props' }, rows), ...(shape ? [shape] : []), el('div', { className: 'tc-props' }, out), comps, actions);
+    let gridHost = null;
+    if (GP) {
+      gridHost = el('div', { className: 'tc-grid' });
+      ccPropGrid.create(gridHost, { label: t('item.grid.label'), key: 'item', rows: GP, onChange: (rid, val) => {
+        // the person's text goes through the same readers as the form; a refusal marks the box and says why in the status line
+        const node = gridHost.querySelector('[data-pg-row="' + rid + '"]');
+        if (rid === 'type') return commit({ type: val, unit: U.defaultUnitFor(val) }, t('undo.item.type'));
+        if (rid === 'color') return commit({ color: val }, t('undo.item.color'));
+        if (rid === 'unit') return commit({ unit: val }, t('undo.item.unit'));
+        const fn = gridApply[rid]; if (fn) fn(String(val), node || { classList: { add() {} } });
+      } });
+      gridHost.querySelectorAll('[data-pg-row]').forEach((n) => { n.dataset.field = n.dataset.pgRow; });   // keepFocus finds the box again by it
+    }
+    ui.itemProps.replaceChildren(...(gridHost ? [gridHost] : []), el('div', { className: 'tc-props' }, rows), ...(shape ? [shape] : []), el('div', { className: 'tc-props' }, out), comps, actions);
   }
 
   /** TK.5+: a typed quantity's own fields — the quantity, its bid area, and where it came from when it was imported. */
@@ -1809,10 +2102,21 @@ function init(root) {
     const it = model.item(m.item);
     const sc = model.scaleOf(m.sheet);
     const r = measureMark(m, sc?.ftPerUnit, it);
-    const kv = (k, val) => [el('span', { className: 'k' }, k), el('span', { className: 'v' }, val)];
-    const move = el('select', { className: 'tc-select', id: 'tc-m-item', dataset: { field: 'm-item' } }, model.state.items.filter((i) => kindsOf(i).includes(m.kind)).map((i) => el('option', { value: i.id, selected: i.id === m.item }, i.name)));
-    move.addEventListener('change', () => { model.updateMark(m.id, { item: move.value }, t('undo.mark.item')); setActive(move.value, false); });
-    const rows = [el('label', { for: 'tc-m-item' }, t('mark.f.item')), move, ...kv(t('mark.f.sheet'), sheetLabel(m.sheet)), ...areaField([m.id]), ...groupField([m.id])];
+    const G = window.ccPropGrid ? [] : null;   // 0.8 PANEL-COMPACT: the mark's facts and its item go in the shared grid where the shell has it
+    let kvn = 0;
+    const kv = (k, val) => G ? (G.push({ id: 'v' + (kvn++), category: t('mark.grid.measured'), label: k, type: 'readonly', value: val }), []) : [el('span', { className: 'k' }, k), el('span', { className: 'v' }, val)];
+    const itemOpts = model.state.items.filter((i) => kindsOf(i).includes(m.kind));
+    const moveTo = (v) => { model.updateMark(m.id, { item: v }, t('undo.mark.item')); setActive(v, false); };
+    let rows, applyZ = null;
+    if (G) {
+      G.push({ id: 'item', category: t('mark.grid.mark'), label: t('mark.f.item'), type: 'select', value: m.item, options: itemOpts.map((i) => ({ value: i.id, label: i.name })) },
+        { id: 'sheet', category: t('mark.grid.mark'), label: t('mark.f.sheet'), type: 'readonly', value: sheetLabel(m.sheet) });
+      rows = [...areaField([m.id]), ...groupField([m.id])];
+    } else {
+      const move = el('select', { className: 'tc-select', id: 'tc-m-item', dataset: { field: 'm-item' } }, itemOpts.map((i) => el('option', { value: i.id, selected: i.id === m.item }, i.name)));
+      move.addEventListener('change', () => moveTo(move.value));
+      rows = [el('label', { for: 'tc-m-item' }, t('mark.f.item')), move, ...kv(t('mark.f.sheet'), sheetLabel(m.sheet)), ...areaField([m.id]), ...groupField([m.id])];
+    }
     const extra = [];
     if (!r) rows.push(...kv(t('item.measured'), t('mark.noscale')));
     else if (m.kind === 'linear') {
@@ -1845,18 +2149,24 @@ function init(root) {
     } else {
       rows.push(...kv(t('mark.f.count'), '1'));
       // TK.5: a spot elevation on a count mark, handed to CivilCraft (Export › Spot elevations); decimal feet, ft-in or metres
-      const z = el('input', { type: 'text', className: 'tc-input', id: 'tc-m-z', dataset: { field: 'm-z' }, value: typeof m.z === 'number' ? String(U.roundTo(m.z, 4)) : '', placeholder: t('spots.ph'), autocomplete: 'off', title: t('spots.field.title') });
-      z.addEventListener('change', () => {
-        const v = z.value.trim();
+      applyZ = (raw, z) => {
+        const v = raw.trim();
         if (!v) { model.updateMark(m.id, { z: undefined }, t('undo.mark.z')); return; }
         const num = /^-?\d+(?:\.\d+)?$/.test(v) ? Number(v) : null;
         const r = num === null ? U.parseLength(v.replace(/^-/, ''), { defaultUnit: 'ft' }) : null;
         const ft = num !== null ? num : r.ok ? (v.startsWith('-') ? -r.ft : r.ft) : null;
         if (ft === null || !(Math.abs(ft) < 1e5)) { z.classList.add('is-invalid'); status(t('spots.err')); return; }
         model.updateMark(m.id, { z: ft }, t('undo.mark.z'));
-      });
-      z.addEventListener('keydown', (e) => { if (e.key === 'Enter') z.blur(); });
-      rows.push(el('label', { for: 'tc-m-z' }, t('spots.field')), z);
+      };
+      const zv = typeof m.z === 'number' ? String(U.roundTo(m.z, 4)) : '';
+      if (G) G.push({ id: 'z', category: t('mark.grid.measured'), label: t('spots.field'), type: 'text', value: zv, hint: t('spots.field.title') });
+      else {
+        const z = el('input', { type: 'text', className: 'tc-input', id: 'tc-m-z', dataset: { field: 'm-z' }, value: zv, placeholder: t('spots.ph'), autocomplete: 'off', title: t('spots.field.title') });
+        z.addEventListener('change', () => applyZ(z.value, z));
+        z.addEventListener('keydown', (e) => { if (e.key === 'Enter') z.blur(); });
+        rows.push(el('label', { for: 'tc-m-z' }, t('spots.field')), z);
+      }
+
     }
     if (m.flag) extra.unshift(el('div', { className: 'tc-flag-note' }, el('p', {}, t('flag.note')),
       el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { flagChecked: m.id }, onclick: () => { model.clearFlags([m.id]); } }, t('flag.checked'))));
@@ -1865,7 +2175,18 @@ function init(root) {
       m.kind === 'area' ? el('button', { type: 'button', className: 'tc-linkbtn', onclick: () => setTool('cutcircle') }, t('mark.cutout.round')) : null,
       m.kind === 'area' && m.holes.length ? el('button', { type: 'button', className: 'tc-linkbtn', onclick: () => model.updateMark(m.id, { holes: m.holes.slice(0, -1) }, t('undo.cutout.remove')) }, t('mark.cutout.remove')) : null,
       el('button', { type: 'button', className: 'tc-linkbtn is-danger', onclick: () => deleteSelected() }, t('mark.delete')));
-    keepFocus(ui.markProps, () => ui.markProps.replaceChildren(el('div', { className: 'tc-props' }, rows), ...extra, actions));
+    keepFocus(ui.markProps, () => {
+      let gridHost = null;
+      if (G) {
+        gridHost = el('div', { className: 'tc-grid' });
+        ccPropGrid.create(gridHost, { label: t('mark.grid.label'), key: 'mark', rows: G, onChange: (rid, val) => {
+          if (rid === 'item') moveTo(val);
+          else if (rid === 'z') applyZ(String(val), gridHost.querySelector('[data-pg-row="z"]'));
+        } });
+        gridHost.querySelectorAll('[data-pg-row]').forEach((n) => { n.dataset.field = n.dataset.pgRow; });
+      }
+      ui.markProps.replaceChildren(...(gridHost ? [gridHost] : []), el('div', { className: 'tc-props' }, rows), ...extra, actions);
+    });
   }
 
   /** Make segment i of a run a deduct, or count it again (one undo step). A run keeps one counted segment. */
@@ -2930,6 +3251,10 @@ function init(root) {
   };
   const AC_FLOOR = 0.5;      // the slider's start comes from Settings (settings.threshold, 75% unless changed)
   let acWorker = null, acPending = null;
+  let learnUi = null;   // 0.8 SU.811: mounted near the end of init
+  let countAllUi = null;   // 0.8 EG.67: mounted right after it
+  let pricesUi = null;   // 0.8 EG.68
+  let supplyUi = null;   // 0.8 EG.51
 
   function renderAcBar() {
     acUi.bar.hidden = app.tool !== 'autocount' && !app.ac;
@@ -3042,6 +3367,7 @@ function init(root) {
     const tpl = trim(crop(src, minX * w, minY * w, (maxX - minX) * w, (maxY - minY) * w));
     const why = templateProblem(tpl);
     if (why) { app.ac = null; renderAcBar(); status(why, 9000); return; }
+    ac.learn = { tpl, px: w, ft: model.scaleOf(cur.key)?.ftPerUnit || null };   // 0.8 SU.811: kept if the person accepts
     let big = 0;
     const rotations = acUi.angle?.checked ? ANY_ANGLES : null;          // T7: any angle (15° steps), else the right angles
     const srcScale = model.scaleOf(cur.key)?.ftPerUnit;
@@ -3091,12 +3417,14 @@ function init(root) {
     const ac = app.ac;
     if (!ac || ac.running) return;
     const on = acVisible().filter((c) => !c.rejected);
+    if (learnUi?.acceptLearned(ac, on)) return;   // 0.8 SU.811: a learned symbol's search (may add its item)
     const it = model.item(ac.item);
     app.ac = null;
     renderAcBar();
     if (!it || !on.length) { view.overlayOnly(); return; }
     model.addMarks(it.id, on.map((c) => ({ sheet: c.sheet, pts: [c.center], ...inArea() })), t('undo.ac', { n: on.length, item: it.name }), 'count');
     status(t('ac.added', { n: on.length, item: it.name, mod: modKey }), 9000);
+    learnUi?.confirmed(ac, on.length, it);   // 0.8 SU.811: remember the symbol the person just confirmed
   }
 
   function drawAutoCount(ctx, S, line) {
@@ -3746,6 +4074,7 @@ function init(root) {
       if (k === 's') { e.preventDefault(); saveProject(); return; }
       if (k === 'o') { e.preventDefault(); actions['open-pdf'](); return; }
       if (typing(e.target)) return;
+      if (k === 'z' && !e.shiftKey && app.tool === 'path' && app.pick?.staged.length) { e.preventDefault(); pickTrim(); return; }   // undo per segment while a path is picked
       if (k === 'z' && !e.shiftKey) { e.preventDefault(); actions.undo(); return; }
       if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); actions.redo(); return; }
       if (e.shiftKey && k !== 'v') return;
@@ -3757,6 +4086,7 @@ function init(root) {
       return;
     }
     if (typing(e.target)) return;
+    if (app.tool === 'path' && pickKey(e)) return;
     if (canType() && !mod && /^[0-9.@#]$/.test(e.key)) { e.preventDefault(); openTypeIn(e.key); return; }
     if (e.key === 'Shift') { app.shift = true; if (app.cursor && app.draft) { view.overlayOnly(); } return; }
     if (e.key === ' ') { e.preventDefault(); app.space = true; return; }
@@ -3778,7 +4108,7 @@ function init(root) {
     const key = e.key.toLowerCase();
     if (key === '3') { toggle3d(); return; }
     if (d3.on && (key === 'f' || key === 'w')) { d3.view?.extents(); return; }
-    const tool = { v: 'select', l: 'linear', a: 'area', o: 'circle', b: 'room', x: 'cutout', c: 'count', s: 'autocount', k: 'calibrate', d: 'check' }[key];
+    const tool = { v: 'select', l: 'linear', a: 'area', o: 'circle', b: 'room', p: 'path', x: 'cutout', c: 'count', s: 'autocount', k: 'calibrate', d: 'check' }[key];
     if (tool) { setTool(tool); return; }
     if (key === 'r') { toggleArc(); return; }
     if (key === 'e') { toggleDeduct(); return; }
@@ -3962,9 +4292,13 @@ function init(root) {
     scale: () => (cur ? model.scaleOf(cur.key) : null),
     quantities: () => est.rows.filter((r) => r.kind === 'item').map((r) => ({ itemId: r.itemId, name: r.name, qty: r.qty, unit: r.unit, total: r.total })),
     estimate: () => est,
+    countall: () => countAllUi?.api.state() || null,   // 0.8 EG.67 (tools/takeoffcraft-test/browser-countall.mjs)
     autocount: () => (app.ac ? { running: app.ac.running, found: acVisible().length, adding: acVisible().filter((c) => !c.rejected).length, threshold: app.ac.threshold,
       boxes: acVisible().filter((c) => c.sheet === cur?.key).map((c) => ({ center: c.center, score: c.score, rejected: c.rejected })) } : null),
     selection: () => selIds(),
+    pick: () => (app.pick ? { gap: settings.pickGap, hover: app.pick.hover.length, staged: app.pick.staged.map((e) => ({ kind: e.kind, segs: e.path.segs.length, closed: e.path.closed, gaps: e.path.gaps.length, len: PP.pathLength(e.path), area: PP.pathArea(e.path) })) } : null),   // 0.8 SU.880 (tools/takeoffcraft-test/browser-pickpath.mjs)
+    carbonDrive: () => carbonUi?.drive, tagQty: () => tagQtyUi?.drive,   // tools/takeoffcraft-test/browser-eg14.mjs
+    shell: () => shellMount?.host || null,   // 0.8 round 3 (tools/takeoffcraft-test/browser-mount.mjs)
     tool: () => app.tool,   // 0.7 WS.11: the running tool (tools/workspace-test/apps/takeoffcraft.mjs)
     view3d: () => state3d(),
     clip: () => currentClip(),
@@ -4005,14 +4339,62 @@ function init(root) {
     reset: () => { model.load({ format: 'takeoffcraft-project', version: 1, files: [], items: [], marks: [] }); for (const f of files) model.addFile({ hash: f.hash, name: f.name, size: f.size, pages: f.pages.length }); app.active = app.sel = app.hl = null; refresh(); },
   };
 
+  // 0.8 SU.811 (sx-learn, learn-ui.js): the Learned button and dialog, the offer bar, finding learned symbols through the Auto count review
+  learnUi = mountLearn({ root, model, app, status, sheets: () => sheets, cur: () => cur, rasterize, searchInWorker, stopWorker: () => { acWorker?.terminate(); acWorker = null; }, renderAcBar, discardAutoCount,
+    overlay: () => view.overlayOnly(), setActive: (id) => setActive(id, true), selIds, inArea, host, projectTypes: PROJECT_TYPES });
+
+  // 0.8 EG.67 (takeoff_PART_2, countall-ui.js): Count everything — box a legend, count each symbol on every open sheet, review, add
+  countAllUi = mountCountAll({ root, model, app, status, sheets: () => sheets, cur: () => cur, rasterize, overlay: () => view.overlayOnly(), inArea, modKey,
+    page: (s) => s.file.doc.getPage(s.info.index + 1),
+    viewport: (page, s, w) => page.getViewport({ scale: w, rotation: s.info.rotate }),
+    unit: (s, wt) => { const inv = G.invert(s.info.transform); return (x, y) => G.apply(inv, { x: x / wt, y: y / wt }); },
+    showSheet: (key) => showSheet(key), setActive: (id) => setActive(id, true), ftOf: (key) => model.scaleOf(key)?.ftPerUnit || null,
+    threshold: () => settings.threshold, color: () => colors.action,
+    learn: (ac, n, it, th) => learnUi?.confirmed({ learn: ac, threshold: th }, n, it) });
+
+  // 0.8 EG.68 (takeoff_PART_2, prices-ui.js): price memory — the rates of your past jobs, in this browser beside the Library
+  pricesUi = mountPrices({ root, model, status, host, projectTypes: PROJECT_TYPES, modKey });
+
+  // 0.8 EG.51 (takeoff_PART_2, supply-ui.js): supplier stock and lead-time files checked against what the takeoff needs; Problems source takeoffcraft.supply
+  supplyUi = mountSupply({ root, model, status, host, control: host.control, estimate: () => est, setActive: (id) => setActive(id, true), modKey, library: { load: loadLib, save: saveLib } });
+
+  // 0.8 EG.14 + EG.17 (takeoff_PART_3, carbon-ui.js): embodied carbon from the quantities, and the takeoff's rates as a 5D price table
+  carbonUi = mountCarbon({ root, model, status, host, estimate: () => est, setActive: (id) => setActive(id, true) });
+  // 0.8 SU.915 (takeoff_PART_3, tagqty-ui.js): a tag schedule from the building model as typed quantities
+  tagQtyUi = mountTagQty({ root, model, status, importFile: (json, name) => importQuantityFile(json, name) });
+
   // ---- AI assistants and scripts (0.4 part 2 X.7, session agents; agents.js on host.js's control channel): off until Settings › Assistants ----
+  // ---- 0.8 round 3 (takeoff_PART_3): the shell's seven modules, attached once host.control has its tools
+  shellMount = mountTakeoffShell({
+    model, control: host.control, estimate: () => est, carbon: () => calcCarbon(est, model.state.items, model.state.carbon),
+    selection: () => {
+      const id = (selMain && model.mark(selMain)?.item) || app.active, it = id && model.item(id);
+      return it ? { kind: 'item', id: it.id, label: it.name } : null;
+    },
+    onSelection: (fn) => { selListeners.add(fn); return () => selListeners.delete(fn); },
+    select: (id) => { if (model.item(id)) setActive(id, true); },
+    name: () => model.state.name || '', path: () => projectTarget?.name || '',
+  });
+  // ---- drafting without sight (0.8 round 3, EG.52; assets/js/app-access.js): the takeoff's items in order, each said with its quantity; the job total on D ----
+  {
+    const rows = () => model.state.items.map((it) => ({ id: it.id, kind: 'object', label: t('access.item', { name: it.name, type: t('access.type.' + (it.type === 'fixed' ? 'fixed' : it.type)), qty: qtyLabel(it), marks: qmap.get(it.id)?.marks || 0 }) }));
+    const goAccess = () => window.ccAccess.mount({
+      stage: ui.over, label: () => t('access.stage'),
+      walk: rows,
+      describe: () => { const n = model.state.items.length; return n ? t('access.job', { name: model.state.name || '', n, marks: model.state.marks.length, total: U.formatCents(est.total) }) : t('access.empty'); },
+      selection: () => { const id = (selMain && model.mark(selMain)?.item) || app.active, it = id && model.item(id); return it ? t('access.selected', { what: rows().find((r) => r.id === it.id)?.label || it.name }) : t('access.nosel'); },
+      pick: (p, item) => { if (item) { setActive(item.id, true); window.ccAccess.say(t('access.selected', { what: item.label })); } else window.ccAccess.say(t('access.nosel')); },
+    });
+    const goStatus = () => window.ccAccess.follow(ui.status, { max: 240 });
+    for (const f of [goAccess, goStatus]) { if (window.ccAccess) f(); else document.addEventListener('cc-access-ready', f, { once: true }); }
+  }
   // ---- add-ons (0.5 AO.6, session addons; docs/ADDONS-SPEC.md §5.6): TakeoffCraft's own loader and API 1.0 (manifest "addons": "own") ----
   let addonsApi = null;
   startAddons({ model, status, setActive: (id) => setActive(id), typeSelect: ui.itemForm.elements.type, rightPanel: root.querySelector('.tc-right'),
     refresh: () => { renderItems(); renderItemProps(); renderQty(); } })
     .then((a) => { addonsApi = a; }).catch((err) => console.warn('add-ons did not start:', err));   // i18n-ignore (developer message)
 
-  installAgents({ model, sheetLabel, sheets: () => sheets.map((s) => ({ key: s.key, title: s.title, view: s.info.view })), current: () => (cur ? cur.key : null), exportCsv, exportXlsx,
+  installAgents({ model, sheetLabel, countAll: () => countAllUi?.drive, prices: () => pricesUi?.drive, supply: () => supplyUi?.drive, carbon: () => carbonUi?.drive, sheetByKey: (key) => sheets.find((s) => s.key === key), sheets: () => sheets.map((s) => ({ key: s.key, title: s.title, view: s.info.view })), current: () => (cur ? cur.key : null), exportCsv, exportXlsx,
     cadSets: () => files.filter(isCad),   // 0.7 AS.6 (assistants-gaps): the open DWG / DXF drawings for cad_count, cad_measure
     usd: async (key, format) => {   // 0.7 AS.6: the sheet's 3D check view as OpenUSD, as exportUsd makes it (needs a scaled sheet; the 3D view need not be open)
       const s = sheets.find((x) => x.key === key);

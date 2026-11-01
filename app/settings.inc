@@ -11,6 +11,7 @@
  *   tcSnap       snap to the drawing's own lines while measuring (default on; F3 and the status bar's Snap toggle it too)
  *   tcCorner     corner indicator of the 3D check view: cube (default) / axes / none (the flat sheet has none)
  *   tcRoomGap    Room fill closes door openings up to this many feet (3 / 3.5 / 4 default / 5 / 6 / 8)
+ *   tcPickGap    Path tool: the largest gap in the drawing's lines it still joins, in PDF points (0.05–60; default 1.5; [ and ] change it too; 0.8 takeoff_PART_3)
  */
 ?>
 <fieldset class="shell-set" data-tc-settings>
@@ -61,6 +62,11 @@
     </select>
   </div>
   <p class="shell-hint-text"><?= Lang::e('set.roomgap.hint') ?></p>
+  <div class="shell-row">
+    <label for="tc-set-pickgap"><?= Lang::e('set.pickgap') ?></label>
+    <input type="number" id="tc-set-pickgap" class="input-cc" name="tcPickGap" min="0.05" max="60" step="0.05" inputmode="decimal">
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.pickgap.hint') ?></p>
   <label class="shell-check"><input type="checkbox" name="tcSnap"> <?= Lang::e('settings.snap') ?></label>
   <p class="shell-hint-text"><?= Lang::e('settings.snap.hint') ?></p>
   <label class="shell-check"><input type="checkbox" name="tcSnap45"> <?= Lang::e('set.snap45') ?></label>

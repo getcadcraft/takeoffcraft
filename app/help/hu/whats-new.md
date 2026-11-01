@@ -1,0 +1,59 @@
+---
+title: Újdonságok a 0.7-ben
+summary: A DWG- és DXF-rajzok rajzlapként nyílnak meg a saját méretarányukkal, pontos darabszámok és hosszak magából a rajzból, a kiválasztott alvállalkozói ajánlat mint a csomag ára, ajánlatkérések lezárt árakkal, asszisztenseszközök rajzokhoz, és USD a 3D ellenőrző nézetből.
+keywords: újdonságok, kiadási megjegyzések, változásnapló, változások, 0.7, verzió, új funkciók, dwg, dxf, rajz, elrendezések, modelltér, rajz méretaránya, darabszám a rajzból, cad darabszám, blokkok, dinamikus blokkok, attribútumok, rétegek, xref, külső hivatkozás, rajz mérése, polivonal, sraffozás, jelölt pdf, választott ajánlat, ajánlat használata, ajánlatkérés, lezárt ajánlatok, ajánlatbontás, késői ajánlat, alvállalkozói nyilvántartások, csv, asszisztens, mcp, usd, usdz, mértékegységek, mértékegységlisták, kompakt, panelek, párbeszédpanelek, portugál
+from: ad4f0df1
+---
+
+Ez változott a TakeoffCraft 0.7-ben a 0.6-hoz képest. A rajzok most úgy nyílnak meg, ahogy vannak, PDF-be plottolás nélkül, és egy ajánlati csomag kimehet az alvállalkozókhoz, és beárazva visszajöhet.
+
+## Új
+
+### DWG- és DXF-rajzok
+
+- **Rajz megnyitása rajzlapként.** A {{ui:Tervek megnyitása}} a {{ui:Fájl}} csoportban ({{key:Mod+O}}, vagy húzza be a fájlokat) a PDF-ek mellett DWG- és DXF-rajzokat is fogad. A modelltér és minden elrendezés rajzlap lesz a {{ui:Lapok}} listában, és egy mennyiségkimutatás rajzokat és PDF-eket együtt is lefedhet. Semmi sem töltődik fel. Lásd [DWG- vagy DXF-rajz megnyitása](topic:open-a-drawing).
+- **A méretarány a rajzból jön.** Az elrendezés a legnagyobb nézetablaka méretarányán indul, előbeállításként megnevezve, ha az, például 1/2" = 1'-0". A Modell a rajz mértékegységében indul. Az a rajz, amelynek nincs mértékegysége, azt írja: „Nincs méretarány”, amíg nem kalibrálja. A {{ui:Kalibrálás}}, az {{ui:Ellenőrzés}} és az {{ui:Előbeállítás}} továbbra is erősebb. Lásd [A méretarány](topic:open-a-drawing#the-scale).
+- **Rétegek és külső hivatkozások.** A rajzlapsáv {{ui:Rétegek}} gombja megjeleníti vagy elrejti a rajz rétegeit. A fájlban kikapcsolt vagy befagyasztott rétegek rejtve indulnak, és nem számítanak bele, hacsak nem dönt másképp. A gazdájuk mellett megnyitott külső hivatkozás (xref) ott rajzolódik és számolódik, ahová beszúrták; amíg nincs megnyitva, az állapotsor megmondja, mi hiányzik. Lásd [Rétegek](topic:open-a-drawing#layers).
+- **A jelölt PDF rajzból is működik.** Az {{ui:Exportálás}} › {{ui:Jelölt PDF}} előbb PDF-be rajzolja a rajz jelölt rajzlapjait, így a másolat plottolási lépés nélkül mutatja a jelöléseit és a jelmagyarázatot. Feketével vagy a rajz színeivel rajzolódik, plottolási stílustáblák nélkül. Lásd [Jelölt PDF](topic:export-estimate#a-marked-pdf).
+
+### Pontos darabszámok és hosszak a rajzból
+
+- **Számolja meg, amit a rajz szerint ott van.** A rajzlapsáv {{ui:CAD darabszám}} funkciója név szerint számol egy blokkot (beágyazott blokkokat, dinamikus blokkállapotokat és blokktömböket is beleértve), egy rétegen egy típusú mindent, vagy egy szöveg- vagy attribútumértéket. Azt számolja, amit a rajzlap mutat, vagy egyszer az egész rajzot. A jelölések hozzáadása egy visszavonási lépés, az újraszámlálás pedig csak az újat adja hozzá. Az {{ui:Automatikus darabszám}} marad a PDF-ekhez és a nem blokk jelekhez. Lásd [Darabszám a rajzból](topic:count-from-a-drawing).
+- **Mérés a rajz saját vonalaiból.** A {{ui:Rajz mérése}} a rákattintott vagy ablakkal kijelölt vonalakat, íveket, polivonalakat, köröket, sraffozásokat és testeket egy vonalas vagy területi tétel jelöléseiként veszi át. Az ívek, a kidudorodások és a sraffozás lyukai pontosan jönnek ki; az ellipsziseket és a spline-okat finom húrokkal méri, és a sáv ezt közli. Lásd [Mérés rajzból](topic:measure-from-a-drawing).
+
+### Ajánlatok
+
+- **Alvállalkozói ajánlat mint a csomag ára.** Az {{ui:Exportálás}} › {{ui:Ajánlati csomagok és kiegyenlítés…}} részben válassza a {{ui:Használat}} gombot egy ajánlatnál. A csomag tételei mennyiségek maradnak, egyetlen **Választott ajánlat** sor viszi az árat, az ajánlatból kihagyott tételek a saját költségén maradnak, és az általános költség, a nyereség és a biztosíték erre vonatkozik. Az ajánlat cseréje egy visszavonási lépés; a munkafüzet és az ajánlati összegzés hordozza. Lásd [Ajánlat használata a csomag áraként](topic:bid-leveling#use-a-bid-as-the-packages-price).
+- **Csomag küldése ajánlatkérésre.** A csomag alatti {{ui:Küldés ajánlatkérésre…}} e-mailben elküld minden alvállalkozónak egy hivatkozást egy fiók nélküli oldalra: látják a feladatkört és a rajzlapokat PDF-ként, minden sorra árat írnak be, vagy megjelölik, hogy nem tartalmazza, megjegyzéseket és legfeljebb három fájlt fűznek hozzá, vagy elutasítják. Az {{ui:Árak lekérése}} behúzza, ami visszajött, a kiegyenlítő lapba, **web** jelzéssel. A küldés a teszt idején csak azoknak a fiókoknak érhető el, amelyeket a CadCraft csapata engedélyezett (lásd alább). Lásd [Csomag küldése ajánlatkérésre](topic:bid-invitations).
+- **Lezárva a bontásig.** Az árak lezárva maradhatnak az Ön által megadott bontási időpontig: addig senki sem lát árat, Ön sem. A bontáskor minden ajánlat egyszerre látszik, és a határidő után érkezett ajánlat késői jelölést kap. Lásd [Lezárt ajánlatok és a bontás](topic:bid-invitations#sealed-bids-and-the-opening).
+- **Alvállalkozói nyilvántartások.** A getcadcraft.com-os fiókja minden cégnek tárolja a kapcsolattartóit, szakágait, minősítési válaszait, valamint biztosítási és engedélydátumait (megjelölve, ha lejártak vagy 30 napon belül lejárnak), a korábbi ajánlataikkal együtt. Importálja és exportálja őket CSV-ként, és válassza ki őket csomag küldésekor. Lásd [A webhelyen](topic:bid-invitations#on-the-website).
+
+### AI-asszisztensek
+
+- **Az asszisztensek hozzáadhatnak a mennyiségkimutatáshoz.** A **Szerkesztés** bejelölésével a saját asszisztense tételeket adhat hozzá (`items_add`), és szakaszokat, területeket és darabszámokat mérhet egy rajzlapon (`marks_add`; hosszak és területek csak méretarányos rajzlapon), minden hívás egy visszavonási lépés.
+- **Asszisztenseszközök rajzokhoz.** Egy megnyitott DWG- vagy DXF-fájlon az asszisztens listázhatja a rajzlapjait és azt, ami megszámolható, pontosan számolhat, hozzáadhatja a darabszám-jelöléseket, és mérhet a rajz geometriájából. A TakeoffCraft megnyitása nélkül a CadCraft MCP-kiszolgáló új mennyiségkimutatásként megnyit egy rajzot és elmenti, a `cadcraft count` pedig a parancssorból számol. Lásd [Mit kérhet egy asszisztens](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+
+### USD
+
+- **A 3D ellenőrző nézet USD-ként.** A 3D ellenőrző nézetben a {{ui:GLB}} mellett lévő {{ui:USD csomag (.usdz)}} minden falat, födémet, lemezt, darabszámoszlopot és szakaszt saját objektumként ír ki, a tételéről elnevezve, a mennyiségével, méterben. Egy asszisztens is exportálhatja (`usd_export`). Lásd [A 3D ellenőrző nézet exportálása USD-ként](topic:usd).
+
+## Minden alkalmazásban
+
+- **Mértékegységek.** A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Mértékegységek}} részben a hosszhoz, területhez, térfogathoz, szöghöz és lejtéshez egy-egy lista tartozik, a mértékegységek definíciói szerinti pontos méretekkel (az amerikai felmérési láb külön mértékegység). Kapcsolja ki azokat, amelyeket sosem használ, és kikerülnek a mértékegységlistákból; jelöljön meg egyet csillaggal, és az új munka abban indul. A fájl mindig megtartja a saját mértékegységét. A TakeoffCraftban a tételek {{ui:Egység}} listái követik a kapcsolókat, az új tétel a csillagozott hossz- vagy területmértékegységben indul, a tetőfedési négyzet (SQ), az acre és a hektár új területmértékegységek, a hosszmező pedig bármelyik mértékegység jelét elfogadja, például `3 yd`. Lásd [Mértékegységek, beírt értékek és a mértékegységlisták](common:unit-lists).
+- **Sűrűbb elrendezés és eltűnő panelek.** A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Elrendezés sűrűsége}} › {{ui:Kompakt}} több mindent elhelyez a képernyőn (az érintőképernyők és a telefonok megtartják a nagy gombjaikat). Minden oldalpanelnek van egy keskeny címsora: húzza el, hogy rögzítse vagy lebegtesse a panelt, ejtse egy másik panel sávjára, hogy egy keretben osztozzanak lapokként, tűzze ki, hogy a szélre csússzon, vagy rejtse el, és hozza vissza a szélről. Lásd [A panelek elrendezése](common:arrange-panels#make-the-layout-denser).
+- **A párbeszédpanelek mozognak.** Húzza el a párbeszédpanelt a címsoránál fogva a rajz útjából; ott tér vissza, ahol hagyta. Kattintson duplán a címsorra, hogy újra középre kerüljön. Lásd [Párbeszédpanel mozgatása](common:arrange-panels#move-a-dialog).
+- **Receptek AI-asszisztensekhez.** Tíz kidolgozott kérés a saját asszisztensének (rajz rendbetétele, készlet plottolása, rajzok ellenőrzése, kérdések egy modellről, mennyiségkimutatás összesítése, alkatrészváltozat kipróbálása…), mindegyikhez a hívott eszközökkel és a szükséges jogosultságokkal, és mindegyiket lejátszják a tesztjeink. Az alkalmazások nem tartalmaznak AI-t. Lásd [Receptek AI-asszisztensekhez](common:assistants-recipes).
+- **Nyelvek.** A **Português (Portugal)** új a {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Nyelv}} részben. Ez, a **Português (Brasil)**, az **Español (México)** és a **Bahasa Indonesia** most már az alkalmazások minden szavával rendelkezik, olyan piszkozatként, amelyet még nem nézett át anyanyelvi beszélő. A súgótémakörök angolul vannak.
+- A **CadCraft Studio** megmondja, miért hiúsult meg egy frissítésellenőrzés (még nincs fájl az Ön rendszeréhez, nincs hálózat, hibás aláírás), ahelyett, hogy csak annyit írna: „Kész”, és nem hozza vissza az Újdonságok kártyát, amelyet bezárt, amíg nincs újabb kiadás.
+
+## Ebben a verzióban még nincs
+
+- **A 0.7 nincs kódaláírással ellátva.** Az aláírás és a Microsoft Store csomag a 0.8-ba került, mert a tanúsítvány érvényesítése még nem jött meg. Ellenőrizze az SHA-256 értéket minden fájl mellett a getcadcraft.com/download oldalon. Windowson, ha a SmartScreen megállítja a telepítőt, válassza a {{ui:További információ}}, majd a {{ui:Futtatás mindenképpen}} lehetőséget. Macen az első alkalommal kattintson jobb gombbal a CadCraft Studióra, és válassza a {{ui:Megnyitás}} lehetőséget. A CadCraft Studio még nincs alkalmazásáruházban, és még nincs iPad- vagy iPhone-kiadás.
+- A {{ui:Mértékegységek}} szög- és lejtéslistái mentődnek, de még nincs mező, amely olvasná őket.
+- **Az ajánlatkérések a legtöbb fióknál ki vannak kapcsolva.** A funkció tesztelése alatt a külső ajánlattevőknek szóló levél csak azokról a fiókokról megy ki, amelyeket a CadCraft csapata engedélyezett. Az ajánlattevők oldalai minden már elküldött ajánlatkérésnél működnek. Mindenki más: töltse le a {{ui:Terjedelem CSV}} fájlt, küldje el e-mailben saját maga, és gépelje be az ajánlatokat.
+- Egy CadCraft Studio-ablak még nem tud ajánlatkérést küldeni: azt írja, hogy használja a TakeoffCraftot a böngészőben. Az elküldött kérésekkel rendelkező mennyiségkimutatás megnyitása, a kiegyenlítés és az ajánlat kiválasztása működik a Studióban.
+- A kiegészítések, az odaítélési levelek, a feladatkörlap, amelyet minden ajánlattevő aláír, és a biztosítási dátum lejárta előtti automatikus emlékeztetők nincsenek elkészítve. A választott ajánlat nem árazza át egy változat ajánlati területét.
+- Rajzok: a plottolási stílustáblák és a CTB-fájlok nincsenek alkalmazva, a bináris DXF-et elutasítja (mentse ASCII DXF-ként vagy DWG-ként), a külső hivatkozásokat csak a megnyitott fájlok között találja meg, fájlnév alapján, és a rajzban lévő PDF-alátéteket, képeket és OLE-objektumokat nem rajzolja és nem számolja. A darabszámokat és méretarányokat mintarajzokon ellenőriztük, valódi munka rajzain még nem, a készítő programban megnyitva.
+- Egy asszisztens hozzáadhat tételeket és jelöléseket, de a már meglévő jelöléseket nem mozgathatja, nem módosíthatja és nem törölheti.
+
+Minden más a [Még nincs elkészítve](topic:not-built-yet) témakörben van.

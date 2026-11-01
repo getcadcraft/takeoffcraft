@@ -26,6 +26,11 @@ that name one of them record what it reported when it read a file, nothing more.
 Read and written by our own code from Autodesk's published DXF reference (group codes). ezdxf (MIT) checks our
 files in the tests.
 
+### IFC (cc-ifc, `ifc/`)
+
+Our own IFC engine, written from ISO 10303-21 (STEP physical files) and the buildingSMART IFC2X3, IFC4 and IFC4X3
+schemas. web-ifc (MPL-2.0) is used only as a test oracle (counts, bounding boxes, volumes), never shipped.
+
 ### 3D kernel (`m3d/`)
 
 ModelCraft's own geometry kernel, shared as an identical copy by the apps that have a 3D view.

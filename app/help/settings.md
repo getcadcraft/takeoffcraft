@@ -37,3 +37,7 @@ Off at the start. When it is on, runs, outlines, cut-outs and dragged corners go
 ## Corner indicator
 
 For the [3D check view](topic:check-in-3d) only: {{ui:View cube}} (the start: a cube at the top right to click, drag and turn), {{ui:Axis icon}} (a small X, Y, Z marker at the bottom right) or {{ui:None}}. It changes at once and is kept in this browser. The flat sheet never shows one.
+
+## Path tool: the largest gap it joins
+
+{{ui:Path tool: largest gap to join}} is how far apart two line ends can be and still count as one path, in PDF points (0.05 to 60; 1.5 at the start). A drawing's lines often stop a hair short of each other. Larger joins more; smaller keeps lines apart. {{key:[}} and {{key:]}} change it while you pick, and this field follows. See [Pick the lines](topic:pick-the-lines).

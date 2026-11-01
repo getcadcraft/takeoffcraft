@@ -48,11 +48,18 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         ['tool', 'area', 'pentagon', 'tool.area', 'tool.area.title'],
         ['tool', 'circle', 'circle', 'tool.circle', 'tool.circle.title'],
         ['tool', 'room', 'paint-bucket', 'tool.room', 'tool.room.title'],
+        ['tool', 'path', 'bounding-box-circles', 'sx.su880.tool', 'sx.su880.tool.title'],   // 0.8 SU.880: pick the PDF's own linework
         ['act', 'arc', 'bezier', 'tool.arc', 'tool.arc.title'],
         ['act', 'deduct', 'dash-square-dotted', 'toolbar.deduct', 'toolbar.deduct.title'],
         ['tool', 'cutout', 'scissors', 'tool.cutout', 'tool.cutout.title'],
         ['tool', 'count', 'plus-circle', 'tool.count', 'tool.count.title'],
         ['tool', 'autocount', 'grid-3x3-gap', 'tool.autocount', 'tool.autocount.title'],
+        ['tool', 'legend', 'collection', 'eg67.tool', 'eg67.tool.title'],   // 0.8 EG.67 (takeoff_PART_2): count every symbol of a legend across the set
+        ['act', 'supply', 'truck', 'eg51.tool', 'eg51.tool.title'],   // 0.8 EG.51 (takeoff_PART_2): supplier stock and lead times (supply-ui.js)
+        ['act', 'carbon', 'cloud', 'eg14.tool', 'eg14.tool.title'],   // 0.8 EG.14 + EG.17 (takeoff_PART_3): embodied carbon and the 5D price table (carbon-ui.js)
+        ['act', 'tagqty', 'tags', 'eg915.tool', 'eg915.tool.title'],   // 0.8 SU.915 (takeoff_PART_3): a tag schedule from the building model as quantities (tagqty-ui.js)
+        ['act', 'prices', 'currency-dollar', 'eg68.tool', 'eg68.tool.title'],   // 0.8 EG.68 (takeoff_PART_2): price memory (prices-ui.js)
+        ['act', 'learned', 'lightbulb', 'sx.su811.tool', 'sx.su811.tool.title'],   // 0.8 SU.811 (sx-learn): what it learned (learn-ui.js)
     ],
     'Edit' => [   // i18n-ignore: the group's key (data-tb-key); its name is Lang 'group.*'
         ['act', 'undo', 'arrow-counterclockwise', 'tool.undo', 'tool.undo.title'],
@@ -119,7 +126,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         </div>
       </div>
     <?php endforeach; ?>
-    <input type="file" class="visually-hidden" accept=".pdf,.dwg,.dxf,application/pdf" multiple tabindex="-1" aria-hidden="true" data-file-pdf>
+    <input type="file" class="visually-hidden" accept=".pdf,.dwg,.dxf,.ifc,.ccbundle,.zip,application/pdf" multiple tabindex="-1" aria-hidden="true" data-file-pdf>
     <input type="file" class="visually-hidden" accept=".json,application/json" tabindex="-1" aria-hidden="true" data-file-project>
   </div>
 

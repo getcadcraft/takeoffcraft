@@ -64,6 +64,7 @@ const S = await load('pdfset.js');
 const Mt = await load('match.js');
 const C = await load('clipboard.js');
 const Sn = await load('snap.js');
+const Pp = await load('pickpath.js');
 const Ty = await load('typein.js');
 const Ov = await load('overlay.js');
 // new strings (0.4) come from the language file: the modules' t() reads this catalog in Node
@@ -356,6 +357,55 @@ section('Snap to the drawing\'s linework (T1)');
   const capped = Sn.extractSegments(O, ops, { maxSegs: 4 });
   ok(capped.n === 4 && capped.truncated, 'a drawing over the segment limit keeps the first ones and says so');
   ok(new Sn.SnapIndex({ segs: new Float64Array(0), curve: new Uint8Array(0), n: 0 }).snap({ x: 0, y: 0 }, 5) === null, 'a sheet with no linework (a scan) never snaps');
+}
+
+section('Pick linework to measure (0.8 SU.880)');
+{
+  const mk = (segs) => { const f = Float64Array.from(segs.flat()); return new Sn.SnapIndex({ segs: f, curve: new Uint8Array(segs.length), n: segs.length }); };
+  // a 100 x 50 rectangle drawn as four lines in scrambled order and direction, plus a stray line elsewhere
+  const rect = [[100, 0, 100, 50], [0, 0, 0, 50], [100, 0, 0, 0], [0, 50, 100, 50], [300, 300, 400, 300]];
+  const ix = mk(rect);
+  const c = Pp.chainFrom(ix, 0, 1.5);
+  eq(c.segs.length, 4, 'the whole connected path: four sides, not the stray line');
+  ok(c.closed, 'a rectangle closes');
+  ok(near(Pp.pathLength(c), 300), 'its length is the perimeter (300)', String(Pp.pathLength(c)));
+  ok(near(Pp.pathArea(c), 5000), 'its area is 100 x 50', String(Pp.pathArea(c)));
+  eq(Pp.pathPoints(c).length, 4, 'four vertices, the first not repeated');
+  // an open L with a 1-unit hole at the corner: joined at gap 1.5, not at 0.5
+  const L = mk([[0, 0, 100, 0], [101, 0, 101, 60]]);
+  const joined = Pp.chainFrom(L, 0, 1.5), apart = Pp.chainFrom(L, 0, 0.5);
+  eq(joined.segs.length, 2, 'a gap smaller than the tolerance is bridged');
+  ok(joined.gaps.length === 1 && near(joined.gaps[0].d, 1), 'the bridged gap is reported (1 unit)', JSON.stringify(joined.gaps));
+  ok(!joined.closed, 'an open run is not closed');
+  eq(apart.segs.length, 1, 'a gap larger than the tolerance stops the path');
+  // a T junction: the straighter way is followed
+  const T = mk([[0, 0, 50, 0], [50, 0, 100, 0], [50, 0, 50, 40]]);
+  const t1 = Pp.chainFrom(T, 0, 1.5);
+  ok(t1.segs.length === 2 && near(Pp.pathLength(t1), 100), 'at a T the path goes straight on and leaves the branch', t1.segs.length + ' segs');
+  // undo per segment
+  let tr = Pp.trimLast(joined);
+  eq(tr.segs.length, 1, 'Backspace takes the last segment off');
+  eq(Pp.trimLast(tr), null, 'the last segment left goes with the path');
+  const tr2 = Pp.trimLast(c);
+  ok(!tr2.closed && tr2.segs.length === 3 && near(Pp.pathLength(tr2) + Math.hypot(...(() => { const e = c.segs.at(-1), q = [0, 1, 2, 3].map((k) => ix.segs[e.s * 4 + k]); return [q[2] - q[0], q[3] - q[1]]; })()), 300), 'a closed path trimmed is open (3 sides, the last one gone)', String(Pp.pathLength(tr2)));
+  // candidates (Tab) and the area click
+  const two = mk([[0, 0, 100, 0], [0, 1, 100, 1], [0, 0, 0, 1]]);
+  const cands = Pp.candidatesAt(two, { x: 50, y: 0.5 }, 1, 1.5);
+  ok(cands.length >= 1, 'a pick near lines gives candidates', String(cands.length));
+  const far = Pp.candidatesAt(ix, { x: 200, y: 200 }, 3, 1.5);
+  eq(far.length, 0, 'a click on blank paper picks no line');
+  const loops = Pp.loopsAround(ix, { x: 50, y: 25 }, 1.5);
+  ok(loops.length === 1 && near(Pp.pathArea(loops[0]), 5000), 'a click inside the rectangle finds its loop (area 5000)', String(loops.length));
+  eq(Pp.loopsAround(ix, { x: 350, y: 100 }, 1.5).length, 0, 'a click outside any closed path finds none');
+  // two nested rectangles: smallest first
+  const nest = mk([[0, 0, 100, 0], [100, 0, 100, 100], [100, 100, 0, 100], [0, 100, 0, 0], [30, 30, 70, 30], [70, 30, 70, 70], [70, 70, 30, 70], [30, 70, 30, 30]]);
+  const nl = Pp.loopsAround(nest, { x: 50, y: 50 }, 1.5);
+  ok(nl.length === 2 && Pp.pathArea(nl[0]) < Pp.pathArea(nl[1]) && near(Pp.pathArea(nl[0]), 1600), 'nested loops: the inner one first, the outer one on Tab', nl.map((x) => Pp.pathArea(x)).join());
+  ok(near(Pp.stepGap(1.5, 1), 2.25) && Pp.stepGap(Pp.GAP_MAX, 1) === Pp.GAP_MAX && Pp.stepGap(Pp.GAP_MIN, -1) === Pp.GAP_MIN, 'the tolerance steps by a third and stays in range');
+  // a big drawing: 20000 chained segments stop at the limit without hanging
+  const big = []; for (let i = 0; i < 2000; i++) big.push([i, 0, i + 1, 0]);
+  const t0 = Date.now(); const bc = Pp.chainFrom(mk(big), 1000, 1.5);
+  ok(bc.segs.length === 2000 && Date.now() - t0 < 3000, 'a 2,000-segment run chains in under 3 s', bc.segs.length + ' in ' + (Date.now() - t0) + ' ms');
 }
 
 section('Typed lengths and coordinates (T3)');
@@ -3837,12 +3887,12 @@ async function browserTest() {
       await page.waitForTimeout(150);
       const sum18 = await page.textContent('[data-crew-sum]');
       ok(/^20\.0 crew-hours, 40\.0 worker-hours, 2\.5 crew-days \(8 h\) → labor \$1,600\.00 \(\$3\.20\/SF\)/.test(sum18), 'Labor by crew: 500 SF ÷ 25 = 20 crew-hours, 40 worker-hours, 2.5 crew-days → $1,600.00', sum18);
-      ok(await page.isDisabled('#tc-i-lab') && (await page.inputValue('#tc-i-lab')) === '3.20' && /\$1,600\.00/.test(await page.textContent(`[data-qty-row="${room18}"]`)), 'the labor rate is set by the crew; the quantities row shows $1,600.00 labor');
+      ok(await page.isDisabled('[data-pg-row="lab"]') && (await page.inputValue('[data-pg-row="lab"]')) === '3.20' && /\$1,600\.00/.test(await page.textContent(`[data-qty-row="${room18}"]`)), 'the labor rate is set by the crew; the quantities row shows $1,600.00 labor');
       ok(/40\.0 worker-hours, 2\.5 crew-days/.test(await page.textContent('[data-job-total]')), 'the header adds the job\'s hours');
       await page.screenshot({ path: path.join(shots, 'takeoffcraft-crew-paper.png') });
       await page.uncheck('#tc-i-crew');
       await page.waitForTimeout(150);
-      ok(!(await T((id) => window.takeoffcraft.model.item(id).crew, room18)) && !(await page.isDisabled('#tc-i-lab')), 'unticked: back to a rate per unit');
+      ok(!(await T((id) => window.takeoffcraft.model.item(id).crew, room18)) && !(await page.isDisabled('[data-pg-row="lab"]')), 'unticked: back to a rate per unit');
       await T(() => window.takeoffcraft.model.markSaved());
 
       // T19: the bid summary and the proposal PDF — 10 % overhead and profit on the base bid

@@ -228,6 +228,34 @@ export function createLive(model, opts = {}) {
       return out;
     },
     touched, validate, diff,
+    /** EG.41 (studio_PART_2; the adapter line from takeoff_PART_3): where a step landed — the sheet's key (a mark's or note's `sheet`, a sheet's
+     *  scale or level) and the extent of what it touches in sheet units, so a session can hold an assistant to a sheet or an area
+     *  (studio/hub/live/assistant-scope.js). Items, bid areas, groups and the takeoff's own fields are on no sheet. null = nothing in space;
+     *  a removal, a scale or a step over several sheets has no box. */
+    where(ops) {
+      let sheet, box = null, unbounded = false;
+      const grow = (pts) => {
+        const list = (Array.isArray(pts) ? pts : []).map((p) => (Array.isArray(p) ? { x: p[0], y: p[1] } : p)).filter((p) => p && Number.isFinite(p.x) && Number.isFinite(p.y));
+        if (!list.length) { unbounded = true; return; }
+        const b = [Math.min(...list.map((p) => p.x)), Math.min(...list.map((p) => p.y)), Math.max(...list.map((p) => p.x)), Math.max(...list.map((p) => p.y))];
+        box = box ? [Math.min(box[0], b[0]), Math.min(box[1], b[1]), Math.max(box[2], b[2]), Math.max(box[3], b[3])] : b;
+      };
+      const on = (k) => { if (typeof k !== 'string') { unbounded = true; return; } if (sheet === undefined) sheet = k; else if (sheet !== k) sheet = '\u0000mixed'; };
+      for (const op of ops || []) {
+        if (!op || typeof op !== 'object' || op.o === 'g') continue;
+        if (op.o === 'key' && op.c === 'sheets') { on(op.k); unbounded = true; continue; }
+        if (op.c !== 'marks' && op.c !== 'notes') continue;
+        const cur = (S()[op.c] || []).find((x) => x.id === op.id);
+        const m = op.o === 'add' && op.v ? op.v : cur;
+        if (!m) { unbounded = true; continue; }
+        on(m.sheet);
+        if (op.o === 'del') { unbounded = true; continue; }
+        grow(m.pts);
+      }
+      if (sheet === undefined) return null;
+      return { sheet, box: unbounded ? null : box };
+    },
+    sheetLabel(key) { const f = opts.sheetTitle ? opts.sheetTitle(key) : ''; return f || String(key || ''); },
     snapshot() { return pack(state()); },
     load(bytes) { loadState(unpack(bytes)); },
     hash() { return JSON.stringify(shared()); },
@@ -275,7 +303,7 @@ export function createLive(model, opts = {}) {
 export function createLiveAdapter({ host } = {}) {
   const app = globalThis.takeoffcraft;
   if (!app || !app.model) return null;
-  const a = createLive(app.model, { files: () => app.files || [] });
+  const a = createLive(app.model, { files: () => app.files || [], sheetTitle: (key) => (app.sheets ? (app.sheets().find((x) => x.key === key) || {}).title : '') });
   a.onFiles = (list) => {
     if (!list.length || !app.openFiles) return;
     app.openFiles(list.map((f) => new File([f.bytes], f.name, { type: 'application/pdf' })));

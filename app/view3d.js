@@ -20,7 +20,7 @@
  *   v.setSelection(ids)        highlights those marks
  *   v.standard('iso'|'top'|…) (fits the takeoff)  v.extents() (the whole sheet)  v.setPersp(bool)  v.showGround(bool)
  *   v.pickAt(x, y) → mark id | null      v.screenOf([x,y,z]) → {x, y} (host pixels)
- *   v.dispose()
+ *   v.dispose()   v.devView (the input-device layer's adapter, registered in window.ccViews)
  */
 import * as THREE from 'three';
 import { Camera } from './m3d/camera.js';
@@ -388,16 +388,30 @@ export class TakeoffView3D {
         return;
       }
       const p = pos(e);
-      // zoom toward what is under the cursor: an object, else the sheet, else the target plane
-      let pivot = null;
-      const r = this.cam.ray(p.x, p.y);
-      this.raycaster.set(new THREE.Vector3(...r.o), new THREE.Vector3(...r.d));
-      const hit = this.raycaster.intersectObjects([...this.objects.map((x) => x.mesh).filter(Boolean), this.ground], false)[0];
-      if (hit) pivot = [hit.point.x, hit.point.y, hit.point.z];
       const k = Math.exp((e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * (e.ctrlKey ? 0.01 : 0.0015 * wheelFactor()));   // IP.3: the style's wheel
-      this.cam.zoomAt(k, p.x, p.y, pivot);
+      this.cam.zoomAt(k, p.x, p.y, this.zoomPivot(p.x, p.y));
       this.invalidate();
     }, { passive: false });
+    // 0.8 Track ID: hand the view to the input-device layer (assets/js/app-devices-ui.js) — the drag's orbit and pan, the wheel's zoom
+    // toward what is under (x, y), Extents for fit; the app makes this view once and keeps it (hidden while the 2D sheet shows), so this
+    // registers once. takeoffcraft.js's 2D view passes its moves here while the 3D view is open (the sheet's canvases are only
+    // visibility-hidden under it).
+    const on = () => !this.host.closest('[hidden]');
+    this.devView = {
+      el: cv, kind: '3d',
+      pan: (dx, dy) => { if (!on()) return; this.cubeOpts?.stop?.(); this.cam.pan(dx, dy); this.invalidate(); },
+      orbit: (dx, dy) => { if (!on()) return; this.cubeOpts?.stop?.(); this.cam.orbit(dx, dy); this.invalidate(); },
+      zoom: (f, x = cv.clientWidth / 2, y = cv.clientHeight / 2) => { if (!on() || !(f > 0)) return; this.cam.zoomAt(1 / f, x, y, this.zoomPivot(x, y)); this.invalidate(); },
+      fit: () => { if (on()) this.extents(); },
+    };
+    (window.ccViews ||= []).push(this.devView);
+  }
+  /** Zoom toward what is under (x, y): an object, else the sheet, else (null) the target plane. */
+  zoomPivot(x, y) {
+    const r = this.cam.ray(x, y);
+    this.raycaster.set(new THREE.Vector3(...r.o), new THREE.Vector3(...r.d));
+    const hit = this.raycaster.intersectObjects([...this.objects.map((o) => o.mesh).filter(Boolean), this.ground], false)[0];
+    return hit ? [hit.point.x, hit.point.y, hit.point.z] : null;
   }
 
   dispose() {

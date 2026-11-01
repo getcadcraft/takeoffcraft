@@ -18,7 +18,7 @@ import { quantities, estimate, itemQty, sheetBreakdown, TYPES, sheetKey } from '
 import { UNITS, UNITS_FOR, formatRate, parseRate, parsePercent, scaleRecord, matchPreset, presetFtPerUnit, describeScale } from './units.js';
 import { t } from './i18n.js';
 import { outlineProblem } from './geom.js';
-import { getHost } from "./host.js";
+import { getHost, stackRollback, ToolError } from "./host.js";
 
 const r4 = (n) => (typeof n === 'number' && Number.isFinite(n) ? Math.round(n * 1e4) / 1e4 : n);
 const money = (cents) => (cents < 0 ? '-' : '') + '$' + (Math.abs(cents) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -107,7 +107,7 @@ export function addMarksTo(model, { item, sheet, marks, units = 'pt' }, box = nu
 
 /** items_add's arguments (the window's tool and the headless one, 0.7 AS.6). */
 const objS = (properties, required = []) => ({ type: 'object', properties, required, additionalProperties: false });
-export const ITEMS_ADD_SCHEMA = objS({ items: { type: 'array', minItems: 1, maxItems: 200, items: objS({ name: { type: 'string', minLength: 1, maxLength: 200 }, type: { type: 'string', enum: TYPES }, unit: { type: 'string', maxLength: 8 }, material: { type: ['number', 'string'] }, labor: { type: ['number', 'string'] }, waste: { type: ['number', 'string'] }, heightFt: { type: 'number', minimum: 0, maximum: 1e5 }, color: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' } }, ['name', 'type']) } }, ['items']);
+export const ITEMS_ADD_SCHEMA = objS({ items: { type: 'array', description: 'The items to add: each with a name, type (linear, area, count …), unit, rates in dollars per unit, and waste in percent.', minItems: 1, maxItems: 200, items: objS({ name: { type: 'string', minLength: 1, maxLength: 200 }, type: { type: 'string', enum: TYPES }, unit: { type: 'string', maxLength: 8 }, material: { type: ['number', 'string'] }, labor: { type: ['number', 'string'] }, waste: { type: ['number', 'string'] }, heightFt: { type: 'number', minimum: 0, maximum: 1e5 }, color: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' } }, ['name', 'type']) } }, ['items']);
 
 // ---------------------------------------------------------------- 0.7 AS.6: takeoffs on a DWG / DXF (takeoff-cad's TD.1–TD.6)
 
@@ -162,7 +162,7 @@ export const CAD_QUERY_SCHEMA = {
   layer: { type: 'string', maxLength: 255, description: 'Count shapes on this layer (with type), or narrow blocks and texts to it.' },
   type: { type: 'string', maxLength: 40, description: 'Count shapes of this entity type, e.g. CIRCLE, POINT, LWPOLYLINE (cad_catalog lists layer × type).' },
   text: { type: 'string', minLength: 1, maxLength: 500, description: 'Count texts (TEXT, MTEXT, multileaders, block attribute values).' },
-  mode: { type: 'string', enum: ['exact', 'contains', 'word'], default: 'exact' }, attribute: { type: 'string', maxLength: 255, description: 'Texts: one attribute tag only.' },
+  mode: { type: 'string', enum: ['exact', 'contains', 'word'], default: 'exact', description: 'How text is matched: exact (the whole text equals the search, default), contains, or word.' }, attribute: { type: 'string', maxLength: 255, description: 'Texts: one attribute tag only.' },
   hidden: { type: 'string', enum: ['skip', 'include'], default: 'skip', description: 'Objects on layers that are off or frozen: left out (and counted as skipped) unless include.' },
   scope: { type: 'string', enum: ['sheet', 'drawing'], default: 'sheet', description: 'sheet: what the sheet shows (a layout: through its viewports); drawing: every object once (marks go on the Model sheet or the object\'s own layout).' },
 };
@@ -226,19 +226,19 @@ export function installAgents(app) {
   const C = getHost({ app: 'takeoffcraft' }).control;
   const st = () => app.model.state;
   const obj = (properties, required = []) => ({ type: 'object', properties, required, additionalProperties: false });
-  C.configure({ title: 'TakeoffCraft', info: () => ({ takeoff: st().name, items: st().items.length, marks: st().marks.length, sheet: app.current() ? app.sheetLabel(app.current()) : null }) });
+  C.configure({ title: 'TakeoffCraft', rollback: stackRollback(() => app.model), info: () => ({ takeoff: st().name, items: st().items.length, marks: st().marks.length, sheet: app.current() ? app.sheetLabel(app.current()) : null }) });
   C.tool({ name: 'app_info', group: 'read', title: 'About this window', description: 'TakeoffCraft\'s window: the takeoff open, its PDFs, items and marks, the sheet shown, and the permissions the person allowed.',
     run: async () => ({ app: 'takeoffcraft', title: 'TakeoffCraft', allowed: C.groups, sheet: app.current() ? app.sheetLabel(app.current()) : null, ...takeoffSummary(st(), app.sheetLabel) }) });
-  C.tool({ name: 'sheets_list', group: 'read', title: 'List sheets', description: 'The sheets of the open PDFs, each with its scale (or none) and how many marks it holds.',
+  C.tool({ name: 'sheets_list', group: 'read', untrusted: true, title: 'List sheets', description: 'The sheets of the open PDFs, each with its scale (or none) and how many marks it holds.',
     run: async () => ({ sheets: app.sheets().map((s) => ({ key: s.key, sheet: s.title, scale: (st().sheets[s.key] && st().sheets[s.key].scale && st().sheets[s.key].scale.label) || null, marks: st().marks.filter((m) => m.sheet === s.key).length })) }) });
-  C.tool({ name: 'items_list', group: 'read', title: 'List items', description: 'The takeoff items: type (linear, area, count), unit, height, waste, material and labor rates, and their assembly components with formulas.',
+  C.tool({ name: 'items_list', group: 'read', untrusted: true, title: 'List items', description: 'The takeoff items: type (linear, area, count), unit, height, waste, material and labor rates, and their assembly components with formulas.',
     run: async () => ({ items: itemsList(st()) }) });
-  C.tool({ name: 'takeoff_quantities', group: 'read', title: 'Quantities', description: 'Quantities per item (in its unit) or per sheet. Marks on sheets with no scale are listed as unscaled, never counted as zero.',
-    inputSchema: obj({ by: { type: 'string', enum: ['item', 'sheet'], default: 'item' } }), run: async (a) => takeoffQuantities(st(), app.sheetLabel, a) });
-  C.tool({ name: 'takeoff_estimate', group: 'read', title: 'Estimate', description: 'The priced estimate as TakeoffCraft computes it: a row per item and per assembly component, totals in cents and as text; incomplete when a formula fails or marks are unscaled.',
+  C.tool({ name: 'takeoff_quantities', group: 'read', untrusted: true, title: 'Quantities', description: 'Quantities per item (in its unit) or per sheet. Marks on sheets with no scale are listed as unscaled, never counted as zero.',
+    inputSchema: obj({ by: { description: 'item (default) or sheet.', type: 'string', enum: ['item', 'sheet'], default: 'item' } }), run: async (a) => takeoffQuantities(st(), app.sheetLabel, a) });
+  C.tool({ name: 'takeoff_estimate', group: 'read', untrusted: true, title: 'Estimate', description: 'The priced estimate as TakeoffCraft computes it: a row per item and per assembly component, totals in cents and as text; incomplete when a formula fails or marks are unscaled.',
     run: async () => takeoffEstimate(st()) });
   C.tool({ name: 'takeoff_export', group: 'export', title: 'Export the estimate', description: 'TakeoffCraft\'s own export of the estimate, as .csv or .xlsx, downloaded (desktop: saved where the person chooses).',
-    inputSchema: obj({ format: { type: 'string', enum: ['csv', 'xlsx'], default: 'xlsx' } }),
+    inputSchema: obj({ format: { description: 'csv or xlsx (default xlsx).', type: 'string', enum: ['csv', 'xlsx'], default: 'xlsx' } }),
     run: async (a) => {
       if (!st().items.length) throw new Error('The takeoff has no items yet.');
       await (a.format === 'csv' ? app.exportCsv() : app.exportXlsx());
@@ -254,13 +254,100 @@ export function installAgents(app) {
     if (!s) throw new Error('No sheet "' + q + '". sheets_list shows them.');
     return s;
   };
-  C.tool({ name: 'items_add', group: 'edit', title: 'Add items', description: 'Add takeoff items as one undo step: name, type (linear, area, count, fixed), unit (LF, m · SF, SY, m² · EA · …), material and labor rates in dollars per unit, waste in percent, heightFt (walls: wall area = length × height). → their ids for marks_add.',
+  C.tool({ name: 'items_add', group: 'edit', rollbackPreview: true, title: 'Add items', description: 'Add takeoff items as one undo step: name, type (linear, area, count, fixed), unit (LF, m · SF, SY, m² · EA · …), material and labor rates in dollars per unit, waste in percent, heightFt (walls: wall area = length × height). → their ids for marks_add.',
     inputSchema: ITEMS_ADD_SCHEMA,
     run: async (a) => addItemsTo(app.model, a.items) });
-  C.tool({ name: 'marks_add', group: 'edit', title: 'Add marks', description: 'Measure on a sheet for an item, as one undo step: each mark is pts (a run for a linear item, an outline for an area item with optional holes, points for a count item: one mark each). Points in PDF points (units "pt", the page\'s own coordinates) or as fractions of the page from its lower-left corner (units "fraction"). Lengths and areas only on a sheet with a scale; counts on any sheet.',
-    inputSchema: obj({ item: { type: 'string', minLength: 1, maxLength: 200 }, sheet: { anyOf: [{ type: 'integer', minimum: 1 }, { type: 'string', maxLength: 255 }] }, units: { type: 'string', enum: ['pt', 'fraction'], default: 'pt' },
-      marks: { type: 'array', minItems: 1, maxItems: 5000, items: obj({ pts: { type: 'array', minItems: 1, maxItems: 5000, items: { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 } }, holes: { type: 'array', maxItems: 200, items: { type: 'array', minItems: 3, maxItems: 5000, items: { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 } } } }, ['pts']) } }, ['item', 'marks']),
+  C.tool({ name: 'marks_add', group: 'edit', rollbackPreview: true, title: 'Add marks', description: 'Measure on a sheet for an item, as one undo step: each mark is pts (a run for a linear item, an outline for an area item with optional holes, points for a count item: one mark each). Points in PDF points (units "pt", the page\'s own coordinates) or as fractions of the page from its lower-left corner (units "fraction"). Lengths and areas only on a sheet with a scale; counts on any sheet.',
+    inputSchema: obj({ item: { description: 'Name of the takeoff item the marks belong to.', type: 'string', minLength: 1, maxLength: 200 }, sheet: { description: 'Sheet number from 1 or part of its title.', description: 'Sheet number from 1 or part of its title.', anyOf: [{ type: 'integer', minimum: 1 }, { type: 'string', maxLength: 255 }] }, units: { description: 'pt (PDF points, default) or fraction (0 to 1 across the sheet).', type: 'string', enum: ['pt', 'fraction'], default: 'pt' },
+      marks: { description: 'The marks: each with pts (a run of points, an outline, or one point per count).', type: 'array', minItems: 1, maxItems: 5000, items: obj({ pts: { type: 'array', minItems: 1, maxItems: 5000, items: { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 } }, holes: { type: 'array', maxItems: 200, items: { type: 'array', minItems: 3, maxItems: 5000, items: { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 } } } }, ['pts']) } }, ['item', 'marks']),
     run: async (a) => { const s = findSheet(a.sheet); const r = addMarksTo(app.model, { item: a.item, sheet: s.key, marks: a.marks, units: a.units }, s.view || null); return { sheet: s.title, ...r }; } });
+  // ---- 0.8 EG.67 (takeoff_PART_2): Count everything — the same panel, run and Add as the toolbar's tool (countall-ui.js `drive`)
+  if (app.countAll) {
+    const D = () => app.countAll();
+    const need = (ph) => {
+      const st = D().status();
+      if (!st) throw new ToolError('not_open', 'No legend has been read yet.', { next: ['Call legend_open with the box round the legend.'] });
+      if (ph && st.phase !== ph) throw new ToolError('conflict', 'The count is ' + (st.phase === 'run' ? 'still running' : 'not finished') + '.', { next: [st.phase === 'run' ? 'Call legend_count_status until its state is done.' : 'Call legend_count_start.'], retry: st.phase === 'run' ? 'later' : 'after_change' });
+      return st;
+    };
+    C.tool({ name: 'legend_open', group: 'read', untrusted: true, title: 'Read a symbol legend', description: 'Reads the symbol legend inside a box on a sheet: every symbol with a name beside it becomes a row with an id and the name printed there, shown in the window\'s Count everything panel. Nothing in the takeoff changes; legend_count_start counts them on every open sheet.',
+      inputSchema: obj({ sheet: { description: 'Sheet number from 1, or part of its title; default the sheet shown.', anyOf: [{ type: 'integer', minimum: 1 }, { type: 'string', maxLength: 200 }] },
+        box: { description: 'The legend\'s box on the page, as fractions of the page size.', ...obj({ left: { description: 'Left edge of the legend as a fraction of the page width, 0 to 1 from the left.', type: 'number', minimum: 0, maximum: 1 }, bottom: { description: 'Bottom edge as a fraction of the page height, 0 to 1 from the bottom.', type: 'number', minimum: 0, maximum: 1 },
+          right: { description: 'Right edge as a fraction of the page width.', type: 'number', minimum: 0, maximum: 1 }, top: { description: 'Top edge as a fraction of the page height.', type: 'number', minimum: 0, maximum: 1 } }, ['left', 'bottom', 'right', 'top']) } }, ['box']),
+      run: async (a) => {
+        const s = findSheet(a.sheet), v = s.view;
+        if (!v) throw new ToolError('unsupported', 'This sheet\'s page box is not known (it is not a PDF page).', { next: ['Count everything works on the PDF sheets; for a DWG or DXF use cad_count_add.'] });
+        if (a.box.right <= a.box.left || a.box.top <= a.box.bottom) throw new ToolError('invalid_argument', 'The box is empty: right must be larger than left and top larger than bottom.', { next: ['Give fractions of the page, e.g. left 0.02, bottom 0.6, right 0.25, top 0.98.'] });
+        const P = (fx, fy) => ({ x: v[0] + fx * (v[2] - v[0]), y: v[1] + fy * (v[3] - v[1]) });
+        const r = await D().open(app.sheetByKey(s.key), P(a.box.left, a.box.bottom), P(a.box.right, a.box.top));
+        if (!r.ok) throw new ToolError('invalid_argument', r.why, { next: ['Widen the box so it holds the symbols and their names, then call legend_open again.'] });
+        return { sheet: s.title, symbols: r.entries.map((e) => ({ id: e.id, name: e.name, searchable: !e.problem, ...(e.problem ? { problem: e.problem } : {}) })), next: 'legend_count_start counts them on every open sheet.' };
+      } });
+    C.tool({ name: 'legend_count_start', group: 'read', title: 'Count the legend\'s symbols', description: 'Starts counting the legend read by legend_open on every open sheet, in the background: a job that runs from seconds to some minutes on a big set. Returns at once; poll legend_count_status, then read legend_count_result. Symbols can be renamed or left out first.',
+      inputSchema: obj({ symbols: { description: 'Optional changes to the rows from legend_open: each with its id, a new name for the item, or on false to leave it out.', type: 'array', maxItems: 200, items: obj({ id: { description: 'The row id from legend_open, like s1.', type: 'string', maxLength: 20 }, name: { description: 'Name for the count item this symbol becomes.', type: 'string', maxLength: 80 }, on: { description: 'false leaves this symbol out of the count.', type: 'boolean' } }, ['id']) },
+        level: { description: 'Match level from 0.5 to 1; default the Settings level (0.75). Higher keeps only closer matches.', type: 'number', minimum: 0.5, maximum: 1 },
+        anyAngle: { description: 'true also finds symbols drawn at any angle (every 15 degrees), not only turned by right angles; slower, up to about 24 searches a symbol.', type: 'boolean' } }),
+      run: async (a) => {
+        need('review');
+        D().choose(a.symbols || []);
+        if (typeof a.level === 'number') D().level(a.level);
+        if (!D().start({ anyAngle: a.anyAngle })) throw new ToolError('busy', 'A count is already running.', { next: ['Call legend_count_status.'], retry: 'later' });
+        return { started: true, sheets: D().status().sheets, next: 'Poll legend_count_status until state is done, then call legend_count_result.' };
+      } });
+    C.tool({ name: 'legend_count_status', group: 'read', title: 'Progress of the count', description: 'Reports where the legend count is: reading, running with a fraction done, or done. Cheap to call; use it between waits after legend_count_start.',
+      run: async () => { const st = need(); return { state: st.phase === 'run' ? 'running' : st.phase === 'results' ? 'done' : 'ready', progress: Math.round(st.progress * 100) / 100, sheets: st.sheets }; } });
+    C.tool({ name: 'legend_count_result', group: 'read', untrusted: true, title: 'Counts from the legend', description: 'Returns the finished count: per symbol the total and its count on each sheet, which symbols look alike, how long it took, and sheets too large to search. Nothing is added to the takeoff until legend_count_add.',
+      inputSchema: obj({ level: { description: 'Optionally move the match level (0.5 to 1) and read again: no new search is needed.', type: 'number', minimum: 0.5, maximum: 1 }, limit: { description: 'Most sheets listed per symbol (default 50).', type: 'integer', minimum: 1, maximum: 500, default: 50 } }),
+      run: async (a) => {
+        need('results');
+        if (typeof a.level === 'number') D().level(a.level);
+        const r = D().summary(), lim = a.limit || 50;
+        return { ...r, symbols: r.symbols.map((x) => ({ ...x, sheetsWithThis: x.sheets.length, sheets: x.sheets.slice(0, lim) })) };
+      } });
+    C.tool({ name: 'legend_count_add', group: 'edit',
+      title: 'Add the counted symbols', description: 'Adds the finds of the finished legend count to the takeoff as one undo step: a count item per symbol (an existing item of the same name is reused) and a count mark where each was found. Marks already placed there by hand are not doubled.',
+      preview: async () => { need('results'); const p = D().plan(); return { items: p.length, marks: p.reduce((s, x) => s + x.marks, 0), plan: p }; },
+      run: async () => {
+        need('results');
+        const r = D().accept('Assistant: count everything (legend)');
+        if (!r) throw new ToolError('conflict', 'Nothing to add: no symbol was found, or the marks are already there.', { next: ['Call legend_count_result to see the counts.'] });
+        return { added: r.n, items: r.items, undo: 'Assistant: count everything (legend)' };
+      } });
+  }
+  // ---- 0.8 EG.68 (takeoff_PART_2): price memory — the rates of the person's past jobs (prices-ui.js `drive`; kept in this browser, never in the file)
+  if (app.prices) {
+    const P = () => app.prices();
+    C.tool({ name: 'prices_list', group: 'read', untrusted: true, title: 'Remembered prices', description: 'Lists the takeoff items that have a price remembered from the person\'s past jobs: the last job\'s rates, the typical rates, how many jobs, the item\'s current rates and whether the unit differs. Rates are in 1/10000 of a dollar per unit.',
+      inputSchema: obj({ limit: { description: 'Most items returned (default 100).', type: 'integer', minimum: 1, maximum: 1000, default: 100 } }),
+      run: async (a) => { const all = P().list(), lim = a.limit || 100; return { total: all.length, returned: Math.min(all.length, lim), items: all.slice(0, lim), remembered: P().count() }; } });
+    C.tool({ name: 'prices_apply', group: 'edit', rollbackPreview: true, title: 'Price items from memory', description: 'Sets the material and labor rates of takeoff items from the prices remembered from past jobs, as one undo step. By default only items with no price yet, from the last job; items remembered in another unit are skipped and listed.',
+      inputSchema: obj({ mode: { description: 'last = the last job\'s rates (default); typical = the median of the remembered jobs.', type: 'string', enum: ['last', 'typical'], default: 'last' }, only: { description: 'unpriced = only items with no rates (default); all = overwrite every remembered item\'s rates.', type: 'string', enum: ['unpriced', 'all'], default: 'unpriced' }, similar: { description: 'true also uses a similar remembered name when there is no exact one.', type: 'boolean', default: false } }),
+      run: async (a) => {
+        const o = { mode: a.mode === 'typical' ? 'median' : 'last', only: a.only === 'all' ? 'all' : 'unpriced', similar: a.similar === true };
+        const plan = P().plan(o);
+        if (!plan.items.length) throw new ToolError('conflict', 'Nothing to price: no item has a remembered price that differs from its own' + (o.only === 'unpriced' ? ' (only unpriced items were considered)' : '') + '.', { next: ['Call prices_list to see what is remembered.', 'Call again with only: "all" to overwrite priced items.'] });
+        const label = 'Assistant: price ' + plan.items.length + (plan.items.length === 1 ? ' item' : ' items') + ' from memory';
+        P().apply(o, label);
+        return { priced: plan.items.length, items: plan.items.map((x) => ({ name: x.name, from: x.from, jobs: x.jobs })), skipped: plan.skipped, undo: label };
+      } });
+  }
+  // ---- 0.8 EG.51 (takeoff_PART_2): supplier stock and lead times (supply-ui.js `drive`; the supplier rows live in the takeoff's file)
+  if (app.supply) {
+    C.tool({ name: 'supply_check', group: 'read', untrusted: true, title: 'Check stock and lead times', description: 'Checks what the takeoff needs, with waste, against the supplier stock files the person added: per item or assembly part the need, the stock, the shortfall, the lead time and a status (ok, short, late, unknown, unit). Names the longest wait that matters.',
+      inputSchema: obj({ status: { description: 'Only rows with this status; default all.', type: 'string', enum: ['ok', 'short', 'late', 'unknown', 'unit'] }, limit: { description: 'Most rows returned (default 100).', type: 'integer', minimum: 1, maximum: 1000, default: 100 } }),
+      run: async (a) => {
+        const r = app.supply().check();
+        if (!r) throw new ToolError('not_open', 'No supplier file has been added to this takeoff.', { next: ['Ask the person to add a stock list (CSV) with the Supply button; adding a file is not an assistant action.'] });
+        const rows = a.status ? r.rows.filter((x) => x.status === a.status) : r.rows, lim = a.limit || 100;
+        return { ...r, total: rows.length, returned: Math.min(rows.length, lim), rows: rows.slice(0, lim) };
+      } });
+  }
+  // ---- 0.8 EG.14 (takeoff_PART_3): embodied carbon of the takeoff (carbon-ui.js `drive`; the person's factor rows and choices live in the takeoff's file)
+  if (app.carbon) {
+    C.tool({ name: 'carbon_check', group: 'read', untrusted: true, title: 'Check embodied carbon', description: 'Adds up the embodied carbon (kgCO2e) of the takeoff from each item\'s quantity with waste and the matching row of the open factor table (the same table BimCraft uses): per item the quantity, the factor, the kilograms, and what could not be counted (no factor, or a quantity in a unit the factor does not use). The shipped factors are generic starter values, unverified: say so when quoting a figure. An estimate, not an assessment. Also tells how many rows the 5D price table has.',
+      inputSchema: obj({ limit: { description: 'Most lines returned (default 100).', type: 'integer', minimum: 1, maximum: 1000, default: 100 } }),
+      run: async (a) => app.carbon().check({ limit: a.limit || 100 }) });
+  }
   // ---- 0.7 AS.6 (assistants-gaps): counting and measuring straight from an open DWG / DXF (takeoff-cad's TD.1–TD.6)
   if (app.cadSets) {
     const cadSheet = (q) => {
@@ -277,15 +364,15 @@ export function installAgents(app) {
       inputSchema: obj({ sheet: SHEET, scope: CAD_QUERY_SCHEMA.scope }), run: async (a) => { const { sh, set, i } = cadSheet(a.sheet); return { sheet: sh.title, ...(await cadCatalog(set, i, a.scope)) }; } });
     C.tool({ name: 'cad_count', group: 'read', title: 'Count in a drawing', description: 'Count exactly in a DWG / DXF, as the Count from drawing dialog does: block references by name (and dynamic state), shapes by layer and entity type, or texts and attribute values; on the sheet (what it shows) or the whole drawing. Nothing changes; cad_count_add adds the marks.',
       inputSchema: obj({ sheet: SHEET, ...CAD_QUERY_SCHEMA }), run: async (a) => { const { sh, set, i } = cadSheet(a.sheet); return { sheet: sh.title, ...(await cadCount(set, i, a)) }; } });
-    C.tool({ name: 'cad_count_add', group: 'edit', title: 'Count into the takeoff', description: 'Count in the drawing (as cad_count) and put a count mark on each object found, into a count item (item: its id or name) or a new count item (name): one undo step. Counting again adds only the objects not marked yet; two objects drawn on top of each other stay two.',
-      inputSchema: obj({ sheet: SHEET, ...CAD_QUERY_SCHEMA, item: { type: 'string', minLength: 1, maxLength: 200 }, name: { type: 'string', minLength: 1, maxLength: 200 } }),
+    C.tool({ name: 'cad_count_add', group: 'edit', rollbackPreview: true, title: 'Count into the takeoff', description: 'Count in the drawing (as cad_count) and put a count mark on each object found, into a count item (item: its id or name) or a new count item (name): one undo step. Counting again adds only the objects not marked yet; two objects drawn on top of each other stay two.',
+      inputSchema: obj({ sheet: SHEET, ...CAD_QUERY_SCHEMA, item: { description: 'Name of the count item to put the marks on.', type: 'string', minLength: 1, maxLength: 200 }, name: { description: 'Name of a new count item to make when item does not exist.', type: 'string', minLength: 1, maxLength: 200 } }),
       run: async (a) => { const { sh, set, i } = cadSheet(a.sheet); return { sheet: sh.title, ...(await cadCountAdd(app.model, set, i, a, { item: a.item || null, name: a.name || '' })) }; } });
-    C.tool({ name: 'cad_measure', group: 'edit', title: 'Measure from a drawing', description: 'Measure a linear or an area item from the drawing\'s own geometry, as the Measure drawing tool does: the lines, arcs, polylines (bulges kept), circles, hatches (holes kept) and solids the sheet shows, filtered by layers, entity types or handles, become one mark each — one undo step. The sheet needs a scale; ellipses and splines are flagged approximate.',
-      inputSchema: obj({ sheet: SHEET, item: { type: 'string', minLength: 1, maxLength: 200 }, layers: { type: 'array', items: { type: 'string', maxLength: 255 }, maxItems: 200 }, types: { type: 'array', items: { type: 'string', maxLength: 40 }, maxItems: 40 }, handles: { type: 'array', items: { type: 'string', maxLength: 32 }, maxItems: 100000 } }, ['item']),
+    C.tool({ name: 'cad_measure', group: 'edit', rollbackPreview: true, title: 'Measure from a drawing', description: 'Measure a linear or an area item from the drawing\'s own geometry, as the Measure drawing tool does: the lines, arcs, polylines (bulges kept), circles, hatches (holes kept) and solids the sheet shows, filtered by layers, entity types or handles, become one mark each — one undo step. The sheet needs a scale; ellipses and splines are flagged approximate.',
+      inputSchema: obj({ sheet: SHEET, item: { description: 'Name of the linear or area item to measure for.', type: 'string', minLength: 1, maxLength: 200 }, layers: { description: 'Only objects on these layers.', type: 'array', items: { type: 'string', maxLength: 255 }, maxItems: 200 }, types: { description: 'Only objects of these types (line, poly, arc, circle …).', type: 'array', items: { type: 'string', maxLength: 40 }, maxItems: 40 }, handles: { description: 'Only these object handles.', type: 'array', items: { type: 'string', maxLength: 32 }, maxItems: 100000 } }, ['item']),
       run: async (a) => { const { sh, set, i } = cadSheet(a.sheet); return { sheet: sh.title, ...(await cadMeasure(app.model, set, i, a)) }; } });
   }
   C.tool({ name: 'usd_export', group: 'export', title: 'Export USD', description: 'A sheet\'s measured runs, areas and counts as a 3D check model in OpenUSD (.usdz default, .usda or .usdc), as the 3D view\'s Export › USD writes it. The sheet needs a scale. With a path (Studio) it is written there, else it downloads.',
-    inputSchema: obj({ sheet: { anyOf: [{ type: 'integer', minimum: 1 }, { type: 'string', maxLength: 255 }] }, format: { type: 'string', enum: ['usda', 'usdc', 'usdz'] }, path: { type: 'string', minLength: 1, maxLength: 4096, description: 'Studio: a file inside the folders the person allowed (Settings › Assistants › Folders); without it the file downloads.' }, overwrite: { type: 'boolean', default: false } }),
+    inputSchema: obj({ sheet: { description: 'Sheet number from 1 or part of its title (default: the sheet shown).', description: 'Sheet number from 1 or part of its title (default: the sheet shown).', anyOf: [{ type: 'integer', minimum: 1 }, { type: 'string', maxLength: 255 }] }, format: { description: 'usda (text, default), usdc (binary) or usdz (packed with its textures).', type: 'string', enum: ['usda', 'usdc', 'usdz'] }, path: { type: 'string', minLength: 1, maxLength: 4096, description: 'Studio: a file inside the folders the person allowed (Settings › Assistants › Folders); without it the file downloads.' }, overwrite: { description: 'true replaces an existing file at the path (default false: an existing file is never overwritten).', type: 'boolean', default: false } }),
     run: async (a) => {
       const F = C.files;
       const fmt = a.format || (a.path && /\.(usd[acz])$/i.exec(a.path)?.[1].toLowerCase()) || 'usdz';

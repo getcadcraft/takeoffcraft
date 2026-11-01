@@ -51,11 +51,18 @@ export const COMMANDS = [
   C('takeoff.area', 'takeoff', 'bi-pentagon', T('Takeoff', 'data-tool="area"'), { defKeys: ['A'] }),
   C('takeoff.circle', 'takeoff', 'bi-circle', T('Takeoff', 'data-tool="circle"'), { defKeys: ['O'] }),
   C('takeoff.room', 'takeoff', 'bi-paint-bucket', T('Takeoff', 'data-tool="room"'), { defKeys: ['B'] }),
+  C('takeoff.path', 'takeoff', 'bi-bounding-box-circles', T('Takeoff', 'data-tool="path"'), { defKeys: ['P'] }),   // 0.8 SU.880: pick the PDF's own linework
   C('takeoff.arc', 'takeoff', 'bi-bezier', T('Takeoff', 'data-act="arc"'), { defKeys: ['R'] }),
   C('takeoff.deduct', 'takeoff', 'bi-dash-square-dotted', T('Takeoff', 'data-act="deduct"'), { defKeys: ['E'] }),
   C('takeoff.cutout', 'takeoff', 'bi-scissors', T('Takeoff', 'data-tool="cutout"'), { defKeys: ['X'] }),
   C('takeoff.count', 'takeoff', 'bi-plus-circle', T('Takeoff', 'data-tool="count"'), { defKeys: ['C'] }),
   C('takeoff.autocount', 'takeoff', 'bi-grid-3x3-gap', T('Takeoff', 'data-tool="autocount"'), { defKeys: ['S'] }),
+  C('takeoff.legend', 'takeoff', 'bi-collection', T('Takeoff', 'data-tool="legend"'), { label: 'eg67.tool' }),   // 0.8 EG.67 (takeoff_PART_2)
+  C('takeoff.supply', 'takeoff', 'bi-truck', T('Takeoff', 'data-act="supply"'), { label: 'eg51.tool' }),   // 0.8 EG.51 (takeoff_PART_2)
+  C('takeoff.carbon', 'takeoff', 'bi-cloud', T('Takeoff', 'data-act="carbon"'), { label: 'eg14.tool' }),   // 0.8 EG.14 + EG.17 (takeoff_PART_3)
+  C('takeoff.tagqty', 'takeoff', 'bi-tags', T('Takeoff', 'data-act="tagqty"'), { label: 'eg915.tool' }),   // 0.8 SU.915 (takeoff_PART_3)
+  C('takeoff.prices', 'takeoff', 'bi-currency-dollar', T('Takeoff', 'data-act="prices"'), { label: 'eg68.tool' }),   // 0.8 EG.68 (takeoff_PART_2)
+  C('takeoff.learned', 'takeoff', 'bi-lightbulb', T('Takeoff', 'data-act="learned"'), { label: 'sx.su811.tool' }),   // 0.8 SU.811 (sx-learn)
 
   C('edit.undo', 'edit', 'bi-arrow-counterclockwise', T('Edit', 'data-act="undo"'), { defKeys: ['Ctrl+Z'] }),
   C('edit.redo', 'edit', 'bi-arrow-clockwise', T('Edit', 'data-act="redo"'), { defKeys: ['Ctrl+Y', 'Ctrl+Shift+Z'] }),
@@ -114,7 +121,7 @@ export const STYLES = {
       m('edit', ['edit.undo', 'edit.redo', '-', 'edit.cut', 'edit.copy', 'edit.paste', 'edit.paste-in-place', 'edit.duplicate', 'edit.delete', '-', 'edit.select-all', 'edit.select-none']),
       m('view', ['view.fit-page', 'view.fit-width', '-', 'view.3d', 'view.compare', 'view.next-flag', '-', 'view.snap']),
       m('scale', ['scale.calibrate', 'scale.check']),
-      m('takeoff', ['takeoff.select', '-', 'takeoff.linear', 'takeoff.area', 'takeoff.circle', 'takeoff.room', 'takeoff.count', 'takeoff.autocount', 'takeoff.cad-count', 'takeoff.cad-geom', '-', 'takeoff.arc', 'takeoff.deduct', 'takeoff.cutout']),
+      m('takeoff', ['takeoff.select', '-', 'takeoff.linear', 'takeoff.area', 'takeoff.circle', 'takeoff.room', 'takeoff.path', 'takeoff.count', 'takeoff.autocount', 'takeoff.legend', 'takeoff.learned', 'takeoff.prices', 'takeoff.supply', 'takeoff.carbon', 'takeoff.tagqty', 'takeoff.cad-count', 'takeoff.cad-geom', '-', 'takeoff.arc', 'takeoff.deduct', 'takeoff.cutout']),
       m('items', ['items.new', 'items.library']),
       m('markup', ['markup.note', 'markup.cloud', 'markup.highlight', '-', 'markup.handoff']),
       m('export', EXPORTS),
@@ -133,11 +140,11 @@ export const STYLES = {
     quick: ['file.open-pdf', 'file.save', 'edit.undo', 'edit.redo'],
     tabs: [
       tab('takeoff', [
-        ['measure', [lg('takeoff.select'), lg('takeoff.linear'), lg('takeoff.area'), lg('takeoff.count'), sm('takeoff.circle'), sm('takeoff.room'), sm('takeoff.autocount')]],
+        ['measure', [lg('takeoff.select'), lg('takeoff.linear'), lg('takeoff.area'), lg('takeoff.count'), sm('takeoff.circle'), sm('takeoff.room'), sm('takeoff.path'), sm('takeoff.autocount'), sm('takeoff.legend')]],
         ['shape', [sm('takeoff.arc'), sm('takeoff.deduct'), sm('takeoff.cutout')]],
         ['scale', ['scale.calibrate', sm('scale.check')]],
         ['drawing', ['takeoff.cad-count', sm('takeoff.cad-geom')]],
-        ['conditions', ['items.new', sm('items.library')]],
+        ['conditions', ['items.new', sm('items.library'), sm('takeoff.prices'), sm('takeoff.supply'), sm('takeoff.carbon'), sm('takeoff.tagqty'), sm('takeoff.learned')]],   // takeoff.learned: 0.8 SU.811
       ]),
       tab('edit', [
         ['clipboard', ['edit.paste', sm('edit.cut'), sm('edit.copy'), sm('edit.paste-in-place')]],

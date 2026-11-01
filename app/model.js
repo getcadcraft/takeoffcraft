@@ -47,6 +47,9 @@ import { cleanBids, cleanAwards, applyAwards, cleanRequests } from './level.js';
 import { UNITS, UNITS_FOR, DEFAULT_UNIT, lengthUnitOf, areaUnitOf, ftTo, sqftTo, withWaste, extendCents, MAX_PITCH, slopeFactor, hipFactor, roundTo } from './units.js';
 import { parse, evaluate } from './formula.js';
 import { t } from './i18n.js';
+import { readSupply, writeSupply } from './supply.js';
+import { readCarbon, writeCarbon } from './carbon.js';   // 0.8 EG.14 (takeoff_PART_3): embodied carbon choices, kept in the project file   // 0.8 EG.51 (takeoff_PART_2): supplier stock and lead-time files, kept in the project file
+import { readLearn, writeLearn } from './learn.js';   // 0.8 SU.811 (sx-learn): what it learned, kept in the project file
 
 export const FORMAT = 'takeoffcraft-project';
 export const FORMAT_VERSION = 1;
@@ -428,6 +431,34 @@ export class Takeoff {
     });
     return { item: itemId, ids };
   }
+  /**
+   * Counted marks for several count items in ONE undo step (0.8 EG.67 Count everything). groups = [{ item (id) | create ({ name, … }), list: [{ sheet, pts }] }].
+   * → [{ item, ids }] in the same order (an empty list still makes a `create` item: the person asked for it).
+   */
+  addCountedMany(groups, label) {
+    const out = [];
+    for (const g of groups) if (g.item && !kindsOf(this.item(g.item) || {}).includes('count')) throw new Error(t('err.mark.kind'));
+    this.change(label, (s) => {
+      for (const g of groups) {
+        let itemId = g.item || null;
+        if (!itemId) {
+          if (s.items.length >= LIMITS.items) throw new Error(t('err.items.many'));
+          itemId = this.nextId('i');
+          s.items.push(normalItem({ ...(g.create || {}), id: itemId, type: 'count', color: g.create?.color || PALETTE[s.items.length % PALETTE.length] }));
+        }
+        if (s.marks.length + g.list.length > LIMITS.marks) throw new Error(t('err.marks.many'));
+        const ids = [];
+        for (const m of g.list) {
+          const id = this.nextId('m');
+          ids.push(id);
+          const nm = { id, item: itemId, sheet: m.sheet, kind: 'count', pts: m.pts.map(pt), holes: [] };
+          s.marks.push(Object.assign(nm, readExtras(m, nm, extrasCtx(s))));
+        }
+        out.push({ item: itemId, ids });
+      }
+    });
+    return out;
+  }
   updateMark(id, patch, label = t('undo.mark.edit')) {
     return this.change(label, (s) => {
       const m = s.marks.find((x) => x.id === id);
@@ -663,6 +694,12 @@ export class Takeoff {
       ...(s.bids?.length ? { bids: s.bids.map((b) => ({ ...b, excl: b.excl.slice() })) } : {}),
       ...(s.awards?.length ? { awards: s.awards.map((a) => ({ pkg: a.pkg, bid: a.bid })) } : {}),
       ...(s.bidreqs?.length ? { bidreqs: s.bidreqs.map((r) => ({ ...r })) } : {}),
+      ...(s.carbon ? { carbon: writeCarbon(s.carbon) } : {}),                        // 0.8 EG.14: optional key, older builds ignore it
+      ...(s.calcs ? { calcs: s.calcs } : {}),                                        // 0.8 EG.18 (shell calc sheets) and EG.34 (design reasons): the shell modules' own JSON, kept as they save it
+      ...(s.reasons ? { reasons: s.reasons } : {}),
+      ...(s.supply ? { supply: writeSupply(s.supply) } : {}),                       // 0.8 EG.51: optional key, older builds ignore it
+      ...(s.problems?.accepted?.length ? { problems: { accepted: s.problems.accepted.map((a) => ({ ...a })) } } : {}),   // 0.8 EG.51: Problems the person accepted (shell's ⚠ panel)
+      ...(s.learn ? { learn: writeLearn(s.learn, s) } : {}),                        // 0.8 SU.811: optional key, older builds ignore it
       items: s.items,
       marks: s.marks.map((m) => ({ id: m.id, item: m.item, sheet: m.sheet, kind: m.kind, pts: m.pts.map(arr), ...(m.holes?.length ? { holes: m.holes.map((h) => h.map(arr)) } : {}), ...markExtras(m) })),
     };
@@ -809,6 +846,18 @@ export function readProject(json) {
   if (bidreqs.length) state.bidreqs = bidreqs;
   const awards = cleanAwards(json.awards, bids);                                      // 0.7 LC.13 B3
   if (awards.length) state.awards = awards;
+  const ca = readCarbon(json.carbon);                                                // 0.8 EG.14 (carbon.js)
+  if (ca) state.carbon = ca;
+  for (const k of ['calcs', 'reasons']) {                                            // 0.8 shell modules: a plain JSON object with its own format tag; the module cleans it on load
+    const v = json[k];
+    if (v && typeof v === 'object' && !Array.isArray(v) && v.format === 'cadcraft-' + k && JSON.stringify(v).length <= 2e6) state[k] = JSON.parse(JSON.stringify(v));
+  }
+  const su = readSupply(json.supply);                                                // 0.8 EG.51 (supply.js)
+  if (su) state.supply = su;
+  if (Array.isArray(json.problems?.accepted)) { const acc = json.problems.accepted.filter((a) => a && typeof a === 'object' && typeof a.id === 'string' && a.id.length <= 300).slice(0, 500).map((a) => ({ ...a })); if (acc.length) state.problems = { accepted: acc }; }
+  const lr = readLearn(json.learn, normalItem);                                      // 0.8 SU.811 (learn.js)
+  if (lr.learn) state.learn = lr.learn;
+  warnings.push(...lr.warnings);
   const types = new Map(state.items.map((i) => [i.id, i.type]));
   const kinds = new Map(state.items.map((i) => [i.id, kindsOf(i)]));
   for (const it of state.items) if (it.backout) it.backoutOf = it.backoutOf.filter((id) => types.get(id) === 'area' && !state.items.find((x) => x.id === id)?.backout);

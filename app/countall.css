@@ -1,0 +1,18 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* countall.css — 0.8 EG.67 (takeoff_PART_2): the Count everything panel (countall-ui.js). Tokens only; looks like the Learned dialog's lists. */
+
+.tc-cabar {
+  position: absolute; z-index: 3; right: .5rem; top: .5rem; bottom: .5rem; width: min(24rem, calc(100% - 1rem));
+  display: flex; flex-direction: column; gap: .35rem; overflow: auto; padding: .5rem .75rem; font-size: .8125rem;
+  background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-radius: var(--radius);
+  max-height: 100%;
+}
+.tc-cabar[hidden] { display: none; }
+.tc-cabar .tc-learn-list { margin: 0; }
+.tc-cabar .tc-learn-row { align-items: flex-start; }
+.tc-cabar .tc-learn-main { gap: .15rem; }
+.tc-cabar .btn-sm-cc { padding: .15rem .55rem; font-size: .8125rem; line-height: 1.4; white-space: nowrap; }
+.tc-cabar .tc-learn-sub { display: flex; flex-wrap: wrap; gap: .1rem .6rem; }
+.tc-cabar progress { flex: 1 1 8rem; }
+.tc-ca-link { padding: 0; font-size: .75rem; }
+@media (max-width: 760px) { .tc-cabar { top: auto; max-height: 55%; } }

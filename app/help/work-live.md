@@ -1,14 +1,14 @@
 ---
-title: Take off one job together, live
-summary: What changes in TakeoffCraft while you are in a CadCraft Studio live session: everyone's items and marks in one takeoff, the same totals for all, your own undo, and joining from a browser on the same network.
+title: Take off one job together with Live TeamWork
+summary: What changes in TakeoffCraft while you are in a Live TeamWork session from CadCraft Studio: everyone's items and marks in one takeoff, the same totals for all, your own undo, and joining from a browser on the same network.
 section: tasks
 order: 119
-keywords: live, studio live, together, collaborate, session, share live, join, items, marks, totals, estimate, undo, host
+keywords: live, live teamwork, studio live, together, collaborate, session, share live, join, items, marks, totals, estimate, undo, host
 ---
 
 ## What you will learn
 
-What happens to a takeoff while several people measure the same job at the same time. CadCraft Studio starts and joins the session (Share live, Join); this page is about the takeoff itself.
+What happens to a takeoff while several people measure the same job at the same time. CadCraft Studio starts and joins the Live TeamWork session (Share live, Join); this page is about the takeoff itself.
 
 ## Everyone measures at once
 

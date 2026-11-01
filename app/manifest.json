@@ -1,7 +1,9 @@
 {
   "app": "takeoffcraft",
   "css": [
-    "takeoffcraft.css"
+    "takeoffcraft.css",
+    "learn.css",
+    "countall.css"
   ],
   "module": "takeoffcraft.js",
   "imports": {
@@ -18,6 +20,18 @@
   "pdfWasm": "/assets/vendor/pdfjs/current/wasm/",
   "pdfIcc": "/assets/vendor/pdfjs/current/iccs/",
   "phone": { "options": "[data-sheetbar]" },
+  "devices": true,
+  "calc": true,
+  "reasons": true,
+  "teamwork": true,
+  "totals": true,
+  "lessons": true,
+  "ai-suggest": true,
+  "ai-activity": true,
+  "ai-ask": true,
+  "access": true,
+  "fields": true,
+  "propgrid": true,
   "panels": [
     "move",
     "window"
@@ -31,9 +45,12 @@
   "workspaces": {
     "layouts": [
       "docked",
-      "toolbox"
+      "toolbox",
+      "autorev"
     ],
     "adapter": "workspace-takeoffcraft.js"
   },
-  "hardware": true
+  "hardware": true,
+  "problems": true,
+  "engines": true
 }
