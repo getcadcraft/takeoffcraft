@@ -119,6 +119,8 @@ export function normalNote(f) {
 export const MARK_EXTRAS = ['deducts', 'area', 'flag', 'pitch', 'slopes', 'group', 'z'];
 export const SLOPE_KINDS = ['flat', 'rake', 'hip'];
 const pitchOk = (p) => typeof p === 'number' && Number.isFinite(p) && p >= 0 && p <= MAX_PITCH;
+/** 0.9: an item's temperature (a spec such as the lowest pour or install temperature), held in kelvin: above 0 K, below 10,000 K. */
+const kelvinOk = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0 && v < 1e4;
 const feetOk = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0 && v < 1e4;
 export const sheetKey = (hash, pageIndex) => hash + ':' + pageIndex;
 
@@ -312,7 +314,7 @@ export class Takeoff {
       if (next.type !== it.type && s.marks.some((m) => m.item === id && m.kind === it.type)) throw new Error(t('err.item.type'));
       if (s.marks.some((m) => m.item === id && !kinds.has(m.kind))) throw new Error(t('err.item.cond'));
       if (next.type === 'fixed' && next.area && !(s.areas || []).some((a) => a.id === next.area)) delete next.area;
-      for (const k of ['backout', 'backoutOf', 'pitch', 'slope', 'thickFt', 'baseFt', 'headFt', 'conds', 'crew', 'xd', 'csi', 'qty', 'area', 'origin']) if (!(k in next)) delete it[k];     // turned off: the fields go
+      for (const k of ['tempK', 'backout', 'backoutOf', 'pitch', 'slope', 'thickFt', 'baseFt', 'headFt', 'conds', 'crew', 'xd', 'csi', 'qty', 'area', 'origin']) if (!(k in next)) delete it[k];     // turned off: the fields go
       Object.assign(it, next);
     });
   }
@@ -697,6 +699,7 @@ export class Takeoff {
       ...(s.carbon ? { carbon: writeCarbon(s.carbon) } : {}),                        // 0.8 EG.14: optional key, older builds ignore it
       ...(s.calcs ? { calcs: s.calcs } : {}),                                        // 0.8 EG.18 (shell calc sheets) and EG.34 (design reasons): the shell modules' own JSON, kept as they save it
       ...(s.reasons ? { reasons: s.reasons } : {}),
+      ...(s.docinfo ? { docinfo: s.docinfo } : {}),                                  // 0.9 DI.1: the drawing details (docinfo.js), the module's own JSON
       ...(s.supply ? { supply: writeSupply(s.supply) } : {}),                       // 0.8 EG.51: optional key, older builds ignore it
       ...(s.problems?.accepted?.length ? { problems: { accepted: s.problems.accepted.map((a) => ({ ...a })) } } : {}),   // 0.8 EG.51: Problems the person accepted (shell's ⚠ panel)
       ...(s.learn ? { learn: writeLearn(s.learn, s) } : {}),                        // 0.8 SU.811: optional key, older builds ignore it
@@ -743,6 +746,7 @@ export function normalItem(f) {
     components: Array.isArray(f.components) ? f.components.slice(0, LIMITS.components).map(normalComponent) : [],
     ...conds(f.conds, type),
     ...(crewOf(f.crew) ? { crew: crewOf(f.crew) } : {}),
+    ...(kelvinOk(f.tempK) ? { tempK: f.tempK } : {}),
     ...(type !== 'count' && pitchOk(f.pitch) && f.pitch > 0 ? { pitch: f.pitch } : {}),
     ...(type === 'linear' && feetOk(f.thickFt) ? { thickFt: f.thickFt } : {}),
     ...(type !== 'count' && feetOk(f.baseFt) ? { baseFt: f.baseFt } : {}),
@@ -848,7 +852,7 @@ export function readProject(json) {
   if (awards.length) state.awards = awards;
   const ca = readCarbon(json.carbon);                                                // 0.8 EG.14 (carbon.js)
   if (ca) state.carbon = ca;
-  for (const k of ['calcs', 'reasons']) {                                            // 0.8 shell modules: a plain JSON object with its own format tag; the module cleans it on load
+  for (const k of ['calcs', 'reasons', 'docinfo']) {                                          // 0.8 shell modules: a plain JSON object with its own format tag; the module cleans it on load
     const v = json[k];
     if (v && typeof v === 'object' && !Array.isArray(v) && v.format === 'cadcraft-' + k && JSON.stringify(v).length <= 2e6) state[k] = JSON.parse(JSON.stringify(v));
   }

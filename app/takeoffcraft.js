@@ -26,7 +26,7 @@ import { el, icon, bytes, frame, safeName, ask } from './ui-util.js';
 import { PageView, renderThumb } from './viewer.js';
 import { Takeoff, FORMAT, TYPES, TYPE_LABELS, VARS, VAR_HELP, sheetKey, quantities, estimate, itemVars, itemQty, measureMark, sheetBreakdown, areaEstimates, baseEstimate, alternates, backouts, segSlope, kindsOf, unitOf, condQty, csiOk } from './model.js';
 import * as U from './units.js';
-import { onUnitsChange } from './unit-prefs.js';   // 0.7 UNITS: Settings › General › Units
+import { onUnitsChange, starOf } from './unit-prefs.js';   // 0.7 UNITS: Settings › General › Units
 import * as G from './geom.js';
 import { parse, evaluate } from './formula.js';
 import { openPdf, sheetTitle, matchFiles, sha256Hex } from './pdfset.js';
@@ -42,6 +42,7 @@ import { getHost } from './host.js';
 import { pageLinework, SnapIndex, MAX_SEGS } from './snap.js';
 import * as PP from './pickpath.js';   // 0.8 SU.880: pick the PDF's own linework
 import { parseEntry } from './typein.js';
+import * as AM from './arcmethods.js';   // 0.9 FX.137: the ten ways of drawing an arc (lib/arcs through arcs/arcs.js)
 import { IDENTITY, fitTwoPoints, scaleOf, pixelMap, warp, changeMask, markChange, changed, movePts } from './overlay.js';
 import { readLibraryCsv, libraryCsv, mergeEntries, entryFromItem, itemFromEntry, readStored, repricePatches } from './library.js';
 import { readPack, installPack, removePack, installedPacks, libraryPack, rateUnset, PACK_EXT, PACK_LIMITS, PACK_SYSTEMS } from './packs.js';
@@ -63,6 +64,7 @@ import { mountSupply } from './supply-ui.js';   // 0.8 EG.51 (takeoff_PART_2): s
 import { mountPrices } from './prices-ui.js';   // 0.8 EG.68 (takeoff_PART_2): price memory from your own jobs
 import { mountCountAll } from './countall-ui.js';   // 0.8 EG.67 (takeoff_PART_2): count every symbol of a legend across the whole set
 import { mountLearn } from './learn-ui.js';   // 0.8 SU.811 (sx-learn): what it learned from your takeoffs
+import { mountUndoHook } from './undo-hook.js';   // 0.9 EG.77: tells Studio each finished step
 
 const TYPE_ICONS = { linear: 'bezier2', area: 'pentagon', count: 'plus-circle', fixed: '123' };
 const HIT = 7;          // screen px for picking marks and handles
@@ -89,6 +91,7 @@ function init(root) {
   const urls = { cmaps: root.dataset.pdfCmaps, fonts: root.dataset.pdfFonts, wasm: root.dataset.pdfWasm, icc: root.dataset.pdfIcc };
 
   const model = new Takeoff();
+  mountUndoHook({ getModel: () => model });   // 0.9 EG.77 undo across apps
   const files = [];          // open plan files: PDFs and (0.7 TD.1) DWG / DXF drawings: { hash, name, size, doc, pages, bytes, kind? ('cad' for a drawing; its `cad` is cadset.js's) }
   const CAD_RE = /\.(dwg|dxf)$/i;                           // i18n-ignore: file name extensions
   let cadMod = null;                                       // cadset.js, loaded the first time a drawing is opened
@@ -98,7 +101,7 @@ function init(root) {
   let cur = null;            // the sheet on screen
   const views = new Map();   // sheet key → { z, ox, oy }
   const thumbs = new Map();  // sheet key → canvas
-  const app = { cmp: null, curArea: null, deduct: false, tool: 'select', active: null, hl: null, draft: null, cursor: null, shift: false, check: null, qtyMode: 'item', drag: null, space: false, arc: false, box: null, ac: null, paste: null };
+  const app = { cmp: null, curArea: null, deduct: false, tool: 'select', active: null, hl: null, draft: null, cursor: null, shift: false, check: null, qtyMode: 'item', drag: null, space: false, arc: false, arcMethod: '3P', box: null, ac: null, paste: null };
   // the selection: app.sel is the main selected mark (its corners can be dragged, its panel shows); selMore holds the
   // others (Select all, Shift+click). Setting app.sel starts a new selection.
   let selMain = null;
@@ -141,7 +144,9 @@ function init(root) {
 
   // ---- settings (Settings › TakeoffCraft; per viewer conveniences, localStorage only) ----
   const SET_KEY = 'takeoffcraft.settings';
-  const SET_DEFAULTS = { denom: 16, waste: 0, threshold: 0.75, snap45: false, corner: 'cube', snap: true, roomGap: 4, pickGap: PP.GAP_DEFAULT };
+  const LEN_SHOWS = ['follow', 'ftin', 'm', 'cm', 'mm'];
+  const TEMP_SHOWS = ['follow', 'degc', 'degf'];   // 0.9: how temperatures read and what a bare number means
+  const SET_DEFAULTS = { currency: '$', lenShow: 'follow', tempShow: 'follow', denom: 16, waste: 0, threshold: 0.75, snap45: false, corner: 'cube', snap: true, roomGap: 4, pickGap: PP.GAP_DEFAULT };
   const ROOM_GAPS = [3, 3.5, 4, 5, 6, 8];
   const WASTE_CHOICES = [0, 200, 300, 500, 750, 1000, 1500, 2000];
   const settings = { ...SET_DEFAULTS };
@@ -150,6 +155,9 @@ function init(root) {
     try {
       const v = JSON.parse(localStorage.getItem(SET_KEY) || '{}');
       if ([16, 8, 4].includes(v.denom)) settings.denom = v.denom;
+      if (LEN_SHOWS.includes(v.lenShow)) settings.lenShow = v.lenShow;
+      if (TEMP_SHOWS.includes(v.tempShow)) settings.tempShow = v.tempShow;
+      if (U.CURRENCIES.includes(v.currency)) settings.currency = v.currency;
       if (WASTE_CHOICES.includes(v.waste)) settings.waste = v.waste;
       if (typeof v.threshold === 'number' && v.threshold >= 0.5 && v.threshold <= 0.95) settings.threshold = Math.round(v.threshold * 100) / 100;
       if (typeof v.snap45 === 'boolean') settings.snap45 = v.snap45;
@@ -159,16 +167,32 @@ function init(root) {
       if (typeof v.pickGap === 'number' && v.pickGap >= PP.GAP_MIN && v.pickGap <= PP.GAP_MAX) settings.pickGap = v.pickGap;
     } catch { /* private window or damaged: the defaults */ }
   }
-  loadSettings();
+  loadSettings(); U.setCurrency(settings.currency);
   const saveSettings = () => { try { localStorage.setItem(SET_KEY, JSON.stringify(settings)); } catch { /* fine: this tab keeps them */ } };
-  /** Feet-inches for the screen, to the fraction picked in Settings (quantities are never rounded). */
-  const ftIn = (ft) => U.formatFtIn(ft, settings.denom);
+  /** How lengths read on screen: the TakeoffCraft choice, or (Follow Global) the metric unit starred in Settings › Global › Units; else feet-inches. */
+  const lenMode = () => { const m = settings.lenShow === 'follow' ? starOf('length') : settings.lenShow; return m === 'm' || m === 'cm' || m === 'mm' ? m : 'ftin'; };
+  /** How temperatures read: the TakeoffCraft choice, or (Follow Global) the temperature unit starred in Settings › Global › Units; else °C when lengths show metric, °F otherwise. */
+  const tempMode = () => { const m = settings.tempShow === 'follow' ? starOf('temperature') : settings.tempShow; return m === 'degc' || m === 'degf' ? m : (lenMode() !== 'ftin' ? 'degc' : 'degf'); };
+  /** The unit a typed length field uses: the display unit when it is metric, else the item's own (m for a metric item, ft otherwise). */
+  const fieldUnit = (lu) => { const m = lenMode(); return m !== 'ftin' ? m : (lu === 'm' ? 'm' : 'ft'); };
+  const METRIC_K = { m: [1, 3], cm: [100, 1], mm: [1000, 0] };
+  /** The text of a length field in unit u ('ft' = feet-inches): plain numbers, no thousands commas, so it parses back. */
+  const lenField = (ft, u) => { if (u === 'ft') return U.formatFtIn(ft, settings.denom); const [k, d] = METRIC_K[u]; return String(Number((ft * U.M_PER_FT * k).toFixed(d))) + ' ' + u; };
+  const lenHint = (u, kind) => u === 'ft' ? ({ height: "9'-0\"", thick: "0'-6\"", head: "7'-0\"", base: "0'-0\"" })[kind] : ({ m: { height: '3.0 m', thick: '0.2 m', head: '2.1 m', base: '0 m' }, cm: { height: '300 cm', thick: '20 cm', head: '210 cm', base: '0 cm' }, mm: { height: '3000 mm', thick: '200 mm', head: '2100 mm', base: '0 mm' } })[u][kind];
+  /** A length for the screen (quantities are never rounded): meters / cm / mm, or feet-inches to the fraction picked in Settings. */
+  const ftIn = (ft) => { const m = lenMode(); if (m === 'ftin') return U.formatFtIn(ft, settings.denom); if (!Number.isFinite(ft)) return ''; return m === 'cm' ? U.fixed(ft * U.M_PER_FT * 100, 1) + ' cm' : U.formatLength(ft, m); };
+  /** An area for the screen: m² when lengths show metric or the item is priced in metric, else SF. Quantities are never rounded. */
+  const areaShow = (sqft, it) => (lenMode() !== 'ftin' || U.UNITS[it?.unit]?.system === 'metric' ? U.fixed(sqft * U.SQM_PER_SQFT, 2) + ' m²' : U.fixed(sqft, 2) + ' SF');
   const settingsDlg = document.querySelector('[data-app-settings]');
   function syncSettingsForm() {
     if (!settingsDlg) return;
     const q = (s) => settingsDlg.querySelector(s);
+    settingsDlg.querySelectorAll('input[name="tcLenShow"]').forEach((r) => { r.checked = r.value === settings.lenShow; });
+    settingsDlg.querySelectorAll('input[name="tcTempShow"]').forEach((r) => { r.checked = r.value === settings.tempShow; });
+    const dn = q('[data-tc-denom]'); if (dn) dn.hidden = lenMode() !== 'ftin';
     settingsDlg.querySelectorAll('input[name="tcDenom"]').forEach((r) => { r.checked = Number(r.value) === settings.denom; });
     const w = q('select[name="tcWaste"]'); if (w) w.value = String(settings.waste);
+    const cu = q('select[name="tcCurrency"]'); if (cu) cu.value = settings.currency;
     const rg = q('select[name="tcRoomGap"]'); if (rg) rg.value = String(settings.roomGap);
     const pg = q('input[name="tcPickGap"]'); if (pg && document.activeElement !== pg) pg.value = String(Math.round(settings.pickGap * 100) / 100);
     const th = q('input[name="tcThreshold"]'); if (th) th.value = String(settings.threshold);
@@ -180,6 +204,7 @@ function init(root) {
   function applySettings() {
     const hint = root.querySelector('[data-snap-hint]');
     if (hint) hint.textContent = settings.snap45 ? t('snap45.on') : t('snap45.hint');
+    U.setCurrency(settings.currency);
     syncSettingsForm();
     root.querySelector('[data-snap-toggle]')?.setAttribute('aria-pressed', String(settings.snap));
     if (settings.snap && cur) loadSnap(cur);
@@ -190,7 +215,10 @@ function init(root) {
   if (settingsDlg) {
     settingsDlg.addEventListener('change', (e) => {
       const t = e.target;
-      if (t.name === 'tcDenom') settings.denom = Number(t.value);
+      if (t.name === 'tcLenShow') settings.lenShow = LEN_SHOWS.includes(t.value) ? t.value : 'follow';
+      else if (t.name === 'tcTempShow') settings.tempShow = TEMP_SHOWS.includes(t.value) ? t.value : 'follow';
+      else if (t.name === 'tcDenom') settings.denom = Number(t.value);
+      else if (t.name === 'tcCurrency') settings.currency = U.CURRENCIES.includes(t.value) ? t.value : '$';
       else if (t.name === 'tcWaste') settings.waste = WASTE_CHOICES.includes(Number(t.value)) ? Number(t.value) : 0;
       else if (t.name === 'tcRoomGap') settings.roomGap = ROOM_GAPS.includes(Number(t.value)) ? Number(t.value) : 4;
       else if (t.name === 'tcThreshold') settings.threshold = Number(t.value);
@@ -726,7 +754,7 @@ function init(root) {
     if (tool === 'path') loadSnap(cur).then(() => { const r = cur && snaps.get(cur.key); if (app.tool === 'path' && r && !r.n) status(t('sx.su880.nolines'), 9000); });
     renderAcBar();
     renderGeomBar();
-    const help = tool === 'legend' ? t('help.legend') : tool === 'room' ? t('help.room', { gap: U.formatFtIn(settings.roomGap) }) : tool === 'path' ? t('help.path', { gap: pickGapText() }) : t('help.' + tool);
+    const help = tool === 'legend' ? t('help.legend') : tool === 'room' ? t('help.room', { gap: ftIn(settings.roomGap) }) : tool === 'path' ? t('help.path', { gap: pickGapText() }) : t('help.' + tool);
     status(help, 0);
     view.overlayOnly();
     wsChanged();
@@ -749,6 +777,7 @@ function init(root) {
   /** Backspace / the touch bar's Back: the pending arc point first, then the last point (and the arc that led to it). */
   function dropLastPoint() {
     if (app.draft?.mid) { app.draft.mid = null; liveMeasure(); view.overlayOnly(); return; }
+    if (app.draft?.arcGot?.length) { app.draft.arcGot.pop(); arcPrompt(); liveMeasure(); view.overlayOnly(); return; }   // FX.137: the arc's last input
     if (!app.draft?.pts.length) return;
     app.draft.pts.pop();
     app.draft.ded?.delete(app.draft.pts.length - 1);
@@ -786,7 +815,8 @@ function init(root) {
     typeBox.value = ch;
     typeBox.classList.remove('is-invalid');
     typeBox.focus();
-    status(t(app.tool === 'circle' || app.tool === 'cutcircle' ? 'typein.hint.circle' : 'typein.hint'), 0);
+    const ar = arcRole();
+    status(t(ar && AM.SCALAR.has(ar) ? 'arc.type.' + ar : app.tool === 'circle' || app.tool === 'cutcircle' ? 'typein.hint.circle' : 'typein.hint'), 0);
   }
   function closeTypeIn() {
     if (!typeIn || typeIn.hidden) return;
@@ -798,6 +828,16 @@ function init(root) {
     const d = app.draft, sc = cur && model.scaleOf(cur.key);
     if (!d?.pts.length) { closeTypeIn(); return; }
     const text = typeBox.value;
+    const ar = arcRole();
+    if (ar && AM.SCALAR.has(ar)) {                       // FX.137: an angle, length, radius or direction for the arc under way
+      const v = AM.typedValue(ar, text, { ftPerUnit: sc?.ftPerUnit, linear: view.matrix.slice(0, 4) });
+      if (!v.ok) { typeBox.classList.add('is-invalid'); status(t(v.error), 12000); return; }
+      typeBox.value = '';
+      typeBox.classList.remove('is-invalid');
+      arcStep(v.value);
+      if (!app.draft) closeTypeIn(); else { liveMeasure(); view.overlayOnly(); }
+      return;
+    }
     let res;
     if (app.tool === 'circle' || app.tool === 'cutcircle') {
       const r = U.parseLength(text);
@@ -977,7 +1017,7 @@ function init(root) {
     if (hit) { app.snap = hit; return { x: hit.x, y: hit.y }; }
     if (app.tool === 'circle' || app.tool === 'cutcircle' || app.drag?.arc) return raw;
     // arc mode (T11): the point on the curve goes anywhere; the arc's end snaps 45° from where the arc starts
-    if (app.arc && app.draft?.pts.length && !app.draft.mid) return raw;
+    if (app.arc && app.draft?.pts.length && (app.arcMethod !== '3P' || !app.draft.mid)) return raw;
     const last = app.draft?.pts.at(-1) ?? (app.drag?.anchor || null);
     const snap = settings.snap45 ? !app.shift : app.shift;
     return snap && last ? G.snap45(last, raw) : raw;
@@ -1269,7 +1309,8 @@ function init(root) {
       finishCircle(pts[0], p);
       return;
     }
-    // arc mode: the first click after a point is on the curve, the second is where it ends
+    // arc mode: the first click after a point is on the curve, the second is where it ends (FX.137: or the chosen method's steps)
+    if (app.arc && pts.length && app.arcMethod !== '3P' && (tool === 'linear' || tool === 'area' || tool === 'cutout')) { arcStep(AM.clickValue(app.arcMethod, pts.at(-1), app.draft.arcGot ??= [], p, arcSign())); return; }
     if (app.arc && pts.length && (tool === 'linear' || tool === 'area' || tool === 'cutout')) {
       if (!app.draft.mid) { app.draft.mid = p; liveMeasure(); view.overlayOnly(); return; }
       const last = pts.at(-1), mid = app.draft.mid;
@@ -1395,6 +1436,11 @@ function init(root) {
     const pts = d.pts.map((p) => ({ ...p }));
     if (!app.cursor || !pts.length) return pts;
     if (d.mid) { const b = G.bulgeThrough(pts.at(-1), d.mid, app.cursor); if (b) pts[pts.length - 1].b = b; }
+    const ap = arcPending();
+    if (ap) {                                       // FX.137: the arc the pointer would give for the last input
+      const r = AM.preview(ap.id, pts.at(-1), ap.got, app.cursor, arcSign());
+      if (r) { pts[pts.length - 1].b = r.b; pts.push(r.end); return pts; }
+    }
     pts.push({ x: app.cursor.x, y: app.cursor.y });
     return pts;
   }
@@ -1436,7 +1482,8 @@ function init(root) {
     if (!sc) { ui.measure.textContent = ''; return; }
     const k = sc.ftPerUnit;
     const lastSeg = pts.length >= 2 ? G.segLength(pts.at(-2), pts.at(-1), pts.at(-2).b) * k : 0;
-    const arcNote = d.mid ? '   ' + t('measure.arc') : '';
+    const ar = arcRole();
+    const arcNote = d.mid ? '   ' + t('measure.arc') : ar ? '   ' + t('arc.ask.' + ar) : '';
     if (app.tool === 'circle' || app.tool === 'cutcircle') {
       const r = G.dist(d.pts[0], app.cursor) * k;
       ui.measure.textContent = t('measure.circle', { r: ftIn(r), area: U.fixed(Math.PI * r * r, 2) });
@@ -1648,7 +1695,7 @@ function init(root) {
           label(ctx, S(m.pts[i - 1]), S(m.pts[i]), ftIn(r.slopedFt[i - 1]), at);
         }
       }
-      if (sc && m.kind === 'area') { const r = measureMark(m, sc.ftPerUnit, model.item(m.item)); tag(ctx, S(G.centroid(m.pts)), U.fixed(r.areaSqft, 2) + ' SF'); }
+      if (sc && m.kind === 'area') { const r = measureMark(m, sc.ftPerUnit, model.item(m.item)); tag(ctx, S(G.centroid(m.pts)), areaShow(r.areaSqft, model.item(m.item))); }
       // T11: a round handle in the middle of each arc (drag to bend), over the labels
       ctx.lineWidth = 1.5; ctx.strokeStyle = colors.action; ctx.fillStyle = colors.sheet;
       for (const h of arcHandles(m)) { const s = S(h.at); ctx.beginPath(); ctx.arc(s.x, s.y, hs + 1, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
@@ -1674,6 +1721,7 @@ function init(root) {
         } else { line(pts.slice(0, d.pts.length), false); ctx.stroke(); }
         if (app.cursor && pts.length >= 2) { ctx.setLineDash([6, 4]); line(pts.slice(-2), false); ctx.stroke(); ctx.setLineDash([]); }
         if (d.mid) { const s = S(d.mid); ctx.beginPath(); ctx.arc(s.x, s.y, 4, 0, Math.PI * 2); ctx.stroke(); }
+        for (const g of d.arcGot || []) if (typeof g !== 'number') { const s = S(g); ctx.beginPath(); ctx.arc(s.x, s.y, 4, 0, Math.PI * 2); ctx.stroke(); }   // FX.137: the centre / end given so far
       }
       for (const p of d.pts) { const s = S(p); ctx.fillRect(s.x - 3, s.y - 3, 6, 6); }
       if ((app.tool === 'area' || app.tool === 'cutout') && d.pts.length >= 3) { const s = S(d.pts[0]); ctx.beginPath(); ctx.arc(s.x, s.y, closePx(), 0, Math.PI * 2); ctx.lineWidth = 1; ctx.stroke(); }
@@ -1763,11 +1811,12 @@ function init(root) {
   }
 
   const qtyLabel = (it) => {
-    const t = qmap.get(it.id);
-    if (!t) return '';
-    const main = U.fixed(itemQty(it, t), it.type === 'count' ? 0 : 2) + ' ' + U.UNITS[it.unit].label;
+    const tq0 = qmap.get(it.id);
+    if (!tq0) return '';
+    const main = U.fixed(itemQty(it, tq0), it.type === 'count' ? 0 : 2) + ' ' + U.UNITS[it.unit].label;
     // T8: a second condition's quantity follows the main one ("120.00 SF + 4 EA")
-    return [main, ...(it.conds || []).map((c) => U.fixed(condQty(c, t.conds?.[c.kind]), c.kind === 'count' ? 0 : 2) + ' ' + U.UNITS[c.unit].label)].join(' + ');
+    const wall = it.type === 'linear' && it.heightFt > 0 && tq0.lengthFt > 0 ? ' · ' + t('qty.wall.short', { area: areaShow(tq0.lengthFt * it.heightFt, it) }) : '';
+    return [main + wall, ...(it.conds || []).map((c) => U.fixed(condQty(c, tq0.conds?.[c.kind]), c.kind === 'count' ? 0 : 2) + ' ' + U.UNITS[c.unit].label)].join(' + ');
   };
 
   function renderItems() {
@@ -1799,7 +1848,7 @@ function init(root) {
     return n;
   };
 
-  onUnitsChange(() => renderItemProps());   // 0.7 UNITS: the unit lists changed in Settings
+  onUnitsChange(() => { renderItemProps(); syncSettingsForm(); if (typeof refresh === 'function' && booted) refresh(); });   // 0.7 UNITS: the unit lists changed in Settings
   function renderItemProps() {
     const it = app.active && model.item(app.active);
     ui.itemSec.hidden = !it;
@@ -1877,19 +1926,20 @@ function init(root) {
     if (typed) rows.push(...fixedFields(it, commit, fail));                 // TK.5+: typed, not drawn
     else rows.push(el('span', { className: 'k', id: 'tc-i-also-l' }, t('item.f.also')), condFields(it));
     if (it.type !== 'count' && !typed) {
-      const hv = it.heightFt ? (lu === 'm' ? U.fixed(it.heightFt * U.M_PER_FT, 3) + ' m' : U.formatFtIn(it.heightFt)) : '';
+      const fu = fieldUnit(lu), hv = it.heightFt ? lenField(it.heightFt, fu) : '';
       const applyHeight = (v, n) => {
         if (!v.trim()) return commit({ heightFt: 0 }, t('undo.item.height'));
-        const r = U.parseLength(v, { defaultUnit: lu });
+        const r = U.parseLength(v, { defaultUnit: fu });
         if (!r.ok) return fail(n, r.error);
         commit({ heightFt: r.ft }, t('undo.item.height'));
       };
-      if (GP) GP.push({ id: 'height', category: t('item.grid.measure'), label: it.type === 'linear' ? t('item.f.height') : t('item.f.depth'), type: 'text', value: hv, hint: lu === 'm' ? '3.0 m' : '9\'-0"' });
-      else rows.push(...fieldRow(it.type === 'linear' ? t('item.f.height') : t('item.f.depth'), textInput('tc-i-height', 'height', hv, applyHeight, { placeholder: lu === 'm' ? '3.0 m' : '9\'-0"' })));
+      if (GP) GP.push({ id: 'height', category: t('item.grid.measure'), label: it.type === 'linear' ? t('item.f.height') : t('item.f.depth'), type: 'text', value: hv, hint: lenHint(fu, 'height') });
+      else rows.push(...fieldRow(it.type === 'linear' ? t('item.f.height') : t('item.f.depth'), textInput('tc-i-height', 'height', hv, applyHeight, { placeholder: lenHint(fu, 'height') })));
       gridApply.height = applyHeight;
     }
     if (it.type === 'area') rows.push(...backoutFields(it));
     if (it.type !== 'count' && !typed) rows.push(...pitchFields(it));
+    rows.push(...tempFields(it, commit, fail, GP, gridApply));               // 0.9: a temperature spec on any item (a grid row beside the height, else a form row)
     const shape = it.type !== 'count' && !typed ? el('div', { className: 'tc-props' }, shapeFields(it, lu, fail)) : null;
     const crewLab = it.crew ? U.rateInput(est.rows.find((r) => r.kind === 'item' && r.itemId === it.id)?.lab ?? 0) : null;
     const ul = U.UNITS[it.unit].label;
@@ -1983,21 +2033,38 @@ function init(root) {
     return out;
   }
 
+  /** 0.9: the item's temperature (a spec: lowest pour or install temperature, a curing or service temperature). Typed in °C or °F
+   *  (a bare number is in the display unit), kept in kelvin, shown in the display unit; blank = none. */
+  function tempFields(it, commit, fail, GP, gridApply) {
+    const tm = tempMode();
+    const text = Number.isFinite(it.tempK) ? U.formatTemp(it.tempK, tm) : '';
+    const apply = (v, n) => {
+      if (!v.trim()) return commit({ tempK: 0 }, t('undo.item.temp'));
+      const r = U.parseTemp(v, tm);
+      if (!r.ok) return fail(n, t(r.error));
+      commit({ tempK: r.kelvin }, t('undo.item.temp'));
+    };
+    const hint = tm === 'degc' ? '5 °C' : '40 °F';
+    if (GP) { GP.push({ id: 'temp', category: t('item.grid.measure'), label: t('item.f.temp'), type: 'text', value: text, hint }); gridApply.temp = apply; return []; }
+    return fieldRow(t('item.f.temp'), textInput('tc-i-temp', 'temp', text, apply, { placeholder: hint, inputmode: 'text', title: t('item.f.temp.title') }));
+  }
+
   /** T5: fields that only shape the 3D view — a wall's thickness, base height and opening head; an area's base height. */
   function shapeFields(it, lu, fail) {
-    const lenInput = (id, field, ft, ph, onCommit) => textInput(id, field, ft ? (lu === 'm' ? U.fixed(ft * U.M_PER_FT, 3) + ' m' : U.formatFtIn(ft)) : '', (v, n) => {
+    const fu = fieldUnit(lu);
+    const lenInput = (id, field, ft, ph, onCommit) => textInput(id, field, ft ? lenField(ft, fu) : '', (v, n) => {
       if (!v.trim()) return onCommit(0);
-      const r = U.parseLength(v, { defaultUnit: lu });
+      const r = U.parseLength(v, { defaultUnit: fu });
       if (!r.ok) return fail(n, r.error);
       onCommit(r.ft);
     }, { placeholder: ph });
     const set = (k) => (ft) => model.updateItem(it.id, { [k]: ft }, t('undo.item.3d'));
     const out = [el('p', { className: 'tc-props-sub' }, t('item.f.3d'))];
     if (it.type === 'linear') {
-      out.push(...fieldRow(t('item.f.thick'), lenInput('tc-i-thick', 'thick', it.thickFt, lu === 'm' ? '0.2 m' : '0\'-6"', set('thickFt'))));
-      out.push(...fieldRow(t('item.f.head'), lenInput('tc-i-head', 'head', it.headFt, lu === 'm' ? '2.1 m' : '7\'-0"', set('headFt'))));
+      out.push(...fieldRow(t('item.f.thick'), lenInput('tc-i-thick', 'thick', it.thickFt, lenHint(fu, 'thick'), set('thickFt'))));
+      out.push(...fieldRow(t('item.f.head'), lenInput('tc-i-head', 'head', it.headFt, lenHint(fu, 'head'), set('headFt'))));
     }
-    out.push(...fieldRow(t('item.f.base'), lenInput('tc-i-base', 'base', it.baseFt, lu === 'm' ? '0 m' : '0\'-0"', set('baseFt'))));
+    out.push(...fieldRow(t('item.f.base'), lenInput('tc-i-base', 'base', it.baseFt, lenHint(fu, 'base'), set('baseFt'))));
     return out;
   }
 
@@ -2122,7 +2189,7 @@ function init(root) {
     else if (m.kind === 'linear') {
       rows.push(...kv(t('mark.f.length'), t('mark.length', { len: ftIn(r.lengthFt), lf: U.fixed(r.lengthFt, 2) })), ...kv(t('mark.f.segments'), String(r.segmentsFt.length)));
       if (r.deducts.length) rows.push(...kv(t('props.deducts'), ftIn(r.deductFt)), ...kv(t('props.drawn'), ftIn(r.grossFt)));
-      if (it.heightFt > 0 && it.type === m.kind) rows.push(...kv(t('mark.f.wall'), U.fixed(r.lengthFt * it.heightFt, 2) + ' SF'));
+      if (it.heightFt > 0 && it.type === m.kind) rows.push(...kv(t('mark.f.wall'), areaShow(r.lengthFt * it.heightFt, it)));
       const ded = new Set(r.deducts);
       const sloped = r.slopes.some((x) => x.k !== 'flat');
       if (sloped) rows.push(...kv(t('props.plan_length'), ftIn(r.planFt)));
@@ -2139,12 +2206,12 @@ function init(root) {
       })));
     } else if (m.kind === 'area') {
       const cut = it.backout ? 0 : backouts(model.state).cut(m, sc.ftPerUnit) * r.factor;
-      rows.push(...kv(t('mark.f.area'), U.fixed(Math.max(0, r.areaSqft - cut), 2) + ' SF'));
-      if (cut > 0) rows.push(...kv(t('props.backouts'), '−' + U.fixed(cut, 2) + ' SF'));
-      if (r.factor > 1) rows.push(...kv(t('props.plan_area'), U.fixed(Math.max(0, r.planSqft - cut / r.factor), 2) + ' SF'), ...kv(t('props.slope_factor'), U.fixed(r.factor, 4)));
+      rows.push(...kv(t('mark.f.area'), areaShow(Math.max(0, r.areaSqft - cut), it)));
+      if (cut > 0) rows.push(...kv(t('props.backouts'), '−' + areaShow(cut, it)));
+      if (r.factor > 1) rows.push(...kv(t('props.plan_area'), areaShow(Math.max(0, r.planSqft - cut / r.factor), it)), ...kv(t('props.slope_factor'), U.fixed(r.factor, 4)));
       rows.push(...markPitchField(m, it));
       if (it.backout && !G.isConvex(m.pts)) extra.push(el('p', { className: 'tc-field-err' }, t('backout.mark.convex')));
-      if (m.holes.length) rows.push(...kv(t('mark.f.outline'), U.fixed(r.grossSqft, 2) + ' SF'), ...kv(t('mark.f.cutouts'), t('mark.cutouts', { n: m.holes.length, sf: U.fixed(r.cutSqft, 2) })));
+      if (m.holes.length) rows.push(...kv(t('mark.f.outline'), areaShow(r.grossSqft, it)), ...kv(t('mark.f.cutouts'), t('mark.cutouts.a', { n: m.holes.length, area: areaShow(r.cutSqft, it) })));
       rows.push(...kv(t('mark.f.perimeter'), m.holes.length ? t('mark.perimeter.holes', { len: ftIn(r.perimeterFt) }) : ftIn(r.perimeterFt)));
     } else {
       rows.push(...kv(t('mark.f.count'), '1'));
@@ -2947,8 +3014,11 @@ function init(root) {
         r.crew ? el('td', { title: t('crew.lab.locked') }, U.rateInput(r.lab)) : cell(r, 'lab', U.rateInput(r.lab), U.parseRate, 'rate4'),
         el('td', {}, r.error ? '' : U.formatCents(r.matExt)), el('td', {}, r.error ? '' : U.formatCents(r.labExt)), el('td', {}, r.error ? '' : U.formatCents(r.total)));
       if (isItem || isCond) tr.addEventListener('click', () => focusItem(r.itemId));
+      // TK.1 feedback: a linear item with a height also measures wall area (length × height); show it, so tiling a bathroom's walls needs no formula
+      const tq = isItem && !r.error && it.type === 'linear' && it.heightFt > 0 ? qmap.get(r.itemId) : null;
+      if (tq && tq.lengthFt > 0) return [tr, el('tr', { className: 'is-note', dataset: { qtyWall: r.itemId } }, el('td', { colSpan: 10, className: 'tl' }, t('qty.wall.note', { item: r.name, area: areaShow(tq.lengthFt * it.heightFt, it), h: ftIn(it.heightFt) })))];
       return tr;
-    });
+    }).flat();
     const foot = model.state.items.length ? el('tfoot', {}, el('tr', {}, el('td', {}, t('x.total')), el('td', { colSpan: 6 }), el('td', {}, U.formatCents(est.matTotal)), el('td', {}, U.formatCents(est.labTotal)), el('td', {}, U.formatCents(est.total)))) : null;
     ui.qtyTable.replaceChildren(el('thead', {}, el('tr', {}, head.map((h) => el('th', { scope: 'col' }, h)))),
       el('tbody', {}, body.length ? body : el('tr', {}, el('td', { colSpan: head.length, className: 'tl' }, t('qty.empty.items')))), ...(foot ? [foot] : []));
@@ -3215,8 +3285,55 @@ function init(root) {
   function toggleArc(on = !app.arc) {
     app.arc = on;
     arcBtn.setAttribute('aria-pressed', String(on));
-    if (!on && app.draft) app.draft.mid = null;
-    status(on ? t('arc.on') : t('arc.off'));
+    if (!on && app.draft) { app.draft.mid = null; app.draft.arcGot = []; }
+    if (arcWrap) arcWrap.hidden = !on;
+    status(on ? (app.arcMethod === '3P' ? t('arc.on') : t('arc.on.method', { method: t('arc.m.' + app.arcMethod.toLowerCase()) })) : t('arc.off'));
+    liveMeasure(); view.overlayOnly();
+  }
+
+  // ---- the ten arc methods (0.9 FX.137; arcmethods.js over lib/arcs): the chooser sits in the sheet bar while Arc is on ----
+  const arcWrap = root.querySelector('[data-arc-wrap]'), arcSel = root.querySelector('[data-arc-method]');
+  if (arcSel) {
+    for (const id of AM.METHOD_ORDER) arcSel.append(el('option', { value: id }, t('arc.m.' + id.toLowerCase())));
+    arcSel.value = app.arcMethod;
+    arcSel.addEventListener('change', () => {
+      app.arcMethod = arcSel.value;
+      if (app.draft) { app.draft.mid = null; app.draft.arcGot = []; }
+      status(app.arcMethod === '3P' ? t('arc.on') : t('arc.on.method', { method: t('arc.m.' + app.arcMethod.toLowerCase()) }));
+      arcPrompt(); liveMeasure(); view.overlayOnly();
+    });
+  }
+  /** +1 / -1: whether counter-clockwise in sheet units looks counter-clockwise (a mirrored user space flips it). */
+  function arcSign() { return AM.handedness(view.matrix.slice(0, 4)); }
+  /** The chosen method's state while a run, outline or cut-out has a point to start from: { id, got } or null (3-Point keeps its own two clicks). */
+  function arcPending() {
+    const d = app.draft;
+    if (!app.arc || app.arcMethod === '3P' || !d?.pts.length || !(app.tool === 'linear' || app.tool === 'area' || app.tool === 'cutout')) return null;
+    return { id: app.arcMethod, got: (d.arcGot ??= []) };
+  }
+  /** The step the arc waits for ('center' | 'end' | 'angle' | 'length' | 'direction' | 'radius') or null. */
+  function arcRole() { const ap = arcPending(); return ap ? AM.nextRole(ap.id, ap.got) : null; }
+  function arcPrompt() { const r = arcRole(); if (r) status(t('arc.ask.' + r), 0); }
+  /** One input given (a point, or a number from a click or the typing box): the next prompt, or the finished arc added to the run. */
+  function arcStep(value) {
+    const ap = arcPending();
+    if (!ap || !app.draft) return;
+    const d = app.draft, pts = d.pts, tool = app.tool, sg = arcSign(), last = pts.at(-1);
+    ap.got.push(value);
+    if (AM.nextRole(ap.id, ap.got) !== null) { arcPrompt(); liveMeasure(); view.overlayOnly(); return; }
+    const r = AM.finish(ap.id, last, ap.got, sg);
+    if (!r.ok) { ap.got.pop(); status(t('arc.err.' + r.error), 9000); liveMeasure(); view.overlayOnly(); return; }
+    d.arcGot = [];
+    let end = r.end, b = r.b, closing = false;
+    if ((tool === 'area' || tool === 'cutout') && pts.length >= 2) {
+      const s0 = view.toScreen(pts[0]), se = view.toScreen(end);
+      if (Math.hypot(s0.x - se.x, s0.y - se.y) <= closePx()) { closing = true; end = pts[0]; b = G.bulgeThrough(last, r.mid, end) || b; }
+    }
+    pts[pts.length - 1] = { x: last.x, y: last.y, b };
+    if (closing) { finishDraft(); return; }
+    pts.push({ x: end.x, y: end.y });
+    noteDeduct(d);
+    status('');
     liveMeasure(); view.overlayOnly();
   }
 
@@ -3311,7 +3428,7 @@ function init(root) {
       const seed = G.apply(T, p);
       const gapPx = settings.roomGap / sc.ftPerUnit * per * w;
       const r = roomAt(roomInk.ink, { x: seed.x * w, y: seed.y * w }, { gapPx });
-      if (!r.ok) { status(t('room.err.' + r.why, { gap: U.formatFtIn(settings.roomGap) }), 9000); return; }
+      if (!r.ok) { status(t('room.err.' + r.why, { gap: ftIn(settings.roomGap) }), 9000); return; }
       const inv = G.invert(T);
       const pts = r.ring.map((q) => G.apply(inv, { x: q.x / w, y: q.y / w }));
       const why = G.outlineProblem(pts);
@@ -3918,9 +4035,10 @@ function init(root) {
 
   async function levelsDialog() {
     if (!sheets.length) return;
+    const fu = fieldUnit('ft');
     const inputs = sheets.map((s) => {
       const v = model.levelOf(s.key);
-      return { s, input: el('input', { type: 'text', className: 'tc-input', value: v === null ? '' : U.formatFtIn(v), placeholder: '0\'-0"', dataset: { levelFor: s.key }, 'aria-label': s.title }) };
+      return { s, input: el('input', { type: 'text', className: 'tc-input', value: v === null ? '' : lenField(v, fu), placeholder: lenHint(fu, 'base'), dataset: { levelFor: s.key }, 'aria-label': s.title }) };
     });
     let map = null;
     const choice = await ask(root, {
@@ -3934,7 +4052,7 @@ function init(root) {
           const txt = input.value.trim();
           if (!txt) { m[s.key] = null; continue; }
           const neg = /^[-−]/.test(txt);
-          const r = /^[-−]?0+(\.0*)?\s*('|"|ft|m)?$/.test(txt) ? { ok: true, ft: 0 } : U.parseLength(txt.replace(/^[-−]/, ''));
+          const r = /^[-−]?0+(\.0*)?\s*('|"|ft|mm|cm|m)?$/.test(txt) ? { ok: true, ft: 0 } : U.parseLength(txt.replace(/^[-−]/, ''), { defaultUnit: fu });
           if (!r.ok) { input.classList.add('is-invalid'); return s.title + ': ' + r.error; }
           m[s.key] = neg ? -r.ft : r.ft;
         }
@@ -4093,7 +4211,7 @@ function init(root) {
     if (e.key === 'Escape' && app.cmp) { if (app.cmp.align) { app.cmp.align = null; status(''); view.overlayOnly(); } else closeCompare(); return; }
     if (e.key === 'Escape' && app.tool === 'cadgeom' && app.geom?.sel.size) { geomClear(); return; }
     if (e.key === 'Enter' && app.tool === 'cadgeom') { e.preventDefault(); addGeometry(); return; }
-    if (e.key === 'Escape') { if (app.paste) endPaste(); else if (app.ac?.running) cancelAutoCount(); else if (app.ac) { discardAutoCount(); status(t('ac.discarded')); } else if (app.draft?.mid) { app.draft.mid = null; liveMeasure(); view.overlayOnly(); } else if (app.draft) cancelDraft(); else if (app.tool !== 'select') setTool('select'); else selectNone(); return; }
+    if (e.key === 'Escape') { if (app.paste) endPaste(); else if (app.ac?.running) cancelAutoCount(); else if (app.ac) { discardAutoCount(); status(t('ac.discarded')); } else if (app.draft?.mid) { app.draft.mid = null; liveMeasure(); view.overlayOnly(); } else if (app.draft?.arcGot?.length) { app.draft.arcGot = []; arcPrompt(); liveMeasure(); view.overlayOnly(); } else if (app.draft) cancelDraft(); else if (app.tool !== 'select') setTool('select'); else selectNone(); return; }
     if (e.key === 'Enter') { if (app.draft) { e.preventDefault(); finishDraft(); } return; }
     if (e.key === 'Backspace' || e.key === 'Delete') {
       e.preventDefault();
@@ -4286,6 +4404,8 @@ function init(root) {
     files, openFiles, status: (s) => status(s),   // Studio Live (live.js): the PDFs a joiner gets, opening them, its messages
     ready: false,
     sheets: () => sheets.map((s) => ({ key: s.key, title: s.title })),
+    sheet: () => (cur ? cur.key : ''),   // 0.9 SU.1112: the sheet on screen (live.js presenceView: others' cursors on it)
+    showSheet: (key) => (sheets.some((s) => s.key === key) ? showSheet(key) : null),   // 0.9 ED.1: a follower opens the leader's sheet (live.js presenceView goSpace)
     rendered: () => view.renders,
     toScreen: (p) => { const s = view.toScreen(p); const r = ui.over.getBoundingClientRect(); return { x: r.left + s.x, y: r.top + s.y }; },
     zoomTo: (r) => view.zoomTo(r),

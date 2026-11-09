@@ -73,9 +73,10 @@ export async function zip(files, { compress = true, date = new Date() } = {}) {
 /** Style keys → cellXfs index (order matches styles.xml below). */
 export const STYLE = { none: 0, head: 1, qty: 2, pct: 3, rate: 4, money: 5, bold: 6, boldMoney: 7, text: 8, int: 9 };
 
-const STYLES_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+import { currencySymbol } from './units.js';
+const stylesXml = () => { const c = currencySymbol().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<numFmts count="4"><numFmt numFmtId="164" formatCode="#,##0.00"/><numFmt numFmtId="165" formatCode="0.0#%"/><numFmt numFmtId="166" formatCode="&quot;$&quot;#,##0.00##"/><numFmt numFmtId="167" formatCode="&quot;$&quot;#,##0.00"/></numFmts>
+<numFmts count="4"><numFmt numFmtId="164" formatCode="#,##0.00"/><numFmt numFmtId="165" formatCode="0.0#%"/><numFmt numFmtId="166" formatCode="&quot;${c}&quot;#,##0.00##"/><numFmt numFmtId="167" formatCode="&quot;${c}&quot;#,##0.00"/></numFmts>
 <fonts count="2"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts>
 <fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
 <borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color auto="1"/></bottom><diagonal/></border></borders>
@@ -93,7 +94,7 @@ const STYLES_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
 </cellXfs>
 <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
-</styleSheet>`;
+</styleSheet>`; };
 
 /** XML text: escape, and drop characters XML 1.0 forbids (a name from a file could hold them). */
 export function xmlText(s) {
@@ -164,7 +165,7 @@ export async function writeXlsx(sheets, { title = '', compress = true } = {}) {
       + named.map((s, i) => '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join('')
       + '<Relationship Id="rId' + (named.length + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
       + '</Relationships>' },
-    { name: 'xl/styles.xml', data: STYLES_XML },
+    { name: 'xl/styles.xml', data: stylesXml() },
     ...named.map((s, i) => ({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: sheetXml(s) })),
   ];
   return zip(files, { compress });

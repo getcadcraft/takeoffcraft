@@ -148,7 +148,8 @@ section('Preset scales against PDF points (72 per inch)');
   for (const n of [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000]) ok(near(at('m' + n, 72) * 0.3048, 0.0254 * n), `1:${n}: 72 pt = ${(0.0254 * n).toFixed(4)} m`);
   ok(near(at('m100', 72 / 25.4 * 10), 1 / 0.3048), '1:100: 10 mm on paper = 1 m');
   ok(near(at('a1/4', 36, 2), 4), '/UserUnit 2: 36 units are 1 in on paper → 4 ft at 1/4"');
-  ok(U.SCALE_GROUPS.flatMap(([, l]) => l).length === 30, '30 presets (11 architectural, 7 engineering, 12 metric)');
+  ok(U.SCALE_GROUPS.flatMap(([, l]) => l).length === 32, '32 presets (11 architectural, 7 engineering, 14 metric)');
+  ok(U.PRESETS.get('m150')?.ratio === 150 && U.PRESETS.get('m75')?.ratio === 75 && U.PRESETS.get('m150').group === 'Metric', '1:150 and 1:75 are metric presets');
 }
 
 section('Two-point calibration');
@@ -259,6 +260,93 @@ section('Arcs and circles (exact, checked against closed forms)');
   ok(near(G.polygonArea(fan), rr * rr * th / 2, 1e-12), 'a 120° pie traced with a three-point arc = r²θ/2');
 }
 var worstPrev = null;
+
+section('Ten arc methods (0.9 FX.137: arcmethods.js over lib/arcs)');
+{
+  const AM = await load('arcmethods.js');
+  const PI = Math.PI;
+  ok(fs.readFileSync(path.join(ROOT, 'lib/arcs/arcs.js')).equals(fs.readFileSync(path.join(APP, 'arcs/arcs.js'))), 'arcs/arcs.js is byte-identical to lib/arcs/arcs.js');
+  eq(AM.METHOD_ORDER.length, 10, 'ten methods offered');
+  const O = { x: 0, y: 0 }, last = { x: 10, y: 0 }, TOP = { x: 0, y: 10 };
+  const quarter = (len) => near(len, 10 * PI / 2, 1e-9);
+  const run = (id, got, l = last, sg = 1) => {
+    const r = AM.finish(id, l, got, sg);
+    return r.ok ? { ...r, len: G.segLength(l, r.end, r.b) } : r;
+  };
+  // the quarter circle of radius 10 about the origin from (10,0) to (0,10), by every method
+  const cases = {
+    '3P': [{ x: 10 * Math.SQRT1_2, y: 10 * Math.SQRT1_2 }, TOP], SCE: [O, { x: 0, y: 50 }], SCA: [O, PI / 2], SCL: [O, 10 * Math.SQRT2],
+    SEA: [TOP, PI / 2], SED: [TOP, PI / 2], SER: [TOP, 10], CSE: [O, { x: 0, y: 50 }], CSA: [O, PI / 2], CSL: [O, 10 * Math.SQRT2],
+  };
+  for (const id of AM.METHOD_ORDER) {
+    const r = run(id, cases[id]);
+    ok(r.ok && near(r.end.x, 0, 1e-9) && near(r.end.y, 10, 1e-9) && quarter(r.len) && near(r.b, Math.tan(PI / 8), 1e-9), `${id}: the quarter circle ends at (0, 10), length r·θ, stored as bulge tan(θ/4) on the last point (the format already in use)`, JSON.stringify(r));
+  }
+  eq(JSON.stringify(AM.asks('CSA')), '["center","angle"]', 'Center, Start, Angle asks the center then the angle (the start is the run\'s last point)');
+  eq(AM.nextRole('SEA', [TOP]), 'angle', 'Start, End, Angle waits for the angle after the end');
+  eq(AM.nextRole('SEA', [TOP, 1]), null, 'and for nothing once it has it');
+  // the other way round: negative angle / chord = clockwise, negative radius = the long way
+  let r = run('SCA', [O, -PI / 2]);
+  ok(r.ok && near(r.end.x, 0, 1e-9) && near(r.end.y, -10, 1e-9) && r.b < 0 && quarter(r.len), 'a negative angle goes clockwise from the last point (end at (0, -10), negative bulge)');
+  r = run('SER', [TOP, -10]);
+  ok(r.ok && near(r.len, 15 * PI, 1e-9) && r.b > 1, 'a negative radius takes the long way round (270°: 15π)');
+  r = run('SCL', [O, -10 * Math.SQRT2]);
+  ok(r.ok && near(r.end.y, -10, 1e-9) && r.b < 0, 'a negative chord length goes clockwise');
+  r = run('SED', [{ x: 0, y: -10 }, -PI / 2]);
+  ok(r.ok && near(r.end.x, 0, 1e-9) && near(r.end.y, -10, 1e-9) && r.b < 0, 'Start, End, Direction: tangent down at the start bends clockwise to (0, -10)');
+  // refusals
+  eq(run('SCE', [last, TOP]).error, 'same', 'a center on the start is refused');
+  eq(run('SCA', [O, 0]).error, 'angle', 'a zero angle is refused');
+  eq(run('SCA', [O, 2 * PI]).error, 'same', 'a full turn comes back to the start and is refused');
+  eq(run('SCL', [O, 25]).error, 'chord', 'a chord longer than the circle is wide is refused');
+  eq(run('SER', [TOP, 5]).error, 'radius', 'a radius too small for the chord is refused');
+  eq(run('SED', [{ x: 20, y: 0 }, 0]).error, 'direction', 'a direction along the chord is refused');
+  eq(run('3P', [{ x: 20, y: 0 }, { x: 30, y: 0 }]).error, 'line', 'three points in a line are refused');
+  eq(AM.finish('SCA', last, [O], 1).error, 'incomplete', 'an unfinished arc is not made');
+  // a mirrored sheet (user space whose counter-clockwise looks clockwise): angles and sides are as it LOOKS
+  const yUp = [1, 0, 0, 1], yDown = [1, 0, 0, -1];   // linear parts of user → screen (screen y is down)
+  eq(AM.handedness(yDown), 1, 'a PDF-style sheet (y flipped to screen) keeps counter-clockwise');
+  eq(AM.handedness(yUp), -1, 'a sheet whose axes run the screen\'s way flips it');
+  r = run('SCA', [O, PI / 2], last, -1);
+  ok(r.ok && near(r.end.x, 0, 1e-9) && near(r.end.y, -10, 1e-9) && r.b < 0 && quarter(r.len), '+90° on a mirrored sheet bends the way it looks counter-clockwise (end at (0, -10) in sheet units)');
+  // the live preview is the arc the click would make
+  const cur = { x: -3, y: 40 };
+  const pv = AM.preview('SCA', last, [O], cur, 1), val = AM.clickValue('SCA', last, [O], cur, 1), fin = run('SCA', [O, val]);
+  ok(pv && fin.ok && near(pv.b, fin.b, 1e-12) && near(pv.end.x, fin.end.x, 1e-9) && near(pv.end.y, fin.end.y, 1e-9), 'preview = what the click commits (angle swept by the pointer)');
+  eq(AM.preview('SCA', last, [], cur, 1), null, 'no preview before the center is given');
+  ok(near(AM.clickValue('SER', last, [TOP], { x: 10, y: 5 }, 1), 5, 1e-12), 'a radius click = distance from the start to the pointer');
+  ok(AM.clickValue('SCE', last, [], cur, 1) === cur, 'a point step takes the click as the point');
+  // typed values, read in the sheet's calibrated units
+  const ctx = { ftPerUnit: 0.1, linear: yDown };   // 1 sheet unit = 0.1 ft: a calibrated sheet
+  const tv = (role, text, c = ctx) => AM.typedValue(role, text, c);
+  ok(near(tv('angle', '90').value, PI / 2) && near(tv('angle', '-45°').value, -PI / 4) && near(tv('angle', '30 deg').value, PI / 6) && near(tv('angle', '−90').value, -PI / 2), 'typed angles are degrees (90, -45°, 30 deg, a true minus)');
+  eq(tv('angle', 'abc').error, 'arc.err.num', 'an unreadable angle says so');
+  ok(near(tv('radius', "5'").value, 50, 1e-12), 'a typed radius of 5\' on a sheet of 0.1 ft per unit is 50 sheet units');
+  ok(near(tv('length', "12'6\"").value, 125, 1e-12), 'a typed chord of 12\'6" is 125 sheet units');
+  ok(near(tv('radius', '3 m').value, 3 / 0.3048 / 0.1, 1e-9) && near(tv('length', '-30"').value, -25, 1e-12), 'metric and inches convert too; a minus is kept');
+  ok(near(tv('radius', '5', { ftPerUnit: 0.25, linear: yDown }).value, 20, 1e-12), 'a bare number is feet, divided by this sheet\'s scale');
+  eq(tv('radius', "5'", { ftPerUnit: 0, linear: yDown }).error, 'typein.err.noscale', 'no scale: no typed size');
+  eq(tv('radius', '0').error, 'typein.err.read', 'a zero radius is refused');
+  ok(near(tv('direction', '90').value, PI / 2) && near(tv('direction', '0').value, 0), 'a typed direction of 90 is up as it looks');
+  ok(near(AM.typedValue('direction', '90', { ftPerUnit: 1, linear: yUp }).value, PI / 2), 'a mirrored sheet gives the direction in the frame the solver uses');
+  // end to end on a calibrated sheet (0.1 ft per unit)
+  const k = ctx.ftPerUnit;
+  r = run('SER', [{ x: 100, y: 0 }, tv('radius', "5'").value], { x: 0, y: 0 });
+  ok(r.ok && near(r.len * k, 5 * PI, 1e-9), 'typed radius 5\' over a 10\' chord: a semicircle measuring 5π ft');
+  r = run('SCL', [O, tv('length', "14'1 1/8\"").value], { x: 100, y: 0 });
+  ok(r.ok && near(G.dist({ x: 100, y: 0 }, r.end) * k, 14 + 1.125 / 12, 1e-9), 'typed chord 14\'-1 1/8" comes out as that distance between the ends, in feet');
+  r = run('SCL', [O, Math.SQRT2 * 100], { x: 100, y: 0 });
+  ok(r.ok && near(r.len * k, 5 * PI, 1e-9) && near(G.dist({ x: 100, y: 0 }, r.end) * k, 10 * Math.SQRT2, 1e-9), 'a 90° arc of radius 10\' (100 units) has its ends 10√2 ft apart and measures 5π ft');
+  // the words and the chooser
+  const en = JSON.parse(fs.readFileSync(path.join(APP, 'lang/en.json'), 'utf8'));
+  const keys = ['arc.method', 'arc.method.title', 'arc.on.method', ...AM.METHOD_ORDER.map((i) => 'arc.m.' + i.toLowerCase()),
+    ...['center', 'end', 'angle', 'length', 'direction', 'radius'].map((x) => 'arc.ask.' + x), ...['angle', 'length', 'direction', 'radius'].map((x) => 'arc.type.' + x),
+    ...['same', 'line', 'chord', 'angle', 'direction', 'radius', 'num', 'incomplete'].map((x) => 'arc.err.' + x)];
+  ok(keys.every((x) => typeof en[x] === 'string' && en[x]), `lang/en.json has all ${keys.length} arc words`, keys.filter((x) => !en[x]).join(' '));
+  ok(AM.METHOD_ORDER.filter((id) => id !== '3P').every((id) => AM.asks(id).every((role) => en['arc.ask.' + role])), 'every step the ten methods ask (3-Point keeps its own two clicks) has a prompt');
+  const inc = fs.readFileSync(path.join(APP, 'ui.inc'), 'utf8');
+  ok(inc.includes('data-arc-method') && inc.includes('data-arc-wrap'), 'the sheet bar carries the arc method chooser');
+}
 
 section('Formula parser');
 {
@@ -2055,6 +2143,32 @@ section('Typed quantities and the cut/fill hand-off from CivilCraft (0.6 TK.5+)'
   FQ.importQuantities(t4, FQ.readQuantities(qf));
   t4.updateItem(t4.state.items[1].id, { mat: 180000 });
   eq(M.estimate(t4.state).total, 76896, 'the pad\'s 42.72 CY of fill at $18.00 = $768.96 (and 0 CY of cut = $0)');
+}
+
+section('Weights and item temperatures (0.9)');
+{
+  // weights are typed quantities: 12.5 t of rebar at $900.00 per t = $11,250.00; 2,000 lb = 1 ton = 907.18474 kg
+  ok(['lb', 'TON', 'kg', 't'].every((k) => U.UNITS_FOR.fixed.includes(k) && U.UNITS[k].kind === 'fixed' && U.TABLE_ID[k]), 'lb, ton, kg and t are typed-quantity units, each tied to the shared table');
+  ok(U.UNITS.kg.system === 'metric' && U.UNITS.t.system === 'metric' && U.UNITS.lb.system === 'imperial' && U.UNITS.TON.system === 'imperial', 'kg and t are metric, lb and ton imperial');
+  const t = new M.Takeoff();
+  const rb = t.addItem({ name: 'Rebar', type: 'fixed', unit: 't', qty: 12.5, mat: 9000000, lab: 0 });
+  const est = M.estimate(t.state);
+  const row = est.rows.find((r) => r.itemId === rb && r.kind === 'item');
+  ok(row.qty === 12.5 && row.total === 1125000, 'weights price like any typed quantity: 12.5 t × $900.00 = $11,250.00', row);
+  ok(t.item(rb).unit === 't', 'the weight unit is kept');
+  // temperatures: kept in kelvin, typed in °C or °F
+  ok(U.parseTemp('5 C').ok && U.parseTemp('5 C').kelvin === 278.15 && U.parseTemp('40', 'degf').unit === 'degf' && Math.abs(U.parseTemp('40', 'degf').kelvin - 277.5944444444) < 1e-9, '5 °C = 278.15 K; a bare 40 in a °F field is 40 °F');
+  ok(U.parseTemp('-5').kelvin === 268.15 && U.parseTemp('-40 F').ok && Math.abs(U.parseTemp('-40 F').kelvin - U.parseTemp('-40 C').kelvin) < 1e-9, 'below zero: -5 °C = 268.15 K, -40 °F = -40 °C');
+  ok(!U.parseTemp('-300 C').ok && U.parseTemp('-300 C').error === 'temp.err.range' && !U.parseTemp('hot').ok && !U.parseTemp('').ok, 'below absolute zero, words and blanks are refused');
+  ok(U.formatTemp(278.15, 'degc') === '5°C' && U.formatTemp(278.15, 'degf') === '41°F' && U.formatTemp(U.parseTemp('98.6 F').kelvin, 'degc') === '37°C', 'shown in either scale: 278.15 K = 5°C = 41°F; 98.6°F = 37°C');
+  t.updateItem(rb, { tempK: 278.15 });
+  ok(t.item(rb).tempK === 278.15, 'an item takes a temperature');
+  const back = M.readProject(JSON.parse(JSON.stringify(t.toJSON())));
+  ok(back.state.items[0].tempK === 278.15, 'and keeps it through save and open');
+  const bad = JSON.parse(JSON.stringify(t.toJSON())); bad.items[0].tempK = -3; ok(!('tempK' in M.readProject(bad).state.items[0]), 'a bad temperature in a file is dropped');
+  bad.items[0].tempK = 'hot'; ok(!('tempK' in M.readProject(bad).state.items[0]), 'so is a word');
+  t.updateItem(rb, { tempK: 0 });
+  ok(!('tempK' in t.item(rb)), 'blank clears it');
 }
 
 section('Bid packages and leveling (0.6 LC.13)');

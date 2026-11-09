@@ -510,9 +510,28 @@
     "type.linear": "Item type.",
     "type.area": "Item type.",
     "type.count": "Item type.",
+    "set.lenshow": "Settings section heading.",
+    "set.lenshow.aria": "Screen-reader name of the length display choice.",
+    "set.lenshow.follow": "Choice: use the unit starred in Global settings.",
+    "set.lenshow.ftin": "Choice: feet and inches.",
+    "set.lenshow.hint": "Settings help text; m, cm, mm are unit marks.",
+    "set.tempshow": "Settings section heading.",
+    "set.tempshow.aria": "Screen-reader name of the temperature display choice.",
+    "set.tempshow.hint": "Settings help text; °C, °F and K are unit marks.",
+    "item.f.temp": "Item editor field: an optional temperature spec of the item.",
+    "item.f.temp.title": "Tooltip of the item temperature field; °C and °F are unit marks.",
+    "undo.item.temp": "Undo menu entry.",
+    "temp.err.empty": "Error under the item temperature field; keep the unit marks.",
+    "temp.err.bad": "Error under the item temperature field; keep the unit marks.",
+    "temp.err.range": "Error under the item temperature field.",
     "set.ftin": "Settings section heading.",
     "set.ftin.aria": "Screen-reader name of the 1/16\" 1/8\" 1/4\" choice.",
     "set.items": "Settings section heading.",
+    "set.currency": "Settings field: the money symbol shown before prices.",
+    "set.currency.hint": "Settings help text.",
+    "mark.cutouts.a": "Cut-out count and their area, with the unit ({area} already carries SF or m²).",
+    "qty.wall.note": "Note under a linear item that has a height: its wall area.",
+    "qty.wall.short": "Short wall area after the length in the Items list.",
     "set.waste": "Settings field.",
     "set.waste.none": "Waste choice.",
     "set.th": "Settings field.",
@@ -618,6 +637,37 @@
     "cal.done": "{scale} like 1\" = 4'.",
     "cal.second": "Status bar measure while calibrating.",
     "measure.arc": "Added to the live measurement while an arc waits for its end.",
+    "arc.method": "Label and aria label of the arc method chooser in the sheet bar; shown only while Arc is on.",
+    "arc.method.title": "Tooltip of the arc method chooser.",
+    "arc.on.method": "Status when Arc is turned on or its method changed; {method} is the method name.",
+    "arc.m.3p": "Arc method in the chooser: point, point on the curve, end (AutoCAD 3-Point).",
+    "arc.m.sce": "Arc method: start, center, end. Keep the order of the words.",
+    "arc.m.sca": "Arc method: start, center, angle.",
+    "arc.m.scl": "Arc method: start, center, chord length.",
+    "arc.m.sea": "Arc method: start, end, angle.",
+    "arc.m.sed": "Arc method: start, end, direction.",
+    "arc.m.ser": "Arc method: start, end, radius.",
+    "arc.m.cse": "Arc method: center, start, end.",
+    "arc.m.csa": "Arc method: center, start, angle.",
+    "arc.m.csl": "Arc method: center, start, chord length.",
+    "arc.ask.center": "Added to the live measurement while an arc waits for its center.",
+    "arc.ask.end": "Added to the live measurement while an arc waits for its end point.",
+    "arc.ask.angle": "Added to the live measurement while an arc waits for its angle.",
+    "arc.ask.length": "Added to the live measurement while an arc waits for its chord length.",
+    "arc.ask.direction": "Added to the live measurement while an arc waits for its start direction.",
+    "arc.ask.radius": "Added to the live measurement while an arc waits for its radius.",
+    "arc.type.angle": "Status bar when the typing box opens for an arc angle.",
+    "arc.type.length": "Status bar when the typing box opens for an arc chord length; keep the length notation.",
+    "arc.type.direction": "Status bar when the typing box opens for an arc direction.",
+    "arc.type.radius": "Status bar when the typing box opens for an arc radius; keep the length notation.",
+    "arc.err.same": "Arc refused: two of its points coincide.",
+    "arc.err.line": "Arc refused: its points are in a line.",
+    "arc.err.chord": "Arc refused: the chord is longer than the circle is wide, or zero.",
+    "arc.err.angle": "Arc refused: the angle is 0 or a full turn.",
+    "arc.err.direction": "Arc refused: the direction runs along the chord.",
+    "arc.err.radius": "Arc refused: the radius cannot reach the end point.",
+    "arc.err.num": "A typed arc angle or direction could not be read; keep the examples.",
+    "arc.err.incomplete": "Arc refused: an input is missing (should not be seen).",
     "measure.circle": "Live measurement for a circle; keep the wide gap.",
     "measure.area": "Live measurement for an outline; keep the wide gap.",
     "measure.side": "Live measurement for the first side of an outline.",
@@ -1099,7 +1149,10 @@
     "lvl.web.title": "Tooltip."
   },
   "autosave.recovered": "Recovered \"{name}\". It is not saved to a file yet: Save takeoff keeps it.",
-  "autosave.recovered.pdfs": {"one": "Its PDF was kept with it.", "other": "Its {n} PDFs were kept with it."},
+  "autosave.recovered.pdfs": {
+    "one": "Its PDF was kept with it.",
+    "other": "Its {n} PDFs were kept with it."
+  },
   "autosave.recovered.nopdfs": "Its PDFs were too large to keep in the copy: open them again to see the marks (listed under Sheets).",
   "autosave.empty": "This copy has no takeoff in it.",
   "handoff.pdf.button": "{app}",
@@ -1198,7 +1251,10 @@
   },
   "area.cur": "New marks go in {area}. Marks in other bid areas are dimmed.",
   "area.cur.none": "New marks go in no bid area.",
-  "area.moved": {"one": "1 mark moved to {area}.", "other": "{n} marks moved to {area}."},
+  "area.moved": {
+    "one": "1 mark moved to {area}.",
+    "other": "{n} marks moved to {area}."
+  },
   "props.area": "Bid area",
   "qty.by_area": "By area",
   "qty.area.col": "Bid area",
@@ -1260,14 +1316,20 @@
   "cmp.found": "Changes: {removed} pixels of ink only on the old sheet (red), {added} only on the new (blue).",
   "cmp.same": "The two drawings match: no changes found.",
   "cmp.nomarks": "The old sheet has no marks to move.",
-  "cmp.moved": {"one": "Moved 1 mark to this sheet.", "other": "Moved {n} marks to this sheet."},
+  "cmp.moved": {
+    "one": "Moved 1 mark to this sheet.",
+    "other": "Moved {n} marks to this sheet."
+  },
   "cmp.scale.title": "The scales differ",
   "cmp.scale.text": "On this sheet the old takeoff's scale works out to {old}, but this sheet is set to {new}. Moved marks will be measured at {new}.",
   "cmp.scale.keep": "Move them anyway",
   "cmp.scale.cancel": "Cancel",
   "cmp.same_sheet": "Pick another sheet: that is the one on screen.",
   "flag.next.title": "Show the next mark flagged for review (the drawing changed under it)",
-  "flag.count": {"one": "1 to check", "other": "{n} to check"},
+  "flag.count": {
+    "one": "1 to check",
+    "other": "{n} to check"
+  },
   "flag.note": "The drawing changed under this mark in the revision. Check it against the new drawing, then choose Checked.",
   "flag.checked": "Checked",
   "flag.none": "No flagged marks left.",
@@ -1289,7 +1351,10 @@
   "item.backout": "Back-out: its marks take their area out of other items",
   "item.backout.of": "Takes area out of",
   "item.backout.none": "Make the area items it takes area out of (flooring, ceiling…) first.",
-  "item.backout.bad": {"one": "1 mark of this back-out is not convex, so it takes nothing out. Redraw it without inward corners, or as two marks.", "other": "{n} marks of this back-out are not convex, so they take nothing out. Redraw them without inward corners, or as several marks."},
+  "item.backout.bad": {
+    "one": "1 mark of this back-out is not convex, so it takes nothing out. Redraw it without inward corners, or as two marks.",
+    "other": "{n} marks of this back-out are not convex, so they take nothing out. Redraw them without inward corners, or as several marks."
+  },
   "backout.convex": "A back-out has to be convex: a rectangle, a circle or any outline without an inward corner. Draw an L-shaped back-out as two marks.",
   "backout.noholes": "A back-out cannot have cut-outs. Draw it as convex pieces instead.",
   "backout.mark.convex": "This back-out has an inward corner, so it takes nothing out. Redraw it as convex pieces.",
@@ -1459,10 +1524,29 @@
   "type.linear": "Linear",
   "type.area": "Area",
   "type.count": "Count",
+  "set.lenshow": "Show lengths as",
+  "set.lenshow.aria": "Show lengths as",
+  "set.lenshow.follow": "Follow Global",
+  "set.lenshow.ftin": "Feet-inches",
+  "set.lenshow.hint": "How lengths read on the sheet, in the panels and in the status bar. Follow Global uses the metric length unit you starred in Settings › Global › Units (feet-inches when none is starred). Only the display changes: quantities, costs and exports are worked out from the exact lengths.",
+  "set.tempshow": "Show temperatures as",
+  "set.tempshow.aria": "Show temperatures as",
+  "set.tempshow.hint": "How an item's temperature reads in the panels, and what a bare number means when you type one. Follow Global uses the temperature unit you starred in Settings › Global › Units (°C when lengths are metric, °F otherwise). Only the display changes: the value is kept exactly.",
+  "item.f.temp": "Temperature",
+  "item.f.temp.title": "Optional. A temperature that goes with this item, for example the lowest pour or install temperature. Type it in °C or °F; a bare number is in the unit chosen in Settings.",
+  "undo.item.temp": "Change item temperature",
+  "temp.err.empty": "Type a temperature, for example 5 °C or 40 °F.",
+  "temp.err.bad": "That is not a temperature. Try 5 °C, 40 °F or 300 K.",
+  "temp.err.range": "A temperature must be above absolute zero (0 K, −273.15 °C, −459.67 °F).",
   "set.ftin": "Feet and inches",
   "set.ftin.aria": "Show inches to the nearest",
   "set.ftin.hint": "How lengths read on the sheet, in the panels and in the status bar. Only the display is rounded: quantities, costs and exports are worked out from the exact lengths (exports show 1/16\").",
   "set.items": "New items",
+  "set.currency": "Currency symbol",
+  "set.currency.hint": "The symbol shown before prices, in the tables, the bid and the exports. It only changes how amounts are written: nothing is converted, so type your rates in this currency.",
+  "mark.cutouts.a": "{n} ({area})",
+  "qty.wall.note": "{item}: wall area {area} (length × {h} high)",
+  "qty.wall.short": "wall {area}",
   "set.waste": "Waste to start with",
   "set.waste.none": "0% (none)",
   "set.waste.hint": "Every item you make from now on starts with this waste. You can still change it per item, and items you already have keep theirs.",
@@ -1514,7 +1598,10 @@
   "f.err.long": "That formula is too long ({n} characters at most).",
   "f.err.deep": "That formula is nested too deeply.",
   "f.err.func": "\"{name}\" is not a function here. Use {list}.",
-  "f.err.args": {"one": "{name}() takes {n} value.", "other": "{name}() takes {n} values."},
+  "f.err.args": {
+    "one": "{name}() takes {n} value.",
+    "other": "{name}() takes {n} values."
+  },
   "f.err.args.more": "{name}() takes {n} or more values.",
   "f.err.args.range": "{name}() takes {min} or {max} values.",
   "f.err.var": "\"{name}\" is not a measured value here.",
@@ -1568,11 +1655,23 @@
   "undo.mark.linear": "Linear mark",
   "undo.mark.area": "Area mark",
   "undo.mark.count": "Count mark",
-  "undo.marks.linear": {"one": "1 linear mark", "other": "{n} linear marks"},
-  "undo.marks.area": {"one": "1 area mark", "other": "{n} area marks"},
-  "undo.marks.count": {"one": "1 count mark", "other": "{n} count marks"},
+  "undo.marks.linear": {
+    "one": "1 linear mark",
+    "other": "{n} linear marks"
+  },
+  "undo.marks.area": {
+    "one": "1 area mark",
+    "other": "{n} area marks"
+  },
+  "undo.marks.count": {
+    "one": "1 count mark",
+    "other": "{n} count marks"
+  },
   "undo.mark.edit": "Edit mark",
-  "undo.mark.delete": {"one": "Delete mark", "other": "Delete marks"},
+  "undo.mark.delete": {
+    "one": "Delete mark",
+    "other": "Delete marks"
+  },
   "err.item.type": "This item has marks, so its type cannot change.",
   "err.item.none": "No such item.",
   "err.mark.move": "A mark can only move to an item of the same type.",
@@ -1582,7 +1681,10 @@
   "file.err.version": "This project file has no version.",
   "file.err.newer": "This project was saved by a newer TakeoffCraft. Open it there.",
   "file.warn.hash": "A file entry without a valid hash was skipped.",
-  "file.warn.dropped": {"one": "1 mark was damaged and left out.", "other": "{n} marks were damaged and left out."},
+  "file.warn.dropped": {
+    "one": "1 mark was damaged and left out.",
+    "other": "{n} marks were damaged and left out."
+  },
   "x.head.item": "Item",
   "x.head.type": "Type",
   "x.head.unit": "Unit",
@@ -1603,14 +1705,20 @@
   "x.head.ftpu": "Feet per PDF unit",
   "x.note.error": "Formula error: {error}",
   "x.note.formula": "Formula: {formula}",
-  "x.note.unscaled": {"one": "1 mark on sheets with no scale (not counted)", "other": "{n} marks on sheets with no scale (not counted)"},
+  "x.note.unscaled": {
+    "one": "1 mark on sheets with no scale (not counted)",
+    "other": "{n} marks on sheets with no scale (not counted)"
+  },
   "x.note.wall": "Wall area {value} {unit}",
   "x.note.perimeter": "Perimeter {value} {unit}",
   "x.component": "Component",
   "x.total": "Job total",
   "x.incomplete": "Incomplete: see the notes above",
   "x.noscale.sheet": "Sheet has no scale",
-  "x.segments": {"one": "1 segment: {list}", "other": "{n} segments: {list}"},
+  "x.segments": {
+    "one": "1 segment: {list}",
+    "other": "{n} segments: {list}"
+  },
   "x.gross": "Gross {gross}, cut-outs {cut}",
   "x.perimeter": "perimeter {len}",
   "x.noscale": "No scale",
@@ -1628,9 +1736,18 @@
   "d3.kind.marker": "Count",
   "d3.err.nosheet": "Open a sheet first.",
   "d3.err.noscale": "This sheet has no scale yet, so it can't be shown in 3D: heights need real feet. Pick a preset scale or calibrate first.",
-  "d3.note.runs": {"one": "1 run has no height: drawn flat on the sheet.", "other": "{n} runs have no height: drawn flat on the sheet."},
-  "d3.note.plates": {"one": "1 area has no depth: drawn as a 2\" plate.", "other": "{n} areas have no depth: drawn as a 2\" plate."},
-  "d3.note.unfilled": {"one": "1 outline could not be filled; only the edges show.", "other": "{n} outlines could not be filled; only the edges show."},
+  "d3.note.runs": {
+    "one": "1 run has no height: drawn flat on the sheet.",
+    "other": "{n} runs have no height: drawn flat on the sheet."
+  },
+  "d3.note.plates": {
+    "one": "1 area has no depth: drawn as a 2\" plate.",
+    "other": "{n} areas have no depth: drawn as a 2\" plate."
+  },
+  "d3.note.unfilled": {
+    "one": "1 outline could not be filled; only the edges show.",
+    "other": "{n} outlines could not be filled; only the edges show."
+  },
   "d3.canvas": "The takeoff in 3D on the sheet. Drag to orbit, Shift+drag or right-drag to pan, the wheel zooms, click a wall, slab or count to select its mark.",
   "snap45.on": "Snaps to 45°; Shift frees the angle",
   "pdf.err.reader": "The PDF reader could not load. Reload the page to try again.",
@@ -1653,7 +1770,10 @@
   "sheetbar.noscale": "No scale yet: pick a preset or calibrate",
   "scale.set": "Scale for this sheet: {scale}.",
   "rescale.title": "Change this sheet's scale?",
-  "rescale.text": {"one": "1 measurement on this sheet will be measured again at the new scale. You can undo this.", "other": "{n} measurements on this sheet will be measured again at the new scale. You can undo this."},
+  "rescale.text": {
+    "one": "1 measurement on this sheet will be measured again at the new scale. You can undo this.",
+    "other": "{n} measurements on this sheet will be measured again at the new scale. You can undo this."
+  },
   "rescale.ok": "Change the scale",
   "tool.err.noscale": "This sheet has no scale yet, so it can't be measured. Pick a preset scale or calibrate first (counts work without one).",
   "tool.err.cutout": "Select an area mark first (Select tool), then choose Cut-out and draw the hole inside it.",
@@ -1695,7 +1815,10 @@
   "measure.circle": "Radius {r}   area {area} SF",
   "measure.area": "Area {area} SF   perimeter {p}",
   "measure.side": "Side {len}",
-  "sel.several": {"one": "1 mark selected. {mod}+C copies, Delete removes it.", "other": "{n} marks selected. {mod}+C copies, Delete removes them."},
+  "sel.several": {
+    "one": "1 mark selected. {mod}+C copies, Delete removes it.",
+    "other": "{n} marks selected. {mod}+C copies, Delete removes them."
+  },
   "sel.one.linear": "Linear mark of \"{item}\". Delete removes it; drag a corner to move it; {mod}+C copies it.",
   "sel.one.area": "Area mark of \"{item}\". Delete removes it; drag a corner to move it; {mod}+C copies it.",
   "sel.one.count": "Count mark of \"{item}\". Delete removes it; drag a corner to move it; {mod}+C copies it.",
@@ -1742,7 +1865,10 @@
   "item.m.perimeter": "Perimeter (P)",
   "item.m.areas": "Areas (N)",
   "item.m.count": "Count (N)",
-  "item.unscaled": {"one": "1 mark is on a sheet with no scale and not counted. Give that sheet a scale.", "other": "{n} marks are on a sheet with no scale and not counted. Give that sheet a scale."},
+  "item.unscaled": {
+    "one": "1 mark is on a sheet with no scale and not counted. Give that sheet a scale.",
+    "other": "{n} marks are on a sheet with no scale and not counted. Give that sheet a scale."
+  },
   "asm.h": "Assembly",
   "asm.add": "Add component",
   "asm.vars.a": "Formulas can use",
@@ -1774,34 +1900,70 @@
   "mark.delete": "Delete mark",
   "mark.delete.many": "Delete marks",
   "del.none": "Select a mark first (Select tool, then click it).",
-  "del.done": {"one": "Mark deleted. {mod}+Z brings it back.", "other": "{n} marks deleted. {mod}+Z brings them back."},
+  "del.done": {
+    "one": "Mark deleted. {mod}+Z brings it back.",
+    "other": "{n} marks deleted. {mod}+Z brings them back."
+  },
   "copy.none": "Select marks to copy first (Select tool; Shift+click adds more, {mod}+A takes every mark on the sheet). To copy an item, use Copy item under Items.",
-  "copy.done": {"one": "Copied 1 mark ({items}). {mod}+V pastes where you click, {mod}+Shift+V in the same place.", "other": "Copied {n} marks ({items}). {mod}+V pastes where you click, {mod}+Shift+V in the same place."},
-  "undo.cut": {"one": "Cut mark", "other": "Cut marks"},
-  "cut.done": {"one": "Cut 1 mark. {mod}+V pastes it; {mod}+Z puts it back.", "other": "Cut {n} marks. {mod}+V pastes them; {mod}+Z puts them back."},
+  "copy.done": {
+    "one": "Copied 1 mark ({items}). {mod}+V pastes where you click, {mod}+Shift+V in the same place.",
+    "other": "Copied {n} marks ({items}). {mod}+V pastes where you click, {mod}+Shift+V in the same place."
+  },
+  "undo.cut": {
+    "one": "Cut mark",
+    "other": "Cut marks"
+  },
+  "cut.done": {
+    "one": "Cut 1 mark. {mod}+V pastes it; {mod}+Z puts it back.",
+    "other": "Cut {n} marks. {mod}+V pastes them; {mod}+Z puts them back."
+  },
   "copy.item": "Copied the item \"{item}\" with its assembly. Paste ({mod}+V) adds a copy, here or in another takeoff.",
   "undo.item.dup": "Duplicate item",
   "item.dup.done": "Added \"{item}\", a copy of the item with its assembly and costs (no marks).",
   "undo.item.paste": "Paste item",
-  "paste.items": {"one": "Added {items} with its assembly.", "other": "Added {items} with their assemblies."},
+  "paste.items": {
+    "one": "Added {items} with its assembly.",
+    "other": "Added {items} with their assemblies."
+  },
   "paste.empty": "Nothing to paste: select marks and copy them first ({mod}+C).",
   "dup.none": "Select marks to duplicate first.",
   "dup.sheet": "Open the sheet the marks are on to duplicate them.",
-  "paste.pointer": {"one": "1 mark on the pointer: click where it goes. Esc cancels.", "other": "{n} marks on the pointer: click where they go. Esc cancels."},
+  "paste.pointer": {
+    "one": "1 mark on the pointer: click where it goes. Esc cancels.",
+    "other": "{n} marks on the pointer: click where they go. Esc cancels."
+  },
   "undo.paste": "Paste",
   "undo.duplicate": "Duplicate",
   "undo.inplace": "Paste in place",
   "paste.failed": "Could not paste: {reason}",
   "paste.nothing": "Nothing was pasted.",
-  "paste.done.paste": {"one": "Pasted 1 mark.", "other": "Pasted {n} marks."},
-  "paste.done.duplicate": {"one": "Duplicated 1 mark.", "other": "Duplicated {n} marks."},
-  "paste.done.inplace": {"one": "Pasted in place: 1 mark.", "other": "Pasted in place: {n} marks."},
+  "paste.done.paste": {
+    "one": "Pasted 1 mark.",
+    "other": "Pasted {n} marks."
+  },
+  "paste.done.duplicate": {
+    "one": "Duplicated 1 mark.",
+    "other": "Duplicated {n} marks."
+  },
+  "paste.done.inplace": {
+    "one": "Pasted in place: 1 mark.",
+    "other": "Pasted in place: {n} marks."
+  },
   "undo.hint": "{mod}+Z undoes it.",
   "paste.canceled": "Paste canceled.",
-  "sel.all": {"one": "Selected all 1 mark on this sheet.", "other": "Selected all {n} marks on this sheet."},
+  "sel.all": {
+    "one": "Selected all 1 mark on this sheet.",
+    "other": "Selected all {n} marks on this sheet."
+  },
   "sel.all.none": "This sheet has no marks yet.",
-  "qty.warn.errors": {"one": "1 formula error", "other": "{n} formula errors"},
-  "qty.warn.unscaled": {"one": "1 mark on sheets with no scale", "other": "{n} marks on sheets with no scale"},
+  "qty.warn.errors": {
+    "one": "1 formula error",
+    "other": "{n} formula errors"
+  },
+  "qty.warn.unscaled": {
+    "one": "1 mark on sheets with no scale",
+    "other": "{n} marks on sheets with no scale"
+  },
   "qty.warn": "Incomplete: {list} (not in the totals)",
   "qty.total": "Job total {total}",
   "qty.col.item": "Item",
@@ -1829,7 +1991,10 @@
   "export.incomplete": "The estimate is incomplete: see the notes column.",
   "export.pdf.none": "No marks on the open PDFs yet.",
   "export.pdf.busy": "Writing the marked PDF…",
-  "export.pdf.done": {"one": "Saved a marked copy of 1 PDF. The originals are unchanged.", "other": "Saved a marked copy of {n} PDFs. The originals are unchanged."},
+  "export.pdf.done": {
+    "one": "Saved a marked copy of 1 PDF. The originals are unchanged.",
+    "other": "Saved a marked copy of {n} PDFs. The originals are unchanged."
+  },
   "export.pdf.failed": "The marked PDF could not be written: {reason}",
   "undo.did": "Undid: {what}",
   "undo.nothing": "Nothing to undo.",
@@ -1838,14 +2003,57 @@
   "sel.none": "Nothing selected.",
   "arc.on": "Arc on: after a point, click a point on the curve, then where the arc ends. R turns it off.",
   "arc.off": "Arc off: straight segments.",
+  "arc.method": "Arc method",
+  "arc.method.title": "How the next arc is drawn: 3-Point, or start, center, end, angle, chord length, direction or radius in the AutoCAD ways. The arc starts at the last point of the run.",
+  "arc.on.method": "Arc on ({method}). Esc cancels the arc, Backspace takes back its last step, R turns it off.",
+  "arc.m.3p": "3-Point",
+  "arc.m.sce": "Start, Center, End",
+  "arc.m.sca": "Start, Center, Angle",
+  "arc.m.scl": "Start, Center, Length",
+  "arc.m.sea": "Start, End, Angle",
+  "arc.m.sed": "Start, End, Direction",
+  "arc.m.ser": "Start, End, Radius",
+  "arc.m.cse": "Center, Start, End",
+  "arc.m.csa": "Center, Start, Angle",
+  "arc.m.csl": "Center, Start, Length",
+  "arc.ask.center": "(arc: click or type its center)",
+  "arc.ask.end": "(arc: click or type where it ends)",
+  "arc.ask.angle": "(arc: click to sweep the angle, or type degrees)",
+  "arc.ask.length": "(arc: click for the chord length, or type it)",
+  "arc.ask.direction": "(arc: click for the start direction, or type degrees)",
+  "arc.ask.radius": "(arc: click for the radius, or type it)",
+  "arc.type.angle": "Type the angle of the arc in degrees (90, -45; a minus goes clockwise) and press Enter.",
+  "arc.type.length": "Type the chord length (12'6\", 3.2 m) and press Enter; a minus takes the clockwise arc.",
+  "arc.type.direction": "Type the direction the arc leaves its start, in degrees from the screen's right (0 right, 90 up), and press Enter.",
+  "arc.type.radius": "Type the radius (6', 2 m) and press Enter; a minus takes the longer way round.",
+  "arc.err.same": "Those points are in the same place. Pick another.",
+  "arc.err.line": "Those points are in a line, so there is no arc. Pick another.",
+  "arc.err.chord": "That chord is longer than the circle's width (or zero). Give a shorter one.",
+  "arc.err.angle": "An arc needs an angle above 0 and below 360 degrees.",
+  "arc.err.direction": "That direction runs straight along the chord, so there is no arc. Pick another.",
+  "arc.err.radius": "That radius is too small to reach the end point (or zero). Give a larger one.",
+  "arc.err.num": "That could not be read. Type the angle in degrees (90, -45, 30°).",
+  "arc.err.incomplete": "The arc still needs its other inputs.",
   "new.done": "New takeoff. Open plans to begin.",
-  "ac.found": {"one": "1 match", "other": "{n} matches"},
-  "ac.found.sheets": {"one": "1 match on {sheets}", "other": "{n} matches on {sheets}"},
-  "ac.sheets": {"one": "1 sheet", "other": "{n} sheets"},
+  "ac.found": {
+    "one": "1 match",
+    "other": "{n} matches"
+  },
+  "ac.found.sheets": {
+    "one": "1 match on {sheets}",
+    "other": "{n} matches on {sheets}"
+  },
+  "ac.sheets": {
+    "one": "1 sheet",
+    "other": "{n} sheets"
+  },
   "ac.adding": "{n} to add",
   "ac.adding.dups": "{n} to add ({dups} already counted)",
   "ac.review": ". Click a box to reject or restore it.",
-  "ac.accept": {"one": "Add 1 mark", "other": "Add {n} marks"},
+  "ac.accept": {
+    "one": "Add 1 mark",
+    "other": "Add {n} marks"
+  },
   "ac.discarded": "Auto count discarded.",
   "ac.canceled": "Search canceled.",
   "ac.stopped": "The search stopped.",
@@ -1853,19 +2061,40 @@
   "ac.searching.n": "Searching sheet {i} of {n}…",
   "ac.searching.one": "Searching this sheet…",
   "ac.failed": "The search failed: {reason}",
-  "ac.skipped": {"one": "1 sheet was too large to search at this symbol size.", "other": "{n} sheets were too large to search at this symbol size."},
+  "ac.skipped": {
+    "one": "1 sheet was too large to search at this symbol size.",
+    "other": "{n} sheets were too large to search at this symbol size."
+  },
   "ac.done": "Review the matches, then add them.",
   "ac.none": "No matches. Lower the match slider, or box the symbol more tightly.",
   "undo.ac": "Auto count: {n} {item}",
-  "ac.added": {"one": "Added 1 count mark to \"{item}\". {mod}+Z removes it.", "other": "Added {n} count marks to \"{item}\". {mod}+Z removes them all."},
+  "ac.added": {
+    "one": "Added 1 count mark to \"{item}\". {mod}+Z removes it.",
+    "other": "Added {n} count marks to \"{item}\". {mod}+Z removes them all."
+  },
   "d3.err.nopdf": "Open a PDF first, then 3D shows the takeoff of the sheet on screen.",
   "d3.loading": "Loading the 3D view…",
   "d3.err.webgl": "The 3D view could not start in this browser (it needs WebGL): {reason}",
-  "d3.part.walls": {"one": "1 wall", "other": "{n} walls"},
-  "d3.part.slabs": {"one": "1 slab", "other": "{n} slabs"},
-  "d3.part.plates": {"one": "1 plate", "other": "{n} plates"},
-  "d3.part.runs": {"one": "1 flat run", "other": "{n} flat runs"},
-  "d3.part.markers": {"one": "1 count", "other": "{n} counts"},
+  "d3.part.walls": {
+    "one": "1 wall",
+    "other": "{n} walls"
+  },
+  "d3.part.slabs": {
+    "one": "1 slab",
+    "other": "{n} slabs"
+  },
+  "d3.part.plates": {
+    "one": "1 plate",
+    "other": "{n} plates"
+  },
+  "d3.part.runs": {
+    "one": "1 flat run",
+    "other": "{n} flat runs"
+  },
+  "d3.part.markers": {
+    "one": "1 count",
+    "other": "{n} counts"
+  },
   "d3.note": "This sheet in 3D: {list}. One sheet at a time (sheets are not stacked).",
   "d3.note.none": "Nothing measured on this sheet yet. One sheet at a time (sheets are not stacked).",
   "d3.err.ground": "The sheet could not be drawn under the 3D view; the takeoff shows on a plain ground.",
@@ -1879,8 +2108,14 @@
   "start.status": "Open a plan set to begin: Open plans, or drop them on the page.",
   "open.busy": "Opening {file}…",
   "open.project.done": "Opened {file}: {items}, {marks}.",
-  "n.items": {"one": "1 item", "other": "{n} items"},
-  "n.marks": {"one": "1 mark", "other": "{n} marks"},
+  "n.items": {
+    "one": "1 item",
+    "other": "{n} items"
+  },
+  "n.marks": {
+    "one": "1 mark",
+    "other": "{n} marks"
+  },
   "scale.cal": "Calibrated {scale}",
   "scale.cal.on": "Calibrated {scale} on {text}",
   "scale.matches": "(matches {preset})",
@@ -1899,12 +2134,18 @@
   "mark.f.marks": "Marks",
   "export.csv": "Exported {file}.",
   "mark.arc": "(arc)",
-  "sheets.count": {"one": "1 sheet", "other": "{n} sheets"},
+  "sheets.count": {
+    "one": "1 sheet",
+    "other": "{n} sheets"
+  },
   "sheets.count.filtered": "{n} of {total}",
   "sheets.hits": "{n} highlighted",
   "clip.copy.word": "copy",
   "undo.level": "Level",
-  "d3.note.skipped": {"one": "1 sheet with a level has no scale, so it is left out.", "other": "{n} sheets with a level have no scale, so they are left out."},
+  "d3.note.skipped": {
+    "one": "1 sheet with a level has no scale, so it is left out.",
+    "other": "{n} sheets with a level have no scale, so they are left out."
+  },
   "d3.levels": "Levels…",
   "d3.levels.title": "Give each sheet its floor's elevation, to stack them",
   "d3.stack": "Stack",
@@ -1924,12 +2165,18 @@
   "item.f.head": "Opening head",
   "item.f.3d": "In 3D",
   "undo.item.3d": "3D shape",
-  "d3.note.stacked": {"one": "Stacked: {list} on 1 floor.", "other": "Stacked: {list} on {n} floors."},
+  "d3.note.stacked": {
+    "one": "Stacked: {list} on 1 floor.",
+    "other": "Stacked: {list} on {n} floors."
+  },
   "ac.angle": "Any angle (slower)",
   "ac.angle.title": "Also find the symbol turned to any angle (every 15°), not only upright and at right angles. Takes about six times as long.",
   "item.f.also": "Also measure",
   "item.cond.title": "Draw {type} marks for this item too, priced on their own row.",
-  "item.cond.locked": {"one": "The item has 1 mark of this kind: delete or move it first.", "other": "The item has {n} marks of this kind: delete or move them first."},
+  "item.cond.locked": {
+    "one": "The item has 1 mark of this kind: delete or move it first.",
+    "other": "The item has {n} marks of this kind: delete or move them first."
+  },
   "item.cond.unit": "{type} unit",
   "undo.cond.add": "Also measure",
   "undo.cond.remove": "Stop measuring a kind",
@@ -1947,13 +2194,22 @@
   "lib.save": "Add this takeoff’s items",
   "lib.export": "Export CSV",
   "lib.clear": "Clear",
-  "lib.clear.sure": {"one": "Click again to delete 1 item", "other": "Click again to delete {n} items"},
+  "lib.clear.sure": {
+    "one": "Click again to delete 1 item",
+    "other": "Click again to delete {n} items"
+  },
   "lib.cleared": "The library is empty.",
   "lib.search": "Find in the library",
-  "lib.count": {"one": "1 item in the library.", "other": "{n} items in the library."},
+  "lib.count": {
+    "one": "1 item in the library.",
+    "other": "{n} items in the library."
+  },
   "lib.empty": "The library is empty. Import a CSV, or add this takeoff’s items.",
   "lib.meta": "{unit} · material {mat} · labor {lab}",
-  "lib.parts": {"one": "1 component", "other": "{n} components"},
+  "lib.parts": {
+    "one": "1 component",
+    "other": "{n} components"
+  },
   "lib.add": "Add to takeoff",
   "lib.reprice": "Update prices",
   "lib.err.pick": "Tick the items to add first.",
@@ -1964,11 +2220,20 @@
   "lib.err.head": "it needs a header row with an Item (or Name) column.",
   "lib.err.none": "no row could be read as an item.",
   "lib.imported": "{file}: {added} new, {updated} updated.",
-  "lib.skipped": {"one": "1 row skipped ({first}).", "other": "{n} rows skipped (first: {first})."},
+  "lib.skipped": {
+    "one": "1 row skipped ({first}).",
+    "other": "{n} rows skipped (first: {first})."
+  },
   "lib.saved": "{added} new, {updated} updated from this takeoff.",
   "lib.save.none": "This takeoff has no items yet.",
-  "lib.added": {"one": "1 item added from the library.", "other": "{n} items added from the library."},
-  "lib.repriced": {"one": "1 item took the library’s prices (Undo puts them back).", "other": "{n} items took the library’s prices (Undo puts them back)."},
+  "lib.added": {
+    "one": "1 item added from the library.",
+    "other": "{n} items added from the library."
+  },
+  "lib.repriced": {
+    "one": "1 item took the library’s prices (Undo puts them back).",
+    "other": "{n} items took the library’s prices (Undo puts them back)."
+  },
   "lib.repriced.none": "No item of this takeoff has new prices in the library (it matches items by name and type).",
   "lib.file": "Price library",
   "lib.warn.row": "row {line}: {why}",
@@ -1997,8 +2262,14 @@
   "pack.err.empty": "the pack has no items that could be read",
   "pack.warn.reviewed": "The pack says it was reviewed but not by whom or when, so it is treated as a starter pack.",
   "pack.warn.source": "A source without an id or a title was left out.",
-  "pack.warn.items": {"one": "{n} item could not be read and was left out.", "other": "{n} items could not be read and were left out."},
-  "pack.warn.comps": {"one": "{n} assembly part had a formula that does not work and was left out.", "other": "{n} assembly parts had formulas that do not work and were left out."},
+  "pack.warn.items": {
+    "one": "{n} item could not be read and was left out.",
+    "other": "{n} items could not be read and were left out."
+  },
+  "pack.warn.comps": {
+    "one": "{n} assembly part had a formula that does not work and was left out.",
+    "other": "{n} assembly parts had formulas that do not work and were left out."
+  },
   "pack.warn.samples": "The sample rates were left out: sample rates need a label, a region, a date and a currency.",
   "pack.export.name": "My library",
   "pack.export.samples": "Sample rates from {name}",
@@ -2016,14 +2287,23 @@
   "packs.loading": "Reading the packs…",
   "packs.none": "No trade packs come with this version.",
   "packs.err.load": "The list of packs could not be read: {why}",
-  "packs.meta": {"one": "{n} assembly · {sources} sources · {license}", "other": "{n} assemblies · {sources} sources · {license}"},
+  "packs.meta": {
+    "one": "{n} assembly · {sources} sources · {license}",
+    "other": "{n} assemblies · {sources} sources · {license}"
+  },
   "packs.status.starter": "Starter: not reviewed by an estimator yet",
   "packs.status.reviewed": "Reviewed by {by} on {date}",
-  "packs.installed": {"one": "Installed: {n} entry", "other": "Installed: {n} entries"},
+  "packs.installed": {
+    "one": "Installed: {n} entry",
+    "other": "Installed: {n} entries"
+  },
   "packs.install": "Install",
   "packs.update": "Install again",
   "packs.remove": "Remove",
-  "packs.remove.sure": {"one": "Remove {n} entry?", "other": "Remove {n} entries?"},
+  "packs.remove.sure": {
+    "one": "Remove {n} entry?",
+    "other": "Remove {n} entries?"
+  },
   "packs.sources": "Sources and details",
   "packs.samples": "Also use its sample rates ({label}, {region}, {date}). They are samples, not quotes.",
   "packs.file": "Open a pack file…",
@@ -2031,10 +2311,16 @@
   "packs.err.big": "That file is too large for a pack (5 MB at most).",
   "packs.err.json": "it is not JSON",
   "packs.done": "Installed {name}: {added} added, {updated} updated.",
-  "packs.done.kept": {"one": "{n} kept as it was: you have your own entry with that name.", "other": "{n} kept as they were: you have your own entries with those names."},
+  "packs.done.kept": {
+    "one": "{n} kept as it was: you have your own entry with that name.",
+    "other": "{n} kept as they were: you have your own entries with those names."
+  },
   "packs.done.rates": "Set your rates: a pack brings none.",
   "packs.done.full": "The library is full, so some entries were not added.",
-  "packs.removed": {"one": "Removed {name}: {n} entry.", "other": "Removed {name}: {n} entries."},
+  "packs.removed": {
+    "one": "Removed {name}: {n} entry.",
+    "other": "Removed {name}: {n} entries."
+  },
   "packs.notes": "Read with notes: {first}",
   "packs.offered": "A link asked to install {name}. Choose Install to add it to your library.",
   "packs.unknown": "The pack “{id}” does not come with this version.",
@@ -2051,7 +2337,10 @@
   "packs.export.err.region": "Sample rates need the region and the date they are for.",
   "packs.export.err.none": "There are no entries to export.",
   "packs.export.btn": "Export",
-  "packs.export.done": {"one": "Exported {file}: {n} entry.", "other": "Exported {file}: {n} entries."},
+  "packs.export.done": {
+    "one": "Exported {file}: {n} entry.",
+    "other": "Exported {file}: {n} entries."
+  },
   "bid.l.burden": "Labor burden",
   "bid.f.burden": "Labor burden on labor %",
   "bid.x.base": "Percent × the amount in column I",
@@ -2141,12 +2430,21 @@
   "spots.noscale": "“{sheet}” has no scale, so its points have no real positions. Set its scale first.",
   "spots.nosheet": "Open a sheet first.",
   "spots.file": "{sheet} spot elevations",
-  "spots.done": {"one": "Exported {file}: {n} point. Open it in CivilCraft (Open, a points file) to build its surface.", "other": "Exported {file}: {n} points. Open it in CivilCraft (Open, a points file) to build its surface."},
+  "spots.done": {
+    "one": "Exported {file}: {n} point. Open it in CivilCraft (Open, a points file) to build its surface.",
+    "other": "Exported {file}: {n} points. Open it in CivilCraft (Open, a points file) to build its surface."
+  },
   "undo.mark.z": "Spot elevation",
   "tool.export-spots": "Spot elevations",
   "tool.export-spots.title": "The open sheet’s spot elevations as a points file for CivilCraft (Point, Northing, Easting, Elevation, Description)",
-  "undo.items.add": {"one": "Add 1 item", "other": "Add {n} items"},
-  "undo.items.reprice": {"one": "Update 1 item’s prices", "other": "Update {n} items’ prices"},
+  "undo.items.add": {
+    "one": "Add 1 item",
+    "other": "Add {n} items"
+  },
+  "undo.items.reprice": {
+    "one": "Update 1 item’s prices",
+    "other": "Update {n} items’ prices"
+  },
   "d3.png": "PNG",
   "d3.png.title": "Save the 3D view as an image (.png). Shift + click: at twice the size.",
   "d3.png.done": "Saved {file}.",
@@ -2159,7 +2457,10 @@
   "group.new": "New typical group…",
   "group.default": "Typical {n}",
   "group.dlg": "New typical group",
-  "group.dlg.text": {"one": "The selected mark is taken off once and counted as many times as the group repeats.", "other": "The {n} selected marks are taken off once and counted as many times as the group repeats."},
+  "group.dlg.text": {
+    "one": "The selected mark is taken off once and counted as many times as the group repeats.",
+    "other": "The {n} selected marks are taken off once and counted as many times as the group repeats."
+  },
   "group.dlg.ok": "Make group",
   "group.f.name": "Name",
   "group.f.repeat": "Repeats (×)",
@@ -2168,10 +2469,22 @@
   "err.group.repeat": "Type a whole number of repeats from 1 to {max}.",
   "err.group.many": "A takeoff can have 500 typical groups at most.",
   "err.group.none": "That typical group is gone.",
-  "group.made": {"one": "{name}: 1 mark, counted ×{k}.", "other": "{name}: {n} marks, counted ×{k}."},
-  "group.moved": {"one": "1 mark now in {name} (×{k}).", "other": "{n} marks now in {name} (×{k})."},
-  "group.left": {"one": "1 mark counted once again.", "other": "{n} marks counted once again."},
-  "group.marks": {"one": "1 mark", "other": "{n} marks"},
+  "group.made": {
+    "one": "{name}: 1 mark, counted ×{k}.",
+    "other": "{name}: {n} marks, counted ×{k}."
+  },
+  "group.moved": {
+    "one": "1 mark now in {name} (×{k}).",
+    "other": "{n} marks now in {name} (×{k})."
+  },
+  "group.left": {
+    "one": "1 mark counted once again.",
+    "other": "{n} marks counted once again."
+  },
+  "group.marks": {
+    "one": "1 mark",
+    "other": "{n} marks"
+  },
   "group.select": "Select its marks",
   "group.delete": "Delete the group (its marks stay, counted once)",
   "group.delete.of": "Delete the group {name}",
@@ -2279,17 +2592,29 @@
   "scale.detect": "From the sheets’ text…",
   "scale.detect.busy": "Reading the sheets for their scales…",
   "scale.detect.title": "Scales found in the sheets",
-  "scale.detect.text": {"one": "1 of {total} sheets says its scale. Tick the sheets to set; sheets that already have a scale are left as they are unless you tick them.", "other": "{n} of {total} sheets say their scale. Tick the sheets to set; sheets that already have a scale are left as they are unless you tick them."},
+  "scale.detect.text": {
+    "one": "1 of {total} sheets says its scale. Tick the sheets to set; sheets that already have a scale are left as they are unless you tick them.",
+    "other": "{n} of {total} sheets say their scale. Tick the sheets to set; sheets that already have a scale are left as they are unless you tick them."
+  },
   "scale.detect.nothing": "No sheet says its scale in its text (a scanned sheet has no text). Pick a preset or calibrate.",
   "scale.detect.found": "Says {scale}.",
   "scale.detect.same": "Says {scale}, already set.",
   "scale.detect.others": "Also says {list}: check it (details at another scale?).",
-  "scale.detect.remeasure": {"one": "Its 1 run or area will be measured again.", "other": "Its {n} runs and areas will be measured again."},
+  "scale.detect.remeasure": {
+    "one": "Its 1 run or area will be measured again.",
+    "other": "Its {n} runs and areas will be measured again."
+  },
   "scale.detect.none": "No scale in its text.",
   "scale.detect.nts": "Says not to scale.",
   "scale.detect.apply": "Set the ticked scales",
-  "scale.detect.done": {"one": "1 sheet has its scale from its text. Check one dimension with Check.", "other": "{n} sheets have their scales from their text. Check one dimension on each with Check."},
-  "undo.scales": {"one": "Scale of 1 sheet", "other": "Scales of {n} sheets"},
+  "scale.detect.done": {
+    "one": "1 sheet has its scale from its text. Check one dimension with Check.",
+    "other": "{n} sheets have their scales from their text. Check one dimension on each with Check."
+  },
+  "undo.scales": {
+    "one": "Scale of 1 sheet",
+    "other": "Scales of {n} sheets"
+  },
   "tool.room": "Room",
   "tool.room.title": "Room fill (B): click inside a room to take off its floor, its door openings closed",
   "help.room": "Click inside a room: its outline becomes an area of the current item. Door openings up to {gap} are closed (Settings).",
@@ -2305,7 +2630,10 @@
   "embed.none": "Make an item and take off first: there is no takeoff to put in the PDF yet.",
   "embed.busy": "Putting the takeoff in the PDFs…",
   "embed.file": "{name} (with takeoff)",
-  "embed.done": {"one": "Saved 1 PDF with the takeoff inside. Open it in TakeoffCraft to get the takeoff back.", "other": "Saved {n} PDFs, each with the takeoff inside. Open any of them in TakeoffCraft to get the takeoff back."},
+  "embed.done": {
+    "one": "Saved 1 PDF with the takeoff inside. Open it in TakeoffCraft to get the takeoff back.",
+    "other": "Saved {n} PDFs, each with the takeoff inside. Open any of them in TakeoffCraft to get the takeoff back."
+  },
   "embed.failed": "The takeoff could not be put in the PDF: {reason}",
   "embed.found.title": "This PDF has a takeoff inside",
   "embed.found.text": "{file} carries a TakeoffCraft takeoff ({items}, {marks}). Open it? The takeoff you have now is replaced.",
@@ -2347,7 +2675,10 @@
   "note.h": "Markup",
   "note.untitled": "(no text)",
   "notes.h": "Markups",
-  "notes.h.n": {"one": "Markups: 1 ({open} open)", "other": "Markups: {n} ({open} open)"},
+  "notes.h.n": {
+    "one": "Markups: 1 ({open} open)",
+    "other": "Markups: {n} ({open} open)"
+  },
   "notes.open.only": "Open only",
   "notes.sheet": "Markups",
   "undo.note.note": "Note",
@@ -2358,6 +2689,7 @@
   "undo.note.delete": "Delete markup",
   "err.notes.many": "A takeoff can hold 5,000 markups at most.",
   "live.someone": "someone",
+  "live.presence.elsewhere": "{name} on {where}",
   "live.guest": "Guest",
   "live.status.live": "You're in the live session.",
   "live.status.reconnecting": "Lost the connection to the live session. Reconnecting…",
@@ -2367,6 +2699,28 @@
   "live.refused.locked": "{what} was taken back: locked by the host.",
   "live.refused.role": "You can only look in this session: the host let you in as a viewer.",
   "live.undo_skipped": "Nothing undone: {name} changed it since ({what}).",
+  "live.class.button": "People ({n})",
+  "live.class.title": "People in this session",
+  "live.class.close": "Close",
+  "live.class.you": "You",
+  "live.class.host": "host",
+  "live.class.follow": "Follow",
+  "live.class.stop": "Stop following",
+  "live.class.lead_on": "Ask everyone to follow me",
+  "live.class.lead_off": "Stop asking everyone to follow me",
+  "live.class.running": "Running {cmd}",
+  "live.class.on": "On {where}",
+  "live.class.edited_now": "Edited just now",
+  "live.class.edited_min": "Edited {n} min ago",
+  "live.class.edited_h": "Edited {n} h ago",
+  "live.class.edits": "Edits: {n}",
+  "live.class.no_edits": "No edits yet",
+  "live.follow.following": "Following {name}",
+  "live.follow.stop": "Stop",
+  "live.follow.asks": "{name} asks everyone to follow",
+  "live.follow.rejoin": "Follow",
+  "live.follow.cant": "{name}'s view can't be followed in this view",
+  "live.follow.elsewhere": "{name} is on {where}",
   "input.cmd.file.new": "New takeoff",
   "input.cmd.file.open-pdf": "Open PDFs…",
   "input.cmd.file.open-project": "Open a takeoff…",
@@ -2502,7 +2856,10 @@
   "ws.opt.open": "Open a PDF or a drawing to start.",
   "ws.opt.busy": "Working…",
   "ws.opt.select": "Pick a condition, then a tool; click a mark to select it.",
-  "ws.opt.sel": {"one": "{n} mark selected.", "other": "{n} marks selected."},
+  "ws.opt.sel": {
+    "one": "{n} mark selected.",
+    "other": "{n} marks selected."
+  },
   "ws.opt.3d.title": "3D check view",
   "ws.opt.3d": "Close the 3D check view to measure on the sheet.",
   "ws.slot.scale": "Scale",
@@ -2576,7 +2933,10 @@
   "lvl.ours": "Our estimate",
   "lvl.low": "Low",
   "lvl.left.none": "Nothing",
-  "lvl.left.n": {"one": "1 item", "other": "{n} items"},
+  "lvl.left.n": {
+    "one": "1 item",
+    "other": "{n} items"
+  },
   "lvl.new.bidder": "Bidder's name",
   "lvl.add": "Add the bid",
   "lvl.added": "Added {bidder}'s bid for {pkg}.",
@@ -2597,7 +2957,10 @@
   "undo.bid.left": "Scope a bid leaves out",
   "undo.bid.remove": "Remove a bid",
   "err.bids.many": "A takeoff holds at most 500 bids.",
-  "n.sheets": {"one": "1 sheet", "other": "{n} sheets"},
+  "n.sheets": {
+    "one": "1 sheet",
+    "other": "{n} sheets"
+  },
   "ccusd.not_usd": "This is not a USD file.",
   "ccusd.damaged": "This USD file is damaged: {reason}.",
   "ccusd.too_big": "This USD file is larger than CadCraft reads ({what}).",
@@ -2665,7 +3028,10 @@
   "usd.note.notes": "Notes: {notes}",
   "usd.menu.usdz": "USD package (.usdz)",
   "ccdwg.open.failed": "Could not open the file: {reason}",
-  "ccdwg.open.too_short": {"one": "too short to be a DWG file ({n} byte)", "other": "too short to be a DWG file ({n} bytes)"},
+  "ccdwg.open.too_short": {
+    "one": "too short to be a DWG file ({n} byte)",
+    "other": "too short to be a DWG file ({n} bytes)"
+  },
   "ccdwg.open.version": "DWG version {version} is not supported (only R13 to R2018: AC1012–AC1032)",
   "ccdwg.open.not_dwg": "not a DWG file (it starts \"{start}\")",
   "ccdwg.open.r13_header": "damaged R13–R15 file header ({n} section locators)",
@@ -2686,7 +3052,10 @@
   "ccdwg.read.file_header_crc": "File header CRC does not match (file may be damaged).",
   "ccdwg.read.file_header_crc32": "File header CRC-32 does not match.",
   "ccdwg.read.r2007_header_bad": "The R2007 file header has uncorrectable errors.",
-  "ccdwg.read.r2007_corrected": {"one": "Corrected {n} damaged byte in the file header.", "other": "Corrected {n} damaged bytes in the file header."},
+  "ccdwg.read.r2007_corrected": {
+    "one": "Corrected {n} damaged byte in the file header.",
+    "other": "Corrected {n} damaged bytes in the file header."
+  },
   "ccdwg.read.uncorrectable": "The {what} has uncorrectable errors.",
   "ccdwg.read.section_map_damaged": "The section map is damaged ({n} pages for one section).",
   "ccdwg.read.page_map_rebuilt": "The page map could not be read ({reason}); the pages were found by scanning the file.",
@@ -2697,8 +3066,14 @@
   "ccdwg.read.section_failed": "Section {name} could not be read: {reason}",
   "ccdwg.read.system_checksum": "Checksum of the {what} does not match.",
   "ccdwg.read.page_checksum": "Checksum of a page of {name} does not match.",
-  "ccdwg.read.pages_bad": {"one": "{n} page of {name} could not be found or decoded.", "other": "{n} pages of {name} could not be found or decoded."},
-  "ccdwg.read.pages_missing": {"one": "{n} page of {name} could not be found.", "other": "{n} pages of {name} could not be found."},
+  "ccdwg.read.pages_bad": {
+    "one": "{n} page of {name} could not be found or decoded.",
+    "other": "{n} pages of {name} could not be found or decoded."
+  },
+  "ccdwg.read.pages_missing": {
+    "one": "{n} page of {name} could not be found.",
+    "other": "{n} pages of {name} could not be found."
+  },
   "ccdwg.read.header_failed": "Header variables could not be read: {reason}",
   "ccdwg.read.header_sentinel": "Header section sentinel is missing.",
   "ccdwg.read.header_crc": "Header section CRC does not match.",
@@ -2709,28 +3084,58 @@
   "ccdwg.read.class_number": "Class list stops at an unexpected class number {num}.",
   "ccdwg.read.map_failed": "Object map could not be read: {reason}",
   "ccdwg.read.map_short": "Object map is cut short.",
-  "ccdwg.read.map_scanned": {"one": "The object map was incomplete: {n} object was found by scanning the objects section.", "other": "The object map was incomplete: {n} objects were found by scanning the objects section."},
+  "ccdwg.read.map_scanned": {
+    "one": "The object map was incomplete: {n} object was found by scanning the objects section.",
+    "other": "The object map was incomplete: {n} objects were found by scanning the objects section."
+  },
   "ccdwg.read.scan_stopped": "Scanning the objects section stopped early (too much damage).",
   "ccdwg.read.header_offset": "The header section has its size fields laid out for another maintenance version; read the way its CRC agrees with.",
-  "ccdwg.read.model_space_recovered": {"one": "The model space block was missing: {n} entity was put in a recovered model space.", "other": "The model space block was missing: {n} entities were put in a recovered model space."},
+  "ccdwg.read.model_space_recovered": {
+    "one": "The model space block was missing: {n} entity was put in a recovered model space.",
+    "other": "The model space block was missing: {n} entities were put in a recovered model space."
+  },
   "ccdwg.read.step_failed": "Part of the drawing could not be put together ({what}): {reason}",
-  "ccdwg.read.map_crc": {"one": "{n} object map page failed the CRC check.", "other": "{n} object map pages failed the CRC check."},
+  "ccdwg.read.map_crc": {
+    "one": "{n} object map page failed the CRC check.",
+    "other": "{n} object map pages failed the CRC check."
+  },
   "ccdwg.read.map_entry": "Object map entry {handle} points at object {other}.",
   "ccdwg.read.object_failed": "Object {handle} could not be read: {reason}",
   "ccdwg.read.no_objects": "The file has no objects section.",
-  "ccdwg.read.more_failed": {"one": "… {n} more object could not be read.", "other": "… {n} more objects could not be read."},
-  "ccdwg.read.crc_failed": {"one": "{n} object failed the CRC check (read anyway).", "other": "{n} objects failed the CRC check (read anyway)."},
-  "ccdwg.read.partial_type": {"one": "{n} {type} object could only be read in part.", "other": "{n} {type} objects could only be read in part."},
+  "ccdwg.read.more_failed": {
+    "one": "… {n} more object could not be read.",
+    "other": "… {n} more objects could not be read."
+  },
+  "ccdwg.read.crc_failed": {
+    "one": "{n} object failed the CRC check (read anyway).",
+    "other": "{n} objects failed the CRC check (read anyway)."
+  },
+  "ccdwg.read.partial_type": {
+    "one": "{n} {type} object could only be read in part.",
+    "other": "{n} {type} objects could only be read in part."
+  },
   "ccdwg.read.assembled_part": "The drawing could only be assembled in part: {reason}",
-  "ccdwg.read.kept_common": {"one": "{n} damaged object kept with only its common data.", "other": "{n} damaged objects kept with only their common data."},
-  "ccdwg.read.orphans": {"one": "{n} entity was not linked from its block and was added at its end.", "other": "{n} entities were not linked from their block and were added at its end."},
+  "ccdwg.read.kept_common": {
+    "one": "{n} damaged object kept with only its common data.",
+    "other": "{n} damaged objects kept with only their common data."
+  },
+  "ccdwg.read.orphans": {
+    "one": "{n} entity was not linked from its block and was added at its end.",
+    "other": "{n} entities were not linked from their block and were added at its end."
+  },
   "ccdwg.read.acds_empty": "The data storage section is empty.",
   "ccdwg.read.acds_no_sig": "The data storage section has no \"jard\" signature.",
   "ccdwg.read.acds_entry": "Data storage entry points at a \"{name}\" segment.",
   "ccdwg.read.acds_record_large": "Data storage record of {handle} is larger than its segment.",
   "ccdwg.read.acds_partial": "The data storage section could only be read in part: {reason}",
-  "ccdwg.read.acis_no_storage": {"one": "{n} ACIS entity says its data is in the data storage section, which the file does not have.", "other": "{n} ACIS entities say their data is in the data storage section, which the file does not have."},
-  "ccdwg.read.acis_no_record": {"one": "{n} ACIS entity has no record in the data storage section (kept empty).", "other": "{n} ACIS entities have no record in the data storage section (kept empty)."},
+  "ccdwg.read.acis_no_storage": {
+    "one": "{n} ACIS entity says its data is in the data storage section, which the file does not have.",
+    "other": "{n} ACIS entities say their data is in the data storage section, which the file does not have."
+  },
+  "ccdwg.read.acis_no_record": {
+    "one": "{n} ACIS entity has no record in the data storage section (kept empty).",
+    "other": "{n} ACIS entities have no record in the data storage section (kept empty)."
+  },
   "ccdwg.err.no_header": "no AcDb:Header section",
   "ccdwg.err.no_classes": "no AcDb:Classes section",
   "ccdwg.err.no_handles": "no AcDb:Handles section",
@@ -2761,21 +3166,57 @@
   "ccdwg.err.wire_large": "wire of {n} points is larger than the data",
   "ccdwg.err.wires_large": "{n} wires are more than the data holds",
   "ccdwg.err.silhouettes_large": "{n} silhouettes are more than the data holds",
-  "ccdwg.write.eed_dropped": {"one": "{n} extended-data block referring to objects this writer does not copy (materials, groups, …) was left out.", "other": "{n} extended-data blocks referring to objects this writer does not copy (materials, groups, …) were left out."},
-  "ccdwg.write.true_colours": {"one": "{n} true colour became the nearest AutoCAD colour index (R2000 stores colour indexes only).", "other": "{n} true colours became the nearest AutoCAD colour index (R2000 stores colour indexes only)."},
-  "ccdwg.write.chars_lost": {"one": "{n} character outside the Basic Multilingual Plane (emoji and the like) became \"?\".", "other": "{n} characters outside the Basic Multilingual Plane (emoji and the like) became \"?\"."},
-  "ccdwg.write.nongraphic": {"one": "{n} non-graphical object was copied from the source ({raw} bit for bit in the drawing's own version, {fields} from their fields).", "other": "{n} non-graphical objects were copied from the source ({raw} bit for bit in the drawing's own version, {fields} from their fields)."},
+  "ccdwg.write.eed_dropped": {
+    "one": "{n} extended-data block referring to objects this writer does not copy (materials, groups, …) was left out.",
+    "other": "{n} extended-data blocks referring to objects this writer does not copy (materials, groups, …) were left out."
+  },
+  "ccdwg.write.true_colours": {
+    "one": "{n} true colour became the nearest AutoCAD colour index (R2000 stores colour indexes only).",
+    "other": "{n} true colours became the nearest AutoCAD colour index (R2000 stores colour indexes only)."
+  },
+  "ccdwg.write.chars_lost": {
+    "one": "{n} character outside the Basic Multilingual Plane (emoji and the like) became \"?\".",
+    "other": "{n} characters outside the Basic Multilingual Plane (emoji and the like) became \"?\"."
+  },
+  "ccdwg.write.nongraphic": {
+    "one": "{n} non-graphical object was copied from the source ({raw} bit for bit in the drawing's own version, {fields} from their fields).",
+    "other": "{n} non-graphical objects were copied from the source ({raw} bit for bit in the drawing's own version, {fields} from their fields)."
+  },
   "ccdwg.write.not_copied": "Not copied (cc-dwg cannot write them in this version, or they depend on them): {list}.",
-  "ccdwg.write.entities_dropped": {"one": "{n} {type} entity was left out: undecoded data can only be written back in the drawing's own version.", "other": "{n} {type} entities were left out: undecoded data can only be written back in the drawing's own version."},
+  "ccdwg.write.entities_dropped": {
+    "one": "{n} {type} entity was left out: undecoded data can only be written back in the drawing's own version.",
+    "other": "{n} {type} entities were left out: undecoded data can only be written back in the drawing's own version."
+  },
   "ccdwg.write.proxied": "Written as proxies of their own class (undecoded data in another version, as AutoCAD saves them down): {list}.",
   "ccdwg.write.raw": "Copied bit for bit (custom or proxy entities): {list}.",
-  "ccdwg.write.acis_empty": {"one": "{n} ACIS entity has no ACIS data (written empty).", "other": "{n} ACIS entities have no ACIS data (written empty)."},
-  "ccdwg.write.acis_sat": {"one": "{n} ACIS entity keeps its SAT text (as the data storage record; R2013+ files normally hold SAB there — SAT is not converted).", "other": "{n} ACIS entities keep their SAT text (as the data storage record; R2013+ files normally hold SAB there — SAT is not converted)."},
-  "ccdwg.write.acis_sab": {"one": "{n} ACIS entity keeps its SAB data as ACIS version 2 in an R2000 file (AutoCAD 2000 itself writes SAT).", "other": "{n} ACIS entities keep their SAB data as ACIS version 2 in an R2000 file (AutoCAD 2000 itself writes SAT)."},
-  "ccdwg.write.nurbs_down": {"one": "{n} NURBS surface was written as plain SURFACE ({version} has no NURBSURFACE; as AutoCAD and the ODA File Converter save it down, with the ACAD_XREC_ROUNDTRIP marker that turns it back into a NURBS surface in R2013+).", "other": "{n} NURBS surfaces were written as plain SURFACE ({version} has no NURBSURFACE; as AutoCAD and the ODA File Converter save it down, with the ACAD_XREC_ROUNDTRIP marker that turns it back into a NURBS surface in R2013+)."},
-  "ccdwg.write.nurbs_up": {"one": "{n} surface saved down from NURBSURFACE was written as NURBSURFACE again (its NURBS fields were not kept by the save-down).", "other": "{n} surfaces saved down from NURBSURFACE were written as NURBSURFACE again (their NURBS fields were not kept by the save-down)."},
-  "ccdwg.write.embedded": {"one": "{n} embedded profile/path entity of a surface (an encoding cc-dwg does not know) was left out: it is kept only in the drawing's own version.", "other": "{n} embedded profile/path entities of a surface (an encoding cc-dwg does not know) were left out: they are kept only in the drawing's own version."},
-  "ccdwg.write.table_fields": {"one": "{n} table cell field could not be written and kept its text.", "other": "{n} table cell fields could not be written and kept their text."},
+  "ccdwg.write.acis_empty": {
+    "one": "{n} ACIS entity has no ACIS data (written empty).",
+    "other": "{n} ACIS entities have no ACIS data (written empty)."
+  },
+  "ccdwg.write.acis_sat": {
+    "one": "{n} ACIS entity keeps its SAT text (as the data storage record; R2013+ files normally hold SAB there — SAT is not converted).",
+    "other": "{n} ACIS entities keep their SAT text (as the data storage record; R2013+ files normally hold SAB there — SAT is not converted)."
+  },
+  "ccdwg.write.acis_sab": {
+    "one": "{n} ACIS entity keeps its SAB data as ACIS version 2 in an R2000 file (AutoCAD 2000 itself writes SAT).",
+    "other": "{n} ACIS entities keep their SAB data as ACIS version 2 in an R2000 file (AutoCAD 2000 itself writes SAT)."
+  },
+  "ccdwg.write.nurbs_down": {
+    "one": "{n} NURBS surface was written as plain SURFACE ({version} has no NURBSURFACE; as AutoCAD and the ODA File Converter save it down, with the ACAD_XREC_ROUNDTRIP marker that turns it back into a NURBS surface in R2013+).",
+    "other": "{n} NURBS surfaces were written as plain SURFACE ({version} has no NURBSURFACE; as AutoCAD and the ODA File Converter save it down, with the ACAD_XREC_ROUNDTRIP marker that turns it back into a NURBS surface in R2013+)."
+  },
+  "ccdwg.write.nurbs_up": {
+    "one": "{n} surface saved down from NURBSURFACE was written as NURBSURFACE again (its NURBS fields were not kept by the save-down).",
+    "other": "{n} surfaces saved down from NURBSURFACE were written as NURBSURFACE again (their NURBS fields were not kept by the save-down)."
+  },
+  "ccdwg.write.embedded": {
+    "one": "{n} embedded profile/path entity of a surface (an encoding cc-dwg does not know) was left out: it is kept only in the drawing's own version.",
+    "other": "{n} embedded profile/path entities of a surface (an encoding cc-dwg does not know) were left out: they are kept only in the drawing's own version."
+  },
+  "ccdwg.write.table_fields": {
+    "one": "{n} table cell field could not be written and kept its text.",
+    "other": "{n} table cell fields could not be written and kept their text."
+  },
   "dxfmodel.not_text": "This DXF file could not be read as text.",
   "dxfmodel.binary": "This is a binary DXF. Save it as ASCII DXF and try again.",
   "dxfmodel.bad_code": "This file is not a readable DXF (bad group code on line {line}).",
@@ -2786,7 +3227,10 @@
   "cad.warn.empty": "This drawing has nothing to show.",
   "cad.warn.damaged": "This drawing file is damaged; TakeoffCraft read what it could, so counts may be incomplete.",
   "cad.warn.big": "This drawing is very large; the sheets show part of it. Counts still cover all of it.",
-  "cad.warn.xref": {"one": "1 linked drawing (xref) was not found among the open files; what it draws is missing. Open its file too (Open plans) to include it.", "other": "{n} linked drawings (xrefs) were not found among the open files; what they draw is missing. Open their files too (Open plans) to include them."},
+  "cad.warn.xref": {
+    "one": "1 linked drawing (xref) was not found among the open files; what it draws is missing. Open its file too (Open plans) to include it.",
+    "other": "{n} linked drawings (xrefs) were not found among the open files; what they draw is missing. Open their files too (Open plans) to include them."
+  },
   "cad.scale.units": "Drawing units ({units})",
   "cad.scale.viewport": "From the drawing's viewport: {scale}",
   "cad.scale.undo": "Scales read from {file}",
@@ -2827,24 +3271,42 @@
   "cad.count.target.new": "A new count item",
   "cad.count.newname": "Name of the new item",
   "cad.count.hidden": "{n} on hidden layers ({layers}) are not counted. Count them too",
-  "cad.count.xref": {"one": "1 linked drawing (xref) is not open: what it draws is not counted. Open its file too.", "other": "{n} linked drawings (xrefs) are not open: what they draw is not counted. Open their files too."},
+  "cad.count.xref": {
+    "one": "1 linked drawing (xref) is not open: what it draws is not counted. Open its file too.",
+    "other": "{n} linked drawings (xrefs) are not open: what they draw is not counted. Open their files too."
+  },
   "cad.count.truncated": "This drawing is so large that the count stopped early. The numbers are a lower bound.",
-  "cad.count.unplaced": {"one": "1 object has no place in the drawing and is left out.", "other": "{n} objects have no place in the drawing and are left out."},
+  "cad.count.unplaced": {
+    "one": "1 object has no place in the drawing and is left out.",
+    "other": "{n} objects have no place in the drawing and are left out."
+  },
   "cad.count.pick": "Pick a block, a layer or type, or type a text to count.",
-  "cad.count.found": {"one": "1 found, {add} to add.", "other": "{n} found, {add} to add."},
+  "cad.count.found": {
+    "one": "1 found, {add} to add.",
+    "other": "{n} found, {add} to add."
+  },
   "cad.count.already": "{n} already counted on this item.",
   "cad.count.insideblocks": "{n} sit inside other blocks.",
   "cad.count.hiddenskipped": "{n} on hidden layers left out.",
   "cad.count.stacked": "{n} sit exactly on top of another of the same kind (counted as separate objects).",
-  "cad.count.add": {"one": "Add 1 mark", "other": "Add {n} marks"},
+  "cad.count.add": {
+    "one": "Add 1 mark",
+    "other": "Add {n} marks"
+  },
   "cad.count.add.none": "Nothing to add",
   "cad.count.nothing": "There is nothing new to add.",
   "cad.count.noname": "Give the new item a name.",
-  "cad.count.undo": {"one": "Count 1 from the drawing: {what}", "other": "Count {n} from the drawing: {what}"},
+  "cad.count.undo": {
+    "one": "Count 1 from the drawing: {what}",
+    "other": "Count {n} from the drawing: {what}"
+  },
   "cad.count.needs": "Open a DWG or DXF drawing and pick one of its sheets first.",
   "cad.count.busy": "Reading the drawing…",
   "cad.count.failed": "The drawing could not be counted: {reason}",
-  "cad.count.done": {"one": "Added 1 mark to {item}. {already} were already counted. Ctrl+Z takes them back in one step.", "other": "Added {n} marks to {item}. {already} were already counted. Ctrl+Z takes them back in one step."},
+  "cad.count.done": {
+    "one": "Added 1 mark to {item}. {already} were already counted. Ctrl+Z takes them back in one step.",
+    "other": "Added {n} marks to {item}. {already} were already counted. Ctrl+Z takes them back in one step."
+  },
   "cad.layers": "Layers",
   "cad.layers.title": "This drawing's layers: show or hide them. A layer that is hidden is not counted unless you choose to.",
   "cad.layers.showall": "Show all",
@@ -2853,9 +3315,18 @@
   "cad.layers.frozen": "frozen in the file",
   "cad.layers.off": "off in the file",
   "cad.layers.here": "changed here",
-  "cad.layers.n": {"one": "1 object", "other": "{n} objects"},
-  "cad.xref.resolved": {"one": "Found a linked drawing among the open files: {list}. It is drawn and counted where it is inserted.", "other": "Found {n} linked drawings among the open files: {list}. They are drawn and counted where they are inserted."},
-  "cad.count.unplaced.by": {"one": "1 object cannot be placed and is not counted ({list}).", "other": "{n} objects cannot be placed and are not counted ({list})."},
+  "cad.layers.n": {
+    "one": "1 object",
+    "other": "{n} objects"
+  },
+  "cad.xref.resolved": {
+    "one": "Found a linked drawing among the open files: {list}. It is drawn and counted where it is inserted.",
+    "other": "Found {n} linked drawings among the open files: {list}. They are drawn and counted where they are inserted."
+  },
+  "cad.count.unplaced.by": {
+    "one": "1 object cannot be placed and is not counted ({list}).",
+    "other": "{n} objects cannot be placed and are not counted ({list})."
+  },
   "tool.cad-geom": "Measure drawing",
   "tool.cad-geom.title": "Measure from the drawing's own lines, arcs, polylines and hatches: pick them instead of tracing",
   "input.cmd.takeoff.cad-geom": "Measure from the drawing",
@@ -2864,16 +3335,40 @@
   "cad.geom.clear": "Clear",
   "cad.geom.hint.linear": "Pick lines, arcs and polylines for {item} (a window takes everything inside it).",
   "cad.geom.hint.area": "Pick closed shapes and hatches for {item} (a window takes everything inside it).",
-  "cad.geom.sel.linear": {"one": "1 run: {len}.", "other": "{n} runs: {len} in all."},
-  "cad.geom.sel.area": {"one": "1 outline: {area} sq ft.", "other": "{n} outlines: {area} sq ft in all."},
-  "cad.geom.left.open": {"one": "1 open run is left out (an area needs a closed shape).", "other": "{n} open runs are left out (an area needs a closed shape)."},
-  "cad.geom.left.hatch": {"one": "1 hatch is left out (it has an area, not a length).", "other": "{n} hatches are left out (they have an area, not a length)."},
-  "cad.geom.approx": {"one": "1 is a curve measured in very fine chords (an ellipse, a spline).", "other": "{n} are curves measured in very fine chords (ellipses, splines)."},
-  "cad.geom.add": {"one": "Add 1 to {item}", "other": "Add {n} to {item}"},
+  "cad.geom.sel.linear": {
+    "one": "1 run: {len}.",
+    "other": "{n} runs: {len} in all."
+  },
+  "cad.geom.sel.area": {
+    "one": "1 outline: {area} sq ft.",
+    "other": "{n} outlines: {area} sq ft in all."
+  },
+  "cad.geom.left.open": {
+    "one": "1 open run is left out (an area needs a closed shape).",
+    "other": "{n} open runs are left out (an area needs a closed shape)."
+  },
+  "cad.geom.left.hatch": {
+    "one": "1 hatch is left out (it has an area, not a length).",
+    "other": "{n} hatches are left out (they have an area, not a length)."
+  },
+  "cad.geom.approx": {
+    "one": "1 is a curve measured in very fine chords (an ellipse, a spline).",
+    "other": "{n} are curves measured in very fine chords (ellipses, splines)."
+  },
+  "cad.geom.add": {
+    "one": "Add 1 to {item}",
+    "other": "Add {n} to {item}"
+  },
   "cad.geom.none.linear": "Nothing picked can be taken as a run.",
   "cad.geom.none.area": "Nothing picked is a closed shape: an area needs one.",
-  "cad.geom.undo": {"one": "Take 1 object from the drawing: {item}", "other": "Take {n} objects from the drawing: {item}"},
-  "cad.geom.done": {"one": "Added 1 mark to {item}: {qty}. Ctrl+Z takes it back.", "other": "Added {n} marks to {item}: {qty} in all. Ctrl+Z takes them back in one step."},
+  "cad.geom.undo": {
+    "one": "Take 1 object from the drawing: {item}",
+    "other": "Take {n} objects from the drawing: {item}"
+  },
+  "cad.geom.done": {
+    "one": "Added 1 mark to {item}: {qty}. Ctrl+Z takes it back.",
+    "other": "Added {n} marks to {item}: {qty} in all. Ctrl+Z takes them back in one step."
+  },
   "cad.geom.sf": "sq ft",
   "cad.unit.inches": "inches",
   "cad.unit.feet": "feet",
@@ -2892,9 +3387,18 @@
   "cad.unit.us_survey_inches": "US survey inches",
   "cad.unit.us_survey_yards": "US survey yards",
   "cad.unit.us_survey_miles": "US survey miles",
-  "cad.count.skipped.missing": {"one": "1 block reference points to a block that is not in the file ({list}) and is not counted.", "other": "{n} block references point to blocks that are not in the file ({list}) and are not counted."},
-  "cad.count.skipped.deep": {"one": "1 block reference is nested too deep to follow and is not counted.", "other": "{n} block references are nested too deep to follow and are not counted."},
-  "cad.count.skipped.array": {"one": "1 block array is too large to count and is left out.", "other": "{n} block arrays are too large to count and are left out."},
+  "cad.count.skipped.missing": {
+    "one": "1 block reference points to a block that is not in the file ({list}) and is not counted.",
+    "other": "{n} block references point to blocks that are not in the file ({list}) and are not counted."
+  },
+  "cad.count.skipped.deep": {
+    "one": "1 block reference is nested too deep to follow and is not counted.",
+    "other": "{n} block references are nested too deep to follow and are not counted."
+  },
+  "cad.count.skipped.array": {
+    "one": "1 block array is too large to count and is left out.",
+    "other": "{n} block arrays are too large to count and are left out."
+  },
   "x.sub": "Subcontract",
   "bid.l.sub": "Subcontract bids",
   "export.sub.note": "Chosen bid for {pkg}; replaces the package's own pricing",
@@ -2961,14 +3465,23 @@
   "bids.res.limit": "{n} skipped: the daily limit for sending was reached.",
   "bids.res.busy": "{n} skipped: invitations are going out too fast site-wide; try again later.",
   "bids.res.failed": "{n} could not be sent.",
-  "bids.req.sealed": {"one": "Sent to 1 person. Due {due}, sealed until {opens}.", "other": "Sent to {n} people. Due {due}, sealed until {opens}."},
-  "bids.req.open": {"one": "Sent to 1 person. Due {due}; prices show as they arrive.", "other": "Sent to {n} people. Due {due}; prices show as they arrive."},
+  "bids.req.sealed": {
+    "one": "Sent to 1 person. Due {due}, sealed until {opens}.",
+    "other": "Sent to {n} people. Due {due}, sealed until {opens}."
+  },
+  "bids.req.open": {
+    "one": "Sent to 1 person. Due {due}; prices show as they arrive.",
+    "other": "Sent to {n} people. Due {due}; prices show as they arrive."
+  },
   "lvl.send": "Send for bids…",
   "lvl.get": "Get prices",
   "lvl.get.busy": "Asking getcadcraft.com for prices…",
   "lvl.get.failed": "Could not get the prices. Check your connection and that you are connected.",
   "lvl.get.done": "Prices in: {added} new, {updated} changed.",
-  "lvl.get.late": {"one": "1 arrived after the due time.", "other": "{n} arrived after the due time."},
+  "lvl.get.late": {
+    "one": "1 arrived after the due time.",
+    "other": "{n} arrived after the due time."
+  },
   "lvl.get.sealed": "Still sealed: every price shows at once at the opening time.",
   "lvl.get.none": {
     "=0": "Nothing new.",
@@ -2995,7 +3508,10 @@
   "ccusd.part.value": "a value",
   "sx.su811.tool": "Learned",
   "sx.su811.tool.title": "What TakeoffCraft learned from the takeoffs you accepted: symbols, condition sets, assemblies and repeated patterns. Kept in this takeoff's file; nothing is sent anywhere.",
-  "sx.su811.tool.count": {"one": "{n} thing learned.", "other": "{n} things learned."},
+  "sx.su811.tool.count": {
+    "one": "{n} thing learned.",
+    "other": "{n} things learned."
+  },
   "sx.su811.h": "What it learned",
   "sx.su811.lead": "TakeoffCraft learns only from what you accept: the marks you add from Auto count, the condition sets you save, the assemblies you use and the patterns you repeat. It is plain matching on your own sheets, not a trained model. Everything is kept in this takeoff's file and nothing is sent anywhere. Delete anything here, or Clear all.",
   "sx.su811.last": "Same as last job…",
@@ -3008,15 +3524,24 @@
   "sx.su811.del.done": "Forgot \"{name}\". Undo brings it back.",
   "sx.su811.clear": "Clear all",
   "sx.su811.clear.h": "Clear everything it learned?",
-  "sx.su811.clear.text": {"one": "{n} learned thing will be deleted from this takeoff. Your items and marks stay. You can undo this until you close the takeoff.", "other": "{n} learned things will be deleted from this takeoff. Your items and marks stay. You can undo this until you close the takeoff."},
+  "sx.su811.clear.text": {
+    "one": "{n} learned thing will be deleted from this takeoff. Your items and marks stay. You can undo this until you close the takeoff.",
+    "other": "{n} learned things will be deleted from this takeoff. Your items and marks stay. You can undo this until you close the takeoff."
+  },
   "sx.su811.clear.go": "Clear all",
   "sx.su811.clear.undo": "Clear what it learned",
-  "sx.su811.clear.done": {"one": "Cleared {n} learned thing.", "other": "Cleared {n} learned things."},
+  "sx.su811.clear.done": {
+    "one": "Cleared {n} learned thing.",
+    "other": "Cleared {n} learned things."
+  },
   "sx.su811.name.empty": "Give it a name.",
   "sx.su811.sym.h": "Symbols",
   "sx.su811.sym.intro": "When you box a symbol with Auto count and add the marks it found, the symbol is kept here, with the match level you accepted. Find it again on any sheet; you still check every mark before it is added.",
   "sx.su811.sym.empty": "Nothing yet. Use Auto count and add the marks it finds.",
-  "sx.su811.sym.sub": {"one": "{n} mark accepted · match {th}% · last {day}", "other": "{n} marks accepted · match {th}% · last {day}"},
+  "sx.su811.sym.sub": {
+    "one": "{n} mark accepted · match {th}% · last {day}",
+    "other": "{n} marks accepted · match {th}% · last {day}"
+  },
   "sx.su811.sym.here": "Find on this sheet",
   "sx.su811.sym.all": "Find on every sheet",
   "sx.su811.sym.learned": "Learned the symbol for {item}: find it again under Learned.",
@@ -3025,58 +3550,100 @@
   "sx.su811.find.done": "Found these {item} symbols. Check them: click a box to leave it out, then add them.",
   "sx.su811.find.none": "No {item} symbol found. Try the sheets one by one, or box one with Auto count.",
   "sx.su811.find.nosheet": "Open a sheet first.",
-  "sx.su811.find.added": {"one": "Added {n} {item} mark from a learned symbol.", "other": "Added {n} {item} marks from a learned symbol."},
+  "sx.su811.find.added": {
+    "one": "Added {n} {item} mark from a learned symbol.",
+    "other": "Added {n} {item} marks from a learned symbol."
+  },
   "sx.su811.set.h": "Condition sets",
   "sx.su811.set.intro": "A set keeps a takeoff's conditions (items with their units, rates and assemblies, no marks) so the next job starts with them.",
   "sx.su811.set.empty": "No sets yet. Save this takeoff's conditions as a set, or bring in a last job.",
   "sx.su811.set.save": "Save this takeoff's conditions as a set…",
   "sx.su811.set.save.h": "Save the conditions as a set",
-  "sx.su811.set.save.text": {"one": "{n} condition will be kept in this takeoff's file under this name. A set with the same name is replaced.", "other": "{n} conditions will be kept in this takeoff's file under this name. A set with the same name is replaced."},
+  "sx.su811.set.save.text": {
+    "one": "{n} condition will be kept in this takeoff's file under this name. A set with the same name is replaced.",
+    "other": "{n} conditions will be kept in this takeoff's file under this name. A set with the same name is replaced."
+  },
   "sx.su811.set.save.go": "Save the set",
   "sx.su811.set.name": "Name",
-  "sx.su811.set.saved": {"one": "Saved the set \"{name}\" ({n} condition).", "other": "Saved the set \"{name}\" ({n} conditions)."},
+  "sx.su811.set.saved": {
+    "one": "Saved the set \"{name}\" ({n} condition).",
+    "other": "Saved the set \"{name}\" ({n} conditions)."
+  },
   "sx.su811.set.saved.undo": "Save the set {name}",
-  "sx.su811.set.sub": {"one": "{n} condition · not in this takeoff: {missing} · saved {day}", "other": "{n} conditions · not in this takeoff: {missing} · saved {day}"},
+  "sx.su811.set.sub": {
+    "one": "{n} condition · not in this takeoff: {missing} · saved {day}",
+    "other": "{n} conditions · not in this takeoff: {missing} · saved {day}"
+  },
   "sx.su811.set.add": {
     "=0": "All here",
     "one": "Add {n}",
     "other": "Add {n}"
   },
-  "sx.su811.set.done": {"one": "Added {n} condition from \"{name}\".", "other": "Added {n} conditions from \"{name}\"."},
+  "sx.su811.set.done": {
+    "one": "Added {n} condition from \"{name}\".",
+    "other": "Added {n} conditions from \"{name}\"."
+  },
   "sx.su811.set.undo": "Add the set {name}",
   "sx.su811.asm.h": "Assemblies you use most",
   "sx.su811.asm.intro": "An item with an assembly counts once per job (the plan files it is taken off) when it has a quantity and the takeoff is saved. The ones you use most come first; the ones this takeoff has are left out.",
   "sx.su811.asm.empty": "Nothing yet. Items with an assembly are counted when you save a takeoff that uses them.",
   "sx.su811.asm.allhere": "Every assembly it knows is in this takeoff already.",
   "sx.su811.asm.q": "Find an assembly",
-  "sx.su811.asm.sub": {"one": "{type} · used in {uses} job · parts: {parts}", "other": "{type} · used in {uses} jobs · parts: {parts}"},
+  "sx.su811.asm.sub": {
+    "one": "{type} · used in {uses} job · parts: {parts}",
+    "other": "{type} · used in {uses} jobs · parts: {parts}"
+  },
   "sx.su811.asm.add": "Add",
   "sx.su811.asm.done": "Added \"{name}\" with its assembly, as you last used it.",
   "sx.su811.asm.undo": "Add the assembly {name}",
   "sx.su811.rep.h2": "Repeat on every page",
   "sx.su811.rep.intro": "Marks that repeat on every page of a set (a title block count, a typical detail) go on every other page of the same size and scale in one step. The pattern is kept, so pages you open later can get it too.",
   "sx.su811.rep.empty": "No patterns yet. Select marks on a sheet, then repeat them on every page.",
-  "sx.su811.rep.sel": {"one": "Repeat the selected mark on every page…", "other": "Repeat the {n} selected marks on every page…"},
+  "sx.su811.rep.sel": {
+    "one": "Repeat the selected mark on every page…",
+    "other": "Repeat the {n} selected marks on every page…"
+  },
   "sx.su811.rep.sel.none": "Select marks on a sheet to repeat them",
   "sx.su811.rep.nosel": "Select the marks to repeat first.",
   "sx.su811.rep.h": "Repeat on every page",
   "sx.su811.rep.name": "Name of the pattern",
-  "sx.su811.rep.text": {"one": "{n} mark goes on {pages} other pages, at the same place.", "other": "{n} marks go on {pages} other pages, at the same place."},
+  "sx.su811.rep.text": {
+    "one": "{n} mark goes on {pages} other pages, at the same place.",
+    "other": "{n} marks go on {pages} other pages, at the same place."
+  },
   "sx.su811.rep.nopages": "No other open page fits now. The pattern is kept, so pages you open later can get it.",
-  "sx.su811.rep.skipped": {"one": "{n} page left out: {why}", "other": "{n} pages left out: {why}"},
-  "sx.su811.rep.go": {"one": "Repeat on {pages} page", "other": "Repeat on {pages} pages"},
+  "sx.su811.rep.skipped": {
+    "one": "{n} page left out: {why}",
+    "other": "{n} pages left out: {why}"
+  },
+  "sx.su811.rep.go": {
+    "one": "Repeat on {pages} page",
+    "other": "Repeat on {pages} pages"
+  },
   "sx.su811.rep.keep": "Keep the pattern",
   "sx.su811.rep.already": "It is already there.",
-  "sx.su811.rep.done": {"one": "Repeated {n} marks on {pages} page. One undo takes them all back.", "other": "Repeated {n} marks on {pages} pages. One undo takes them all back."},
-  "sx.su811.rep.undo": {"one": "Repeat on {n} page", "other": "Repeat on {n} pages"},
+  "sx.su811.rep.done": {
+    "one": "Repeated {n} marks on {pages} page. One undo takes them all back.",
+    "other": "Repeated {n} marks on {pages} pages. One undo takes them all back."
+  },
+  "sx.su811.rep.undo": {
+    "one": "Repeat on {n} page",
+    "other": "Repeat on {n} pages"
+  },
   "sx.su811.rep.saved": "Kept the pattern \"{name}\".",
   "sx.su811.rep.saved.undo": "Keep a pattern",
   "sx.su811.rep.none": "No open page can take \"{name}\" now: it is there already, or the pages are another size or scale.",
-  "sx.su811.rep.sub": {"one": "{n} mark · repeated: {uses}", "other": "{n} marks · repeated: {uses}"},
+  "sx.su811.rep.sub": {
+    "one": "{n} mark · repeated: {uses}",
+    "other": "{n} marks · repeated: {uses}"
+  },
   "sx.su811.rep.every": "Repeat on every page",
   "sx.su811.last.h": "Same as last job",
   "sx.su811.last.text": "From \"{job}\" ({file}). Only what you tick comes in; its marks and quantities stay in that file.",
-  "sx.su811.last.items": {"one": "Its conditions: add {n} this takeoff does not have ({have} already here)", "other": "Its conditions: add {n} this takeoff does not have ({have} already here)"},
+  "sx.su811.last.items": {
+    "one": "Its conditions: add {n} this takeoff does not have ({have} already here)",
+    "other": "Its conditions: add {n} this takeoff does not have ({have} already here)"
+  },
   "sx.su811.last.items.none": "Its conditions: all of them are here already",
   "sx.su811.last.learned": "What it learned: symbols {symbols}, sets {sets}, assemblies {asm}, patterns {repeats}",
   "sx.su811.last.learned.none": "What it learned: nothing yet",
@@ -3091,7 +3658,10 @@
   "sx.su811.bar.later": "Not now",
   "sx.su811.file.bad": "What this takeoff learned could not be read and was left out.",
   "sx.su811.file.newer": "This takeoff learned things in a newer TakeoffCraft; they were left out here (the rest opened).",
-  "sx.su811.file.dropped": {"one": "{n} learned thing was damaged and left out.", "other": "{n} learned things were damaged and left out."},
+  "sx.su811.file.dropped": {
+    "one": "{n} learned thing was damaged and left out.",
+    "other": "{n} learned things were damaged and left out."
+  },
   "sx.su880.tool": "Path",
   "sx.su880.tool.title": "Path (P): click a line of the PDF to measure the whole connected path, or click inside a closed outline for its area",
   "help.path": "Click a line: the whole connected path. Click inside an outline: its area. Shift adds more, Tab tries the next path, Backspace takes the last segment off, [ and ] change the gap tolerance ({gap}), Enter or right-click adds, Esc cancels.",
@@ -3099,12 +3669,18 @@
   "sx.su880.none": "No line there. Click on a line, or inside a closed outline.",
   "sx.su880.noloop": "No closed outline around that point. Gaps up to {gap} are bridged; ] makes the tolerance wider.",
   "sx.su880.tol": "gap tolerance {gap}",
-  "sx.su880.seg": {"one": "{n} segment", "other": "{n} segments"},
+  "sx.su880.seg": {
+    "one": "{n} segment",
+    "other": "{n} segments"
+  },
   "sx.su880.measure.line": "Path: {segs}, {len}, {tol}{bridged}",
   "sx.su880.measure.closed": "Closed path: {segs}, perimeter {len}, {tol}{bridged}",
   "sx.su880.measure.area": "Outline: {area} sq ft, perimeter {len}, {segs}, {tol}{bridged}",
   "sx.su880.measure.many": "{n} paths: {len} of line and {area} sq ft of area, {tol}",
-  "sx.su880.bridged": {"one": "; {n} gap bridged", "other": "; {n} gaps bridged"},
+  "sx.su880.bridged": {
+    "one": "; {n} gap bridged",
+    "other": "; {n} gaps bridged"
+  },
   "sx.su880.measure.hover": "Path under the pointer: {segs}, {len} (Tab tries path {i} of {n}), {tol}",
   "sx.su880.tol.set": "Gap tolerance {gap} ({pt} pt on the sheet). [ makes it smaller, ] wider.",
   "sx.su880.trim": "Took the last segment off.",
@@ -3113,7 +3689,10 @@
   "sx.su880.cycle.loop": "Outline {i} of {n}.",
   "sx.su880.item.linear": "Make or pick a Linear item for the lines, then press Enter again.",
   "sx.su880.item.area": "Make or pick an Area item for the outline, then press Enter again.",
-  "sx.su880.added": {"one": "Added {n} mark from the PDF's lines.", "other": "Added {n} marks from the PDF's lines."},
+  "sx.su880.added": {
+    "one": "Added {n} mark from the PDF's lines.",
+    "other": "Added {n} marks from the PDF's lines."
+  },
   "sx.su880.undo.linear": "Lines from the drawing",
   "sx.su880.undo.area": "Outlines from the drawing",
   "input.cmd.takeoff.path": "Pick linework",
@@ -3121,7 +3700,10 @@
   "eg67.tool.title": "Box a symbol legend and count every symbol in it across all the sheets",
   "help.legend": "Drag a box around the symbol legend (the symbols and their names). Every symbol is counted on every open sheet for you to review.",
   "eg67.reading": "Reading the legend…",
-  "eg67.read": {"one": "Read {n} symbol from the legend. Check the names, then count.", "other": "Read {n} symbols from the legend. Check the names, then count."},
+  "eg67.read": {
+    "one": "Read {n} symbol from the legend. Check the names, then count.",
+    "other": "Read {n} symbols from the legend. Check the names, then count."
+  },
   "eg67.err.small": "That box is too small to hold a legend. Drag a box around the symbols and their names.",
   "eg67.err.none": "No symbol with a name beside it was found in that box. Box the legend: the symbols and their names.",
   "eg67.err.failed": "Count everything stopped: {reason}",
@@ -3132,31 +3714,58 @@
   "eg67.problem": "Cannot be searched: {why}",
   "eg67.start": "Count on {n}",
   "eg67.running": "Searching sheet {i} of {n}…",
-  "eg67.found": {"one": "Found {n} in {sheets} in {s} s. Click a box on a sheet to turn it off.", "other": "Found {n} in {sheets} in {s} s. Click a box on a sheet to turn it off."},
-  "eg67.skipped": {"one": "{n} sheet was too large to search.", "other": "{n} sheets were too large to search."},
+  "eg67.found": {
+    "one": "Found {n} in {sheets} in {s} s. Click a box on a sheet to turn it off.",
+    "other": "Found {n} in {sheets} in {s} s. Click a box on a sheet to turn it off."
+  },
+  "eg67.skipped": {
+    "one": "{n} sheet was too large to search.",
+    "other": "{n} sheets were too large to search."
+  },
   "eg67.level": "Match level {pct}%",
-  "eg67.mixed": {"one": "{a} and {b} look alike: {n} spot went to the better match. Check it.", "other": "{a} and {b} look alike: {n} spots went to the better match. Check them."},
+  "eg67.mixed": {
+    "one": "{a} and {b} look alike: {n} spot went to the better match. Check it.",
+    "other": "{a} and {b} look alike: {n} spots went to the better match. Check them."
+  },
   "eg67.sheetn": "{title}: {n}",
   "eg67.go": "Go to {sheet}",
-  "eg67.add": {"one": "Add {n} mark", "other": "Add {n} marks"},
-  "eg67.done": {"one": "Found {n} on {sheets}. Review it, then add.", "other": "Found {n} on {sheets}. Review them, then add."},
-  "eg67.added": {"one": "Added {n} mark to {items}. {mod}+Z takes it back.", "other": "Added {n} marks to {items} items. {mod}+Z takes them all back."},
+  "eg67.add": {
+    "one": "Add {n} mark",
+    "other": "Add {n} marks"
+  },
+  "eg67.done": {
+    "one": "Found {n} on {sheets}. Review it, then add.",
+    "other": "Found {n} on {sheets}. Review them, then add."
+  },
+  "eg67.added": {
+    "one": "Added {n} mark to {items}. {mod}+Z takes it back.",
+    "other": "Added {n} marks to {items} items. {mod}+Z takes them all back."
+  },
   "eg67.undo": "Count everything: {n} marks on {items} items",
   "input.cmd.takeoff.legend": "Count everything",
   "eg68.tool": "Prices",
   "eg68.tool.title": "Start from the prices you used on past jobs",
-  "eg68.tool.count": {"one": "({n} item remembered)", "other": "({n} items remembered)"},
+  "eg68.tool.count": {
+    "one": "({n} item remembered)",
+    "other": "({n} items remembered)"
+  },
   "eg68.h": "Price memory",
   "eg68.lead": "TakeoffCraft remembers the rates you used on your past takeoffs, on this computer only, so a new takeoff can start from what you paid last time. It is a plain list you can read, change and clear. Nothing is sent anywhere.",
   "eg68.learn": "Learn from a past takeoff…",
   "eg68.on": "Remember my prices when I save a takeoff",
   "eg68.off.note": "Memory is off: saving a takeoff does not remember its prices. What is already remembered stays until you forget it.",
-  "eg68.learn.done": {"one": "Remembered the price of {n} item from {job} ({fresh} new).", "other": "Remembered the prices of {n} items from {job} ({fresh} new)."},
+  "eg68.learn.done": {
+    "one": "Remembered the price of {n} item from {job} ({fresh} new).",
+    "other": "Remembered the prices of {n} items from {job} ({fresh} new)."
+  },
   "eg68.learn.none": "{job} has no priced items in use to remember.",
   "eg68.here.h": "This takeoff",
   "eg68.here.intro": "Items here that have a remembered price. Use puts the rates on the item; Ctrl+Z takes it back.",
   "eg68.here.empty": "No item in this takeoff has a remembered price yet. Save takeoffs as you finish them, or learn from a past one.",
-  "eg68.all": {"one": "Price {n} unpriced item from memory", "other": "Price {n} unpriced items from memory"},
+  "eg68.all": {
+    "one": "Price {n} unpriced item from memory",
+    "other": "Price {n} unpriced items from memory"
+  },
   "eg68.now": "Now: {rates}.",
   "eg68.noprice": "No price yet.",
   "eg68.row.one": "Last job: {last}.",
@@ -3167,8 +3776,14 @@
   "eg68.per": "Per {unit}.",
   "eg68.use.last": "Use last",
   "eg68.use.median": "Use typical",
-  "eg68.undo": {"one": "Price {n} item from memory", "other": "Price {n} items from memory"},
-  "eg68.applied": {"one": "Priced {n} item from memory. {mod}+Z takes it back.", "other": "Priced {n} items from memory. {mod}+Z takes them back."},
+  "eg68.undo": {
+    "one": "Price {n} item from memory",
+    "other": "Price {n} items from memory"
+  },
+  "eg68.applied": {
+    "one": "Priced {n} item from memory. {mod}+Z takes it back.",
+    "other": "Priced {n} items from memory. {mod}+Z takes them back."
+  },
   "eg68.all.h": "Everything remembered",
   "eg68.all.intro": "The rates kept from your past takeoffs, newest job last. Forget one, or clear them all.",
   "eg68.all.empty": "Nothing is remembered yet. Prices are remembered when you save a takeoff whose items are priced and used, or from a past takeoff you point it at.",
@@ -3178,7 +3793,10 @@
   "input.cmd.takeoff.prices": "Price memory",
   "eg51.tool": "Supply",
   "eg51.tool.title": "Check what the takeoff needs against a supplier's stock and lead times",
-  "eg51.tool.bad": {"one": "({n} item short or late)", "other": "({n} items short or late)"},
+  "eg51.tool.bad": {
+    "one": "({n} item short or late)",
+    "other": "({n} items short or late)"
+  },
   "eg51.h": "Supplier stock and lead times",
   "eg51.lead.text": "Bring a supplier's stock list (a CSV or Excel file). TakeoffCraft checks what this takeoff needs, with waste, against it: is there enough in stock, and how long is the wait? The rows that matter are kept in this takeoff's file. Nothing is sent anywhere, and nothing asks a supplier.",
   "eg51.add": "Add a supplier file…",
@@ -3216,7 +3834,10 @@
   "eg51.col.supplier": "Supplier",
   "eg51.col.lead": "Lead time (days)",
   "eg51.col.price": "Supplier price",
-  "eg51.file.done": {"one": "Read {n} row from {file}; {matched} match the takeoff.", "other": "Read {n} rows from {file}; {matched} match the takeoff."},
+  "eg51.file.done": {
+    "one": "Read {n} row from {file}; {matched} match the takeoff.",
+    "other": "Read {n} rows from {file}; {matched} match the takeoff."
+  },
   "eg51.file.dropped": "{n} rows that match nothing were left out to keep the takeoff file small.",
   "eg51.file.err": "{file}: {why}",
   "eg51.file.bad": "{file} could not be read as a CSV or Excel file.",
@@ -3243,6 +3864,7 @@
   "lesson.takeoff.save.h1": "Press Ctrl+S, or use Save in the toolbar.",
   "lesson.takeoff.badge": "First takeoff",
   "lesson.file.opened": "A takeoff was opened.",
+  "docinfo.items": "Takeoff items",
   "totals.cost": "Takeoff cost",
   "totals.cost.incomplete": "Some items have a formula error or no scale, so this is not the whole cost yet.",
   "totals.carbon": "Embodied carbon",

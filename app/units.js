@@ -2,7 +2,7 @@
 
 import { t } from './i18n.js';
 import { calc, hasArithmetic } from './lencalc.js';   // 0.6 DF.3: + - * / and brackets (a copy: tools/lencalc/sync.mjs)
-import { parseTo, unit as tableUnit, unitName } from './unit-table.js';   // 0.7 UNITS: the shared table (lib/units; a copy: tools/units/sync.mjs)
+import { parseTo, parse as tableParse, format as tableFormat, unit as tableUnit, unitName } from './unit-table.js';   // 0.7 UNITS: the shared table (lib/units; a copy: tools/units/sync.mjs)
 import { choices, defaultUnit } from './unit-prefs.js';
 /**
  * units.js — lengths, scales and money for TakeoffCraft. DOM-free (tested in Node).
@@ -214,16 +214,21 @@ export const UNITS = {
   LS:   { kind: 'fixed', label: 'LS', get name() { return t('unit.ls.name'); }, system: 'any' },
   CY:   { kind: 'fixed', label: 'CY', get name() { return t('unit.cy.name'); }, system: 'imperial' },
   'm³': { kind: 'fixed', label: 'm³', get name() { return t('unit.m3.name'); }, system: 'metric' },
+  // 0.9 weights (typed quantities: steel, rebar, bulk material; names are the shell's words, shell.units.*)
+  lb:   { kind: 'fixed', label: 'lb', get name() { return unitName('lb'); }, system: 'imperial' },
+  TON:  { kind: 'fixed', label: 'ton', get name() { return unitName('ton'); }, system: 'imperial' },
+  kg:   { kind: 'fixed', label: 'kg', get name() { return unitName('kg'); }, system: 'metric' },
+  t:    { kind: 'fixed', label: 't', get name() { return unitName('tonne'); }, system: 'metric' },
   // 0.7 UNITS: roofing squares, acres and hectares (names are the shell's words, shell.units.*)
   SQ:   { kind: 'area', label: 'SQ', get name() { return unitName('square'); }, perSqFt: 1 / 100, system: 'imperial' },
   ac:   { kind: 'area', label: 'ac', get name() { return unitName('acre'); }, perSqFt: 1 / 43560, system: 'imperial' },
   ha:   { kind: 'area', label: 'ha', get name() { return unitName('ha'); }, perSqFt: SQM_PER_SQFT / 10000, system: 'metric' },
 };
 /** A typed quantity (0.6 TK.5+) may be in any unit: it is typed or imported, never measured. */
-export const UNITS_FOR = { linear: ['LF', 'm'], area: ['SF', 'SY', 'SQ', 'ac', 'm²', 'ha'], count: ['EA'], fixed: ['LS', 'EA', 'CY', 'm³', 'LF', 'm', 'SF', 'SY', 'SQ', 'ac', 'm²', 'ha'] };
+export const UNITS_FOR = { linear: ['LF', 'm'], area: ['SF', 'SY', 'SQ', 'ac', 'm²', 'ha'], count: ['EA'], fixed: ['LS', 'EA', 'CY', 'm³', 'lb', 'TON', 'kg', 't', 'LF', 'm', 'SF', 'SY', 'SQ', 'ac', 'm²', 'ha'] };
 export const DEFAULT_UNIT = { linear: 'LF', area: 'SF', count: 'EA', fixed: 'LS' };
 /** An item unit → the shared table's id (EA and LS are not units of a kind: always listed). */
-export const TABLE_ID = Object.freeze({ LF: 'ft', m: 'm', SF: 'ft2', SY: 'yd2', SQ: 'square', ac: 'acre', 'm²': 'm2', ha: 'ha', CY: 'yd3', 'm³': 'm3' });
+export const TABLE_ID = Object.freeze({ LF: 'ft', m: 'm', SF: 'ft2', SY: 'yd2', SQ: 'square', ac: 'acre', 'm²': 'm2', ha: 'ha', CY: 'yd3', 'm³': 'm3', lb: 'lb', TON: 'ton', kg: 'kg', t: 'tonne' });
 const TABLE_KIND = { linear: 'length', area: 'area' };
 /**
  * The item units a dropdown lists (0.7 UNITS): UNITS_FOR[kind] less the ones turned off in Settings › General › Units,
@@ -259,6 +264,20 @@ export const ftTo = (ft, lu) => (lu === 'm' ? ft * M_PER_FT : ft);
 export const sqftTo = (sf, au) => sf * (UNITS[au]?.perSqFt ?? 1);
 
 // ---------------------------------------------------------------------------
+// Temperatures (0.9): an item's temperature is held in kelvin; typed and shown in °C or °F (or K / °R when typed so)
+
+export const TEMP_UNITS = ['degc', 'degf'];
+/** Text → { ok, kelvin, unit } | { ok: false, error }. A bare number is in `bare` ('degc' | 'degf'). Absolute zero and below is refused. */
+export function parseTemp(text, bare = 'degc') {
+  const r = tableParse(String(text ?? ''), 'temperature', { unit: TEMP_UNITS.includes(bare) ? bare : 'degc' });
+  if (!r.ok) return { ok: false, error: r.code === 'empty' ? 'temp.err.empty' : 'temp.err.bad' };
+  if (!(r.value > 0) || r.value >= 1e4) return { ok: false, error: 'temp.err.range' };
+  return { ok: true, kelvin: Number(r.value.toFixed(9)), unit: r.unit };   // 293.15000000000003 → 293.15
+}
+/** Kelvin → "72°F" / "22.2°C" (unit 'degc' | 'degf'; one decimal). */
+export const formatTemp = (kelvin, unit = 'degc') => (Number.isFinite(kelvin) ? tableFormat(kelvin, TEMP_UNITS.includes(unit) ? unit : 'degc', { dec: 1 }) : '');
+
+// ---------------------------------------------------------------------------
 // Scales
 
 /** Preset drawing scales. ratio = real inches per paper inch. */
@@ -275,7 +294,7 @@ export const SCALE_GROUPS = [
   ]],
   ['Metric', [
     ['m1', '1:1', 1], ['m2', '1:2', 2], ['m5', '1:5', 5], ['m10', '1:10', 10], ['m20', '1:20', 20], ['m25', '1:25', 25],
-    ['m50', '1:50', 50], ['m100', '1:100', 100], ['m200', '1:200', 200], ['m250', '1:250', 250], ['m500', '1:500', 500],
+    ['m50', '1:50', 50], ['m75', '1:75', 75], ['m100', '1:100', 100], ['m150', '1:150', 150], ['m200', '1:200', 200], ['m250', '1:250', 250], ['m500', '1:500', 500],
     ['m1000', '1:1000', 1000],
   ]],
 ];
@@ -339,16 +358,21 @@ export function parsePercent(text) {
   if (v > 1000) return { ok: false, error: t('pct.err.big') };
   return { ok: true, bp: Math.round(roundTo(v, 2) * 100) };
 }
-/** Integer cents → "$1,234.56". */
+/** The money symbol shown before amounts (Settings › TakeoffCraft › Currency): $ € £ … Display only; amounts are never converted. */
+let CUR = '$';
+export const CURRENCIES = Object.freeze(['$', '€', '£', 'CHF ', 'kr ', 'zł ', 'R ', 'A$', 'C$']);
+export const setCurrency = (s) => { CUR = CURRENCIES.includes(s) ? s : '$'; };
+export const currencySymbol = () => CUR;
+/** Integer cents → "$1,234.56" (or "€1,234.56"). */
 export function formatCents(c) {
   const neg = c < 0;
   const a = Math.abs(Math.round(c));
-  return (neg ? '-' : '') + '$' + String(Math.floor(a / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + String(a % 100).padStart(2, '0');
+  return (neg ? '-' : '') + CUR + String(Math.floor(a / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + String(a % 100).padStart(2, '0');
 }
 /** A unit rate (1/10000 $) → "$3.85", "$0.385", "$0.3851". At least two decimals. */
 export function formatRate(rate4) {
   const s = (rate4 / 10000).toFixed(4).replace(/(\.\d\d\d*?)0+$/, '$1');
-  return '$' + s.replace(/^(\d+)/, (m) => m.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+  return CUR + s.replace(/^(\d+)/, (m) => m.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
 }
 export const rateInput = (rate4) => (rate4 / 10000).toFixed(4).replace(/(\.\d\d\d*?)0+$/, '$1');
 export const percentInput = (bp) => String(bp / 100);

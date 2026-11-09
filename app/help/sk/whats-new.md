@@ -1,59 +1,63 @@
 ---
-title: Novinky vo verzii 0.7
-summary: Výkresy DWG a DXF sa otvárajú ako listy s vlastnou mierkou, presné počty a dĺžky priamo z výkresu, vybraná ponuka subdodávateľa ako cena balíka, výzvy na ponuky s uzavretými cenami, nástroje pre asistentov pre výkresy a USD z 3D kontrolného pohľadu.
-keywords: novinky, čo je nové, poznámky k vydaniu, zoznam zmien, zmeny, 0.7, verzia, nové funkcie, dwg, dxf, výkres, rozloženia, priestor modelu, mierka výkresu, počet z výkresu, počet z cad, bloky, dynamické bloky, atribúty, hladiny, xref, prepojený výkres, merať výkres, lomená čiara, šráfovanie, označené pdf, vybraná ponuka, použiť ponuku, odoslať na ponuky, výzva na ponuku, uzavreté ponuky, otváranie ponúk, oneskorená ponuka, záznamy subdodávateľov, csv, asistent, mcp, usd, usdz, jednotky, zoznamy jednotiek, kompaktná, panely, dialógové okná, portugalčina
-from: ad4f0df1
+title: Čo je nové vo verzii 0.8 a 0.8.1
+summary: Spočítajte celú legendu symbolov naraz vo všetkých otvorených listoch, oceňujte položky podľa sadzieb vašich predchádzajúcich zákaziek, kontrolujte výkaz výmer voči zásobám a dodacím lehotám dodávateľa a používajte nové nástroje asistenta pre všetky tri, spolu so spoločnými zmenami vo verzii 0.8 a opravou 0.8.1 pre súbory DWG.
+keywords: čo je nové, novinky, poznámky k vydaniu, zoznam zmien, zmeny, 0.8, 0.8.1, verzia, nové funkcie, spočítať všetko, legenda, legenda symbolov, celý súbor listov, pamäť cien, predchádzajúce zákazky, posledná zákazka, typická cena, dodávateľ, zásoby, dodacia lehota, nedodané tovary, nedostatok, zoznam objednávky, panel problémov, asistent, jazyky, vstupné zariadenia, riadky panela nástrojov, dwg
+from: a04adef6
 ---
 
-Toto sa zmenilo v TakeoffCraft 0.7 oproti 0.6. Výkresy sa teraz otvárajú tak, ako sú, bez predchádzajúceho vykreslenia do PDF, a balík ponúk môže ísť k subdodávateľom a vrátiť sa oceňený.
+Toto sa zmenilo v TakeoffCraft 0.8 (vydané 2026-11-01) a 0.8.1 (2026-11-02) v porovnaní s verziou 0.7. Legendu symbolov je teraz možné spočítať naraz v celom súbore listov a nový výkaz výmer môže začať s cenami vašich predchádzajúcich zákaziek. Výkaz výmer je možné skontrolovať voči zásobám dodávateľa. Verzia 0.8.1 je oprava.
 
 ## Nové
 
-### Výkresy DWG a DXF
+### Spočítať všetko v súbore listov
 
-- **Otvorenie výkresu ako listov.** {{ui:Otvoriť plány}} v skupine {{ui:Súbor}} ({{key:Mod+O}}, alebo pustenie súborov) prijíma výkresy DWG a DXF vedľa súborov PDF. Priestor modelu a každé rozloženie sa stanú listami v zozname {{ui:Listy}} a výkaz výmer môže zahŕňať výkresy aj súbory PDF spolu. Nič sa nenahráva. Pozrite [Otvorenie výkresu DWG alebo DXF](topic:open-a-drawing).
-- **Mierka pochádza z výkresu.** Rozloženie začína v mierke svojho najväčšieho výrezu, pomenovanej ako predvoľba, ak ňou je, napríklad 1/2" = 1'-0". Model začína v jednotkách výkresu. Výkres bez jednotiek hlási „Bez mierky“, kým ho nekalibrujete. {{ui:Kalibrovať}}, {{ui:Kontrola}} a {{ui:Predvoľba}} stále majú prednosť. Pozrite [Mierka](topic:open-a-drawing#the-scale).
-- **Hladiny a prepojené výkresy.** {{ui:Hladiny}} na paneli listu zobrazia alebo skryjú hladiny výkresu. Hladiny, ktoré súbor vypol alebo zmrazil, začínajú skryté a nepočítajú sa, pokiaľ sa tak nerozhodnete. Prepojený výkres (xref) otvorený vedľa svojho hostiteľa sa kreslí a počíta tam, kde je vložený; kým nie je otvorený, stavový riadok hovorí, čo chýba. Pozrite [Hladiny](topic:open-a-drawing#layers).
-- **Označené PDF funguje z výkresu.** {{ui:Export}} › {{ui:Označené PDF}} najprv nakreslí označené listy výkresu ako PDF, takže kópia ukazuje Vaše značky a legendu bez kroku vykreslenia. Kreslí sa čiernou alebo farbami výkresu, bez tabuliek štýlov tlače. Pozrite [Označené PDF](topic:export-estimate#a-marked-pdf).
+- **Raz označte legendu.** {{ui:Spočítať všetko}} na paneli nástrojov načíta legendu symbolov: potiahnite rámček okolo symbolov a názvov, ktoré sú pri nich vytlačené. Každý symbol sa zobrazí s obrázkom a názvom a názov sa stane názvom položky. Odznačte, čo nechcete, a potom zvoľte {{ui:Spočítať na N listoch}}. Lišta ukazuje list, ktorý sa prehľadáva, {{ui:Zrušiť}} zastaví beh a stránka zostane použiteľná.
+- **Všetky listy v jednom behu.** Každý symbol sa počíta na každom otvorenom liste. List nakreslený v inej mierke sa prehľadá v tejto mierke a symboly sa hľadajú otočené o ľubovoľný pravý uhol. Vlastné symboly legendy sa na jej liste nepočítajú.
+- **Kontrola pred pridaním.** Každý súčet má odkaz na jednotlivé listy („E-103: 4"), ktorý vás na list presunie. Kliknutím na rámček nálezu ho vynecháte a ďalším kliknutím ho vrátite. Úroveň zhody (50 % až 100 %) iba filtruje nájdené výsledky; nič sa nehľadá znova.
+- **Jeden krok späť.** {{ui:Pridať N značiek}} vytvorí položku počtu pre každý symbol so značkou pri každom náleze. Názov, ktorý už je vašou položkou počtu, sa znovu použije. {{key:Ctrl+Z}} vráti späť všetky položky a značky. To, čo prijmete, sa tiež uloží do {{ui:Naučené}}.
+- **Symboly pod ľubovoľným uhlom.** Pred počítaním zaškrtnite {{ui:Symboly pod ľubovoľným uhlom}}, aby sa našli aj symboly otočené o uhol, ktorý nie je pravý. Vyhľadávanie potom otáča každý symbol po 15 stupňoch a symbol, ktorý nie je okrúhly, môže trvať až šesťkrát dlhšie.
+- **Čo to je.** Obyčajné porovnávanie symbolov na vašich vlastných listoch bez trénovaného modelu; nič neopúšťa váš počítač. Na fiktívnom súbore 200 listov to v prehliadači Chrome na rýchlom počítači trvalo od začiatku do konca 9,4 sekundy; reálne súbory plánov budú pomalšie. Pozrite si [Spočítať všetko v súbore listov](topic:count-everything).
 
-### Presné počty a dĺžky z výkresu
+### Pamäť cien z vašich vlastných zákaziek
 
-- **Počítajte, čo výkres hovorí, že tam je.** {{ui:Počet z CAD}} na paneli listu počíta blok podľa názvu (vrátane vnorených blokov, stavov dynamických blokov a polí blokov), všetko jedného typu na hladine, alebo hodnotu textu či atribútu. Počíta to, čo list ukazuje, alebo raz celý výkres. Pridanie značiek je jeden krok späť a opakované počítanie pridá len to, čo je nové. {{ui:Automatický počet}} zostáva pre súbory PDF a symboly, ktoré nie sú blokmi. Pozrite [Počet z výkresu](topic:count-from-a-drawing).
-- **Meranie z vlastných čiar výkresu.** {{ui:Merať výkres}} preberá úsečky, oblúky, lomené čiary, kružnice, šráfovania a telesá, na ktoré kliknete alebo ich vyberiete oknom, ako značky lineárnej alebo plošnej položky. Oblúky, vydutia a otvory šráfovania vychádzajú presne; elipsy a splajny sa merajú v jemných tetivách a panel to povie. Pozrite [Meranie z výkresu](topic:measure-from-a-drawing).
+- **TakeoffCraft si pamätá vaše sadzby.** Pri uložení výkazu výmer sa každá ocenená položka, ktorá sa použila, zapamätá podľa názvu a typu: sadzba materiálu, sadzba práce, odpad a jednotka. Pre každý názov sa uchováva posledných 12 zákaziek. Uchováva sa na tomto počítači vedľa knižnice cien, nikdy vnútri súboru výkazu výmer, a nikam sa neodosiela.
+- **Začnite nový výkaz výmer z nej.** {{ui:Ceny}} na paneli nástrojov zobrazí pri každej položke sadzby z poslednej zákazky, typické sadzby a rozsah. {{ui:Použiť poslednú}} alebo {{ui:Použiť typickú}} ocení jednu položku a {{ui:Oceniť N položiek bez ceny z pamäti}} doplní každú položku, ktorá ešte nemá cenu. Každé použitie je jeden krok späť.
+- **Staršia práca.** {{ui:Naučiť sa z minulého výkazu výmer…}} zapamätá ocenené položky uloženého výkazu výmer (.json).
+- **Pozrite si, zmeňte alebo zabudnite.** {{ui:Všetko zapamätané}} zobrazí každý názov; tlačidlo koša zabudne jeden z nich a {{ui:Vymazať všetky ceny}} zabudne všetky. Ak chcete ukladanie zastaviť, vypnite {{ui:Pamätať si moje ceny pri uložení výkazu výmer}}. Cena za kus sa nikdy nepremieta na položku za stopu. Pozrite si [Pamäť cien z vašich predchádzajúcich zákaziek](topic:price-memory).
 
-### Ponuky
+### Zásoby a dodacie lehoty dodávateľa
 
-- **Použitie ponuky subdodávateľa ako ceny balíka.** V {{ui:Export}} › {{ui:Balíky ponúk a vyrovnávanie…}} vyberte {{ui:Použiť}} pri ponuke. Položky balíka zostávajú ako množstvá, jeden riadok **Vybraná ponuka** nesie cenu, položky, ktoré ponuka vynecháva, zostávajú na Váš náklad a režijné náklady, zisk a záruka sa na ňu vzťahujú. Prepnutie ponúk je jeden krok späť; zošit aj súhrn ponúk ju nesú. Pozrite [Použitie ponuky ako ceny balíka](topic:bid-leveling#use-a-bid-as-the-packages-price).
-- **Odoslanie balíka na ponuky.** {{ui:Odoslať na ponuky…}} pod balíkom pošle každému subdodávateľovi e-mailom odkaz na stránku, ktorá nevyžaduje účet: vidia rozsah a listy ako PDF, napíšu cenu na každý riadok alebo ho označia ako nezahrnutý, pridajú poznámky a až tri súbory, alebo odmietnu. {{ui:Získať ceny}} vtiahne to, čo sa vrátilo, do vyrovnávacieho listu, označené **web**. Odosielanie je otvorené len účtom, ktoré tím CadCraft povolil počas testovania (pozrite nižšie). Pozrite [Odoslanie balíka na ponuky](topic:bid-invitations).
-- **Uzavreté do otvorenia.** Ceny môžu zostať uzavreté do času otvorenia, ktorý nastavíte: dovtedy cenu nikto nevidí, ani Vy. Pri otvorení sa zobrazí každá ponuka naraz a ponuka, ktorá prišla po termíne, je označená ako oneskorená. Pozrite [Uzavreté ponuky a otvorenie](topic:bid-invitations#sealed-bids-and-the-opening).
-- **Záznamy subdodávateľov.** Váš účet na getcadcraft.com uchováva kontakty každej firmy, remeslá, odpovede na kvalifikačné otázky a dátumy poistenia a licencií (označené po uplynutí alebo do 30 dní) s ich minulými ponukami. Importujte a exportujte ich ako CSV a vyberajte ich pri odosielaní balíka. Pozrite [Na webe](topic:bid-invitations#on-the-website).
+- **Kontrola voči zoznamu dodávateľa.** {{ui:Dodávka}} na paneli nástrojov prijme zoznam zásob dodávateľa ({{ui:Pridať súbor dodávateľa…}}), CSV alebo tabuľku, a skontroluje, čo výkaz výmer potrebuje vrátane odpadu. Uchovávajú sa až päť súborov. Nič sa neodosiela a nič sa nepýta dodávateľa: súbor priniesete vy.
+- **Čo to hovorí.** Najskôr sa zobrazujú krátke položky: „Chýba 120 EA", „Dodacia lehota 21 dní", „Na objednávku", „Iná jednotka", „Stav zásob nie je uvedený" alebo „Na sklade". {{ui:Najdlhšie požadované čakanie (dni)}} začína hodnotou 14.
+- **Zoznam objednávky.** {{ui:Zoznam objednávky (CSV)}} stiahne položky s nedostatkom spolu s chýbajúcim množstvom, dodávateľom a dodacou lehotou.
+- **Ceny do knižnice.** Ak súbor obsahuje ceny, {{ui:Ceny do knižnice}} nastaví cenu materiálu pri každej položke knižnice s rovnakým názvom a jednotkou. Ak ich chcete preniesť do výkazu výmer, preceňte z knižnice.
+- **V paneli problémov.** Nedostatok je upozornenie a dlhé čakanie je poznámka, obe pod položkou „Zásoby dodávateľa". Nedostatok môžete prijať s uvedeným dôvodom a dôvod sa uloží do výkazu výmer. Pozrite si [Kontrola zásob dodávateľa a dodacích lehôt](topic:supplier-stock).
 
-### Asistenti s umelou inteligenciou
+### Asistenti AI
 
-- **Asistenti môžu dopĺňať výkaz výmer.** S označenými **Úpravy** môže Váš vlastný asistent pridávať položky (`items_add`) a merať úseky, plochy a počty na liste (`marks_add`; dĺžky a plochy len na liste s mierkou), každé volanie je jeden krok späť.
-- **Nástroje asistentov pre výkresy.** V otvorenom DWG alebo DXF môže asistent vypísať jeho listy a čo sa dá počítať, presne počítať, pridať značky počtu a merať z geometrie výkresu. Bez otvoreného TakeoffCraft server CadCraft MCP otvorí výkres ako nový výkaz výmer a uloží ho a `cadcraft count` počíta z príkazového riadka. Pozrite [O čo môže asistent požiadať](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **Nástroje pre všetky tri.** Ak sú asistenti povolení v {{ui:Nastavenia}}, asistent môže prečítať legendu (`legend_open`), spustiť počítanie (`legend_count_start`, potom `legend_count_status` a `legend_count_result`) a pridať ho (`legend_count_add`, ktorý môže najskôr zobraziť náhľad). Môže prečítať zapamätané ceny (`prices_list`) a oceniť položky z nich (`prices_apply`, ktorý môže najskôr zobraziť náhľad) a prečítať kontrolu dodávateľa (`supply_check`). Pridanie súboru dodávateľa zostáva na vás. Pozrite si [Používanie TakeoffCraft s asistentmi AI](topic:use-with-ai-assistants).
 
-### USD
+### Vo všetkých aplikáciách
 
-- **3D kontrolný pohľad ako USD.** {{ui:Balík USD (.usdz)}} vedľa {{ui:GLB}} v 3D kontrolnom pohľade zapíše každý múr, dosku, plech, stĺpik počtu a úsek ako samostatný objekt, pomenovaný podľa svojej položky a nesúci svoje množstvo, v metroch. Asistent ho môže exportovať tiež (`usd_export`). Pozrite [Export 3D kontrolného pohľadu ako USD](topic:usd).
+- **Jazyky.** Celkovo päťdesiatštyri jazykov; desať je nových (litovčina, lotyština, bosnčina, maráthčina, telugčina, albánčina, afrikánčina, filipínčina, svahilčina a uzbečtina). Jazyky iné ako angličtina sú strojové koncepty, kým ich neprečíta rodený hovoriaci.
+- **Vstupné zariadenia.** {{ui:Nastavenia}} › {{ui:Globálne}} › {{ui:Vstupné zariadenia}} určuje, čo robí touchpad, bočné tlačidlá myši, pero, 3D myš, herný ovládač alebo MIDI ovládač, pre všetky aplikácie alebo pre jednu. Pozrite si [Používanie touchpadu, 3D myši alebo ovládača](common:input-devices).
+- **Riadky panela nástrojov.** {{ui:Nastavenia}} › {{ui:Všeobecné}} › {{ui:Riadky panela nástrojov}} ponúka {{ui:Zalomiť}} (začiatok), {{ui:2 riadky}} a {{ui:1 riadok}}; skupiny, ktoré sa nezmestia, sa posúvajú do strany. Pozrite si [Usporiadanie panelov](common:arrange-panels).
+- **Panel problémov.** Spoločný panel upozornení a poznámok teraz obsahuje vyššie uvedenú kontrolu zásob dodávateľa vedľa ostatných kontrol.
+- **Doplnky.** Doplnky sledujú zoznam doplnkov vášho účtu. Pozrite si [Doplnky a zoznam vášho účtu](common:addons-basics).
+- **Pripojte svojho asistenta AI.** CadCraft Studio je centrum: pripojte svojho asistenta raz pre všetkých osem aplikácií. Studio nemá vlastnú AI.
 
-## V každej aplikácii
+## Opravené vo verzii 0.8.1
 
-- **Jednotky.** {{ui:Nastavenia}} › {{ui:Všeobecné}} › {{ui:Jednotky}} má po jednom zozname pre dĺžku, plochu, objem, uhol a sklon, s presnými veľkosťami podľa definícií jednotiek (americká geodetská stopa je samostatná jednotka). Vypnite jednotky, ktoré nikdy nepoužívate, a zmiznú zo zoznamov jednotiek; označte jednu hviezdičkou a nová práca sa začne v nej. Súbor si vždy ponechá vlastnú jednotku. V TakeoffCraft sa zoznamy {{ui:Jednotka}} položky riadia prepínačmi, nová položka začína v jednotke dĺžky alebo plochy označenej hviezdičkou, strešné štvorce (SQ), akre a hektáre sú nové jednotky plochy a pole dĺžky prijíma značku ľubovoľnej jednotky, napríklad `3 yd`. Pozrite [Jednotky, zadávané hodnoty a zoznamy jednotiek](common:unit-lists).
-- **Hustejšie rozloženie a panely, ktoré sa skladajú.** {{ui:Nastavenia}} › {{ui:Všeobecné}} › {{ui:Hustota rozloženia}} › {{ui:Kompaktná}} sa zmestí viac na obrazovku (dotykové obrazovky a telefóny si ponechávajú veľké tlačidlá). Každý bočný panel má úzky záhlavný pruh: potiahnutím ho ukotvíte alebo uvoľníte, pustením na pruh iného panela ho zdieľate v jednom ráme ako karty, pripnutím ho necháte vsunúť sa k okraju alebo ho skryjete a vrátite z okraja. Pozrite [Usporiadanie panelov](common:arrange-panels#make-the-layout-denser).
-- **Dialógové okná sa presúvajú.** Dialógové okno potiahnite za záhlavie mimo výkresu; vráti sa tam, kde ste ho nechali. Dvojitým kliknutím na záhlavie ho znova vycentrujete. Pozrite [Presunutie dialógového okna](common:arrange-panels#move-a-dialog).
-- **Recepty pre asistentov s umelou inteligenciou.** Desať prepracovaných požiadaviek pre Vášho vlastného asistenta (upratať výkres, vykresliť sadu, skontrolovať výkresy, klásť modelu otázky, spočítať výkaz výmer, vyskúšať variant súčiastky …), každá s nástrojmi, ktoré volá, a oprávneniami, ktoré potrebuje, a každá prehraná našimi testami. Aplikácie neobsahujú žiadnu umelú inteligenciu. Pozrite [Recepty pre asistentov s umelou inteligenciou](common:assistants-recipes).
-- **Jazyky.** **Português (Portugal)** je nový v {{ui:Nastavenia}} › {{ui:Všeobecné}} › {{ui:Jazyk}}. Tento jazyk, **Português (Brasil)**, **Español (México)** a **Bahasa Indonesia** majú teraz každé slovo aplikácií, ako koncepty, ktoré ešte neskontroloval rodený hovorca. Témy pomocníka sú v angličtine.
-- **CadCraft Studio** hovorí, prečo kontrola aktualizácií zlyhala (zatiaľ žiadny súbor pre Váš systém, žiadna sieť, neplatný podpis) namiesto samotného „Hotovo“, a prestane vracať kartu Novinky, ktorú ste zavreli, kým nie je novšie vydanie.
+- **Sekcia tried súboru DWG.** Sekcia tried súboru DWG sa čítala ako nesprávny typ. Je to opravené v TakeoffCraft a v štyroch ďalších aplikáciách.
+- **Studio môže meniť jazyk počas behu.** Predtým boli Studio a jeho balené verzie iba v angličtine. Nebolo to otestované v desktopovom zostavení na každej platforme; ak sa jazyk nezmení, dajte nám vedieť.
 
-## Zatiaľ nie je vo verzii
+## Ešte nie je v tejto verzii
 
-- **0.7 nie je podpísaná kódom.** Podpisovanie a balík pre Microsoft Store sa presunuli do 0.8, pretože overenie certifikátu zatiaľ neprebehlo. Skontrolujte SHA-256 vedľa každého súboru na getcadcraft.com/download. Ak inštalátor vo Windows zastaví SmartScreen, vyberte {{ui:Ďalšie informácie}} a potom {{ui:Spustiť aj tak}}. Na Macu pri prvom spustení kliknite pravým tlačidlom na CadCraft Studio a vyberte {{ui:Otvoriť}}. CadCraft Studio zatiaľ nie je v žiadnom obchode s aplikáciami a zatiaľ neexistuje verzia pre iPad ani iPhone.
-- Zoznamy uhlov a sklonov v {{ui:Jednotky}} sa ukladajú, ale zatiaľ ich nečíta žiadne pole.
-- **Výzvy na ponuky sú pre väčšinu účtov vypnuté.** Kým sa funkcia testuje, pošta externým uchádzačom odchádza len z účtov, ktoré tím CadCraft povolil. Stránky uchádzačov fungujú pre každú už odoslanú výzvu. Všetci ostatní: stiahnite {{ui:CSV rozsahu}}, pošlite ho e-mailom sami a ponuky zadajte ručne.
-- Okno CadCraft Studio zatiaľ nemôže odosielať výzvy na ponuky: hovorí, aby ste použili TakeoffCraft v prehliadači. Otvorenie výkazu výmer s odoslanými žiadosťami, vyrovnávanie a výber ponuky v Studiu fungujú.
-- Dodatky, listy o pridelení zákazky, rozsahový list, ktorý každý uchádzač odsúhlasí, a automatické pripomienky pred uplynutím dátumu poistenia nie sú hotové. Vybraná ponuka neprecení oblasť ponuky alternatívy.
-- Výkresy: tabuľky štýlov tlače a súbory CTB sa nepoužívajú, binárny DXF sa odmietne (uložte ho ako ASCII DXF alebo DWG), prepojené výkresy sa hľadajú len medzi otvorenými súbormi podľa názvu súboru a podklady PDF, obrázky a objekty OLE vo výkrese sa nekreslia ani nepočítajú. Počty a mierky boli skontrolované na vzorových výkresoch, zatiaľ nie na výkresoch zo skutočnej zákazky otvorených v programe, ktorý ich vytvoril.
-- Asistent môže pridávať položky a značky, ale nemôže presúvať, meniť ani mazať značky, ktoré tam už sú.
+- **Nie je podpísané certifikátom kódu.** Windows môže upozorniť a na Macu kliknete pravým tlačidlom a pri prvom spustení zvolíte {{ui:Otvorené}}. Obchodné zostavenia (Microsoft Store, Google Play, App Store) sú pozastavené a zostavenie pre iPad a iPhone nebolo znovu vytvorené pre 0.8.1.
+- **Aktualizácie Studio.** Inštalátor pre Windows a balíky pre Linux kontrolujú raz denne a pred inštaláciou sa pýtajú. Prenosný zip iba oznámi novú verziu a macOS a APK sa neaktualizujú samy. Súbor .dmg pre macOS vo verzii 0.8 nasleduje vydanie.
+- **Pripojenie AI.** Pripojenie jedným kliknutím v Studio, hostovaný konektor pre AI v prehliadači, váš vlastný API kľúč v Studio a zverejnený balík MCP nie sú v tejto verzii sľúbené.
+- **Spočítať všetko.** Potrebuje symboly nakreslené rovnako ako v legende a symbol so stenou alebo dlhou čiarou cez seba sa môže prehliadnuť. Zrkadlové symboly sa nenájdu a list bez mierky, ktorý je nakreslený v inej veľkosti, sa prehľadá vo veľkosti legendy. Pred dôverou ostatným skontrolujte nálezy na prvom liste.
+- **Zásoby dodávateľa.** Údaje o zásobách sú iba také aktuálne, ako súbor, ktorý pridáte. Kontrola sa nikdy nepýta dodávateľa.
+- **Jazyky.** Aplikačný pruh pre tamilčinu presahuje.
 
-Všetko ostatné je v [Ešte nie je hotové](topic:not-built-yet).
+Všetko ostatné je v časti [Ešte nie je hotové](topic:not-built-yet). Pre vydanie pred touto verziou pozrite [Čo je nové vo verzii 0.7](topic:whats-new-0-7).

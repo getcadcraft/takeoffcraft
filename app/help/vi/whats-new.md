@@ -1,59 +1,63 @@
 ---
-title: Có gì mới trong 0.7
-summary: Bản vẽ DWG và DXF mở thành các tờ với tỷ lệ riêng của chúng, đếm và chiều dài chính xác từ chính bản vẽ, giá thầu nhà thầu phụ đã chọn làm giá của một gói, thư mời thầu với giá niêm phong, công cụ cho trợ lý về bản vẽ, và USD từ khung nhìn kiểm tra 3D.
-keywords: có gì mới, ghi chú phát hành, nhật ký thay đổi, thay đổi, 0.7, phiên bản, tính năng mới, dwg, dxf, bản vẽ, bố cục, không gian mô hình, tỷ lệ bản vẽ, đếm từ bản vẽ, đếm cad, khối, khối động, thuộc tính, lớp, xref, bản vẽ liên kết, đo bản vẽ, đa tuyến, tô bóng, pdf đã đánh dấu, giá thầu đã chọn, dùng một giá thầu, gửi mời thầu, thư mời thầu, giá niêm phong, mở thầu, thầu muộn, hồ sơ nhà thầu phụ, csv, trợ lý, mcp, usd, usdz, đơn vị, danh sách đơn vị, gọn, bảng, hộp thoại, tiếng bồ đào nha
-from: ad4f0df1
+title: Có gì mới trong 0.8 và 0.8.1
+summary: Đếm toàn bộ bảng chú giải ký hiệu trên mọi tờ đang mở trong một lần chạy, định giá hạng mục theo đơn giá của các công việc trước, đối chiếu takeoff với tồn kho và thời gian chờ của nhà cung cấp, cùng các công cụ trợ lý AI cho cả ba, cộng với các thay đổi chung của 0.8 và bản sửa lỗi 0.8.1 cho tệp DWG.
+keywords: có gì mới, what's new, ghi chú phát hành, nhật ký thay đổi, thay đổi, 0.8, 0.8.1, phiên bản, tính năng mới, đếm tất cả, bảng chú giải, bảng chú giải ký hiệu, toàn bộ bộ bản vẽ, bộ nhớ giá, công việc trước, công việc gần nhất, giá thường gặp, nhà cung cấp, tồn kho, thời gian chờ, đặt trước, danh sách đặt hàng, thiếu hàng, bảng vấn đề, trợ lý, ngôn ngữ, thiết bị nhập, số hàng thanh công cụ, dwg
+from: a04adef6
 ---
 
-Đây là những gì đã thay đổi trong TakeoffCraft 0.7 so với 0.6. Bản vẽ giờ mở nguyên trạng, không cần in ra PDF trước, và một gói dự thầu có thể gửi đến các nhà thầu phụ và quay về cùng giá.
+Đây là những thay đổi của TakeoffCraft 0.8 (phát hành ngày 2026-11-01) và 0.8.1 (2026-11-02), so với 0.7. Giờ bạn có thể đếm một bảng chú giải ký hiệu trên toàn bộ bộ bản vẽ cùng lúc, bắt đầu một takeoff mới từ đơn giá của các công việc trước, và đối chiếu takeoff với tồn kho của nhà cung cấp. 0.8.1 là bản sửa lỗi.
 
 ## Mới
 
-### Bản vẽ DWG và DXF
+### Đếm tất cả trong bộ bản vẽ
 
-- **Mở một bản vẽ thành các tờ.** {{ui:Mở bản vẽ}} trong nhóm {{ui:Tệp}} ({{key:Mod+O}}, hoặc thả các tệp) nhận bản vẽ DWG và DXF bên cạnh PDF. Không gian mô hình và mọi bố cục trở thành các tờ trong danh sách {{ui:Tờ}}, và một bóc tách có thể bao gồm cả bản vẽ lẫn PDF. Không có gì được tải lên. Xem [Mở một bản vẽ DWG hoặc DXF](topic:open-a-drawing).
-- **Tỷ lệ lấy từ bản vẽ.** Một bố cục bắt đầu ở tỷ lệ của khung nhìn lớn nhất của nó, được gọi tên như một đặt sẵn khi nó là một đặt sẵn, như 1/2" = 1'-0". Mô hình bắt đầu theo đơn vị của bản vẽ. Một bản vẽ không có đơn vị ghi "Không có tỷ lệ" cho đến khi bạn hiệu chuẩn nó. {{ui:Hiệu chuẩn}}, {{ui:Kiểm tra}} và {{ui:Đặt sẵn}} vẫn được ưu tiên. Xem [Tỷ lệ](topic:open-a-drawing#the-scale).
-- **Lớp và bản vẽ liên kết.** {{ui:Lớp}} trên thanh tờ hiện hoặc ẩn các lớp của bản vẽ. Các lớp mà tệp đã tắt hoặc đóng băng bắt đầu ở trạng thái ẩn và không được đếm trừ khi bạn chọn. Một bản vẽ liên kết (xref) mở bên cạnh bản vẽ chủ được vẽ và đếm tại nơi nó được chèn; cho đến khi nó được mở, thanh trạng thái cho biết thiếu gì. Xem [Lớp](topic:open-a-drawing#layers).
-- **PDF đã đánh dấu hoạt động từ một bản vẽ.** {{ui:Xuất}} › {{ui:PDF đã đánh dấu}} vẽ trước các tờ có dấu của bản vẽ thành PDF, nên bản sao hiện các dấu và chú giải của bạn mà không cần bước in. Nó được vẽ bằng màu đen hoặc màu của bản vẽ, không có bảng kiểu in. Xem [PDF đã đánh dấu](topic:export-estimate#a-marked-pdf).
+- **Khoanh bảng chú giải một lần.** {{ui:Count everything}} trên thanh công cụ đọc một bảng chú giải ký hiệu: kéo một khung bao quanh các ký hiệu và tên in bên cạnh. Mỗi ký hiệu được liệt kê cùng hình và tên, và tên trở thành tên của hạng mục. Bỏ chọn những gì bạn không muốn, rồi chọn {{ui:Đếm trên N tờ}}. Một thanh hiển thị tờ đang được tìm, {{ui:Cancel}} dừng quá trình, và trang vẫn dùng được.
+- **Mọi tờ trong một lần chạy.** Mỗi ký hiệu được đếm trên mọi tờ đang mở. Tờ vẽ ở tỷ lệ khác sẽ được tìm theo tỷ lệ đó, và ký hiệu được tìm dù xoay theo góc vuông nào. Các ký hiệu của chính bảng chú giải không được đếm trên tờ của nó.
+- **Xem lại trước khi thêm gì.** Mỗi tổng có một liên kết tới từng tờ ("E-103: 4") để chuyển đến tờ đó. Nhấp một khung trên một kết quả tìm được để bỏ qua, và nhấp lại để đưa nó trở về. Mức khớp (50% đến 100%) chỉ lọc kết quả đã tìm; không tìm lại.
+- **Một bước hoàn tác.** {{ui:Thêm N dấu đếm}} tạo một hạng mục đếm cho mỗi ký hiệu, với một dấu trên mọi kết quả tìm được. Tên đã là hạng mục đếm của bạn sẽ được dùng lại. {{key:Ctrl+Z}} hoàn tác mọi hạng mục và dấu. Những gì bạn chấp nhận cũng được đưa vào {{ui:Đã học}}.
+- **Ký hiệu ở mọi góc.** Đánh dấu {{ui:Ký hiệu ở mọi góc}} trước khi đếm để cũng tìm được ký hiệu xoay theo góc không phải góc vuông. Khi đó, phép tìm xoay mỗi ký hiệu 15 độ một lần, và một ký hiệu không tròn có thể mất gấp sáu lần thời gian.
+- **Đây là gì.** Phép so khớp ký hiệu thông thường trên các tờ của chính bạn, không có mô hình được huấn luyện, và không có gì rời khỏi máy tính của bạn. Trên một bộ 200 tờ giả lập, quá trình mất 9.4 giây từ đầu đến cuối trong Chrome trên một máy tính để bàn nhanh; bộ bản vẽ thực sẽ chậm hơn. Xem [Đếm tất cả trong bộ bản vẽ](topic:count-everything).
 
-### Đếm và chiều dài chính xác từ bản vẽ
+### Bộ nhớ giá từ các công việc của bạn
 
-- **Đếm những gì bản vẽ nói là có.** {{ui:Đếm CAD}} trên thanh tờ đếm một khối theo tên (kể cả khối lồng nhau, trạng thái khối động và mảng khối), mọi thứ cùng loại trên một lớp, hoặc một giá trị văn bản hay thuộc tính. Nó đếm những gì tờ hiển thị hoặc cả bản vẽ một lần. Thêm các dấu là một bước hoàn tác, và đếm lại chỉ thêm những gì mới. {{ui:Đếm tự động}} vẫn dành cho PDF và cho các ký hiệu không phải khối. Xem [Đếm từ một bản vẽ](topic:count-from-a-drawing).
-- **Đo từ chính các đường của bản vẽ.** {{ui:Đo bản vẽ}} lấy các đường thẳng, cung tròn, đa tuyến, vòng tròn, tô bóng và khối đặc mà bạn bấm hoặc quét chọn làm dấu của một hạng mục tuyến tính hoặc diện tích. Cung tròn, độ phồng và lỗ của một vùng tô bóng cho kết quả chính xác; elip và spline được đo bằng các dây cung nhỏ, và thanh cho biết điều đó. Xem [Đo từ một bản vẽ](topic:measure-from-a-drawing).
+- **TakeoffCraft nhớ đơn giá của bạn.** Khi bạn lưu takeoff, mỗi hạng mục đã định giá và đang được dùng sẽ được nhớ theo tên và loại: đơn giá vật liệu, đơn giá nhân công, hao hụt và đơn vị. 12 công việc gần nhất được giữ cho mỗi tên. Dữ liệu được lưu trên máy tính này cạnh Thư viện giá, không bao giờ nằm trong tệp takeoff, và không gửi đi đâu.
+- **Bắt đầu takeoff mới từ đó.** {{ui:Giá}} trên thanh công cụ hiển thị, cho mỗi hạng mục, đơn giá của công việc gần nhất, đơn giá thường gặp và khoảng giá. {{ui:Dùng giá trước}} hoặc {{ui:Dùng giá thường gặp}} áp giá cho một hạng mục, và {{ui:Định giá N hạng mục chưa có giá từ bộ nhớ}} điền mọi hạng mục chưa có giá. Mỗi lần dùng là một bước hoàn tác.
+- **Công việc cũ.** {{ui:Học từ một takeoff cũ…}} ghi nhớ các hạng mục đã định giá của một takeoff đã lưu (.json).
+- **Xem, thay đổi, quên.** {{ui:Mọi thứ đã nhớ}} liệt kê mọi tên; nút thùng rác quên một tên, và {{ui:Xóa tất cả giá}} quên tất cả. Tắt {{ui:Ghi nhớ giá của tôi khi tôi lưu takeoff}} để dừng. Giá theo EA không bao giờ được gán cho một hạng mục tính theo ft. Xem [Bộ nhớ giá từ các công việc trước](topic:price-memory).
 
-### Dự thầu
+### Tồn kho và thời gian chờ của nhà cung cấp
 
-- **Dùng giá thầu của một nhà thầu phụ làm giá của gói.** Trong {{ui:Xuất}} › {{ui:Gói dự thầu và cân bằng…}}, chọn {{ui:Dùng}} trên một giá thầu. Các hạng mục của gói vẫn là khối lượng, một dòng **Giá thầu đã chọn** mang giá, các hạng mục mà giá thầu bỏ ra vẫn tính theo chi phí của bạn, và chi phí chung, lợi nhuận và bảo lãnh áp dụng cho nó. Đổi giá thầu là một bước hoàn tác; sổ làm việc và bảng tóm tắt giá thầu đều mang nó. Xem [Dùng một giá thầu làm giá của gói](topic:bid-leveling#use-a-bid-as-the-packages-price).
-- **Gửi một gói để lấy giá thầu.** {{ui:Gửi mời thầu…}} dưới một gói gửi email cho mỗi nhà thầu phụ một liên kết đến một trang không cần tài khoản: họ xem phạm vi và các tờ dưới dạng PDF, gõ giá vào từng dòng hoặc đánh dấu là không bao gồm, thêm ghi chú và tối đa ba tệp, hoặc từ chối. {{ui:Lấy giá}} kéo những gì đã quay về vào bảng cân bằng, gắn cờ **web**. Việc gửi chỉ mở cho các tài khoản mà đội CadCraft đã bật trong lúc thử nghiệm (xem bên dưới). Xem [Gửi một gói để lấy giá thầu](topic:bid-invitations).
-- **Niêm phong cho đến lúc mở thầu.** Giá có thể được niêm phong cho đến một giờ mở thầu bạn đặt: cho đến lúc đó không ai thấy giá, kể cả bạn. Tại lúc mở thầu, mọi giá thầu hiện cùng lúc, và một giá thầu đến sau giờ hạn được đánh dấu là muộn. Xem [Giá thầu niêm phong và việc mở thầu](topic:bid-invitations#sealed-bids-and-the-opening).
-- **Hồ sơ nhà thầu phụ.** Tài khoản của bạn trên getcadcraft.com giữ liên hệ, ngành nghề, câu trả lời thẩm định, và ngày bảo hiểm và giấy phép của từng công ty (gắn cờ khi đã quá hạn hoặc trong vòng 30 ngày), cùng các giá thầu trước đây của họ. Nhập và xuất chúng thành CSV, và chọn chúng khi bạn gửi một gói. Xem [Trên trang web](topic:bid-invitations#on-the-website).
+- **Đối chiếu với danh sách nhà cung cấp.** {{ui:Cung ứng}} trên thanh công cụ nhận danh sách tồn kho của nhà cung cấp ({{ui:Thêm tệp nhà cung cấp…}}), một tệp CSV hoặc bảng tính, và đối chiếu những gì takeoff cần, kể cả hao hụt, với danh sách đó. Giữ tối đa năm tệp. Không có gì được gửi đi và không có gì hỏi nhà cung cấp: bạn là người cung cấp tệp.
+- **Kết quả.** Các hạng mục thiếu hiển thị trước, với các câu như "Thiếu 120 EA", "Thời gian chờ 21 ngày", "Đang đặt trước", "Đơn vị khác nhau", "Chưa có số liệu tồn kho" hoặc "Còn hàng". {{ui:Thời gian chờ dài nhất chấp nhận (ngày)}} bắt đầu từ 14.
+- **Danh sách đặt hàng.** {{ui:Danh sách đặt hàng (CSV)}} tải xuống các hạng mục thiếu, kèm số lượng thiếu, nhà cung cấp và thời gian chờ.
+- **Đơn giá vào Thư viện.** Nếu tệp có giá, {{ui:Đơn giá vào Thư viện}} đặt giá vật liệu cho mỗi mục Thư viện có cùng tên và đơn vị. Định giá lại từ Thư viện để đưa chúng vào takeoff.
+- **Trong bảng Vấn đề.** Thiếu hàng là cảnh báo và chờ lâu là ghi chú, dưới "Tồn kho nhà cung cấp". Bạn có thể chấp nhận một mục kèm lý do, và lý do được lưu trong takeoff. Xem [Kiểm tra tồn kho và thời gian chờ của nhà cung cấp](topic:supplier-stock).
 
 ### Trợ lý AI
 
-- **Trợ lý có thể thêm vào bóc tách.** Khi **Chỉnh sửa** được đánh dấu, trợ lý của riêng bạn có thể thêm hạng mục (`items_add`) và đo các đoạn, diện tích và số đếm trên một tờ (`marks_add`; chiều dài và diện tích chỉ trên tờ đã có tỷ lệ), mỗi lệnh gọi là một bước hoàn tác.
-- **Công cụ cho trợ lý về bản vẽ.** Trên một DWG hoặc DXF đang mở, một trợ lý có thể liệt kê các tờ và những gì đếm được, đếm chính xác, thêm các dấu đếm, và đo từ hình học của bản vẽ. Khi TakeoffCraft không mở, máy chủ MCP của CadCraft mở một bản vẽ thành bóc tách mới và lưu nó, và `cadcraft count` đếm từ dòng lệnh. Xem [Trợ lý có thể yêu cầu gì](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **Công cụ cho cả ba.** Khi trợ lý được phép trong {{ui:Cài đặt}}, một trợ lý có thể đọc bảng chú giải (`legend_open`), chạy việc đếm (`legend_count_start`, rồi `legend_count_status` và `legend_count_result`) và thêm kết quả (`legend_count_add`, có thể xem trước trước). Trợ lý có thể đọc giá đã nhớ (`prices_list`) và định giá hạng mục từ đó (`prices_apply`, có thể xem trước trước), và đọc kết quả kiểm tra nhà cung cấp (`supply_check`). Việc thêm tệp nhà cung cấp vẫn do bạn làm. Xem [Dùng TakeoffCraft với trợ lý AI](topic:use-with-ai-assistants).
 
-### USD
+### Trong mọi ứng dụng
 
-- **Khung nhìn kiểm tra 3D dưới dạng USD.** {{ui:Gói USD (.usdz)}} cạnh {{ui:GLB}} trong khung nhìn kiểm tra 3D ghi mỗi tường, sàn, tấm, cột đếm và đoạn thành một đối tượng riêng, đặt tên theo hạng mục của nó và mang khối lượng của nó, theo mét. Một trợ lý cũng có thể xuất nó (`usd_export`). Xem [Xuất khung nhìn kiểm tra 3D thành USD](topic:usd).
+- **Ngôn ngữ.** Tổng cộng 54 ngôn ngữ; 10 ngôn ngữ mới (tiếng Litva, tiếng Latvia, tiếng Bosnia, tiếng Marathi, tiếng Telugu, tiếng Albania, tiếng Afrikaans, tiếng Filipino, tiếng Swahili và tiếng Uzbek). Các ngôn ngữ khác tiếng Anh là bản dịch máy cho đến khi người bản ngữ đọc qua.
+- **Thiết bị nhập.** {{ui:Cài đặt}} › {{ui:Chung toàn cục}} › {{ui:Thiết bị nhập}} quyết định bàn di chuột, nút bên của chuột, bút, chuột 3D, tay cầm chơi game hoặc bộ điều khiển MIDI làm gì, cho mọi ứng dụng hoặc cho một ứng dụng. Xem [Dùng bàn di chuột, chuột 3D hoặc tay cầm](common:input-devices).
+- **Số hàng thanh công cụ.** {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Số hàng thanh công cụ}} cung cấp {{ui:Xuống dòng}} (mặc định), {{ui:2 hàng}} và {{ui:1 hàng}}; các nhóm không vừa sẽ cuộn ngang. Xem [Sắp xếp các bảng](common:arrange-panels).
+- **Bảng Vấn đề.** Bảng dùng chung của cảnh báo và ghi chú nay có thêm kiểm tra tồn kho của nhà cung cấp ở trên, cạnh các kiểm tra khác.
+- **Tiện ích bổ sung.** Tiện ích bổ sung theo danh sách tài khoản của bạn. Xem [Tiện ích bổ sung và danh sách tài khoản của bạn](common:addons-basics).
+- **Kết nối AI của bạn.** CadCraft Studio là trung tâm: kết nối trợ lý của bạn một lần cho cả tám ứng dụng. Studio không có AI riêng.
 
-## Trong mọi ứng dụng
+## Đã sửa trong 0.8.1
 
-- **Đơn vị.** {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Đơn vị}} có một danh sách riêng cho chiều dài, diện tích, thể tích, góc và độ dốc, với kích thước chính xác theo định nghĩa của từng đơn vị (foot khảo sát Hoa Kỳ là một đơn vị riêng). Tắt những đơn vị bạn không bao giờ dùng và chúng sẽ rời khỏi danh sách đơn vị; gắn sao cho một đơn vị và công việc mới sẽ bắt đầu bằng nó. Tệp luôn giữ đơn vị riêng của nó. Trong TakeoffCraft, các danh sách {{ui:Đơn vị}} của một hạng mục theo các công tắc, một hạng mục mới bắt đầu bằng đơn vị chiều dài hoặc diện tích được gắn sao, ô vuông lợp mái (SQ), mẫu Anh và hecta là các đơn vị diện tích mới, và ô chiều dài nhận ký hiệu của bất kỳ đơn vị nào, như `3 yd`. Xem [Đơn vị, giá trị nhập và danh sách đơn vị](common:unit-lists).
-- **Bố cục dày đặc hơn và các bảng tự thu gọn.** {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Mật độ bố cục}} › {{ui:Gọn}} chứa được nhiều hơn trên màn hình (màn hình cảm ứng và điện thoại giữ các nút lớn). Mỗi bảng bên có một thanh tiêu đề mỏng: kéo nó để neo hoặc cho bảng nổi, thả lên thanh của bảng khác để dùng chung một khung dạng thẻ, ghim nó để trượt về mép, hoặc ẩn nó và gọi lại từ mép. Xem [Sắp xếp các bảng](common:arrange-panels#make-the-layout-denser).
-- **Hộp thoại di chuyển được.** Kéo hộp thoại bằng thanh tiêu đề để dời nó khỏi bản vẽ; nó trở lại đúng nơi bạn để. Bấm đúp thanh tiêu đề để căn giữa lại. Xem [Di chuyển một hộp thoại](common:arrange-panels#move-a-dialog).
-- **Công thức cho trợ lý AI.** Mười yêu cầu mẫu cho trợ lý của riêng bạn (dọn một bản vẽ, in một bộ, kiểm tra bản vẽ, hỏi một mô hình, tổng hợp một bản bóc tách khối lượng, thử một biến thể chi tiết…), mỗi yêu cầu kèm các công cụ nó gọi và quyền nó cần, và đều được các bài kiểm thử của chúng tôi chạy lại. Các ứng dụng không chứa AI. Xem [Công thức cho trợ lý AI](common:assistants-recipes).
-- **Ngôn ngữ.** **Português (Portugal)** là mới trong {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Ngôn ngữ}}. Ngôn ngữ này cùng **Português (Brasil)**, **Español (México)** và **Bahasa Indonesia** nay có từng chữ của các ứng dụng, là bản nháp chưa được người bản ngữ duyệt. Các chủ đề trợ giúp bằng tiếng Anh.
-- **CadCraft Studio** cho biết vì sao việc kiểm tra cập nhật thất bại (chưa có tệp cho hệ thống của bạn, không có mạng, chữ ký sai) thay vì chỉ ghi "Xong", và không đưa lại thẻ Có gì mới mà bạn đã đóng cho đến khi có bản phát hành mới hơn.
+- **Phần classes của DWG.** Phần classes của tệp DWG bị đọc sai kiểu. Đã sửa trong TakeoffCraft và bốn ứng dụng khác.
+- **Studio có thể đổi ngôn ngữ khi đang chạy.** Trước đây, Studio và các bản đóng gói của nó chỉ có tiếng Anh. Điều này chưa được kiểm thử trên mọi nền tảng của bản desktop; hãy cho chúng tôi biết nếu ngôn ngữ không đổi.
 
 ## Chưa có trong phiên bản này
 
-- **0.7 chưa được ký mã.** Việc ký, và gói Microsoft Store, dời sang 0.8 vì việc xác thực chứng chỉ chưa xong. Hãy kiểm tra SHA-256 bên cạnh mỗi tệp trên getcadcraft.com/download. Trên Windows, nếu SmartScreen chặn trình cài đặt, hãy chọn {{ui:Thông tin thêm}}, rồi {{ui:Vẫn chạy}}. Trên Mac, lần đầu tiên, bấm chuột phải vào CadCraft Studio và chọn {{ui:Mở}}. CadCraft Studio chưa có trên cửa hàng ứng dụng nào, và chưa có bản cho iPad hay iPhone.
-- Các danh sách góc và độ dốc trong {{ui:Đơn vị}} được lưu, nhưng chưa có ô nhập nào đọc chúng.
-- **Thư mời thầu bị tắt với hầu hết các tài khoản.** Trong lúc tính năng được thử nghiệm, thư gửi đến người dự thầu bên ngoài chỉ đi từ các tài khoản mà đội CadCraft đã bật. Trang của người dự thầu hoạt động với mọi thư mời đã gửi. Với mọi người khác: hãy tải {{ui:CSV phạm vi}}, tự gửi email và nhập các giá thầu vào.
-- Một cửa sổ CadCraft Studio chưa gửi được thư mời thầu: nó bảo hãy dùng TakeoffCraft trong trình duyệt. Mở một bóc tách có yêu cầu đã gửi, cân bằng và chọn một giá thầu đều chạy được trong Studio.
-- Phụ lục, thư trao thầu, bảng phạm vi mà mỗi người dự thầu ký xác nhận và nhắc tự động trước khi hết hạn bảo hiểm chưa được xây dựng. Một giá thầu đã chọn không tính lại giá cho khu vực dự thầu của phương án thay thế.
-- Bản vẽ: bảng kiểu in và tệp CTB không được áp dụng, DXF nhị phân bị từ chối (hãy lưu thành DXF ASCII hoặc DWG), bản vẽ liên kết chỉ được tìm trong các tệp đang mở theo tên tệp, và nền PDF, hình ảnh và đối tượng OLE trong bản vẽ không được vẽ hoặc đếm. Các số đếm và tỷ lệ đã được kiểm tra trên bản vẽ mẫu, chưa kiểm tra trên bản vẽ từ một công trình thật được mở trong chương trình đã tạo ra nó.
-- Một trợ lý có thể thêm hạng mục và dấu nhưng không thể di chuyển, thay đổi hay xóa các dấu đã có.
+- **Chưa ký mã.** Windows có thể cảnh báo, và trên Mac bạn nhấp chuột phải rồi chọn {{ui:Mở}} ở lần đầu. Các bản cho cửa hàng (Microsoft Store, Google Play, App Store) đang tạm dừng, và bản iPad và iPhone chưa được dựng lại cho 0.8.1.
+- **Cập nhật Studio.** Trình cài đặt Windows và gói Linux kiểm tra mỗi ngày một lần và hỏi trước. Bản zip portable chỉ thông báo, còn macOS và APK không tự cập nhật. Bản .dmg macOS 0.8 theo bản phát hành.
+- **Kết nối AI của bạn.** Kết nối một chạm trong Studio, connector được host cho AI trong trình duyệt, khóa API riêng trong Studio và gói MCP đã xuất bản không được hứa trong phiên bản này.
+- **Đếm tất cả.** Cần ký hiệu được vẽ giống như trong bảng chú giải, và một ký hiệu có tường hoặc đường dài đi xuyên qua có thể bị bỏ sót. Ký hiệu đối xứng không được tìm thấy, và tờ không có tỷ lệ được vẽ ở kích thước khác sẽ được tìm theo kích thước của bảng chú giải. Kiểm tra kết quả trên tờ đầu tiên trước khi tin các tờ còn lại.
+- **Tồn kho nhà cung cấp.** Số liệu tồn kho chỉ cập nhật bằng tệp bạn thêm vào. Kiểm tra không bao giờ hỏi nhà cung cấp.
+- **Ngôn ngữ.** Thanh ứng dụng của tiếng Tamil bị tràn.
 
-Mọi thứ còn lại nằm trong [Chưa xây dựng](topic:not-built-yet).
+Mọi thứ khác nằm trong [Chưa xây dựng](topic:not-built-yet). Với bản phát hành trước, xem [Có gì mới trong 0.7](topic:whats-new-0-7).

@@ -1,59 +1,63 @@
 ---
-title: Novosti u verziji 0.7
-summary: DWG i DXF crteži se otvaraju kao listovi sa sopstvenom razmjerom, tačni brojevi i dužine iz samog crteža, odabrana ponuda podizvođača kao cijena paketa, pozivi na ponudu sa zapečaćenim cijenama, alati za crteže za asistente i USD iz 3D pregleda provjere.
-keywords: novosti, šta je novo, bilješke o izdanju, izmjene, 0.7, verzija, nove funkcije, dwg, dxf, crtež, rasporedi, prostor modela, razmjera crteža, brojanje iz crteža, cad brojanje, blokovi, dinamički blokovi, atributi, slojevi, xref, povezani crtež, izmjeri crtež, polilinija, šrafura, označeni pdf, odabrana ponuda, koristi ponudu, pošalji na ponude, poziv na ponudu, zapečaćene ponude, otvaranje ponuda, kasna ponuda, zapisi podizvođača, csv, asistent, mcp, usd, usdz, jedinice, liste jedinica, zbijeno, paneli, dijalozi, portugalski
-from: ad4f0df1
+title: Šta je novo u 0.8 i 0.8.1
+summary: Prebrojte cijeli set simbola na svim otvorenim listovima u jednom pokretanju, cijenite stavke prema cijenama vaših ranijih poslova, provjerite procjenu prema zalihama i rokovima isporuke dobavljača, te nove alate za asistente za sva tri, plus zajedničke promjene verzije 0.8 i ispravku 0.8.1 za DWG datoteke.
+keywords: šta je novo, novosti, bilješke o izdanju, dnevnik promjena, promjene, 0.8, 0.8.1, verzija, nove funkcije, broji sve, legenda, legenda simbola, cijeli set, memorija cijena, raniji poslovi, zadnji posao, tipična cijena, dobavljač, zaliha, rok isporuke, zaostatak, lista narudžbe, manjak, panel problema, asistent, jezici, ulazni uređaji, redovi alatne trake, dwg
+from: a04adef6
 ---
 
-Ovo se promijenilo u verziji TakeoffCraft 0.7, u odnosu na 0.6. Crteži se sada otvaraju onakvi kakvi jesu, bez prethodnog štampanja u PDF, a paket ponude može otići podizvođačima i vratiti se s cijenama.
+Ovo je ono što se promijenilo u TakeoffCraft 0.8 (objavljena 2026-11-01) i 0.8.1 (2026-11-02), u odnosu na 0.7. Legenda simbola sada se može prebrojati u cijelom setu odjednom, nova procjena može početi od cijena vaših ranijih poslova, a procjena se može provjeriti prema zalihama dobavljača. 0.8.1 je izdanje s ispravkom.
 
 ## Novo
 
-### DWG i DXF crteži
+### Prebroji sve u setu
 
-- **Otvorite crtež kao listove.** {{ui:Open plans}} u grupi {{ui:File}} ({{key:Mod+O}} ili prevucite datoteke) prihvata DWG i DXF crteže uz PDF-ove. Prostor modela i svaki raspored postaju listovi na listi {{ui:Sheets}}, a predmjer može obuhvatiti crteže i PDF-ove zajedno. Ništa se ne otprema. Pogledajte [Otvaranje DWG ili DXF crteža](topic:open-a-drawing).
-- **Razmjera dolazi iz crteža.** Raspored počinje s razmjerom svog najvećeg prikaza, imenovanom kao unaprijed zadana kad to jeste, na primjer 1/2" = 1'-0". Model počinje u jedinicama crteža. Crtež bez jedinica piše „Nema razmjere“ dok ga ne kalibrišete. {{ui:Calibrate}}, {{ui:Check}} i {{ui:Preset}} i dalje imaju prednost. Pogledajte [Razmjera](topic:open-a-drawing#the-scale).
-- **Slojevi i povezani crteži.** {{ui:Layers}} na traci lista prikazuje ili skriva slojeve crteža. Slojevi koje je datoteka isključila ili zamrznula počinju skriveni i ne broje se, osim ako ih sami ne uključite. Povezani crtež (xref) otvoren uz svoj domaćin crta se i broji tamo gdje je umetnut; dok nije otvoren, statusna traka kaže šta nedostaje. Pogledajte [Slojevi](topic:open-a-drawing#layers).
-- **Označeni PDF radi iz crteža.** {{ui:Export}} › {{ui:Marked PDF}} prvo crta označene listove crteža kao PDF, pa kopija pokazuje vaše oznake i legendu bez koraka štampanja. Crta se crno ili bojama crteža, bez tabela stilova štampanja. Pogledajte [Označeni PDF](topic:export-estimate#a-marked-pdf).
+- **Označite legendu jednom.** {{ui:Broji sve}} na alatnoj traci čita legendu simbola: prevucite okvir oko simbola i nazive ispisane pored njih. Svaki simbol se navodi sa svojom slikom i nazivom, a naziv postaje naziv stavke. Odznačite ono što ne želite, zatim odaberite {{ui:Prebroji na N listova}}. Traka pokazuje list koji se pretražuje, {{ui:Otkaži}} zaustavlja pokretanje, a stranica ostaje upotrebljiva.
+- **Svi listovi u jednom pokretanju.** Svaki simbol se broji na svakom otvorenom listu. List nacrtan u drugoj razmjeri pretražuje se u toj razmjeri, a simboli se nalaze okrenuti pod bilo kojim pravim uglom. Simboli same legende se ne broje na njenom listu.
+- **Pregled prije dodavanja.** Svaki zbir ima vezu po listu ("E-103: 4") koja vodi na taj list. Kliknite okvir na pronalasku da ga izostavite, a ponovo kliknite da ga vratite. Nivo podudaranja (50% do 100%) samo filtrira ono što je pronađeno; ništa se ne pretražuje ponovo.
+- **Jedan korak poništavanja.** {{ui:Dodaj N oznaka}} pravi stavku brojanja za svaki simbol, sa oznakom na svakom pronalasku. Naziv koji je već vaša stavka brojanja se ponovo koristi. {{key:Ctrl+Z}} vraća sve stavke i oznake. Ono što prihvatite također ide u {{ui:Naučeno}}.
+- **Simboli pod bilo kojim uglom.** Označite {{ui:Simboli pod bilo kojim uglom}} prije brojanja da pronađete i simbole okrenute za ugao koji nije pravi. Pretraga tada okreće svaki simbol na svakih 15 stepeni, a simbol koji nije okrugao može trajati do šest puta duže.
+- **Šta je to.** Obično poređenje simbola na vašim listovima, bez obučenog modela, i ništa ne napušta vaš računar. Na izmišljenom setu od 200 listova trajalo je 9.4 sekunde od početka do kraja u Chrome-u na brzom desktop računaru; stvarni setovi planova bit će sporiji. Pogledajte [Prebroji sve u setu](topic:count-everything).
 
-### Tačni brojevi i dužine iz crteža
+### Memorija cijena iz vaših poslova
 
-- **Brojite ono što crtež kaže da postoji.** {{ui:CAD count}} na traci lista broji blok po imenu (uključujući ugniježdene blokove, stanja dinamičkih blokova i nizove blokova), sve jednog tipa na sloju, ili vrijednost teksta ili atributa. Broji ono što list prikazuje ili cijeli crtež jednom. Dodavanje oznaka je jedan korak poništavanja, a ponovno brojanje dodaje samo ono što je novo. {{ui:Auto count}} ostaje za PDF-ove i za simbole koji nisu blokovi. Pogledajte [Brojanje iz crteža](topic:count-from-a-drawing).
-- **Mjerite iz vlastitih linija crteža.** {{ui:Measure drawing}} uzima linije, lukove, polilinije, krugove, šrafure i solide koje kliknete ili označite prozorom kao oznake linijske ili površinske stavke. Lukovi, ispupčenja i rupe šrafura izlaze tačno; elipse i splajnovi mjere se fino tetivama, a traka to kaže. Pogledajte [Mjerenje iz crteža](topic:measure-from-a-drawing).
+- **TakeoffCraft pamti vaše cijene.** Kad sačuvate procjenu, svaka cijenjena stavka koja se koristi pamti se po nazivu i vrsti: cijena materijala, cijena rada, otpad i jedinica. Zadnjih 12 poslova čuva se za svaki naziv. Čuva se na ovom računaru uz biblioteku cijena, nikad unutar datoteke procjene, i ništa se nigdje ne šalje.
+- **Započnite novu procjenu iz nje.** {{ui:Cijene}} na alatnoj traci prikazuje, za svaku stavku, cijene zadnjeg posla, tipične cijene i raspon. {{ui:Koristi zadnje}} ili {{ui:Koristi tipične}} cijenjuje jednu stavku, a {{ui:Postavi cijenu za N stavki bez cijene iz memorije}} popunjava svaku stavku koja još nema cijenu. Svaka upotreba je jedan korak poništavanja.
+- **Raniji rad.** {{ui:Uči iz ranije procjene…}} pamti cijenjene stavke sačuvane procjene (.json).
+- **Pogledajte, promijenite, zaboravite.** {{ui:Sve što je zapamćeno}} navodi svaki naziv; dugme za smeće zaboravlja jedan, a {{ui:Obriši sve cijene}} zaboravlja sve. Isključite {{ui:Pamti moje cijene kad sačuvam procjenu}} da zaustavite. Cijena po komadu nikad se ne stavlja na stavku po stopi. Pogledajte [Memorija cijena iz vaših ranijih poslova](topic:price-memory).
 
-### Ponude
+### Zalihe dobavljača i rokovi isporuke
 
-- **Koristite ponudu podizvođača kao cijenu paketa.** U {{ui:Export}} › {{ui:Bid packages and leveling…}} odaberite {{ui:Use}} na ponudi. Stavke paketa ostaju kao količine, jedna linija **Odabrana ponuda** nosi cijenu, stavke koje ponuda ne pokriva ostaju po vašoj cijeni, a na nju se primjenjuju režije, profit i garancija. Prebacivanje ponuda je jedan korak poništavanja; radna knjiga i sažetak ponuda ga nose. Pogledajte [Korištenje ponude kao cijene paketa](topic:bid-leveling#use-a-bid-as-the-packages-price).
-- **Pošaljite paket na ponude.** {{ui:Send for bids…}} pod paketom šalje svakom podizvođaču link ka stranici kojoj ne treba nalog: vide obim i listove kao PDF, upisuju cijenu u svaku liniju ili označe da nije uključeno, dodaju napomene i do tri datoteke, ili odbijaju. {{ui:Get prices}} unosi što je stiglo u list za izjednačavanje, označeno **web**. Slanje je otvoreno samo nalozima koje je tim CadCraft omogućio dok se testira (vidi dolje). Pogledajte [Slanje paketa na ponude](topic:bid-invitations).
-- **Zapečaćeno do otvaranja.** Cijene mogu ostati zapečaćene do termina otvaranja koji podesite: do tada cijenu ne vidi niko, ni vi. Na otvaranju se sve ponude prikazuju odjednom, a ponuda koja je stigla nakon roka označava se kao kasna. Pogledajte [Zapečaćene ponude i otvaranje](topic:bid-invitations#sealed-bids-and-the-opening).
-- **Zapisi podizvođača.** Vaš nalog na getcadcraft.com čuva kontakte svake firme, djelatnosti, odgovore o kvalifikacijama, datume osiguranja i licenci (označene kad istekne ili u roku od 30 dana), zajedno s njihovim ranijim ponudama. Uvozite i izvozite ih kao CSV i birate ih kad šaljete paket. Pogledajte [Na web stranici](topic:bid-invitations#on-the-website).
+- **Provjera prema spisku dobavljača.** {{ui:Nabavka}} na alatnoj traci uzima spisak zaliha dobavljača ({{ui:Dodaj datoteku dobavljača…}}), CSV ili tabelarnu datoteku, i provjerava što procjena treba, uključujući otpad, prema njemu. Čuva se do pet datoteka. Ništa se ne šalje i ništa ne traži od dobavljača: vi donosite datoteku.
+- **Šta piše.** Stavke kojih nedostaje dolaze prve: "Nedostaje 120 EA", "Rok isporuke 21 dana", "Na čekanju", "Jedinica se razlikuje", "Nema podatka o zalihi" ili "Na zalihi". {{ui:Najduži željeni rok čekanja (dana)}} počinje od 14.
+- **Lista narudžbe.** {{ui:Lista narudžbe (CSV)}} preuzima stavke kojih nedostaje, s količinom koja nedostaje, dobavljačem i rokom isporuke.
+- **Cijene u biblioteku.** Ako datoteka ima cijene, {{ui:Cijene u biblioteku}} postavlja cijenu materijala za svaku stavku biblioteke istog naziva i jedinice. Ponovo odredite cijene iz biblioteke da ih unesete u procjenu.
+- **Na panelu problema.** Manjak je upozorenje, a dugo čekanje je napomena, pod "Zalihe dobavljača". Možete prihvatiti jednu uz razlog, a razlog se čuva u procjeni. Pogledajte [Provjerite zalihe dobavljača i rokove isporuke](topic:supplier-stock).
 
 ### AI asistenti
 
-- **Asistenti mogu dodavati u predmjer.** Uz označeno **Uređivanje**, vaš asistent može dodavati stavke (`items_add`) i mjeriti nizove, površine i brojanja na listu (`marks_add`; samo dužine i površine na razmjernom listu), a svaki poziv je jedan korak poništavanja.
-- **Alati za crteže za asistente.** Na otvorenom DWG ili DXF crtežu asistent može navesti svoje listove i šta se može brojati, brojati tačno, dodati oznake brojanja i mjeriti iz geometrije crteža. Bez otvorenog TakeoffCraft-a, CadCraft MCP server otvara crtež kao novi predmjer i spašava ga, a `cadcraft count` broji iz komandne linije. Pogledajte [Šta asistent može tražiti](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **Alati za sva tri.** Kad su asistenti dozvoljeni u {{ui:Postavke}}, asistent može pročitati legendu (`legend_open`), pokrenuti brojanje (`legend_count_start`, zatim `legend_count_status` i `legend_count_result`) i dodati ga (`legend_count_add`, koji može prvo prikazati pregled). Može pročitati zapamćene cijene (`prices_list`) i cijeniti stavke iz njih (`prices_apply`, koji može prvo prikazati pregled), te pročitati provjeru dobavljača (`supply_check`). Dodavanje datoteke dobavljača ostaje vaš posao. Pogledajte [Koristite TakeoffCraft s AI asistentima](topic:use-with-ai-assistants).
 
-### USD
+### U svakoj aplikaciji
 
-- **3D pregled provjere kao USD.** {{ui:USD package (.usdz)}} uz {{ui:GLB}} u 3D pregledu provjere zapisuje svaki zid, ploču, lim, stub brojanja i niz kao zaseban objekat, nazvan po svojoj stavki i s količinom, u metrima. Asistent ga može izvesti i kao `usd_export`. Pogledajte [Izvoz 3D pregleda provjere kao USD](topic:usd).
+- **Jezici.** Ukupno pedeset i četiri jezika; deset je novo (litvanski, letonski, bosanski, maratski, telugu, albanski, afrikanski, filipinski, svahili i uzbečki). Jezici osim engleskog su strojni nacrti dok ih ne pročita izvorni govornik.
+- **Ulazni uređaji.** {{ui:Postavke}} › {{ui:Globalno}} › {{ui:Ulazni uređaji}} određuje šta rade trackpad, bočna dugmad miša, olovka, 3D miš, gejmpad ili MIDI kontroler, za svaku aplikaciju ili za jednu. Pogledajte [Koristite trackpad, 3D miš ili kontroler](common:input-devices).
+- **Redovi alatne trake.** {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Redovi alatne trake}} nudi {{ui:Prelomi}} (početno), {{ui:2 reda}} i {{ui:1 red}}; grupe koje ne stanu klize u stranu. Pogledajte [Rasporedite panele](common:arrange-panels).
+- **Panel problema.** Zajednički panel upozorenja i napomena sada nosi provjeru zaliha dobavljača iznad, pored ostalih provjera.
+- **Dodaci.** Dodaci prate vašu listu na računu. Pogledajte [Dodaci i vaša lista na računu](common:addons-basics).
+- **Povežite svoj AI.** CadCraft Studio je centar: povežite asistenta jednom za svih osam aplikacija. Studio nema vlastiti AI.
 
-## U svim aplikacijama
+## Ispravljeno u 0.8.1
 
-- **Jedinice.** {{ui:Settings}} › {{ui:General}} › {{ui:Units}} ima po jednu listu za dužinu, površinu, zapreminu, ugao i nagib, s tačnim veličinama koje daju definicije jedinica (američka geodetska stopa je zasebna jedinica). Isključite jedinice koje nikad ne koristite i one nestaju iz listi; označite jednu i novi rad počinje u njoj. Datoteka uvijek zadržava svoju jedinicu. U TakeoffCraft-u liste {{ui:Unit}} stavke prate ove prekidače, nova stavka počinje u označenoj jedinici dužine ili površine, krovni kvadrati (SQ), akri i hektari su nove jedinice površine, a polje za dužinu prihvata oznaku bilo koje jedinice, poput `3 yd`. Pogledajte [Jedinice, uneseni brojevi i liste jedinica](common:unit-lists).
-- **Gušći raspored i paneli koji se sklanjaju.** {{ui:Settings}} › {{ui:General}} › {{ui:Layout density}} › {{ui:Compact}} stane više na ekran (ekrani osjetljivi na dodir i telefoni zadržavaju velika dugmad). Svaki bočni panel ima tanku naslovnu traku: prevucite je da zakačite ili pustite da slobodno lebdi, prevucite je na traku drugog panela da dijele okvir kao kartice, zakačite je da kliže do ivice, ili sakrijte i vratite s ivice. Pogledajte [Raspored panela](common:arrange-panels#make-the-layout-denser).
-- **Dijalozi se pomjeraju.** Prevucite dijalog za naslovnu traku izvan puta crtežu; vraća se tamo gdje ste ga ostavili. Dvaput kliknite naslovnu traku da ga ponovo centrirate. Pogledajte [Pomjeranje dijaloga](common:arrange-panels#move-a-dialog).
-- **Recepti za AI asistente.** Deset primjera zahtjeva za vašeg asistenta (srediti crtež, štampati skup, provjeriti crteže, postaviti pitanje modelu, zbrojiti predmjer, isprobati varijantu dijela…), svaki s alatima koje poziva i dozvolama koje traži, a svaki ponovo izvodi naš test. Aplikacije ne sadrže AI. Pogledajte [Recepti za AI asistente](common:assistants-recipes).
-- **Jezici.** **Português (Portugal)** je nov u {{ui:Settings}} › {{ui:General}} › {{ui:Language}}. Taj, **Português (Brasil)**, **Español (México)** i **Bahasa Indonesia** sada imaju svaku riječ aplikacija, kao nacrte koje izvorni govornik još nije pregledao. Tekstovi pomoći su na engleskom.
-- **CadCraft Studio** kaže zašto provjera ažuriranja nije uspjela (još nema datoteke za vaš sistem, nema mreže, loš potpis) umjesto samo „Gotovo“, i prestaje vraćati karticu Šta je novo koju ste zatvorili dok ne bude novija verzija.
+- **Odjeljak klasa u DWG-u.** Odjeljak klasa u DWG datoteci bio je pročitan kao pogrešna vrsta. Ispravljeno je u TakeoffCraft-u i u još četiri aplikacije.
+- **Studio može promijeniti jezik dok radi.** Ranije su Studio i njegova spakovana izdanja bili samo na engleskom. Nije provjereno u desktop verziji na svakoj platformi; javite nam ako se jezik ne promijeni.
 
-## Nije još u ovoj verziji
+## Još nije u ovoj verziji
 
-- **0.7 nije potpisan kodom.** Potpisivanje i paket za Microsoft Store prebačeni su na 0.8 jer validacija certifikata još nije stigla. Provjerite SHA-256 uz svaku datoteku na getcadcraft.com/download. Na Windowsu, ako SmartScreen zaustavi instalater, odaberite {{ui:More info}}, pa {{ui:Run anyway}}. Na Macu, prvi put, desni klik na CadCraft Studio i odaberite {{ui:Open}}. CadCraft Studio još nije u nijednoj prodavnici aplikacija, i još nema verzije za iPad ili iPhone.
-- Liste uglova i nagiba u {{ui:Units}} se čuvaju, ali ih još ništa ne čita.
-- **Pozivi na ponudu su isključeni za većinu naloga.** Dok se funkcija testira, pošta vanjskim ponuđačima ide samo sa naloga koje je tim CadCraft omogućio. Stranice ponuđača rade za svaki poziv koji je već poslan. Svi ostali: preuzmite {{ui:Scope CSV}}, pošaljite ga sami e-poštom i upišite ponude.
-- Prozor CadCraft Studio još ne može slati pozive na ponudu: kaže da koristite TakeoffCraft u pregledniku. Otvaranje predmjera sa poslanim zahtjevima, izjednačavanje i odabir ponude rade u Studiu.
-- Dopune, pisma o dodjeli, list obima koji svaki ponuđač potpisuje i automatski podsjetnici prije isteka datuma osiguranja nisu napravljeni. Odabrana ponuda ne mijenja cijenu područja ponude alternative.
-- Crteži: tabele stilova štampanja i CTB datoteke se ne primjenjuju, binarni DXF se odbija (sačuvajte ga kao ASCII DXF ili DWG), povezani crteži se nalaze samo među otvorenim datotekama po nazivu, a PDF podloge, slike i OLE objekti u crtežu se ne crtaju niti broje. Brojevi i razmjere su provjereni na uzorcima crteža, još ne na crtežima sa stvarnog posla otvorenim u programu u kojem su napravljeni.
-- Asistent može dodavati stavke i oznake, ali ne može pomjerati, mijenjati ni brisati oznake koje već postoje.
+- **Nije potpisano kodom.** Windows može upozoriti, a na Mac-u desnim klikom birate {{ui:Otvoreno}} prvi put. Izdanja za prodavnice (Microsoft Store, Google Play, App Store) su na čekanju, a izdanje za iPad i iPhone nije ponovo izgrađeno za 0.8.1.
+- **Ažuriranja Studija.** Windows instalater i Linux paketi provjeravaju jednom dnevno i prvo pitaju. Prenosiva zip datoteka samo vas obavještava, a macOS i APK se sami ne ažuriraju. macOS .dmg za 0.8 slijedi izdanje.
+- **Povežite svoj AI.** Povezivanje jednim klikom unutar Studija, hostovani konektor za AI u pregledaču, vlastiti API ključ unutar Studija i objavljeni MCP paket nisu obećani u ovoj verziji.
+- **Broji sve.** Potrebni su simboli nacrtani na isti način kao u legendi, a simbol kroz koji prolazi zid ili duga linija može se previdjeti. Zrcalni simboli se ne nalaze, a list bez razmjere nacrtan u drugoj veličini pretražuje se u veličini legende. Provjerite pronalaske na prvom listu prije nego što vjerujete ostalima.
+- **Zalihe dobavljača.** Podaci o zalihama su aktualni samo koliko i datoteka koju dodate. Provjera nikad ne pita dobavljača.
+- **Jezici.** Traka aplikacije na tamilskom prelazi okvir.
 
-Sve ostalo je u [Nije još napravljeno](topic:not-built-yet).
+Sve ostalo je u [Još nije napravljeno](topic:not-built-yet). Za izdanje prije ovoga, pogledajte [Šta je novo u 0.7](topic:whats-new-0-7).

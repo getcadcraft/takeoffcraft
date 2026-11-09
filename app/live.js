@@ -25,6 +25,7 @@
 
 import { pack, unpack } from './live-client.js';
 import { t } from './i18n.js';
+import { attachPresence, pointsBox } from './live-presence.js';
 import { kindsOf } from './model.js';
 
 export const SCHEMA = 1;
@@ -316,6 +317,7 @@ export function createLiveAdapter({ host } = {}) {
       if (c && c.adapter === a) {
         a.bind(c);
         offs = [
+          attachPresence(c, a, presenceView(app), { t }),
           c.on('refused', (r) => say(t(r.reason === 'locked' ? 'live.refused.locked' : r.reason === 'role' ? 'live.refused.role' : 'live.refused', { what: r.label || '', name: r.byName || t('live.someone') }))),
           c.on('undo-skipped', (r) => say(t('live.undo_skipped', { what: r.label || '', name: r.byName || t('live.someone') }))),
           c.on('ended', () => say(t('live.ended'))),
@@ -331,6 +333,34 @@ export function createLiveAdapter({ host } = {}) {
     });
   }
   return a;
+}
+
+/**
+ * Where TakeoffCraft's pointer is and where others' go (0.9 SU.1112, live-presence.js): PDF user space on the sheet on
+ * screen (the space is the sheet's key, so you see the people on your sheet and a line for those on another); the
+ * selected marks as boxes round their points. Hidden while the 3D stack covers the sheet.
+ */
+export function presenceView(app) {
+  const v = () => app.view;
+  const ready = () => { const x = v(); return x && x.page ? x : null; };
+  let seen = { at: 0, open: false };
+  return {
+    get el() { return v() && v().over; },
+    space: () => (app.sheet ? app.sheet() : ''),
+    spaceName: (key) => { const s = app.sheets ? app.sheets().find((x) => x.key === key) : null; return s ? s.title : ''; },
+    goSpace: (key) => (app.showSheet ? app.showSheet(key) : null),   // 0.9 ED.1: follow someone onto their sheet
+    toModel(x, y) { const view = ready(); if (!view) return null; const p = view.toUser({ x, y }); return [p.x, p.y]; },
+    toScreen(p) { const view = ready(); if (!view) return null; const s = view.toScreen({ x: p[0], y: p[1] }); return [s.x, s.y]; },
+    selection: () => {
+      const ids = app.selection ? app.selection() : [];
+      return ids.slice(0, 64).map((id) => { const m = app.model.mark(id); return m ? pointsBox(m.pts, 2) : null; }).filter(Boolean);
+    },
+    hidden: () => {   // view3d() lists every 3D object: asked twice a second, not every frame
+      const now = Date.now();
+      if (now - seen.at > 500) { let open = false; try { const s = app.view3d && app.view3d(); open = !!(s && s.open); } catch { open = false; } seen = { at: now, open }; }
+      return seen.open;
+    },
+  };
 }
 
 /** A browser opening a link with #live=<code> (a page a host serves on the LAN) or ?live=<ROOM>#<secret> joins. */

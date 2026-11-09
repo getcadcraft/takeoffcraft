@@ -235,6 +235,8 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
           <button type="button" role="menuitem" data-tool="highlight" title="<?= Lang::e('tool.highlight.title') ?>"><i class="bi bi-highlighter" aria-hidden="true"></i> <?= Lang::e('tool.highlight') ?></button>
         </div>
       </details>
+      <?php /* 0.9 FX.137: the arc method, shown while Arc is on (takeoffcraft.js fills the options) */ ?>
+      <label class="tc-arcmethod" data-arc-wrap hidden title="<?= Lang::e('arc.method.title') ?>"><span><?= Lang::e('arc.method') ?></span><select class="tc-input" data-arc-method aria-label="<?= Lang::e('arc.method') ?>"></select></label>
       <button type="button" class="tc-3d-toggle" data-act="compare" aria-pressed="false" title="<?= Lang::e('cmp.button.title') ?>"><i class="bi bi-layers-half" aria-hidden="true"></i> <?= Lang::e('cmp.button') ?></button>
       <?php /* 0.7 TD.5: a drawing's layers, on and off (takeoffcraft.js fills it when it opens; only on a DWG / DXF sheet) */ ?>
       <details class="tc-menu tc-layers-menu" data-layers-menu hidden>
@@ -259,7 +261,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         </select>
       </label>
     </section>
-    <section class="tc-sec">
+    <section class="tc-sec" data-af-id="items">
       <div class="tc-sec-head">
         <h2 class="tc-h"><?= Lang::e('items.h') ?></h2>
         <span class="tc-sec-acts">

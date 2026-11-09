@@ -1,59 +1,63 @@
 ---
-title: Mis on uut versioonis 0.7
-summary: DWG- ja DXF-joonised avanevad lehtedena oma mõõtkavaga, täpsed loendused ja pikkused joonise enda põhjal, valitud allhankija pakkumus paketi hinnana, pakkumiskutsed suletud hindadega, abilise tööriistad joonistele ning USD 3D-kontrollvaatest.
-keywords: mis on uut, versiooninoodid, muudatuste loend, muudatused, 0.7, versioon, uued funktsioonid, dwg, dxf, joonis, paigutused, mudeliruum, joonise mõõtkava, loenda joonisest, cad-loendus, plokid, dünaamilised plokid, atribuudid, kihid, xref, lingitud joonis, mõõda joonist, polüjoon, viirutus, märgitud pdf, valitud pakkumus, kasuta pakkumust, saada pakkumiseks, pakkumiskutse, suletud pakkumised, pakkumise avamine, hilinenud pakkumus, allhankija kirjed, csv, abiline, mcp, usd, usdz, ühikud, ühikuloendid, tihe, paneelid, dialoogid, portugali
-from: ad4f0df1
+title: Mis on uut versioonis 0.8 ja 0.8.1
+summary: Loenda sümbolite legend kogu komplektis korraga kõigil avatud lehtedel, hinnasta kirjed varasemate tööde hindade järgi, kontrolli koguste arvestust tarnija laoseisu ja tarneaegade vastu ning uued assistendi tööriistad kõigi kolme jaoks, lisaks ühised 0.8 muudatused ja 0.8.1 parandus DWG-failidele.
+keywords: mis on uut, väljalaskemärkmed, muudatuste logi, muudatused, 0.8, 0.8.1, versioon, uued funktsioonid, loenda kõik, legend, sümbolite legend, kogu komplekt, hinnamälu, varasemad tööd, viimane töö, tüüphind, tarnija, laoseis, tarneaeg, tellimusel, tellimisloend, puudujääk, probleemide paneel, assistent, keeled, sisendseadmed, tööriistariba read, dwg
+from: a04adef6
 ---
 
-See on, mis muutus TakeoffCraft'is 0.7 võrreldes versiooniga 0.6. Joonised avanevad nüüd just sellisena, nagu need on, ilma et neid enne PDF-iks trükitaks, ning pakkumispakett saab minna allhankijatele ja tulla tagasi hinnastatuna.
+See on, mis muutus versioonis TakeoffCraft 0.8 (ilmus 2026-11-01) ja 0.8.1 (2026-11-02), võrreldes versiooniga 0.7. Sümbolite legendi saab nüüd loendada korraga kogu komplekti ulatuses, uus koguste arvestus võib alata varasemate tööde hindadest ning koguste arvestust saab kontrollida tarnija laoseisu vastu. 0.8.1 on parandusversioon.
 
 ## Uus
 
-### DWG- ja DXF-joonised
+### Loenda kogu komplekt
 
-- **Joonise avamine lehtedena.** {{ui:Ava plaanid}} rühmas {{ui:Fail}} ({{key:Mod+O}} või lohista failid) võtab DWG- ja DXF-joonised PDF-ide kõrvale. Mudeliruum ja iga paigutus muutuvad lehtedeks loendis {{ui:Lehed}} ning koguste arvestus võib katta korraga nii jooniseid kui PDF-e. Midagi ei laadita üles. Vt [Ava DWG- või DXF-joonis](topic:open-a-drawing).
-- **Mõõtkava tuleb joonisest.** Paigutus algab oma suurima vaateakna mõõtkavast, mis nimetatakse eelseadena, kui see selleks sobib, nt 1/2" = 1'-0". Mudel algab joonise ühikutes. Joonis, millel pole ühikuid, ütleb „No scale“ seni, kuni sa selle kalibreerid. {{ui:Kalibreeri}}, {{ui:Kontrolli}} ja {{ui:Eelseade}} on ikka tähtsamad. Vt [Mõõtkava](topic:open-a-drawing#the-scale).
-- **Kihid ja lingitud joonised.** {{ui:Kihid}} lehe ribal näitab või peidab joonise kihid. Kihid, mille fail on välja lülitanud või külmutanud, algavad peidetuna ega lähe loendusse, kui sa seda ei vali. Lingitud joonis (xref), mis on avatud kõrvuti oma peajoonisega, joonistatakse ja loendatakse seal, kuhu see on sisestatud; kuni see on avatud, ütleb olekuriba, mis puudu on. Vt [Kihid](topic:open-a-drawing#layers).
-- **Märgitud PDF töötab joonisest.** {{ui:Eksport}} › {{ui:Märgitud PDF}} joonistab joonise märgitud lehed kõigepealt PDF-iks, nii et koopial on sinu märgised ja legend ilma trükkimise sammuta. See joonistatakse mustana või joonise värvides, ilma plotisti stiilitabeliteta. Vt [Märgitud PDF](topic:export-estimate#a-marked-pdf).
+- **Märgi legend korraga ära.** {{ui:Loenda kõik}} tööriistaribal loeb sümbolite legendi: lohista kast sümbolite ja nende kõrval trükitud nimede ümber. Iga sümbol on loendis koos pildi ja nimega ning nimi saab kirje nimeks. Eemalda linnuke sellelt, mida ei soovi, seejärel vali {{ui:Loenda N lehel}}. Riba näitab, millist lehte otsitakse, {{ui:Loobu}} peatab käigu ja leht jääb kasutatavaks.
+- **Kõik lehed ühes käigus.** Iga sümbol loendatakse igal avatud lehel. Teises mõõtkavas joonistatud lehte otsitakse selles mõõtkavas ning sümboleid leitakse pööratuna mis tahes täisnurga all. Legendi enda sümboleid ei loendata selle lehel.
+- **Ülevaatus enne lisamist.** Iga kogusumma juures on iga lehe kohta link („E-103: 4"), mis viib selle lehe juurde. Klõpsa leiu kasti, et see välja jätta, ja klõpsa uuesti, et see tagasi tuua. Vastavustase (50% kuni 100%) ainult filtreerib leitut; uuesti otsimist ei toimu.
+- **Üks tagasivõtmise samm.** {{ui:Lisa N märki}} loob iga sümboli kohta loenduskirje, millel on märk igal leiul. Nimi, mis on juba sinu loenduskirje, kasutatakse uuesti. {{key:Ctrl+Z}} võtab tagasi kõik kirjed ja märgid. Kõik, mille kinnitad, lisandub ka {{ui:Õpitud}} hulka.
+- **Sümbolid suvalise nurga all.** Märgi enne loendamist linnuke {{ui:Sümbolid suvalise nurga all}}, et leida ka sümbolid, mis on pööratud muu kui täisnurga all. Otsing pöörab iga sümbolit iga 15 kraadi järel ning sümbol, mis ei ole ümmargune, võib kesta kuni kuus korda kauem.
+- **Mida see on.** Lihtne sümbolite sobitamine sinu enda lehtedel, ilma treenitud mudelita, ja miski ei lahku sinu arvutist. Väljamõeldud 200-lehelisel komplektil võttis see brauseris Chrome kiirel lauaarvutil algusest lõpuni 9,4 sekundit; päris plaanikomplektid on aeglasemad. Vaata [Loenda kogu komplekt](topic:count-everything).
 
-### Täpsed loendused ja pikkused joonisest
+### Hinnamälu sinu enda töödest
 
-- **Loenda, mida joonis ütleb olevat.** {{ui:CAD-loendus}} lehe ribal loendab plokki nime järgi (sh pesastatud plokid, dünaamiliste plokkide olekud ja plokimassiivid), kõike ühte tüüpi kihil või teksti või atribuudi väärtust. See loendab, mida leht näitab, või kogu joonise ühe korra. Märkide lisamine on üks tagasivõtmise samm ning uuesti loendamine lisab ainult uue. {{ui:Automaatne loendus}} jääb PDF-ide ja plokkideks mitteolevate sümbolite jaoks. Vt [Loenda joonisest](topic:count-from-a-drawing).
-- **Mõõda joonise enda jooni.** {{ui:Mõõda joonist}} võtab joonistatud või aknaga valitud jooned, kaared, polüjoonid, ringid, viirutused ja tahked kujundid märgisteks lineaarsele või pindala kirjele. Kaared, kumerused ja viirutuse augud tulevad täpsed; ellipse ja splaine mõõdetakse peente kõõlude järgi ning riba ütleb seda. Vt [Mõõda joonisest](topic:measure-from-a-drawing).
+- **TakeoffCraft jätab meelde sinu ühikuhinnad.** Kui salvestad koguste arvestuse, jäetakse meelde iga kasutatud hinnastatud kirje nimi ja tüüp koos materjali ühikuhinna, tööjõu ühikuhinna, kao ja ühikuga. Iga nime kohta hoitakse viimased 12 tööd. Hinnamälu hoitakse selles arvutis hinnateegi kõrval, mitte kunagi koguste arvestuse failis, ega seda ei saadeta kuhugi.
+- **Alusta uut koguste arvestust sellest.** {{ui:Hinnad}} tööriistaribal näitab iga kirje kohta viimase töö hindu, tüüphindu ja vahemikku. {{ui:Kasuta viimast}} või {{ui:Kasuta tüüpilist}} hinnastab ühe kirje ning {{ui:Hinda mälu järgi N hindamata kirjet}} täidab kõik kirjed, millel veel hinda pole. Iga kasutus on üks tagasivõtmise samm.
+- **Vanem töö.** {{ui:Õpi varasemast koguste arvestusest…}} jätab meelde salvestatud koguste arvestuse (.json) hinnastatud kirjed.
+- **Vaata, muuda, unusta.** {{ui:Kõik meeldejäetud}} loetleb kõik nimed; prügikasti nupp unustab ühe nime ning {{ui:Tühjenda kõik hinnad}} unustab kõik. Lõpetamiseks lülita välja {{ui:Jäta mu hinnad meelde, kui salvestan koguste arvestuse}}. Tükihinda ei rakendata kunagi kirjele, mis on mõõdetud jalgades. Vaata [Hinnamälu sinu enda töödest](topic:price-memory).
 
-### Pakkumised
+### Tarnija laoseis ja tarneajad
 
-- **Allhankija pakkumuse kasutamine paketi hinnana.** Rühmas {{ui:Eksport}} › {{ui:Pakettide jaotus ja võrdlus…}} vali pakkumuse juures {{ui:Kasuta}}. Paketi kirjed jäävad kogusteks, üks rida **Valitud pakkumus** kannab hinda, kirjed, mida pakkumus ei hõlma, jäävad sinu omahinnaks ning üldkulud, kasum ja garantii rakenduvad sellele. Pakkumise vahetamine on üks tagasivõtmise samm; töövihik ja pakkumise kokkuvõte kannavad seda. Vt [Kasuta pakkumust paketi hinnana](topic:bid-leveling#use-a-bid-as-the-packages-price).
-- **Pakkumiste saatmine paketi kohta.** {{ui:Saada pakkumiseks…}} paketi all saadab igale allhankijale e-kirjaga lingi lehele, mis ei vaja kontot: nad näevad ulatust ja lehti PDF-ina, märgivad hinna igale reale või märgivad, et see pole hõlmatud, lisavad märkmeid ja kuni kolm faili või loobuvad. {{ui:Too hinnad}} toob tagasi tulnud hinnad võrdluslehele, märgituna **veeb**. Saatmine on lubatud ainult kontodele, mille CadCraft meeskond on lubanud, kuni funktsiooni testitakse (vt allpool). Vt [Paketi saatmine pakkumiseks](topic:bid-invitations).
-- **Suletud kuni avamiseni.** Hinnad võivad jääda suletuks kuni avamisajani, mille sa seaded: selleni ei näe keegi hinda, ka sina mitte. Avamisel ilmuvad kõik pakkumised korraga ning pakkumine, mis tuli pärast tähtaega, on märgitud hilinenuks. Vt [Suletud pakkumised ja avamine](topic:bid-invitations#sealed-bids-and-the-opening).
-- **Allhankija kirjed.** Sinu konto getcadcraft.com-is hoiab iga ettevõtte kontakte, valdkondi, kvalifikatsiooni vastuseid ning kindlustuse ja litsentsi kuupäevi (märgitud, kui need on möödas või jäävad 30 päeva sisse) koos varasemate pakkumistega. Impordi ja ekspordi neid CSV-na ning vali need paketi saatmisel. Vt [Veebis](topic:bid-invitations#on-the-website).
+- **Kontrolli tarnija nimekirja vastu.** {{ui:Tarne}} tööriistaribal võtab tarnija laonimekirja ({{ui:Lisa tarnijafail…}}), CSV-faili või tabeli, ning kontrollib, mida koguste arvestus vajab koos kadudega, selle vastu. Alles jäetakse kuni viis faili. Midagi ei saadeta ega küsita tarnijalt: faili toovad sina.
+- **Mida see ütleb.** Puudujäägiga kirjed on ees, näiteks „Puudu 120 EA", „Tarneaeg 21 päeva", „Tellimusel", „Ühik erineb", „Laojäägi arv puudub" või „Laos". {{ui:Pikim soovitud ootamine (päevades)}} algab väärtusest 14.
+- **Tellimisloend.** {{ui:Tellimisloend (CSV)}} laadib alla puudujäägiga kirjed koos puuduva koguse, tarnija ja tarneajaga.
+- **Hinnad teeki.** Kui failis on hinnad, määrab {{ui:Hinnad teeki}} iga teegi kirje materjalihinna sama nime ja ühiku järgi. Too need koguste arvestusse, hinnastades teegist uuesti.
+- **Probleemide paneelis.** Puudujääk on hoiatus ja pikk ootamine märkus rubriigis „Tarnija laoseis". Ühe võid aktsepteerida põhjendusega ning põhjendus salvestatakse koguste arvestusse. Vaata [Tarnija laoseisu ja tarneaegade kontroll](topic:supplier-stock).
 
-### AI-abilised
+### AI-assistendid
 
-- **Abilised saavad lisada koguste arvestusse.** Kui **Redigeeri** on märgitud, saab sinu enda abiline lisada kirjeid (`items_add`) ning mõõta jooni, alasid ja loendusi lehel (`marks_add`; pikkused ja pindalad ainult mõõtkavaga lehel). Iga kutse on üks tagasivõtmise samm.
-- **Abilise tööriistad joonistele.** Avatud DWG- või DXF-joonise korral saab abiline loetleda oma lehed ja need, mida saab loendada, loendada täpselt, lisada loendusmärgised ning mõõta joonise geomeetriast. Kui TakeoffCraft pole avatud, avab CadCraft MCP-server joonise uue koguste arvestusena ja salvestab selle, ning `cadcraft count` loendab käsurealt. Vt [Mida abiline võib küsida](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+- **Tööriistad kõigi kolme jaoks.** Kui assistendid on lubatud valikus {{ui:Sätted}}, saab assistent lugeda legendi (`legend_open`), käivitada loenduse (`legend_count_start`, seejärel `legend_count_status` ja `legend_count_result`) ning selle lisada (`legend_count_add`, mis võib enne eelvaadata). Ta saab lugeda hinnamälu (`prices_list`) ja hinnastada kirjeid selle järgi (`prices_apply`, mis võib enne eelvaadata) ning lugeda tarnijakontrolli (`supply_check`). Tarnijafaili lisamine jääb sinu teha. Vaata [Kasuta TakeoffCraftit AI-assistentidega](topic:use-with-ai-assistants).
 
-### USD
+### Kõigis rakendustes
 
-- **3D-kontrollvaade USD-na.** {{ui:USD-pakett (.usdz)}} kõrval {{ui:GLB}} 3D-kontrollvaates kirjutab iga seina, plaadi, loendussamba ja joone eraldi objektina, nimetatuna oma kirje järgi ja kandes oma kogust meetrites. Abiline saab seda samuti eksportida (`usd_export`). Vt [Ekspordi 3D-kontrollvaade USD-na](topic:usd).
+- **Keeled.** Kokku viiskümmend neli keelt; kümme on uued (leedu, läti, bosnia, marathi, telugu, albaania, afrikaani, filipiini, suahiili ja usbeki). Muud kui inglise keel on masintõlked, kuni emakeelne kõneleja on need läbi lugenud.
+- **Sisendseadmed.** {{ui:Sätted}} › {{ui:Globaalne}} › {{ui:Sisendseadmed}} määrab, mida teevad puuteplaat, hiire külgnupud, pliiats, 3D-hiir, mängupult või MIDI-kontroller, kas kõigi rakenduste või ühe jaoks. Vaata [Puuteplaadi, 3D-hiire või kontrolleri kasutamine](common:input-devices).
+- **Tööriistariba read.** {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Tööriistariba read}} pakub valikuid {{ui:Mähi}} (algus), {{ui:2 rida}} ja {{ui:1 rida}}; grupid, mis ei mahu, kerivad külgsuunas. Vaata [Paneelide korraldamine](common:arrange-panels).
+- **Probleemide paneel.** Ühine hoiatuste ja märkuste paneel sisaldab nüüd ülal kirjeldatud tarnija laoseisu kontrolli teiste kontrollide kõrval.
+- **Lisandmoodulid.** Lisandmoodulid järgivad sinu kontoloendit. Vaata [Lisandmoodulid ja sinu kontoloend](common:addons-basics).
+- **Ühenda oma AI.** CadCraft Studio on keskus: ühenda oma assistent korra kõigi kaheksa rakenduse jaoks. Studiol endal AI-d ei ole.
 
-## Kõigis rakendustes
+## Parandatud versioonis 0.8.1
 
-- **Ühikud.** {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Ühikud}} sisaldab iga pikkuse, pindala, mahu, nurga ja kalde jaoks ühte loendit täpsete suurustega, mida ühikute definitsioonid annavad (USA miilijala on oma ühik). Lülita välja ühikud, mida ei kasuta, ja need kaovad ühikuloenditest; märgi tärniga üks ning uus töö algab selles. Fail säilitab alati oma ühiku. TakeoffCraft'is järgivad kirje {{ui:Ühik}} loendid lülitusi, uus kirje algab tärniga märgitud pikkuse- või pindalaühikus, katusetöö ruudud (SQ), aakrid ja hektarid on uued pindalaühikud ning pikkuse kast võtab vastu iga ühiku tähise, nt `3 yd`. Vt [Ühikud, sisestatud väärtused ja ühikuloendid](common:unit-lists).
-- **Tihedam paigutus ja paneelid, mis end ära peidavad.** {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Paigutuse tihedus}} › {{ui:Tihe}} mahutab ekraanile rohkem (puuteekraanid ja telefonid säilitavad oma suured nupud). Igal külgpaneelil on kitsas pealkirjariba: lohista seda, et paneel kinnitada või vabaks ujuma panna; viska see teise paneeli ribale, et jagada üks raam vahekaartidena; kinnita see, et ta libiseks äärde; või peida ta ja too äärest tagasi. Vt [Paneelide paigutamine](common:arrange-panels#make-the-layout-denser).
-- **Dialoogid liiguvad.** Lohista dialoog pealkirjaribast joonise eest eemale; see tuleb tagasi sinna, kus jätsid. Topeltklõps pealkirjaribal tsentreerib selle uuesti. Vt [Dialoogi liigutamine](common:arrange-panels#move-a-dialog).
-- **Retseptid AI-abilistele.** Kümme valmis päringut sinu enda abilisele (korrasta joonis, trüki komplekt, kontrolli jooniseid, küsi mudeli kohta, summeeri koguste arvestus, proovi detaili varianti…), igaühel tööriistad, mida see kutsub, ja load, mida see vajab, ning meie testid kordavad igaühe. Rakendused ise AI-d ei sisalda. Vt [Retseptid AI-abilistele](common:assistants-recipes).
-- **Keeled.** **Português (Portugal)** on uus jaotises {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Keel}}. See, **Português (Brasil)**, **Español (México)** ja **Bahasa Indonesia** on nüüd kõigi rakenduste kõigi sõnadega, mustanditena, mida emakeelne kasutaja pole veel üle vaadanud. Abiteemad on inglise keeles.
-- **CadCraft Studio** ütleb, miks uuenduse kontroll ebaõnnestus (pole veel faili sinu süsteemile, võrguühendust pole, halb allkiri), selle asemel et lihtsalt öelda „Valmis“, ning ei too enam tagasi Mis on uut kaarti, mille sa oled sulgenud, kuni on uuem väljalase.
+- **DWG-failide klasside jaotis.** DWG-faili klasside jaotist lueti vale tüübina. See on parandatud TakeoffCraftis ja neljas muus rakenduses.
+- **Studio saab töötamise ajal keelt vahetada.** Varem oli Studio ja selle pakendatud väljaanded ainult inglise keeles. Seda pole kõigil platvormidel desktop-versioonis testitud; anna teada, kui keel ei muutu.
 
-## Pole veel selles versioonis
+## Veel pole selles versioonis
 
-- **0.7 pole koodiga allkirjastatud.** Allkirjastamine ja Microsoft Store'i pakett lükati versioonile 0.8, sest sertifikaadi kinnitus pole veel tulnud. Kontrolli iga faili kõrval olevat SHA-256 väärtust lehel getcadcraft.com/download. Windowsis, kui SmartScreen peatab paigaldaja, vali {{ui:Rohkem teavet}}, siis {{ui:Käivita siiski}}. Macis esimesel korral tee CadCraft Studio'l parem klõps ja vali {{ui:Avatud}}. CadCraft Studio pole veel ühegi rakenduste poes ning iPadi ega iPhone'i versiooni veel pole.
-- {{ui:Ühikud}}-s salvestatakse nurga- ja kalde loendid, aga ükski kast neid veel ei loe.
-- **Pakkumiskutsed on enamiku kontode jaoks välja lülitatud.** Funktsiooni testimise ajal läheb kiri väliste pakkujateni ainult kontodelt, mille CadCraft meeskond on lubanud. Pakkujate lehed töötavad iga juba saadetud kutse puhul. Kõik teised: laadi alla {{ui:Ulatuse CSV}}, saada see ise e-kirjaga ja sisesta pakkumised käsitsi.
-- CadCraft Studio aken ei saa veel pakkumiskutseid saata: see ütleb kasutada TakeoffCraft'i brauseris. Saadetud päringutega koguste arvestuse avamine, võrdlemine ja pakkumuse valimine töötavad Studios.
-- Lisandeid, tellimuskirju, ulatusleht, mille iga pakkuja allkirjastab, ja automaatseid meeldetuletusi enne kindlustuse aegumist ei ole tehtud. Valitud pakkumus ei hinnasta uuesti alternatiivi pakkumise ala.
-- **Joonised:** plotisti stiilitabeleid ja CTB-faile ei rakendata, binaarset DXF-i ei võeta vastu (salvesta see ASCII DXF-ina või DWG-na), lingitud joonised leitakse ainult avatud failide seast failinime järgi, ning joonise PDF-alusi, pilte ja OLE-objekte ei joonistata ega loendata. Loendused ja mõõtkavad on kontrollitud näidisjooniseid, mitte veel päris töö joonistel, mis on avatud programmis, mis need tegi.
-- Abiline saab lisada kirjeid ja märgiseid, aga ei saa liigutada, muuta ega kustutada juba olemasolevaid märgiseid.
+- **Pole koodiga allkirjastatud.** Windows võib hoiatada ning Macis paremklõpsad ja vali esimesel korral {{ui:Avatud}}. Poodide versioonid (Microsoft Store, Google Play, App Store) on peatatud ning iPadi ja iPhone'i versiooni ei ehitatud versiooniks 0.8.1 uuesti.
+- **Studio uuendused.** Windowsi paigaldaja ja Linuxi paketid kontrollivad üks kord päevas ja küsivad enne. Kaasaskantav zip ainult teatab ning macOS ja APK ei uuenda end ise. 0.8 macOS .dmg järgib väljalaset.
+- **Ühenda oma AI.** Ühe klõpsuga ühendus Studio sees, veebis töötav hostitud AI-ühendaja, oma API-võti Studio sees ja avaldatud MCP-pakett pole selles versioonis lubatud.
+- **Loenda kõik.** Vaja on sümboleid, mis on joonistatud samamoodi nagu legendis, ja sümbol, millel on sein või pikk joon läbi, võib jääda leidmata. Peegelsümboleid ei leita ning lehte, millel pole mõõtkava ja mis on joonistatud teises suuruses, otsitakse legendi suuruses. Kontrolli esimese lehe leide enne, kui usaldad ülejäänut.
+- **Tarnija laoseis.** Laoseisu arvud on sama värsked kui fail, mille lisad. Kontroll ei küsi kunagi tarnijalt.
+- **Keeled.** Tamili rakenduse riba ületab.
 
-Kõik muu on lehel [Veel tegemata](topic:not-built-yet).
+Kõik muu on [Veel valmimata](topic:not-built-yet). Eelmise väljalaske kohta vaata [Mis on uut versioonis 0.7](topic:whats-new-0-7).

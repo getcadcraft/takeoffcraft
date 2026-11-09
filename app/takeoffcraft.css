@@ -309,6 +309,10 @@ tr.is-alt td { font-style: italic; }
 .tc-ded { display: inline-flex; align-items: center; gap: .25rem; font-size: .75rem; color: var(--ink-2); white-space: nowrap; cursor: pointer; }
 
 /* T3: typed lengths and coordinates while drawing */
+.tc-arcmethod { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; font-size: .8125rem; }
+.tc-arcmethod[hidden] { display: none; }
+.tc-arcmethod > span { color: var(--ink-2); }
+.tc-arcmethod .tc-input { padding: .1rem .3rem; }
 .tc-typein { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; }
 .tc-typein[hidden] { display: none; }
 .tc-typein > span:first-child { color: var(--ink-2); }

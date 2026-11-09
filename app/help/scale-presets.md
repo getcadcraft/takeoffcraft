@@ -6,7 +6,7 @@ order: 30
 keywords: scale, presets, architectural scale, engineering scale, metric scale, ratio, 1/4 inch, 1/8 inch, 1:100, full size
 ---
 
-The {{ui:Preset}} list in the {{ui:Scale}} group has 30 scales in three groups. A preset sets the open sheet's scale exactly.
+The {{ui:Preset}} list in the {{ui:Scale}} group has 32 scales in three groups. A preset sets the open sheet's scale exactly.
 
 Every preset assumes the PDF page is the drawing's real paper size: one inch on the PDF page is one inch of paper (PDF pages measure 72 points per inch). If the PDF was resized, use {{ui:Calibrate}}. Use {{ui:Check}} after setting any scale. See [Set the scale](topic:set-the-scale).
 
@@ -40,7 +40,7 @@ Every preset assumes the PDF page is the drawing's real paper size: one inch on 
 
 ## Metric
 
-`1:1`, `1:2`, `1:5`, `1:10`, `1:20`, `1:25`, `1:50`, `1:100`, `1:200`, `1:250`, `1:500`, `1:1000`.
+`1:1`, `1:2`, `1:5`, `1:10`, `1:20`, `1:25`, `1:50`, `1:75`, `1:100`, `1:150`, `1:200`, `1:250`, `1:500`, `1:1000`.
 
 A metric ratio means one unit on paper is that many units in reality: at `1:100`, 10 mm on the page is 1 m.
 
