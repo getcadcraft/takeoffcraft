@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 import { t } from './i18n.js';
+import { outlineArea } from './quantities/rules.js';
 /**
  * geom.js — plane geometry for takeoff marks, in PDF user space. DOM-free (tested in Node).
  * Points are {x, y}. Lengths come out in user-space units; units.js turns them into feet.
@@ -137,10 +138,11 @@ export const polygonArea = (pts) => Math.abs(signedArea(pts));
 
 /** An area mark: outline minus cut-outs, perimeter of the outline plus each cut-out. */
 export function areaWithHoles(outer, holes = []) {
-  const gross = polygonArea(outer);
-  const cut = holes.reduce((s, h) => s + polygonArea(h), 0);
+  // 0.10 BK.11: gross, cut-outs and net by the one stated rule (quantities/rules.js 'floor'), shared with BimCraft's schedules and IFC quantities
+  const m = outlineArea(polygonArea(outer), holes.map((h) => polygonArea(h)));
+  const gross = m.gross, cut = m.deductions;
   const p = perimeter(outer) + holes.reduce((s, h) => s + perimeter(h), 0);
-  return { gross, cut, net: gross - cut, perimeter: p, outerPerimeter: perimeter(outer) };
+  return { gross, cut, net: m.net, perimeter: p, outerPerimeter: perimeter(outer) };
 }
 
 /** Ray-cast point in polygon (arcs followed); the boundary itself is not relied on by callers. */

@@ -24,19 +24,23 @@
 
 import { el, icon, bytes, frame, safeName, ask } from './ui-util.js';
 import { PageView, renderThumb } from './viewer.js';
-import { Takeoff, FORMAT, TYPES, TYPE_LABELS, VARS, VAR_HELP, sheetKey, quantities, estimate, itemVars, itemQty, measureMark, sheetBreakdown, areaEstimates, baseEstimate, alternates, backouts, segSlope, kindsOf, unitOf, condQty, csiOk } from './model.js';
+import { Takeoff, FORMAT, TYPES, TYPE_LABELS, VARS, VAR_HELP, sheetKey, quantities, estimate, itemVars, itemQty, wallArea, wallRule, methodNote, measureMark, sheetBreakdown, areaEstimates, baseEstimate, alternates, backouts, segSlope, kindsOf, unitOf, condQty, csiOk } from './model.js';
 import * as U from './units.js';
 import { onUnitsChange, starOf } from './unit-prefs.js';   // 0.7 UNITS: Settings › General › Units
 import * as G from './geom.js';
 import { parse, evaluate } from './formula.js';
 import { openPdf, sheetTitle, matchFiles, sha256Hex } from './pdfset.js';
+import { pageSize, sizeText, groupBySize } from './pagesize.js';
+import { SheetWindow } from './sheetlist.js';
 import { estimateCsv, estimateXlsx, materialList, materialCsv, spotElevationsCsv, divisionTitle } from './export.js';
 import { bidPackages, leveling, packageCsv, addBid, updateBid, removeBid, setAward } from './level.js';
 import { createBidsUi } from './bids-ui.js';
 import { pdfWithMarks, cloudPath, NOTE_COLORS } from './pdfmarks.js';
+import * as CMK from './countmarker.js';
 import { toInk, crop, trim, templateProblem, suppress, workScale, ANY_ANGLES } from './match.js';
 import { copyMarks, copyItems, readClip, scaleProblem, sizeProblem, pasteClip, measured } from './clipboard.js';
 import { Autosave } from './app-autosave.js';
+import { objectJournal, recoverState, recoverExtras } from "./history/index.js";   // 0.10 PERF.24: autosave that writes what changed
 import { handoffParam, takeHandoff, sendHandoff } from './handoff.js';
 import { getHost } from './host.js';
 import { pageLinework, SnapIndex, MAX_SEGS } from './snap.js';
@@ -60,11 +64,20 @@ import { mountTagQty } from './tagqty-ui.js';   // 0.8 EG.14
 import { PadDetector } from './wheel-pad.js';   // 0.7 D7.56 (CadCraft's copy, byte-identical): a trackpad's two-finger swipe pans
 import { panButton, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: the menu style's wheel and pan buttons (input-takeoffcraft.js)
 import { startAddons, columnsNow } from './addons/takeoffcraft-api.js';
+import { mountSignoff, estimateTsv } from './estimate-signoff-ui.js';
+import { mountTakeoffIssues } from './issues-takeoff.js';   // 0.10 BK.48 (bk-r3-stages-10): the shared issue history; takeoff sheets against an issue
+import { layoutQtyTable } from './estimate-layout-ui.js';   // 0.10 BK.149 (bk-r3-schedules-10): the Quantities tables in the office layout (Default Policies)
+import { onDefaults } from './defaults-hook.js';   // 0.10 BK.62 / BK.142 (bk-r3-schedules-10): missing rates, the sign-off, figures that select their marks
 import { mountSupply } from './supply-ui.js';   // 0.8 EG.51 (takeoff_PART_2): supplier stock and lead-time files
 import { mountPrices } from './prices-ui.js';   // 0.8 EG.68 (takeoff_PART_2): price memory from your own jobs
 import { mountCountAll } from './countall-ui.js';   // 0.8 EG.67 (takeoff_PART_2): count every symbol of a legend across the whole set
 import { mountLearn } from './learn-ui.js';   // 0.8 SU.811 (sx-learn): what it learned from your takeoffs
 import { mountUndoHook } from './undo-hook.js';   // 0.9 EG.77: tells Studio each finished step
+import { mountDialogs } from './dialogs-ui.js';
+import { mountClipboard } from './clipboard-ui.js';
+import { mountCompare } from './compare-ui.js';
+import { mountNotes } from './notes-ui.js';
+import { mountAreas } from './areas-ui.js';
 
 const TYPE_ICONS = { linear: 'bezier2', area: 'pentagon', count: 'plus-circle', fixed: '123' };
 const HIT = 7;          // screen px for picking marks and handles
@@ -80,7 +93,7 @@ function init(root) {
   const $ = (s) => root.querySelector(s);
   const ui = {
     base: $('[data-base]'), over: $('[data-over]'), stage: $('[data-stage]'), hint: $('[data-hint]'), drop: $('[data-drop]'),
-    busy: $('[data-busy]'), busyText: $('[data-busy-text]'), sheetbar: $('[data-sheetbar]'), sheetName: $('[data-sheet-name]'), sheetScale: $('[data-sheet-scale]'),
+    busy: $('[data-busy]'), busyText: $('[data-busy-text]'), sheetbar: $('[data-sheetbar]'), sheetName: $('[data-sheet-name]'), sheetScale: $('[data-sheet-scale]'), sheetSize: $('[data-sheet-size]'), bySize: $('[data-sheets-by-size]'),
     filePdf: $('[data-file-pdf]'), fileProject: $('[data-file-project]'), preset: $('[data-scale-preset]'),
     sheets: $('[data-sheets]'), sheetsEmpty: $('[data-sheets-empty]'), sheetQ: $('[data-sheet-q]'), sheetCount: $('[data-sheet-count]'), missing: $('[data-missing]'),
     items: $('[data-items]'), itemsEmpty: $('[data-items-empty]'), itemNew: $('[data-item-new]'), library: $('[data-library]'), itemForm: $('[data-item-form]'),
@@ -107,6 +120,7 @@ function init(root) {
   let selMain = null;
   const selMore = new Set();
   const selListeners = new Set();     // the shell's design reasons listen for the selection (shell-mount.js)
+  let pickRow = null, pickLast = '', pickQueued = false;   // SC.5: the quantity row picked, what was last announced (pickRefs / announcePick below)
   const selChanged = () => { for (const fn of selListeners) { try { fn(); } catch (err) { console.error(err); } } };
   Object.defineProperty(app, 'sel', { enumerable: true, get: () => selMain, set: (v) => { selMain = v || null; selMore.clear(); selChanged(); } });
   const selIds = () => [selMain, ...selMore].filter((id) => id && model.mark(id));
@@ -114,6 +128,7 @@ function init(root) {
   function setSelection(ids) { app.sel = ids[0] || null; for (const id of ids.slice(1)) selMore.add(id); }
   let pdfjs = null;
   let carbonUi = null, tagQtyUi = null;   // 0.8 takeoff_PART_3
+  let signoffUi = null;                // 0.10 BK.62 / BK.142 (estimate-signoff-ui.js)
   let shellMount = null;               // the shell's seven modules (shell-mount.js), attached after the assistants' tools exist
   let est = baseEstimate(model.state), qmap = quantities(model.state);
   // the 3D check view (scene3d.js + view3d.js, loaded on first use): on, the module, the view, the sheet it shows, sheet textures
@@ -146,7 +161,7 @@ function init(root) {
   const SET_KEY = 'takeoffcraft.settings';
   const LEN_SHOWS = ['follow', 'ftin', 'm', 'cm', 'mm'];
   const TEMP_SHOWS = ['follow', 'degc', 'degf'];   // 0.9: how temperatures read and what a bare number means
-  const SET_DEFAULTS = { currency: '$', lenShow: 'follow', tempShow: 'follow', denom: 16, waste: 0, threshold: 0.75, snap45: false, corner: 'cube', snap: true, roomGap: 4, pickGap: PP.GAP_DEFAULT };
+  const SET_DEFAULTS = { currency: '$', lenShow: 'follow', tempShow: 'follow', denom: 16, waste: 0, threshold: 0.75, snap45: false, corner: 'cube', snap: true, roomGap: 4, pickGap: PP.GAP_DEFAULT, marker: CMK.MARKER_DEFAULT };
   const ROOM_GAPS = [3, 3.5, 4, 5, 6, 8];
   const WASTE_CHOICES = [0, 200, 300, 500, 750, 1000, 1500, 2000];
   const settings = { ...SET_DEFAULTS };
@@ -164,6 +179,7 @@ function init(root) {
       if (typeof v.snap === 'boolean') settings.snap = v.snap;
       if (['cube', 'axes', 'none'].includes(v.corner)) settings.corner = v.corner;
       if (ROOM_GAPS.includes(v.roomGap)) settings.roomGap = v.roomGap;
+      if (typeof v.marker === 'string') settings.marker = CMK.markerKey(v.marker);   // 0.9.1: count marker size, screen and PDF alike (countmarker.js)
       if (typeof v.pickGap === 'number' && v.pickGap >= PP.GAP_MIN && v.pickGap <= PP.GAP_MAX) settings.pickGap = v.pickGap;
     } catch { /* private window or damaged: the defaults */ }
   }
@@ -194,6 +210,7 @@ function init(root) {
     const w = q('select[name="tcWaste"]'); if (w) w.value = String(settings.waste);
     const cu = q('select[name="tcCurrency"]'); if (cu) cu.value = settings.currency;
     const rg = q('select[name="tcRoomGap"]'); if (rg) rg.value = String(settings.roomGap);
+    settingsDlg.querySelectorAll('input[name="tcMarker"]').forEach((r) => { r.checked = r.value === settings.marker; });
     const pg = q('input[name="tcPickGap"]'); if (pg && document.activeElement !== pg) pg.value = String(Math.round(settings.pickGap * 100) / 100);
     const th = q('input[name="tcThreshold"]'); if (th) th.value = String(settings.threshold);
     const out = q('[data-tc-th-out]'); if (out) out.textContent = Math.round(settings.threshold * 100) + '%';
@@ -220,6 +237,7 @@ function init(root) {
       else if (t.name === 'tcDenom') settings.denom = Number(t.value);
       else if (t.name === 'tcCurrency') settings.currency = U.CURRENCIES.includes(t.value) ? t.value : '$';
       else if (t.name === 'tcWaste') settings.waste = WASTE_CHOICES.includes(Number(t.value)) ? Number(t.value) : 0;
+      else if (t.name === 'tcMarker') settings.marker = CMK.markerKey(t.value);
       else if (t.name === 'tcRoomGap') settings.roomGap = ROOM_GAPS.includes(Number(t.value)) ? Number(t.value) : 4;
       else if (t.name === 'tcThreshold') settings.threshold = Number(t.value);
       else if (t.name === 'tcPickGap') { const v = Number(t.value); settings.pickGap = Number.isFinite(v) ? Math.min(PP.GAP_MAX, Math.max(PP.GAP_MIN, v)) : PP.GAP_DEFAULT; t.value = String(Math.round(settings.pickGap * 100) / 100); }   // 0.8 takeoff_PART_3: the Path tool's gap, also on [ and ]
@@ -402,9 +420,8 @@ function init(root) {
     if (d3.on) update3d();
     if (app.sel && model.mark(app.sel)?.sheet !== key) app.sel = null;
     renderSheetBar();
-    renderSheets();
+    markCurrentSheet();   // 0.10 PERF.35: two buttons change; the whole list was rebuilt here for every switch
     renderMarkProps();
-    ui.sheets.querySelector('[aria-current="true"]')?.scrollIntoView({ block: 'nearest' });
     ws?.sheetShown(key);
     learnUi?.sheetShown(key);   // 0.8 SU.811: offer what it learned on this page
   }
@@ -434,6 +451,16 @@ function init(root) {
   ui.filePdf.addEventListener('change', () => { const l = [...ui.filePdf.files]; ui.filePdf.value = ''; if (l.length) host.fromDrop(l).then(openHostFiles); });
   ui.fileProject.addEventListener('change', () => { const l = [...ui.fileProject.files]; ui.fileProject.value = ''; if (l.length) host.fromDrop(l.slice(0, 1)).then(openHostFiles); });
   host.onOpenFiles((list) => openHostFiles(list));
+
+  // 2026-11-12: the start card's "Try a sample file" opens the kitchen plan and its takeoff through the normal open path (PDF first, then the project); also in the command palette (Ctrl+K)
+  async function openSample() {
+    try {
+      const get = async (name, type) => { const r = await fetch(new URL('./samples/' + name, import.meta.url)); if (!r.ok) throw new Error('HTTP ' + r.status); return new File([await r.blob()], name, { type }); };   // i18n-ignore: file names
+      await openFiles([await get('kitchen-plan-sheet.pdf', 'application/pdf'), await get('kitchen-bid.takeoff.json', 'application/json')]);
+    } catch (err) { busy(null); status(t('hint.sample.noload', { why: err.message })); }
+  }
+  for (const b of root.querySelectorAll('[data-hint-sample]')) b.addEventListener('click', openSample);
+  { const regSample = () => window.ccPalette?.register?.([{ id: 'takeoffcraft-sample', label: t('hint.trysample'), group: 'file', keywords: 'sample example demo try', run: openSample }]); if (window.ccPalette) regSample(); else window.addEventListener('load', regSample); }
 
   // drop PDFs (and/or a project) anywhere on the app
   let dragDepth = 0;
@@ -538,11 +565,36 @@ function init(root) {
   // =========================================================================
   // Sheets list
 
+  // ---- page sizes (0.10 SU.1805): mm and inches with the nearest named paper size; a drawing's sheets have no paper, so none
+  const sizeCache = new WeakMap();
+  /** A PDF sheet's size as shown (rotation applied), or null for a drawing's sheet: { wMm, hMm, wIn, hIn, orient, name, custom, near }. */
+  function sizeOf(s) {
+    if (isCad(s.file)) return null;
+    let z = sizeCache.get(s.info);
+    if (!z) { z = pageSize({ width: s.info.width, height: s.info.height, userUnit: s.info.userUnit || 1 }); sizeCache.set(s.info, z); }
+    return z;
+  }
+  const sizeName = (z) => z.name || t('psize.custom');
+  const sizeNameOrient = (z) => t('psize.named', { name: sizeName(z), orient: t('psize.orient.' + z.orient) });
+  const sizeGroups = () => groupBySize(sheets.map((s) => ({ key: s.key, info: sizeOf(s) })));
+  let bySize = false;
+  /** Every PDF page of the open set with its size and group (the estimate workbook's "Page sizes" sheet). */
+  function pageSizeRows() {
+    const groups = sizeGroups(), groupOf = new Map(groups.flatMap((g) => g.keys.map((k) => [k, g])));
+    return sheets.filter((s) => sizeOf(s)).map((s) => { const z = sizeOf(s); return { title: s.title, file: s.file.name, page: s.info.index + 1, size: sizeName(z), mm: sizeText(z), orient: t('psize.orient.' + z.orient), wMm: Math.round(z.wMm * 10) / 10, hMm: Math.round(z.hMm * 10) / 10, odd: !!groupOf.get(s.key)?.odd }; });
+  }
+
   function visibleSheets() {
     const q = ui.sheetQ.value.trim().toLowerCase();
     return q ? sheets.filter((s) => (s.title + ' ' + s.file.name + ' ' + s.info.label).toLowerCase().includes(q)) : sheets;
   }
   ui.sheetQ.addEventListener('input', () => renderSheets());
+  ui.bySize?.addEventListener('click', () => {
+    bySize = !bySize;
+    ui.bySize.setAttribute('aria-pressed', String(bySize));
+    renderSheets();
+    status(bySize ? t('psize.by.on', { n: sizeGroups().length }) : t('psize.by.off'));
+  });
 
   const thumbQueue = [];
   let thumbBusy = false;
@@ -555,33 +607,86 @@ function init(root) {
     thumbBusy = true;
     while (thumbQueue.length) {
       const c = thumbQueue.shift();
-      const s = sheets.find((x) => x.key === c.dataset.key);
+      const s = sheetByKey(c.dataset.key);
       if (!s || c.dataset.done) continue;
-      try { await renderThumb(await s.file.doc.getPage(s.info.index + 1), s.info, c, 200); c.dataset.done = '1'; } catch { /* a broken page keeps a blank thumbnail */ }
+      try {
+        const pg = await s.file.doc.getPage(s.info.index + 1);
+        await renderThumb(pg, s.info, c, 200);
+        c.dataset.done = '1';
+        if (s !== cur) pg.cleanup();   // 0.10 PERF.35: the page's operator list and glyphs are let go; the open sheet keeps its own
+      } catch { /* a broken page keeps a blank thumbnail */ }
     }
     thumbBusy = false;
   }
-
+  /** A sheet by its key (a Map rebuilt when the set changes; the list was scanned for each lookup). */
+  let sheetMap = null, sheetMapOf = null;
+  function sheetByKey(key) {
+    if (sheetMapOf !== sheets || sheetMap.size !== sheets.length) { sheetMap = new Map(sheets.map((x) => [x.key, x])); sheetMapOf = sheets; }
+    return sheetMap.get(key) || null;
+  }
+  // The list is windowed (0.10 PERF.35): a 2,000-sheet set draws the rows near the view, not 2,000 rows; thumbnails are kept for the newest 160.
+  const THUMBS_KEPT = 160;
+  const sheetWin = new SheetWindow({
+    list: ui.sheets,
+    estimate: (e) => (e.group ? 30 : (Math.max(120, (ui.sheets.clientWidth || 260) - 20) / (e.ar || 0.75)) + 78),
+    renderRow: (e) => (e.group ? groupRow(e.group) : sheetListRow(sheetByKey(e.id))),
+  });
+  let sheetStats = { mark: new Map(), hl: new Map() }, rowOf = new Map();
+  function groupRow(gz) {
+    return el('li', { className: 'tc-sheet-group' + (gz.odd ? ' is-odd' : ''), dataset: { sizeGroup: gz.id } },
+      el('span', { className: 'tc-sheet-group-name' }, gz.name || t('psize.custom')),
+      el('span', {}, sizeText({ wMm: gz.wMm, hMm: gz.hMm, wIn: gz.wMm / 25.4, hIn: gz.hMm / 25.4 })),
+      el('span', {}, t('psize.group.n', { n: gz.keys.length })),
+      gz.odd ? el('span', { className: 'tc-sheet-group-odd' }, t('psize.odd')) : null);
+  }
+  function thumbFor(s) {
+    let c = thumbs.get(s.key);
+    if (c) { thumbs.delete(s.key); thumbs.set(s.key, c); return c; }
+    c = el('canvas', { className: 'tc-thumb', dataset: { key: s.key }, 'aria-hidden': 'true' });
+    c.style.setProperty('--ar', String(s.info.width / s.info.height));
+    thumbs.set(s.key, c); io.observe(c);
+    while (thumbs.size > THUMBS_KEPT) { const [k, old] = thumbs.entries().next().value; thumbs.delete(k); io.unobserve(old); }
+    return c;
+  }
+  function sheetListRow(s) {
+    const zs = sizeOf(s), sc = model.scaleOf(s.key);
+    const n = sheetStats.mark.get(s.key) || 0, h = sheetStats.hl.get(s.key) || 0;
+    return el('li', {}, el('button', { type: 'button', className: 'tc-sheet', 'aria-current': cur?.key === s.key ? 'true' : 'false', dataset: { sheet: s.key }, onclick: () => showSheet(s.key) },
+      thumbFor(s),
+      el('span', { className: 'tc-sheet-title' }, s.title),
+      zs ? el('span', { className: 'tc-sheet-size', title: sizeText(zs) }, sizeName(zs) + ' · ' + sizeText(zs).replace(/ \(.*/, '')) : null,
+      el('span', { className: 'tc-sheet-meta' },
+        el('span', { className: sc ? '' : 'is-unscaled' }, sc ? scaleText(sc, s.info.userUnit, true) : t('x.noscale')),
+        app.hl ? el('span', { className: 'tc-sheet-hits' }, h ? t('sheets.hits', { n: h }) : '') : el('span', {}, n ? t('n.marks', { n }) : ''))));
+  }
+  /** The list again: its rows, its order (by size), and the counts on each row. Switching sheets does not call this (markCurrentSheet). */
   function renderSheets() {
     const list = visibleSheets();
     ui.sheetsEmpty.hidden = sheets.length > 0;
     ui.sheetCount.textContent = sheets.length ? (list.length === sheets.length ? t('sheets.count', { n: sheets.length }) : t('sheets.count.filtered', { n: list.length, total: sheets.length })) : '';
-    const hlCount = new Map();
-    if (app.hl) for (const m of model.state.marks) if (m.item === app.hl) hlCount.set(m.sheet, (hlCount.get(m.sheet) || 0) + 1);
-    const markCount = new Map();
-    for (const m of model.state.marks) markCount.set(m.sheet, (markCount.get(m.sheet) || 0) + 1);
-    ui.sheets.replaceChildren(...list.map((s) => {
-      let c = thumbs.get(s.key);
-      if (!c) { c = el('canvas', { className: 'tc-thumb', dataset: { key: s.key }, 'aria-hidden': 'true' }); c.style.setProperty('--ar', String(s.info.width / s.info.height)); thumbs.set(s.key, c); io.observe(c); }
-      const sc = model.scaleOf(s.key);
-      const n = markCount.get(s.key) || 0, h = hlCount.get(s.key) || 0;
-      return el('li', {}, el('button', { type: 'button', className: 'tc-sheet', 'aria-current': cur?.key === s.key ? 'true' : 'false', dataset: { sheet: s.key }, onclick: () => showSheet(s.key) },
-        c,
-        el('span', { className: 'tc-sheet-title' }, s.title),
-        el('span', { className: 'tc-sheet-meta' },
-          el('span', { className: sc ? '' : 'is-unscaled' }, sc ? scaleText(sc, s.info.userUnit, true) : t('x.noscale')),
-          app.hl ? el('span', { className: 'tc-sheet-hits' }, h ? t('sheets.hits', { n: h }) : '') : el('span', {}, n ? t('n.marks', { n }) : ''))));
-    }));
+    sheetStats = { mark: new Map(), hl: new Map() };
+    if (app.hl) for (const m of model.state.marks) if (m.item === app.hl) sheetStats.hl.set(m.sheet, (sheetStats.hl.get(m.sheet) || 0) + 1);
+    for (const m of model.state.marks) sheetStats.mark.set(m.sheet, (sheetStats.mark.get(m.sheet) || 0) + 1);
+    const groups = bySize ? sizeGroups() : null;
+    const groupOf = groups ? new Map(groups.flatMap((g) => g.keys.map((k) => [k, g]))) : null;
+    const ordered = groups ? list.map((s, i) => [s, i]).sort((a, b) => groups.indexOf(groupOf.get(a[0].key)) - groups.indexOf(groupOf.get(b[0].key)) || a[1] - b[1]).map((x) => x[0]) : list;
+    const entries = [];
+    let lastGroup = null;
+    rowOf = new Map();
+    for (const s of ordered) {
+      if (groups && groupOf.get(s.key) !== lastGroup) { lastGroup = groupOf.get(s.key); entries.push({ id: 'g:' + lastGroup.id, group: lastGroup }); }
+      rowOf.set(s.key, entries.length);
+      entries.push({ id: s.key, ar: s.info.width / s.info.height });
+    }
+    thumbQueue.length = 0;
+    sheetWin.set(entries);
+  }
+  /** The open sheet's row marked (two buttons change, not the list) and scrolled into the panel's view. */
+  function markCurrentSheet() {
+    if (!cur) return;
+    for (const b of ui.sheets.querySelectorAll('.tc-sheet[aria-current="true"]')) if (b.dataset.sheet !== cur.key) b.setAttribute('aria-current', 'false');
+    if (rowOf.has(cur.key)) sheetWin.reveal(rowOf.get(cur.key));
+    for (const b of ui.sheets.querySelectorAll('.tc-sheet')) if (b.dataset.sheet === cur.key) b.setAttribute('aria-current', 'true');
   }
 
   function scaleText(sc, userUnit = 1, short = false) {
@@ -611,6 +716,10 @@ function init(root) {
     const sc = model.scaleOf(cur.key);
     ui.sheetScale.textContent = sc ? t('sheetbar.scale', { scale: scaleText(sc, cur.info.userUnit) }) : t('sheetbar.noscale');
     ui.sheetScale.classList.toggle('is-unscaled', !sc);
+    const zc = sizeOf(cur);
+    ui.sheetSize.hidden = !zc;
+    ui.sheetSize.textContent = zc ? sizeNameOrient(zc) + ' · ' + sizeText(zc) : '';
+    ui.sheetSize.title = zc && zc.custom && zc.near ? t('psize.near', { name: zc.near.name, mm: zc.near.deltaMm }) : '';
     ui.preset.value = sc?.method === 'preset' && sc.preset ? sc.preset : (sc ? (sc.method === 'drawing' ? 'drawing' : 'cal') : '');
   }
 
@@ -1035,12 +1144,32 @@ function init(root) {
         const page = await s.file.doc.getPage(s.info.index + 1);
         const lw = isCad(s.file) ? cadMod.cadLinework(s.file.cad, s.info.index) : await pageLinework(pdfjs, page);   // a drawing's own lines (cadset.js)
         rec.n = lw.n; rec.truncated = lw.truncated;
-        rec.idx = lw.n ? new SnapIndex(lw) : null;
+        rec.idx = lw.n ? new SnapIndex(lw, await gridInWorker(lw)) : null;   // the grid is built off the page's thread (0.10 PERF.34)
         if (cur?.key === s.key && settings.snap && rec.truncated) status(t('snap.truncated', { n: MAX_SEGS.toLocaleString() }), 9000);
       } catch (err) { console.warn(err); }
       while (snaps.size > 4) snaps.delete(snaps.keys().next().value);
     })();
     return rec.pending;
+  }
+  let snapWorker = null, snapJobs = 0;
+  /**
+   * The snap grid of a sheet's segments, built in snap-worker.js (a copy of the segments goes over; the two arrays come back by transfer).
+   * null when a worker cannot run (the SnapIndex then builds it here, as it always did): small sheets are not worth the hop.
+   */
+  function gridInWorker(lw) {
+    if (lw.n < 20000 || typeof Worker === 'undefined') return Promise.resolve(null);
+    return new Promise((resolve) => {
+      try {
+        snapWorker ??= new Worker(import.meta.resolve('./snap-worker.js'), { type: 'module' });
+        const id = ++snapJobs, w = snapWorker;
+        const done = (g) => { w.removeEventListener('message', on); w.removeEventListener('error', fail); resolve(g); };
+        const on = (e) => { if (e.data?.id === id) done(e.data.type === 'done' ? e.data.grid : null); };
+        const fail = () => { if (snapWorker === w) { w.terminate(); snapWorker = null; } done(null); };
+        w.addEventListener('message', on); w.addEventListener('error', fail);
+        const segs = lw.segs.slice(0, lw.n * 4);
+        w.postMessage({ id, snapUrl: import.meta.resolve('./snap.js'), segs, n: lw.n }, [segs.buffer]);
+      } catch { resolve(null); }
+    });
   }
   function snapHit(raw) {
     if (!settings.snap || !cur || !(SNAP_TOOLS.has(app.tool) || app.drag)) return null;
@@ -1505,7 +1634,7 @@ function init(root) {
     const list = model.marksOn(cur.key);
     for (let i = list.length - 1; i >= 0; i--) {
       const m = list[i];
-      if (m.kind === 'count' && G.dist(p, m.pts[0]) <= tol * 1.3) return m;
+      if (m.kind === 'count' && G.dist(p, m.pts[0]) <= Math.max(tol * 1.3, CMK.markerPx(settings.marker) / view.z)) return m;
       if (m.kind === 'linear' && G.distToPath(p, m.pts) <= tol) return m;
     }
     for (let i = list.length - 1; i >= 0; i--) {
@@ -1613,6 +1742,7 @@ function init(root) {
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     drawCompare(ctx);
     const drag = app.drag?.moved ? app.drag : null;
+    const dotPx = CMK.markerPx(settings.marker);        // 0.9.1: the count marker size set in Settings (6 px unless changed); the PDF draws the same size on paper
     for (const m0 of model.marksOn(cur.key)) {
       const it = items.get(m0.item);
       if (!it) continue;
@@ -1621,7 +1751,7 @@ function init(root) {
       ctx.globalAlpha = dim ? 0.22 : 1;
       if (m.flag) {                       // T13: the drawing changed under it in the revision — an orange halo until checked
         ctx.save(); ctx.globalAlpha = 0.9; ctx.strokeStyle = FLAG_COLOR; ctx.lineWidth = 9; ctx.setLineDash([8, 6]);
-        if (m.kind === 'count') { const s = S(m.pts[0]); ctx.beginPath(); ctx.arc(s.x, s.y, 12, 0, Math.PI * 2); ctx.stroke(); }
+        if (m.kind === 'count') { const s = S(m.pts[0]); ctx.beginPath(); ctx.arc(s.x, s.y, dotPx * 2, 0, Math.PI * 2); ctx.stroke(); }
         else { ctx.beginPath(); for (const ring of [m.pts, ...(m.kind === 'area' ? m.holes : [])]) trace(ring, m.kind === 'area'); ctx.stroke(); }
         ctx.restore();
       }
@@ -1644,8 +1774,8 @@ function init(root) {
         ctx.setLineDash([]);
       } else {
         const s = S(m.pts[0]);
-        ctx.beginPath(); ctx.arc(s.x, s.y, selected ? 7.5 : 6, 0, Math.PI * 2); ctx.fill();
-        ctx.lineWidth = 1.5; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+        ctx.beginPath(); ctx.arc(s.x, s.y, selected ? dotPx * CMK.SELECTED : dotPx, 0, Math.PI * 2); ctx.fill();
+        ctx.lineWidth = dotPx * CMK.OUTLINE; ctx.strokeStyle = '#ffffff'; ctx.stroke();
       }
     }
     ctx.globalAlpha = 1;
@@ -1793,6 +1923,7 @@ function init(root) {
 
   function setActive(id, highlight = true) {
     app.active = id;
+    if (highlight) pickRow = id;   // SC.5: a quantity row chosen by a person (or shown from another panel) is the pick when no mark is selected
     selChanged();
     if (highlight) app.hl = id;
     renderItems(); renderItemProps(); renderSheets(); renderQty();
@@ -1800,7 +1931,7 @@ function init(root) {
   }
   /** Click an item: highlight its marks everywhere (again: stop) and jump to a sheet that has them. */
   function focusItem(id) {
-    if (app.hl === id && app.active === id) { app.hl = null; renderItems(); renderSheets(); renderQty(); view.overlayOnly(); return; }
+    if (app.hl === id && app.active === id) { app.hl = null; pickRow = null; announcePick(); renderItems(); renderSheets(); renderQty(); view.overlayOnly(); return; }
     setActive(id);
     const marks = model.state.marks.filter((m) => m.item === id);
     if (marks.length && !marks.some((m) => m.sheet === cur?.key)) {
@@ -1810,12 +1941,25 @@ function init(root) {
     }
   }
 
+  /** 0.10 BK.142: select the marks an item's figures came from (its marks on the sheet shown, else on the first sheet that has some). → how many */
+  async function selectMarks(id) {
+    const marks = model.state.marks.filter((m) => m.item === id);
+    if (!marks.length) return 0;
+    if (!marks.some((m) => m.sheet === cur?.key)) { const target = sheets.find((s) => marks.some((m) => m.sheet === s.key)); if (!target) { status(t('item.marks.closed')); return 0; } await showSheet(target.key); }
+    const here = marks.filter((m) => m.sheet === cur?.key).map((m) => m.id);
+    if (app.active !== id) setActive(id);
+    if (app.tool !== 'select') setTool('select');
+    setSelection(here);
+    renderMarkProps(); view.overlayOnly();
+    return here.length;
+  }
+
   const qtyLabel = (it) => {
     const tq0 = qmap.get(it.id);
     if (!tq0) return '';
     const main = U.fixed(itemQty(it, tq0), it.type === 'count' ? 0 : 2) + ' ' + U.UNITS[it.unit].label;
     // T8: a second condition's quantity follows the main one ("120.00 SF + 4 EA")
-    const wall = it.type === 'linear' && it.heightFt > 0 && tq0.lengthFt > 0 ? ' · ' + t('qty.wall.short', { area: areaShow(tq0.lengthFt * it.heightFt, it) }) : '';
+    const wall = it.type === 'linear' && it.heightFt > 0 && tq0.lengthFt > 0 ? ' · ' + t('qty.wall.short', { area: areaShow(wallArea(it, tq0).net, it) }) : '';
     return [main + wall, ...(it.conds || []).map((c) => U.fixed(condQty(c, tq0.conds?.[c.kind]), c.kind === 'count' ? 0 : 2) + ' ' + U.UNITS[c.unit].label)].join(' + ');
   };
 
@@ -2158,6 +2302,7 @@ function init(root) {
 
   // ---- the selected mark ----
   function renderMarkProps() {
+    announcePick();   // SC.5: every change of the selected marks ends here (Shift+click changes the set without a new main mark)
     wsChanged();
     renderToolbar();
     if (d3.on) d3.view?.setSelection(selIds());
@@ -2168,7 +2313,7 @@ function init(root) {
     if (selMore.size) { renderMultiProps(); return; }
     const it = model.item(m.item);
     const sc = model.scaleOf(m.sheet);
-    const r = measureMark(m, sc?.ftPerUnit, it);
+    const r = measureMark(m, sc?.ftPerUnit, it, wallRule(model.state));   // 0.10 BK.42: by the takeoff's measurement method
     const G = window.ccPropGrid ? [] : null;   // 0.8 PANEL-COMPACT: the mark's facts and its item go in the shared grid where the shell has it
     let kvn = 0;
     const kv = (k, val) => G ? (G.push({ id: 'v' + (kvn++), category: t('mark.grid.measured'), label: k, type: 'readonly', value: val }), []) : [el('span', { className: 'k' }, k), el('span', { className: 'v' }, val)];
@@ -2189,7 +2334,14 @@ function init(root) {
     else if (m.kind === 'linear') {
       rows.push(...kv(t('mark.f.length'), t('mark.length', { len: ftIn(r.lengthFt), lf: U.fixed(r.lengthFt, 2) })), ...kv(t('mark.f.segments'), String(r.segmentsFt.length)));
       if (r.deducts.length) rows.push(...kv(t('props.deducts'), ftIn(r.deductFt)), ...kv(t('props.drawn'), ftIn(r.grossFt)));
-      if (it.heightFt > 0 && it.type === m.kind) rows.push(...kv(t('mark.f.wall'), areaShow(r.lengthFt * it.heightFt, it)));
+      if (it.heightFt > 0 && it.type === m.kind) {
+        const wa = wallArea(it, r);   // 0.10 BK.11: the net wall area; a run with openings (from a BimCraft takeoff) says what was taken out
+        rows.push(...kv(t('mark.f.wall'), areaShow(wa.net, it)));
+        if (wa.deductions > 0) rows.push(...kv(t('mark.f.wallgross'), areaShow(wa.gross, it)), ...kv(t('mark.f.wallopens', { n: r.openN }), areaShow(wa.deductions, it)));
+        if (r.openKeptSqft > 0) rows.push(...kv(t('mark.f.wallkept', { n: m.opens.length - r.openN }), areaShow(r.openKeptSqft, it)));   // 0.10 BK.42: openings the method does not deduct
+        if (wa.junctions > 0) rows.push(...kv(t('mark.f.walljunc'), areaShow(wa.junctions, it)));
+        const mn = methodNote(model.state); if (mn) rows.push(...kv(t('mark.f.method'), mn));
+      }
       const ded = new Set(r.deducts);
       const sloped = r.slopes.some((x) => x.k !== 'flat');
       if (sloped) rows.push(...kv(t('props.plan_length'), ftIn(r.planFt)));
@@ -2313,648 +2465,54 @@ function init(root) {
   // =========================================================================
   // Clipboard: copy, cut, paste (follows the pointer), paste in place, duplicate, select all / none
 
-  const CLIP_KEY = 'takeoffcraft.clipboard';
-  const tabId = Math.random().toString(36).slice(2, 10);
-  let clipMem = null;          // { wire, clip }: this tab's last copy
-  const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
-  const modKey = isMac ? 'Cmd' : 'Ctrl';
+  const { isMac, modKey, currentClip, itemList, copySelection, cutSelection, copyItem, duplicateItem, startPaste, duplicateSelection, placePaste, endPaste, selectAll, selectNone, drawPaste } = mountClipboard({
+    ui, model, app, selIds, setSelection, d3, view, status, settings, scaleText, setTool, setActive, renderMarkProps, discardAutoCount, close3d, refresh,
+    get cur() { return cur; },
+    get sheets() { return sheets; },
+    get colors() { return colors; },
+  });
   if (isMac) for (const k of root.querySelectorAll('.tc-menu-list kbd')) k.textContent = k.textContent.replace('Ctrl+', 'Cmd+');
 
-  function sheetCtx(s = cur) { return s ? { view: s.info.view, userUnit: s.info.userUnit, source: tabId } : { source: tabId }; }
-  function storeClip(wire) {
-    const r = readClip(JSON.parse(JSON.stringify(wire)));
-    if (!r.ok) { status(r.error); return false; }
-    clipMem = { wire, clip: r.clip };
-    try { localStorage.setItem(CLIP_KEY, JSON.stringify(wire)); } catch { /* too big or a private window: this tab still has it */ }
-    return true;
-  }
-  /** The newest clip: this tab's, or one another tab copied since (checked like a file). */
-  function currentClip() {
-    let shared = null;
-    try {
-      const raw = localStorage.getItem(CLIP_KEY);
-      if (raw) { const r = readClip(JSON.parse(raw)); if (r.ok) shared = r.clip; }
-    } catch { /* unreadable: ignore it */ }
-    if (shared && (!clipMem || shared.copiedAt > clipMem.clip.copiedAt)) return shared;
-    return clipMem?.clip || shared;
-  }
-  const itemList = (names) => names.map((n) => '"' + n + '"').join(', ');   // i18n-ignore: quotes around names
 
-  function copySelection(quiet = false) {
-    endPaste();
-    const ids = selIds();
-    if (!ids.length) { status(t('copy.none', { mod: modKey })); return false; }
-    const wire = copyMarks(model.state, ids, sheetCtx(sheets.find((x) => x.key === model.mark(ids[0]).sheet) || cur));
-    if (!wire || !storeClip(wire)) return false;
-    if (!quiet) status(t('copy.done', { n: wire.marks.length, items: itemList(wire.items.map((i) => i.name)), mod: modKey }), 9000);
-    return true;
-  }
-  function cutSelection() {
-    const ids = selIds();
-    if (!copySelection(true)) return;
-    const set = new Set(ids);
-    model.change(t('undo.cut', { n: ids.length }), (s) => { s.marks = s.marks.filter((m) => !set.has(m.id)); });
-    app.sel = null;
-    status(t('cut.done', { n: ids.length, mod: modKey }), 9000);
-  }
-  function copyItem(id) {
-    const wire = copyItems(model.state, [id], { source: tabId });
-    if (!wire || !storeClip(wire)) return;
-    status(t('copy.item', { item: wire.items[0].name, mod: modKey }), 9000);
-  }
-  function duplicateItem(id) {
-    const wire = copyItems(model.state, [id], { source: tabId });
-    const r = wire && readClip(wire);
-    if (!r?.ok) return;
-    const out = pasteClip(model, r.clip, { label: t('undo.item.dup') });
-    if (out?.items?.length) { setActive(out.items[0]); status(t('item.dup.done', { item: model.item(out.items[0]).name })); }
-  }
-  /** Can these marks go on the open sheet? Says why not. */
-  function pasteRefused(clip, inPlace) {
-    if (!clip.marks.length) return null;
-    if (!cur) return t('clip.err.nosheet');
-    const sc = model.scaleOf(cur.key);
-    const why = scaleProblem(clip, sc ? { ftPerUnit: sc.ftPerUnit, label: scaleText(sc, cur.info.userUnit, true) } : null);
-    if (why) return why;
-    if (inPlace) return sizeProblem(clip, { view: cur.info.view, userUnit: cur.info.userUnit });
-    return null;
-  }
-  function pasteItemsOnly(clip) {
-    const out = pasteClip(model, clip, { label: t('undo.item.paste') });
-    if (!out?.items?.length) return;
-    setActive(out.items[0]);
-    status(t('paste.items', { n: out.items.length, items: itemList(out.items.map((id) => model.item(id).name)) }));
-  }
-  function startPaste(inPlace) {
-    if (d3.on) close3d();            // a paste is put down on the flat sheet
-    endPaste();
-    const clip = currentClip();
-    if (!clip) { status(t('paste.empty', { mod: modKey })); return; }
-    if (!clip.marks.length) { pasteItemsOnly(clip); return; }
-    const why = pasteRefused(clip, inPlace);
-    if (why) { status(why, 12000); return; }
-    if (inPlace) { finishPaste(clip, 0, 0, 'inplace'); return; }
-    beginPlacing(clip, 'paste');
-  }
-  function duplicateSelection() {
-    endPaste();
-    const ids = selIds();
-    if (!ids.length) { status(t('dup.none')); return; }
-    const wire = copyMarks(model.state, ids, sheetCtx());
-    const r = wire && readClip(wire);
-    if (!r?.ok) return;
-    if (model.mark(ids[0]).sheet !== cur?.key) { status(t('dup.sheet')); return; }
-    beginPlacing(r.clip, 'duplicate');
-  }
-  /** kind: paste | duplicate (and finishPaste's inplace) — the undo label and the status words follow it. */
-  function beginPlacing(clip, kind) {
-    if (app.tool !== 'select') setTool('select');
-    if (app.ac) discardAutoCount();
-    app.paste = { clip, kind };
-    ui.over.dataset.tool = 'paste';
-    status(t('paste.pointer', { n: clip.marks.length }), 0);
-    view.overlayOnly();
-  }
-  function placePaste(p) {
-    const ps = app.paste;
-    if (!ps) return;
-    const why = pasteRefused(ps.clip, false);      // the sheet may have changed since
-    if (why) { endPaste(); status(why, 12000); return; }
-    endPaste(true);
-    finishPaste(ps.clip, p.x - ps.clip.anchor.x, p.y - ps.clip.anchor.y, ps.kind);
-  }
-  function finishPaste(clip, dx, dy, kind) {
-    const label = t('undo.' + kind);
-    let out;
-    try { out = pasteClip(model, clip, { sheet: cur.key, dx, dy, label, area: app.curArea }); } catch (err) { status(t('paste.failed', { reason: err.message }), 9000); return; }
-    if (!out) { status(t('paste.nothing')); return; }
-    setSelection(out.marks);
-    const added = out.items.length ? ' ' + t('paste.items', { n: out.items.length, items: itemList(out.items.map((id) => model.item(id).name)) }) : '';
-    status(t('paste.done.' + kind, { n: out.marks.length }) + added + ' ' + t('undo.hint', { mod: modKey }), 9000);
-    refresh();
-  }
-  /** Stop carrying a paste (Esc, another command). Nothing is added. */
-  function endPaste(quiet = false) {
-    if (!app.paste) return;
-    app.paste = null;
-    ui.over.dataset.tool = app.tool;
-    if (!quiet) status(t('paste.canceled'));
-    view.overlayOnly();
-  }
-  function selectAll() {
-    endPaste();
-    if (!cur) { status(t('handoff.nopdf')); return; }
-    const ids = model.marksOn(cur.key).map((m) => m.id);
-    if (app.tool !== 'select') setTool('select');
-    setSelection(ids);
-    status(ids.length ? t('sel.all', { n: ids.length }) : t('sel.all.none'));
-    renderMarkProps(); view.overlayOnly();
-  }
-  function selectNone() {
-    endPaste(true);
-    app.sel = null; app.check = null;
-    renderMarkProps(); view.overlayOnly();
-  }
-  /** The marks on the pointer, drawn dashed where a click would put them. */
-  function drawPaste(ctx, trace) {
-    const ps = app.paste;
-    if (!ps || !app.cursor) return;
-    const dx = app.cursor.x - ps.clip.anchor.x, dy = app.cursor.y - ps.clip.anchor.y;
-    const mv = (r) => r.map((p) => ({ ...p, x: p.x + dx, y: p.y + dy }));
-    const color = new Map(ps.clip.items.map((i) => [i.id, i.color]));
-    ctx.save();
-    ctx.globalAlpha = 0.75; ctx.setLineDash([6, 4]); ctx.lineWidth = 2;
-    for (const m of ps.clip.marks) {
-      ctx.strokeStyle = ctx.fillStyle = color.get(m.item) || colors.action;
-      if (m.kind === 'count') { const s = G.apply(view.matrix, mv(m.pts)[0]); ctx.beginPath(); ctx.arc(s.x, s.y, 6, 0, Math.PI * 2); ctx.stroke(); continue; }
-      ctx.beginPath();
-      for (const ring of [m.pts, ...(m.kind === 'area' ? m.holes : [])]) trace(mv(ring), m.kind === 'area');
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
 
   // =========================================================================
   // Bid areas (T12): the picker on top of the Items panel, the manage dialog, the mark field, the By area table
 
-  const areaSel = root.querySelector('[data-area-cur]');
-  /** What a new mark carries: the current bid area, when one is chosen. */
-  const inArea = () => (app.curArea && model.area(app.curArea) ? { area: app.curArea } : {});
-  function renderAreas() {
-    if (app.curArea && !model.area(app.curArea)) app.curArea = null;
-    const areas = model.state.areas || [];
-    areaSel.replaceChildren(
-      el('option', { value: '' }, t('area.none')),
-      ...areas.map((a) => el('option', { value: a.id }, a.alt ? t('qty.alt.row', { name: a.name, kind: t('alt.' + a.alt).toLowerCase() }) : a.name)),
-      el('option', { value: '__new' }, t('area.new')),
-      ...(areas.length ? [el('option', { value: '__manage' }, t('area.manage'))] : []));
-    areaSel.value = app.curArea || '';
-    root.querySelector('[data-qty-mode="area"]').hidden = !areas.length;
-    if (!areas.length && app.qtyMode === 'area') root.querySelector('[data-qty-mode="item"]').click();
-  }
+  const { areaSel, inArea, renderAreas, setCurArea, newArea, manageAreas, areaField, groupField, renderGroups, buildAreaTable } = mountAreas({
+    ui, model, app, setSelection, view, status, showSheet, setTool, setActive, keepFocus, textInput, renderMarkProps, root,
+    get cur() { return cur; },
+    get est() { return est; },
+  });
   areaSel.addEventListener('change', async () => {
     const v = areaSel.value;
     if (v === '__new') { areaSel.value = app.curArea || ''; const id = await newArea(); if (id) setCurArea(id); return; }
     if (v === '__manage') { areaSel.value = app.curArea || ''; await manageAreas(); return; }
     setCurArea(v || null);
   });
-  function setCurArea(id) {
-    app.curArea = id && model.area(id) ? id : null;
-    areaSel.value = app.curArea || '';
-    status(app.curArea ? t('area.cur', { area: model.area(app.curArea).name }) : t('area.cur.none'));
-    view.overlayOnly();
-  }
-  async function newArea() {
-    const input = el('input', { type: 'text', className: 'tc-input', id: 'tc-area-name', maxlength: 200, autocomplete: 'off', placeholder: t('area.name.placeholder'), dataset: { areaName: '' } });
-    let id = null;
-    const choice = await ask(root, {
-      title: t('area.new.title'), text: t('area.new.text'),
-      body: el('div', { className: 'tc-ask-field' }, el('label', { for: 'tc-area-name' }, t('area.name')), input),
-      buttons: [['cancel', t('btn.cancel'), 'btn-line'], ['ok', t('btn.create'), 'btn-plot']],
-      focus: '[data-area-name]',
-      onOk: () => (input.value.trim() ? null : t('area.name.empty')),
-    });
-    if (choice === 'ok') { try { id = model.addArea(input.value); } catch (err) { status(err.message, 9000); } }
-    return id;
-  }
-  async function manageAreas() {
-    const list = el('ol', { className: 'tc-area-list', dataset: { areaList: '' } });
-    const fill = () => {
-      const areas = model.state.areas || [];
-      list.replaceChildren(...(areas.length ? areas.map((a, i) => {
-        const name = el('input', { type: 'text', className: 'tc-input', value: a.name, maxlength: 200, 'aria-label': t('area.name'), dataset: { areaRename: a.id } });
-        name.addEventListener('change', () => { if (name.value.trim()) model.renameArea(a.id, name.value); else name.value = a.name; });
-        const btn = (icn, label, fn, off = false) => el('button', { type: 'button', className: 'tc-linkbtn', title: label, 'aria-label': label, disabled: off, onclick: () => { fn(); fill(); } }, icon(icn));
-        const alt = el('select', { className: 'tc-select', 'aria-label': t('alt.label', { name: a.name }), title: t('alt.title'), dataset: { areaAlt: a.id } },
-          ['', 'add', 'deduct'].map((v) => el('option', { value: v, selected: (a.alt || '') === v }, t(v ? 'alt.' + v + '.long' : 'alt.base'))));
-        alt.addEventListener('change', () => model.setAreaAlt(a.id, alt.value || null));
-        return el('li', {}, name, alt, btn('arrow-up', t('area.up'), () => model.moveArea(a.id, -1), i === 0), btn('arrow-down', t('area.down'), () => model.moveArea(a.id, 1), i === areas.length - 1),
-          el('button', { type: 'button', className: 'tc-linkbtn is-danger', title: t('area.delete'), 'aria-label': t('area.delete'), dataset: { areaDelete: a.id }, onclick: () => { model.removeArea(a.id); fill(); } }, icon('trash')));
-      }) : [el('li', { className: 'tc-note' }, t('area.manage.none'))]));
-    };
-    fill();
-    const add = el('input', { type: 'text', className: 'tc-input', maxlength: 200, placeholder: t('area.name.placeholder'), 'aria-label': t('area.name'), dataset: { areaAdd: '' } });
-    const addBtn = el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => { if (add.value.trim()) { model.addArea(add.value); add.value = ''; fill(); add.focus(); } } }, t('area.add'));
-    add.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addBtn.click(); } });
-    await ask(root, {
-      title: t('area.manage.title'), text: t('area.manage.text'),
-      body: el('div', {}, list, el('div', { className: 'tc-area-add' }, add, addBtn)),
-      buttons: [['ok', t('area.done'), 'btn-plot']],
-      focus: '[data-area-add]',
-    });
-    renderAreas();
-  }
-  /** The selected marks' bid area field (props panel): a select that moves them (one undo step). */
-  function areaField(ids) {
-    const areas = model.state.areas || [];
-    if (!areas.length) return [];
-    const marks = ids.map((id) => model.mark(id)).filter(Boolean);
-    const one = new Set(marks.map((m) => m.area || '')).size === 1 ? (marks[0]?.area || '') : null;
-    const sel = el('select', { className: 'tc-select', id: 'tc-m-area', dataset: { field: 'm-area' } },
-      one === null ? el('option', { value: '__mixed', selected: true, disabled: true }, '—') : null,
-      el('option', { value: '', selected: one === '' }, t('area.none')),
-      areas.map((a) => el('option', { value: a.id, selected: one === a.id }, a.name)));
-    sel.addEventListener('change', () => {
-      const area = sel.value || null;
-      if (model.setMarksArea(marks.map((m) => m.id), area)) status(t('area.moved', { n: marks.length, area: area ? model.area(area).name : t('area.none') }));
-    });
-    return [el('label', { for: 'tc-m-area' }, t('props.area')), sel];
-  }
-  // ---- markups (T22): notes, clouds and highlights with a status; never counted ----
-  const NOTE_TOOLS = new Set(['note', 'cloud', 'highlight']);
-  async function askNoteText(title, value = '') {
-    const ta = el('textarea', { className: 'tc-input', rows: 4, maxlength: 2000, id: 'tc-note-text', dataset: { noteText: '' } });
-    ta.value = value;
-    let text = null;
-    const choice = await ask(root, {
-      title, body: el('div', {}, el('label', { for: 'tc-note-text' }, t('note.f.text')), ta),
-      buttons: [['cancel', t('btn.cancel'), 'btn-line'], ['ok', t('note.add'), 'btn-plot']], focus: '#tc-note-text',
-      onOk: () => { text = ta.value; return null; },
-    });
-    return choice === 'ok' ? text : null;
-  }
-  async function noteAt(p) {
-    const sheet = cur;
-    const text = await askNoteText(t('note.new.note'));
-    if (text === null || cur !== sheet) return;
-    if (!text.trim()) { status(t('note.err.empty')); return; }
-    app.selNote = model.addNote({ kind: 'note', sheet: sheet.key, pts: [p], text });
-    renderNoteProps();
-    status(t('note.added.note'));
-  }
-  async function boxNote(kind, a, b) {
-    const sheet = cur;
-    const sa = view.toScreen(a), sb = view.toScreen(b);
-    if (Math.abs(sa.x - sb.x) < 4 || Math.abs(sa.y - sb.y) < 4) { status(t('note.err.small')); view.overlayOnly(); return; }
-    const text = await askNoteText(t('note.new.' + kind));
-    if (text === null || cur !== sheet) { view.overlayOnly(); return; }
-    app.selNote = model.addNote({ kind, sheet: sheet.key, pts: [a, b], text });
-    renderNoteProps();
-    status(t('note.added.' + kind));
-  }
-  /** The markup under a point (the topmost): a note's pin, or inside a cloud's or highlight's box. */
-  function noteHit(p) {
-    if (!cur) return null;
-    const s = view.toScreen(p);
-    const list = model.notesOn(cur.key);
-    for (let i = list.length - 1; i >= 0; i--) {
-      const n = list[i];
-      if (n.kind === 'note') { const q = view.toScreen(n.pts[0]); if (Math.hypot(q.x - s.x, q.y - s.y) <= hitPx() + 4) return n; continue; }
-      const a = view.toScreen(n.pts[0]), b = view.toScreen(n.pts[1]);
-      if (s.x >= Math.min(a.x, b.x) - 3 && s.x <= Math.max(a.x, b.x) + 3 && s.y >= Math.min(a.y, b.y) - 3 && s.y <= Math.max(a.y, b.y) + 3) return n;
-    }
-    return null;
-  }
-  function renderNoteProps() {
-    const n = app.selNote && model.note(app.selNote);
-    if (app.selNote && !n) app.selNote = null;
-    ui.noteSec.hidden = !n;
-    if (!n) { ui.noteProps.replaceChildren(); return; }
-    keepFocus(ui.noteProps, () => {
-      const ta = el('textarea', { className: 'tc-input', id: 'tc-n-text', rows: 4, maxlength: 2000, dataset: { field: 'note-text' } });
-      ta.value = n.text;
-      ta.addEventListener('change', () => model.updateNote(n.id, { text: ta.value }));
-      const st = el('select', { className: 'tc-select', id: 'tc-n-status', dataset: { field: 'note-status' } }, ['open', 'answered', 'closed'].map((k) => el('option', { value: k, selected: n.status === k }, t('note.status.' + k))));
-      st.addEventListener('change', () => model.updateNote(n.id, { status: st.value }, t('undo.note.status')));
-      const del = el('button', { type: 'button', className: 'tc-linkbtn is-danger', dataset: { noteDelete: n.id } }, icon('trash'), ' ' + t('note.delete'));
-      del.addEventListener('click', () => { model.removeNote(n.id); app.selNote = null; });
-      ui.noteProps.replaceChildren(el('div', { className: 'tc-props' },
-        el('span', { className: 'k' }, t('note.f.kind')), el('span', { className: 'v' }, t('tool.' + n.kind)),
-        el('span', { className: 'k' }, t('mark.f.sheet')), el('span', { className: 'v' }, sheetLabel(n.sheet)),
-        el('label', { for: 'tc-n-status' }, t('note.f.status')), st,
-        el('label', { for: 'tc-n-text', className: 'span' }, t('note.f.text')), el('div', { className: 'span' }, ta)), el('p', {}, del));
-    });
-  }
-  function renderNotes() {
-    const all = model.state.notes || [];
-    ui.notesSec.hidden = !all.length;
-    if (!all.length) { ui.notes.replaceChildren(); return; }
-    const open = all.filter((n) => n.status === 'open').length;
-    ui.notesH.textContent = t('notes.h.n', { n: all.length, open });
-    const list = ui.notesOpen.checked ? all.filter((n) => n.status === 'open') : all;
-    ui.notes.replaceChildren(...list.map((n) => {
-      const b = el('button', { type: 'button', className: 'tc-note-row' + (app.selNote === n.id ? ' is-sel' : ''), dataset: { noteRow: n.id } },
-        el('span', { className: 'tc-note-dot', style: { background: NOTE_COLORS[n.kind === 'note' ? n.status : n.kind] } }),
-        icon(n.kind === 'note' ? 'chat-left-text' : n.kind === 'cloud' ? 'cloud' : 'highlighter'),
-        el('span', { className: 'tc-note-text' }, (n.text.split('\n')[0] || t('note.untitled')).slice(0, 80)),
-        el('span', { className: 'tc-note-st is-' + n.status }, t('note.status.' + n.status)));
-      b.addEventListener('click', async () => { if (n.sheet !== cur?.key) await showSheet(n.sheet); app.sel = null; app.selNote = n.id; renderMarkProps(); renderNoteProps(); renderNotes(); view.overlayOnly(); });
-      return el('li', {}, b);
-    }));
-  }
+  const { NOTE_TOOLS, noteAt, boxNote, noteHit, renderNoteProps, renderNotes, drawNotesLayer } = mountNotes({
+    ui, model, app, view, status, sheetLabel, showSheet, hitPx, tag, keepFocus, renderMarkProps, root,
+    get cur() { return cur; },
+    get colors() { return colors; },
+  });
   ui.notesOpen.addEventListener('change', renderNotes);
-  /** Markups on the open sheet, under the marks' handles (drawOverlay). */
-  function drawNotesLayer(ctx, S) {
-    for (const n of model.notesOn(cur.key)) {
-      const sel = app.selNote === n.id;
-      ctx.save();
-      if (n.kind === 'note') {
-        const s = S(n.pts[0]);
-        ctx.fillStyle = NOTE_COLORS[n.status];
-        ctx.beginPath(); ctx.arc(s.x, s.y, 8, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#ffffff'; ctx.font = '700 11px Archivo, system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', s.x, s.y + 0.5);   // i18n-ignore: a symbol
-        const line = (n.text.split('\n')[0] || '').slice(0, 40);
-        if (line) { ctx.font = '600 12px Archivo, system-ui, sans-serif'; const w = ctx.measureText(line).width + 10; ctx.fillStyle = colors.sheet; ctx.strokeStyle = NOTE_COLORS[n.status]; ctx.lineWidth = 1; ctx.fillRect(s.x + 12, s.y - 9, w, 18); ctx.strokeRect(s.x + 12, s.y - 9, w, 18); ctx.fillStyle = colors.ink; ctx.textAlign = 'left'; ctx.fillText(line, s.x + 17, s.y + 0.5); }
-        if (sel) { ctx.strokeStyle = colors.action; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(s.x, s.y, 12, 0, Math.PI * 2); ctx.stroke(); }
-      } else {
-        const a = S(n.pts[0]), b = S(n.pts[1]);
-        const x0 = Math.min(a.x, b.x), y0 = Math.min(a.y, b.y), x1 = Math.max(a.x, b.x), y1 = Math.max(a.y, b.y);
-        if (n.kind === 'highlight') { ctx.globalAlpha = 0.35; ctx.fillStyle = NOTE_COLORS.highlight; ctx.fillRect(x0, y0, x1 - x0, y1 - y0); ctx.globalAlpha = 1; }
-        else {
-          ctx.strokeStyle = n.status === 'closed' ? NOTE_COLORS.closed : NOTE_COLORS.cloud; ctx.lineWidth = 2;
-          ctx.beginPath();
-          cloudPath(x0, y0, x1, y1, Math.max(10, Math.min(24, Math.min(x1 - x0, y1 - y0) / 4)), (op, ...v) => (op === 'M' ? ctx.moveTo(...v) : ctx.bezierCurveTo(...v)));
-          ctx.closePath(); ctx.stroke();
-        }
-        const line = (n.text.split('\n')[0] || '').slice(0, 40);
-        if (line) tag(ctx, { x: (x0 + x1) / 2, y: y0 - 16 }, line);
-        if (sel) { ctx.strokeStyle = colors.action; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]); ctx.strokeRect(x0 - 6, y0 - 6, x1 - x0 + 12, y1 - y0 + 12); }
-      }
-      ctx.restore();
-    }
-    if (app.noteStart && app.cursor && (app.tool === 'cloud' || app.tool === 'highlight')) {
-      const a = S(app.noteStart), b = S(app.cursor);
-      ctx.save(); ctx.strokeStyle = app.tool === 'cloud' ? NOTE_COLORS.cloud : colors.ink; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]);
-      ctx.strokeRect(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(a.x - b.x), Math.abs(a.y - b.y)); ctx.restore();
-    }
-  }
 
-  // ---- typical groups (T16): marks taken off once, counted `repeat` times ----
-  function groupField(ids) {
-    const groups = model.state.groups || [];
-    const marks = ids.map((id) => model.mark(id)).filter(Boolean);
-    const one = new Set(marks.map((m) => m.group || '')).size === 1 ? (marks[0]?.group || '') : null;
-    const sel = el('select', { className: 'tc-select', id: 'tc-m-group', dataset: { field: 'm-group' }, title: t('group.field.title') },
-      one === null ? el('option', { value: '__mixed', selected: true, disabled: true }, '—') : null,
-      el('option', { value: '', selected: one === '' }, t('group.none')),
-      groups.map((g) => el('option', { value: g.id, selected: one === g.id }, t('group.option', { name: g.name, n: g.repeat }))),
-      el('option', { value: '__new' }, t('group.new')));
-    sel.addEventListener('change', async () => {
-      if (sel.value === '__new') { await newGroup(marks.map((m) => m.id)); renderMarkProps(); return; }
-      const g = sel.value || null;
-      if (model.setMarksGroup(marks.map((m) => m.id), g)) status(g ? t('group.moved', { n: marks.length, name: model.group(g).name, k: model.group(g).repeat }) : t('group.left', { n: marks.length }));
-    });
-    return [el('label', { for: 'tc-m-group' }, t('props.group')), sel];
-  }
-  /** Ask a name and a repeat count; make the group with these marks in it. */
-  async function newGroup(ids) {
-    const name = el('input', { type: 'text', className: 'tc-input', id: 'tc-g-name', maxlength: 200, value: t('group.default', { n: (model.state.groups || []).length + 1 }), autocomplete: 'off', dataset: { groupName: '' } });
-    const rep = el('input', { type: 'text', className: 'tc-input', id: 'tc-g-repeat', inputmode: 'numeric', value: '2', autocomplete: 'off', dataset: { groupRepeat: '' } });
-    let made = null;
-    await ask(root, {
-      title: t('group.dlg'), text: t('group.dlg.text', { n: ids.length }),
-      body: el('div', { className: 'tc-props' }, el('label', { for: 'tc-g-name' }, t('group.f.name')), name, el('label', { for: 'tc-g-repeat' }, t('group.f.repeat')), rep),
-      buttons: [['cancel', t('btn.cancel'), 'btn-line'], ['ok', t('group.dlg.ok'), 'btn-plot']],
-      focus: '#tc-g-name',
-      onOk: () => {
-        const n = readRepeat(rep.value);
-        if (!name.value.trim()) return t('group.err.name');
-        if (n === null) return t('err.group.repeat', { max: 10000 });
-        try { made = model.addGroup(name.value, n, ids); } catch (err) { return err.message; }
-        return null;
-      },
-    });
-    if (made) status(t('group.made', { name: model.group(made).name, n: ids.length, k: model.group(made).repeat }), 9000);
-    return made;
-  }
-  const readRepeat = (v) => { const s = String(v).trim().replace(/^[x×]\s*/i, ''); return /^\d{1,5}$/.test(s) && +s >= 1 && +s <= 10000 ? +s : null; };
-  function renderGroups() {
-    const groups = model.state.groups || [];
-    ui.groupsSec.hidden = !groups.length;
-    if (!groups.length) { ui.groups.replaceChildren(); return; }
-    const count = new Map();
-    for (const m of model.state.marks) if (m.group) count.set(m.group, (count.get(m.group) || 0) + 1);
-    keepFocus(ui.groups, () => ui.groups.replaceChildren(...groups.map((g) => {
-      const name = textInput('tc-g-' + g.id + '-name', 'g:' + g.id + ':name', g.name, (v, n) => { if (!v.trim()) { n.classList.add('is-invalid'); status(t('group.err.name')); return; } model.updateGroup(g.id, { name: v }); }, { maxlength: 200, 'aria-label': t('group.f.name') });
-      const rep = textInput('tc-g-' + g.id + '-repeat', 'g:' + g.id + ':repeat', String(g.repeat), (v, n) => { const k = readRepeat(v); if (k === null) { n.classList.add('is-invalid'); status(t('err.group.repeat', { max: 10000 })); return; } model.updateGroup(g.id, { repeat: k }); }, { inputmode: 'numeric', className: 'tc-input tc-g-rep', 'aria-label': t('group.f.repeat.of', { name: g.name }) });
-      const pick = el('button', { type: 'button', className: 'tc-linkbtn', title: t('group.select'), 'aria-label': t('group.select'), dataset: { groupSelect: g.id } }, icon('bounding-box'));
-      pick.addEventListener('click', () => selectGroup(g.id));
-      const del = el('button', { type: 'button', className: 'tc-linkbtn is-danger', title: t('group.delete'), 'aria-label': t('group.delete.of', { name: g.name }), dataset: { groupDelete: g.id } }, icon('trash'));
-      del.addEventListener('click', () => { model.removeGroup(g.id); status(t('group.deleted', { name: g.name })); });
-      return el('li', { className: 'tc-group', dataset: { group: g.id } }, name, el('span', { className: 'tc-g-x', 'aria-hidden': 'true' }, '×'), rep,
-        el('span', { className: 'tc-g-n' }, t('group.marks', { n: count.get(g.id) || 0 })), pick, del);
-    })));
-  }
-  /** Select a group's marks: on this sheet if it has some, else on the first sheet that has. */
-  function selectGroup(id) {
-    const all = model.state.marks.filter((m) => m.group === id);
-    if (!all.length) { status(t('group.empty')); return; }
-    const sheet = all.some((m) => m.sheet === cur?.key) ? cur.key : all[0].sheet;
-    if (sheet !== cur?.key) showSheet(sheet);
-    if (app.tool !== 'select') setTool('select');
-    setSelection(all.filter((m) => m.sheet === sheet).map((m) => m.id));
-    renderMarkProps(); view.overlayOnly();
-  }
 
-  /** Quantities by bid area: each area's items (its own totals and costs) and a subtotal row. */
-  function buildAreaTable() {
-    const head = [t('qty.area.col'), t('qty.col.item'), t('qty.col.qty'), t('qty.col.unit'), t('qty.col.total')];
-    const items = new Map(model.state.items.map((i) => [i.id, i]));
-    const body = [];
-    for (const { area, est: e } of areaEstimates(model.state)) {
-      const name = area ? (area.alt ? t('qty.alt.row', { name: area.name, kind: t('alt.' + area.alt).toLowerCase() }) : area.name) : t('area.none');
-      for (const r of e.rows) {
-        if ((r.kind !== 'item' && r.kind !== 'condition') || !r.marks) continue;      // a second condition (T8) on its own row
-        const it = items.get(r.itemId);
-        const tr = el('tr', { className: 'is-item' + (app.hl === r.itemId ? ' is-hl' : ''), dataset: { qtyRow: r.itemId, qtyArea: area?.id || '' } },
-          el('td', { className: 'tl' }, name), el('td', { className: 'tl' }, el('span', { className: 'tc-chip', style: { background: it.color } }), r.cond ? t('qty.cond.name', { item: r.name, type: TYPE_LABELS[r.cond].toLowerCase() }) : r.name),
-          el('td', {}, U.fixed(r.qty, (r.cond || it.type) === 'count' ? 0 : 2)), el('td', { className: 'tl' }, r.unit), el('td', {}, U.formatCents(r.total)));
-        tr.addEventListener('click', () => { setActive(r.itemId); if (area) setCurArea(area.id); });
-        body.push(tr);
-      }
-      body.push(el('tr', { className: 'is-sub', dataset: { qtyAreaTotal: area?.id || '' } }, el('td', { className: 'tl', colSpan: 4 }, t('qty.area.subtotal', { area: name })), el('td', {}, U.formatCents(e.total))));
-    }
-    // T17: the alternates and what each does to the base bid
-    const alts = alternates(model.state);
-    if (alts.length) {
-      body.push(el('tr', { className: 'is-sub', dataset: { qtyBase: '' } }, el('td', { className: 'tl', colSpan: 4 }, t('qty.alt.base')), el('td', {}, U.formatCents(est.total))));
-      for (const a of alts) body.push(el('tr', { className: 'is-alt', dataset: { qtyAlt: a.area.id } }, el('td', { className: 'tl', colSpan: 4 }, t('qty.alt.row', { name: a.area.name, kind: t('alt.' + a.alt).toLowerCase() })), el('td', {}, (a.amount > 0 ? '+' : a.amount < 0 ? '−' : '') + U.formatCents(Math.abs(a.amount)))));
-    }
-    ui.qtyTable.replaceChildren(el('thead', {}, el('tr', {}, head.map((h, i) => el('th', { scope: 'col', className: [0, 1, 3].includes(i) ? 'tl' : '' }, h)))),
-      el('tbody', {}, body.length ? body : el('tr', {}, el('td', { colSpan: head.length, className: 'tl' }, t('qty.area.empty')))));
-  }
 
   // =========================================================================
   // Revision overlay (T13; overlay.js): the older sheet in red over this one, aligned; changes found by comparing their
   // ink; the old sheet's takeoff moved here with the marks whose drawing changed flagged for review.
 
-  const cmpUi = { bar: $('[data-cmpbar]'), summary: $('[data-cmp-summary]'), btn: root.querySelector('[data-act="compare"]'), flagBtn: root.querySelector('[data-act="next-flag"]'), flagCount: root.querySelector('[data-flag-count]') };
-  const OLD_RGB = [214, 39, 40], NEW_RGB = [31, 119, 180];       // removed (old only) red, added (new only) blue
-  async function openCompare() {
-    if (app.cmp) { closeCompare(); return; }
-    if (!cur) { status(t('handoff.nopdf')); return; }
-    const others = sheets.filter((x) => x.key !== cur.key);
-    if (!others.length) { status(t('cmp.pick.none'), 9000); return; }
-    const def = others.find((x) => cur.info.number && x.info.number === cur.info.number && x.file !== cur.file) || others.find((x) => x.file !== cur.file && x.info.index === cur.info.index) || others[0];
-    const sel = el('select', { className: 'tc-select', id: 'tc-cmp-old', dataset: { cmpOld: '' } }, others.map((x) => el('option', { value: x.key, selected: x === def }, x.title)));
-    const choice = await ask(root, {
-      title: t('cmp.pick.title'), text: t('cmp.pick.text', { sheet: cur.title }),
-      body: el('div', { className: 'tc-ask-field' }, el('label', { for: 'tc-cmp-old' }, t('cmp.pick.label')), sel),
-      buttons: [['cancel', t('btn.cancel'), 'btn-line'], ['ok', t('cmp.pick.ok'), 'btn-plot']], focus: '[data-cmp-old]',
-    });
-    if (choice !== 'ok') return;
-    const old = sheets.find((x) => x.key === sel.value);
-    if (!old || old.key === cur.key) { status(t('cmp.same_sheet')); return; }
-    await startCompare(old);
-  }
-  async function startCompare(old, A = IDENTITY) {
-    if (d3.on) close3d();
-    endPaste(true); cancelDraft();
-    if (app.ac) discardAutoCount();
-    if (app.tool !== 'select') setTool('select');
-    busy(t('cmp.finding'));
-    await frame();
-    try { app.cmp = { old, A, sheet: cur.key, tint: await tintOf(old), chg: null, align: null }; }
-    catch (err) { console.error(err); status(err.message, 9000); return; }
-    finally { busy(null); }
-    cmpUi.bar.hidden = false;
-    cmpUi.btn?.setAttribute('aria-pressed', 'true');
-    renderCmp();
-    view.overlayOnly();
-  }
-  function closeCompare() {
-    app.cmp = null;
-    cmpUi.bar.hidden = true;
-    cmpUi.btn?.setAttribute('aria-pressed', 'false');
-    view.overlayOnly();
-  }
-  /** The old sheet rendered once (≤ 4096 px), its ink turned red and see-through: what the overlay draws. */
-  async function tintOf(s) {
-    const page = await s.file.doc.getPage(s.info.index + 1);
-    const px = Math.min(2, 4096 / Math.max(s.info.width, s.info.height));
-    const vp = page.getViewport({ scale: px, rotation: s.info.rotate });
-    const c = document.createElement('canvas');
-    c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
-    await page.render({ canvas: c, viewport: vp, background: '#ffffff' }).promise;
-    const g = c.getContext('2d', { willReadFrequently: true });
-    const im = g.getImageData(0, 0, c.width, c.height), d = im.data;
-    for (let i = 0; i < d.length; i += 4) {
-      const ink = 1 - (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
-      d[i] = OLD_RGB[0]; d[i + 1] = OLD_RGB[1]; d[i + 2] = OLD_RGB[2]; d[i + 3] = Math.round(Math.min(1, ink * 1.2) * 230);
-    }
-    g.putImageData(im, 0, 0);
-    return { canvas: c, px, T: s.info.transform };
-  }
-  function drawCompare(ctx) {
-    const c = app.cmp;
-    if (!c || c.sheet !== cur?.key) return;
-    const place = (M, img) => { ctx.save(); ctx.transform(...M); ctx.imageSmoothingEnabled = true; ctx.drawImage(img, 0, 0); ctx.restore(); };
-    // screen ← this sheet's user space ← (A) ← the old sheet's user space ← its display ← its raster pixels
-    place(G.multiply(view.matrix, G.multiply(c.A, G.multiply(G.invert(c.tint.T), [1 / c.tint.px, 0, 0, 1 / c.tint.px, 0, 0]))), c.tint.canvas);
-    if (c.chg?.canvas) place(G.multiply(view.matrix, G.multiply(G.invert(cur.info.transform), [1 / c.chg.px, 0, 0, 1 / c.chg.px, 0, 0])), c.chg.canvas);
-    for (const [i, q] of (c.align?.picks || []).entries()) {
-      const s = G.apply(view.matrix, i % 2 === 0 ? G.apply(c.A, q) : q);
-      ctx.save(); ctx.strokeStyle = i % 2 === 0 ? 'rgb(' + OLD_RGB + ')' : colors.ink; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(s.x, s.y, 7, 0, Math.PI * 2); ctx.moveTo(s.x - 11, s.y); ctx.lineTo(s.x + 11, s.y); ctx.moveTo(s.x, s.y - 11); ctx.lineTo(s.x, s.y + 11); ctx.stroke();
-      ctx.restore();
-    }
-  }
-  function renderCmp() {
-    const c = app.cmp;
-    if (!c) return;
-    const n = model.marksOn(c.old.key).length;
-    cmpUi.summary.replaceChildren(t('cmp.summary', { old: c.old.title }), c.chg ? ' ' + t('cmp.summary.changes', { n, f: c.chg.flagged.size }) : '');
-    cmpUi.summary.title = cmpUi.summary.textContent;     // the bar is one line: the whole text on hover
-  }
-  // align: four picks (old, new, old, new); an old pick is taken back through the current alignment into old user space
-  function startAlign() {
-    if (!app.cmp) return;
-    app.cmp.align = { picks: [] };
-    status(t('cmp.align.step1'), 0);
-  }
-  function alignPick(p) {
-    const c = app.cmp, a = c.align, i = a.picks.length;
-    a.picks.push(i % 2 === 0 ? G.apply(G.invert(c.A), p) : p);
-    if (a.picks.length < 4) { status(t('cmp.align.step' + (a.picks.length + 1)), 0); view.overlayOnly(); return; }
-    const [o1, n1, o2, n2] = a.picks;
-    const A = fitTwoPoints(o1, o2, n1, n2);
-    c.align = null;
-    if (!A) { status(t('cmp.align.bad'), 9000); view.overlayOnly(); return; }
-    c.A = A; c.chg = null;
-    status(t('cmp.align.done', { scale: scaleOf(A).toFixed(3) }), 9000);
-    renderCmp(); view.overlayOnly();
-  }
-  /** Rasterize both sheets in the new sheet's display space, compare their ink, and find the marks it touches. */
-  async function findChanges() {
-    const c = app.cmp;
-    if (!c) return null;
-    busy(t('cmp.finding'));
-    await frame();
-    try {
-      const px = Math.min(2, Math.sqrt(12e6 / (cur.info.width * cur.info.height)));
-      const pxOld = Math.min(2, Math.sqrt(12e6 / (c.old.info.width * c.old.info.height)));
-      const [nw, ol] = [await rasterize(cur, px), await rasterize(c.old, pxOld)];
-      const M = pixelMap(cur.info.transform, c.old.info.transform, c.A, 1);
-      // pixelMap at 1 px per unit; the two rasters have their own pixel sizes
-      const Mpx = G.multiply([pxOld, 0, 0, pxOld, 0, 0], G.multiply(M, [1 / px, 0, 0, 1 / px, 0, 0]));
-      const cm = changeMask(warp(ol, Mpx, nw.w, nw.h), nw, { r: Math.max(1, Math.round(px * 1.5)) });
-      const toPx = (q) => { const d = G.apply(cur.info.transform, G.apply(c.A, q)); return { x: d.x * px, y: d.y * px }; };
-      const flagged = new Set();
-      for (const m of model.marksOn(c.old.key)) if (changed(markChange(m, cm, toPx, { buffer: Math.max(3, px * 4) }), m.kind)) flagged.add(m.id);
-      const canvas = document.createElement('canvas');
-      canvas.width = cm.w; canvas.height = cm.h;
-      const g = canvas.getContext('2d'), im = g.createImageData(cm.w, cm.h);
-      for (let i = 0; i < cm.mask.length; i++) {
-        const v = cm.mask[i];
-        if (!v) continue;
-        const rgb = v === 1 ? OLD_RGB : NEW_RGB;
-        im.data[i * 4] = rgb[0]; im.data[i * 4 + 1] = rgb[1]; im.data[i * 4 + 2] = rgb[2]; im.data[i * 4 + 3] = 255;
-      }
-      g.putImageData(im, 0, 0);
-      c.chg = { canvas, px, removed: cm.removed, added: cm.added, flagged };
-      status(cm.removed + cm.added ? t('cmp.found', { removed: cm.removed.toLocaleString(), added: cm.added.toLocaleString() }) + ' ' + t('cmp.flagged.found', { n: flagged.size }) : t('cmp.same'), 12000);
-      renderCmp(); view.overlayOnly();
-      return c.chg;
-    } catch (err) { console.error(err); status(err.message, 9000); return null; }
-    finally { busy(null); }
-  }
-  /** Move the old sheet's marks here (one undo step), flagging those the changes touch. */
-  async function moveTakeoff() {
-    const c = app.cmp;
-    if (!c) return;
-    const ids = model.marksOn(c.old.key).map((m) => m.id);
-    if (!ids.length) { status(t('cmp.nomarks'), 9000); return; }
-    const chg = c.chg || await findChanges();
-    if (!chg || app.cmp !== c) return;
-    const oldSc = model.scaleOf(c.old.key);
-    const carried = oldSc ? U.scaleRecord({ ...oldSc, method: 'calibrated', preset: null, ftPerUnit: oldSc.ftPerUnit / scaleOf(c.A), label: U.describeScale(oldSc.ftPerUnit / scaleOf(c.A), cur.info.userUnit), cal: null }) : null;
-    const asIs = oldSc && Math.abs(scaleOf(c.A) - 1) < 1e-6 ? oldSc : carried;
-    const newSc = model.scaleOf(cur.key);
-    if (asIs && newSc && Math.abs(newSc.ftPerUnit - asIs.ftPerUnit) / asIs.ftPerUnit > 0.001) {
-      const ch = await ask(root, { title: t('cmp.scale.title'), text: t('cmp.scale.text', { old: scaleText(asIs, cur.info.userUnit, true), new: scaleText(newSc, cur.info.userUnit, true) }), buttons: [['cancel', t('cmp.scale.cancel'), 'btn-line'], ['ok', t('cmp.scale.keep'), 'btn-plot']] });
-      if (ch !== 'ok') return;
-    }
-    const n = model.carryMarks(ids, cur.key, (pts) => movePts(pts, c.A), { flagged: chg.flagged, scale: asIs });
-    app.sel = null;
-    closeCompare();
-    status(t('cmp.moved', { n }) + ' ' + t('cmp.flagged', { n: chg.flagged.size }), 15000);
-    refresh();
-  }
+  const { openCompare, startCompare, closeCompare, drawCompare, renderCmp, startAlign, alignPick, findChanges, moveTakeoff, renderFlags, nextFlag } = mountCompare({
+    $, model, app, d3, view, status, busy, showSheet, scaleText, setTool, cancelDraft, setActive, renderMarkProps, endPaste, discardAutoCount, rasterize, close3d, refresh, root,
+    get cur() { return cur; },
+    get sheets() { return sheets; },
+    get colors() { return colors; },
+  });
   $('[data-cmp-align]').addEventListener('click', () => startAlign());
   $('[data-cmp-find]').addEventListener('click', () => findChanges());
   $('[data-cmp-move]').addEventListener('click', () => moveTakeoff());
   $('[data-cmp-close]').addEventListener('click', () => closeCompare());
 
-  // ---- flagged marks: count on the sheet bar, next, Checked ----
-  function renderFlags() {
-    const n = model.state.marks.filter((m) => m.flag).length;
-    cmpUi.flagBtn.hidden = !n;
-    cmpUi.flagCount.textContent = n ? t('flag.count', { n }) : '';
-  }
-  async function nextFlag() {
-    const list = model.state.marks.filter((m) => m.flag);
-    if (!list.length) { status(t('flag.none')); return; }
-    const m = list[(list.findIndex((x) => x.id === app.sel) + 1) % list.length];   // the one after the selected (or the first)
-    if (m.sheet !== cur?.key) await showSheet(m.sheet);
-    const b = G.bounds([...m.pts, ...(m.holes || []).flat()]);
-    const pad = Math.max(30, (b.maxX - b.minX + b.maxY - b.minY) * 0.3);
-    view.zoomTo({ minX: b.minX - pad, minY: b.minY - pad, maxX: b.maxX + pad, maxY: b.maxY + pad });
-    if (app.tool !== 'select') setTool('select');
-    app.sel = m.id;
-    setActive(m.item, false);
-    renderMarkProps();
-    status(t('flag.at', { i: list.indexOf(m) + 1, n: list.length }));
-  }
 
   // =========================================================================
   // Quantities table
@@ -2976,6 +2534,8 @@ function init(root) {
     ui.qtyWarn.textContent = warn.length ? t('qty.warn', { list: warn.join(', ') }) : '';
     ui.jobTotal.textContent = model.state.items.length ? t((model.state.areas || []).some((a) => a.alt) ? 'qty.total.base' : 'qty.total', { total: U.formatCents(est.total) }) + (est.hours > 0 ? ' · ' + t('crew.total', { wh: U.fixed(est.workerHours, 1), days: U.fixed(est.days, 1) }) : '') : '';
     keepFocus(ui.qtyTable, () => (app.qtyMode === 'sheet' ? buildSheetTable() : app.qtyMode === 'area' ? buildAreaTable() : buildItemTable()));
+    signoffUi?.decorate();   // 0.10 BK.62 / BK.142: no-rate flags, the sign-off bar, figures that select their marks
+    layoutQtyTable({ table: ui.qtyTable, mode: app.qtyMode, state: model.state, est, sheetRows: app.qtyMode === 'sheet' ? sheetBreakdown(model.state, qmap) : [], sheetLabel });   // 0.10 BK.149: after the flags, so moved rows keep them
   }
 
   function buildItemTable() {
@@ -3006,7 +2566,7 @@ function init(root) {
         isItem && r.unscaled ? el('span', { className: 'tc-flag', title: t('qty.unscaled.title') }, t('qty.unscaled', { n: r.unscaled })) : null,
         isItem && r.awarded ? el('span', { className: 'tc-flag', dataset: { qtyAwarded: r.itemId }, title: t('qty.awarded.title', { own: U.formatCents(r.ownTotal) }) }, t('qty.awarded', { bidder: r.awarded })) : null);
       const dec = (isItem && it.type === 'count') || (isCond && r.cond === 'count') ? 0 : 2;
-      const tr = el('tr', { className: (isItem ? 'is-item' : isCond ? 'is-item is-cond' : 'is-comp') + (app.hl === r.itemId && isItem ? ' is-hl' : ''), dataset: isItem ? { qtyRow: r.itemId } : isCond ? { qtyCond: r.itemId + ':' + r.cond } : {} }, first,
+      const tr = el('tr', { className: (isItem ? 'is-item' : isCond ? 'is-item is-cond' : 'is-comp') + (app.hl === r.itemId && isItem ? ' is-hl' : ''), dataset: isItem ? { qtyRow: r.itemId } : isCond ? { qtyCond: r.itemId + ':' + r.cond } : { qtyComp: r.itemId + ':' + r.compId } }, first,
         r.error ? el('td', { className: 'is-err', colSpan: 2 }, t('x.note.error', { error: r.error })) : [el('td', {}, U.fixed(r.qty, dec)), el('td', { className: 'tl' }, r.unit)],
         cell(r, 'waste', U.percentInput(r.waste), U.parsePercent, 'bp'),
         el('td', {}, r.error ? '' : U.fixed(r.qtyW, dec === 0 && r.waste === 0 ? 0 : 2)),
@@ -3016,7 +2576,7 @@ function init(root) {
       if (isItem || isCond) tr.addEventListener('click', () => focusItem(r.itemId));
       // TK.1 feedback: a linear item with a height also measures wall area (length × height); show it, so tiling a bathroom's walls needs no formula
       const tq = isItem && !r.error && it.type === 'linear' && it.heightFt > 0 ? qmap.get(r.itemId) : null;
-      if (tq && tq.lengthFt > 0) return [tr, el('tr', { className: 'is-note', dataset: { qtyWall: r.itemId } }, el('td', { colSpan: 10, className: 'tl' }, t('qty.wall.note', { item: r.name, area: areaShow(tq.lengthFt * it.heightFt, it), h: ftIn(it.heightFt) })))];
+      if (tq && tq.lengthFt > 0) return [tr, el('tr', { className: 'is-note', dataset: { qtyWall: r.itemId } }, el('td', { colSpan: 10, className: 'tl' }, (tq.openSqft > 0 ? t('qty.wall.notenet', { item: r.name, area: areaShow(wallArea(it, tq).net, it), gross: areaShow(wallArea(it, tq).gross, it), ded: areaShow(wallArea(it, tq).deductions, it), h: ftIn(it.heightFt) }) : t('qty.wall.note', { item: r.name, area: areaShow(wallArea(it, tq).net, it), h: ftIn(it.heightFt) })) + (tq.juncSqft > 0 ? ' ' + t('qty.wall.junc', { area: areaShow(tq.juncSqft, it) }) : '') + (methodNote(model.state) ? ' ' + methodNote(model.state) : '')))];
       return tr;
     }).flat();
     const foot = model.state.items.length ? el('tfoot', {}, el('tr', {}, el('td', {}, t('x.total')), el('td', { colSpan: 6 }), el('td', {}, U.formatCents(est.matTotal)), el('td', {}, U.formatCents(est.labTotal)), el('td', {}, U.formatCents(est.total)))) : null;
@@ -3044,7 +2604,7 @@ function init(root) {
 
   async function exportXlsx() {
     if (!model.state.items.length) { status(t('export.empty')); return; }
-    const bytesOut = await estimateXlsx(model.state, sheetLabel, { columns: columnsNow() });
+    const bytesOut = await estimateXlsx(model.state, sheetLabel, { columns: columnsNow(), pageSizes: pageSizeRows() });
     host.download(bytesOut, safeName(model.state.name) + '.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     status(t('export.xlsx', { file: safeName(model.state.name) + '.xlsx' }) + (est.incomplete ? ' ' + t('export.incomplete') : ''), 9000);
   }
@@ -3082,7 +2642,7 @@ function init(root) {
           const made = await cadSheetsPdf(PDFLib, f, [...used].sort((x, y) => x - y));
           src = made.bytes; state = remapState(model.state, f.hash, made.pages);
         }
-        const out = await pdfWithMarks(PDFLib, src, f.hash, state);
+        const out = await pdfWithMarks(PDFLib, src, f.hash, state, { marker: settings.marker });
         host.download(out.bytes, safeName(f.name.replace(/\.(pdf|dwg|dxf)$/i, '')) + ' (takeoff).pdf', 'application/pdf');
       }
       status(t('export.pdf.done', { n: withMarks.length }));
@@ -3233,6 +2793,11 @@ function init(root) {
     ctx.restore();
   }
 
+  const { bidDialog, levelDialog, loadLib, saveLib, libraryDialog, packsDialog, levelsDialog } = mountDialogs({
+    model, files, status, settings, fieldUnit, lenField, lenHint, sheetLabel, host, setActive, root, TYPE_ICONS,
+    get est() { return est; },
+    get sheets() { return sheets; },
+  });
   const actions = {
     'cad-count': () => cadCount(),
     'open-pdf': async () => { const l = await host.openFile({ types: PDF_TYPES, multiple: true }); if (l.length) await openHostFiles(l); },
@@ -3652,416 +3217,13 @@ function init(root) {
     if (on) status(stackLevels().length > 1 ? t('d3.stack.on', { n: stackLevels().length }) : t('d3.stack.none'), 9000);
     else status(t('d3.stack.off'));
   }
-  // ---- the bid summary and proposal PDF (T19) ----
-  async function bidDialog() {
-    if (!model.state.items.length) { status(t('bid.empty')); return; }
-    const b = model.bid();
-    const pctIn = (k) => {
-      const n = el('input', { type: 'text', className: 'tc-input pct', id: 'tc-bid-' + k, inputmode: 'decimal', value: U.percentInput(b[k]), dataset: { bid: k } });
-      n.addEventListener('change', () => { const r = U.parsePercent(n.value); if (!r.ok) { n.classList.add('is-invalid'); say(r.error); return; } n.classList.remove('is-invalid'); model.setBid({ [k]: r.bp }); draw(); });
-      n.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); n.dispatchEvent(new Event('change')); } });   // Enter: take it, don't make the PDF
-      return n;
-    };
-    const textIn = (k, area = false, rows = 3) => {
-      const n = area ? el('textarea', { className: 'tc-input', id: 'tc-bid-' + k, rows, dataset: { bid: k }, placeholder: t('bid.f.' + k + '.ph') }) : el('input', { type: 'text', className: 'tc-input', id: 'tc-bid-' + k, dataset: { bid: k }, placeholder: t('bid.f.' + k + '.ph') });
-      n.value = b[k];
-      n.addEventListener('change', () => { model.setBid({ [k]: n.value }); });
-      if (!area) n.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); n.dispatchEvent(new Event('change')); } });
-      return n;
-    };
-    const msg = el('p', { className: 'tc-lib-msg', role: 'status' });
-    const say = (s2) => { msg.textContent = s2; };
-    const table = el('table', { className: 'tc-bid-sum', dataset: { bidSum: '' } });
-    const draw = () => {
-      const sum = bidSummary(est, model.bid(), alternates(model.state));
-      table.replaceChildren(el('tbody', {}, ...sum.lines.map((l) => el('tr', { className: l.sub ? 'is-sub' : '', dataset: { bidLine: l.key } },
-        el('td', {}, l.pct ? t('bid.l.pct', { label: l.label, pct: U.percentInput(l.pct) + ' %' }) : l.label), el('td', {}, U.formatCents(l.cents)))),
-      ...sum.alts.map((a) => el('tr', { className: 'is-alt' }, el('td', {}, t('bid.pdf.alt', { name: a.name, kind: t('alt.' + a.alt).toLowerCase() })), el('td', {}, (a.withMarkup >= 0 ? '+' : '−') + U.formatCents(Math.abs(a.withMarkup)))))));
-    };
-    draw();
-    const items = el('input', { type: 'checkbox', id: 'tc-bid-items', checked: b.items, dataset: { bid: 'items' } });
-    items.addEventListener('change', () => model.setBid({ items: items.checked }));
-    const f = (k, input) => [el('label', { for: input.id }, t('bid.f.' + k)), input];
-    const asked = ask(root, {
-      title: t('bid.h'), text: t('bid.text'),
-      body: el('div', { className: 'tc-bid' },
-        el('div', { className: 'tc-props' }, ...f('burden', pctIn('burden')), ...f('tax', pctIn('tax')), ...f('overhead', pctIn('overhead')), ...f('profit', pctIn('profit')), ...f('bond', pctIn('bond'))),
-        table, msg,
-        el('div', { className: 'tc-props' }, ...f('project', textIn('project')), ...f('to', textIn('to', true, 2)), ...f('by', textIn('by', true, 2)),
-          ...f('incl', textIn('incl', true)), ...f('excl', textIn('excl', true)), ...f('terms', textIn('terms', true, 2))),
-        el('label', { className: 'tc-check' }, items, ' ' + t('bid.f.items'))),
-      buttons: [['cancel', t('btn.close'), 'btn-line'], ['ok', t('bid.pdf.btn'), 'btn-plot']],
-      focus: '#tc-bid-overhead',
-    });
-    root.querySelector('dialog.tc-dialog[open]')?.classList.add('is-wide');
-    const choice = await asked;
-    if (choice !== 'ok') return;
-    for (const n of root.querySelectorAll('dialog [data-bid]')) n.dispatchEvent(new Event('change'));   // a field still being typed in
-    try {
-      const PDFLib = await import('pdf-lib');
-      const bytesOut = await proposalPdf(PDFLib, { state: model.state, est, alts: alternates(model.state) });
-      const file = t('bid.pdf.file', { name: safeName(model.state.name || 'Takeoff') }) + '.pdf';
-      host.download(bytesOut, file, 'application/pdf');
-      status(t('bid.pdf.done', { file, total: U.formatCents(bidSummary(est, model.bid(), alternates(model.state)).total) }), 9000);
-    } catch (err) { status(t('bid.pdf.failed', { reason: err.message }), 12000); }
-  }
 
-  // ---- bid packages and leveling (0.6 LC.13, level.js): scope by trade out, subcontractors' bids side by side ----
-  // 0.7 B4: bids-ui.js sends a package to the website (email invitations, the bidder's page) and pulls the prices back into the bids.
-  const bidsUi = createBidsUi({ root, model, status, files: () => files, sheetLabel, divisionTitle, loadPdfLib: () => import('pdf-lib'),
-    loadCad: async () => { const m = await import('./cadpdf.js'); return { cadSheetsPdf: m.cadSheetsPdf, remapState: m.remapState }; } });
-  async function levelDialog() {
-    if (!model.state.items.length) { status(t('bid.empty')); return; }
-    const title = (k) => (k ? divisionTitle(k) : t('csi.div.none'));
-    const msg = el('p', { className: 'tc-lib-msg', role: 'status', dataset: { lvlMsg: '' } });
-    const say = (s2) => { msg.textContent = s2; };
-    const cents = (v) => { const r = U.parseRate(v); return r.ok ? { ok: true, c: Math.round(r.rate4 / 100) } : r; };
-    const box = el('div', { className: 'tc-lvl', dataset: { lvl: '' } });
-    const draw = () => {
-      const e = baseEstimate(model.state, { awards: false }), pkgs = bidPackages(model.state, e, { title });
-      const lv = new Map(leveling(model.state, e, { title }).map((p) => [p.pkg.key, p]));
-      box.replaceChildren(...pkgs.map((p) => {
-        const key = p.key || 'none', L = lv.get(p.key), reqs = bidsUi.requests(p.key);
-        const sendBtn = el('button', { type: 'button', className: 'tc-linkbtn', dataset: { lvlSend: key }, onclick: async () => { await bidsUi.sendDialog(p); draw(); } }, icon('send'), ' ' + t('lvl.send'));
-        const getBtn = el('button', { type: 'button', className: 'tc-linkbtn', dataset: { lvlGet: key }, onclick: async () => {
-          say(t('lvl.get.busy'));
-          const r = await bidsUi.getPrices(p.key);
-          say(r.needConnect ? t('bids.err.connect') : r.failed ? t('lvl.get.failed') : (r.added + r.updated) ? t('lvl.get.done', { added: r.added, updated: r.updated }) + (r.late ? ' ' + t('lvl.get.late', { n: r.late }) : '') : r.sealed ? t('lvl.get.sealed') : t('lvl.get.none', { waiting: r.waiting }));
-          draw();
-        } }, icon('arrow-repeat'), ' ' + t('lvl.get'));
-        const csvBtn = el('button', { type: 'button', className: 'tc-linkbtn', dataset: { lvlCsv: key }, onclick: () => {
-          const file = t('pkg.csv.file', { name: safeName(model.state.name || 'Takeoff'), pkg: safeName((p.key ? p.key + ' ' : '') + p.title) }) + '.csv';
-          host.download(new Blob(['﻿' + packageCsv(p, sheetLabel)], { type: 'text/csv' }), file, 'text/csv');
-          say(t('pkg.csv.done', { file }));
-        } }, icon('filetype-csv'), ' ' + t('pkg.csv.btn'));
-        const chosen = (model.state.awards || []).find((a) => a.pkg === p.key)?.bid || null;
-        const rows = (L?.bids || []).map((r) => {
-          const b = r.bid;
-          const name = el('input', { type: 'text', className: 'tc-input', value: b.bidder, maxLength: 120, 'aria-label': t('lvl.head.bidder'), dataset: { lvlBidder: b.id } });
-          name.addEventListener('change', () => { if (!updateBid(model, b.id, { bidder: name.value })) name.value = b.bidder; draw(); });
-          const amt = el('input', { type: 'text', className: 'tc-input pct', inputmode: 'decimal', value: U.formatCents(b.amount), 'aria-label': t('lvl.head.bid'), dataset: { lvlAmount: b.id } });
-          amt.addEventListener('change', () => { const r2 = cents(amt.value); if (!r2.ok) { amt.classList.add('is-invalid'); say(r2.error); return; } updateBid(model, b.id, { amount: r2.c }); draw(); });
-          const left = el('details', { className: 'tc-lvl-left' }, el('summary', {}, b.excl.length ? t('lvl.left.n', { n: b.excl.length }) : t('lvl.left.none')),
-            ...p.items.map((x) => {
-              const cb = el('input', { type: 'checkbox', checked: b.excl.includes(x.itemId), dataset: { lvlLeft: b.id + ':' + x.itemId } });
-              cb.addEventListener('change', () => { updateBid(model, b.id, { excl: cb.checked ? [...b.excl, x.itemId] : b.excl.filter((i) => i !== x.itemId) }, t('undo.bid.left')); draw(); });
-              return el('label', { className: 'tc-check' }, cb, ' ' + x.name);
-            }));
-          return el('tr', { className: b.id === L.low ? 'is-low' : '', dataset: { lvlRow: b.id } }, el('td', {}, name, b.src ? el('span', { className: 'tc-flag', dataset: { lvlWeb: b.id }, title: t('lvl.web.title') }, b.src.late ? t('lvl.web.late') : t('lvl.web')) : null), el('td', {}, amt), el('td', {}, left),
-            el('td', { className: 'num' }, U.formatCents(r.plug)), el('td', { className: 'num', dataset: { lvlLeveled: b.id } }, U.formatCents(r.leveled)),
-            el('td', { className: 'num' }, (r.diff >= 0 ? '+' : '−') + U.formatCents(Math.abs(r.diff))), el('td', {}, b.id === L.low ? t('lvl.low') : ''),
-            el('td', {}, el('button', { type: 'button', className: 'btn-line btn-sm-cc' + (chosen === b.id ? ' is-on' : ''), 'aria-pressed': String(chosen === b.id), dataset: { lvlAward: b.id },
-              title: chosen === b.id ? t('lvl.award.off.title') : t('lvl.award.title'), onclick: () => { setAward(model, p.key, chosen === b.id ? null : b.id); draw(); } }, chosen === b.id ? t('lvl.award.on') : t('lvl.award'))),
-            el('td', {}, el('button', { type: 'button', className: 'tc-linkbtn is-danger', 'aria-label': t('lvl.remove', { bidder: b.bidder }), onclick: () => { removeBid(model, b.id); draw(); } }, icon('x-lg'))));
-        });
-        const nb = el('input', { type: 'text', className: 'tc-input', placeholder: t('lvl.new.bidder'), maxLength: 120, dataset: { lvlNewBidder: key } });
-        const na = el('input', { type: 'text', className: 'tc-input pct', inputmode: 'decimal', placeholder: '$0.00', dataset: { lvlNewAmount: key } });
-        const add = el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { lvlAdd: key }, onclick: () => {
-          const r2 = cents(na.value);
-          if (!nb.value.trim()) { nb.focus(); say(t('lvl.err.bidder')); return; }
-          if (!r2.ok) { na.classList.add('is-invalid'); say(r2.error); return; }
-          addBid(model, { pkg: p.key, bidder: nb.value, amount: r2.c });
-          say(t('lvl.added', { bidder: nb.value.trim(), pkg: p.title }));
-          draw();
-        } }, t('lvl.add'));
-        return el('section', { className: 'tc-lvl-pkg', dataset: { lvlPkg: key } },
-          el('h3', { className: 'tc-h' }, (p.key ? p.key + ' ' : '') + p.title),
-          el('p', { className: 'tc-note' }, t('lvl.pkg.facts', { items: t('n.items', { n: p.items.length }), sheets: t('n.sheets', { n: p.sheets.length }), cost: U.formatCents(p.cost) }), ' ', csvBtn, ' ', sendBtn, reqs.length ? [' ', getBtn] : null),
-          ...reqs.map((r) => el('p', { className: 'tc-note', dataset: { lvlReq: r.req.uuid } }, icon('envelope'), ' ' + r.text,
-            r.info ? ' ' + (r.info.sealed ? t('lvl.req.sealed', { until: r.info.sealedUntil ? new Date(r.info.sealedUntil).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '', answered: r.info.answered, invited: r.info.invited })
-              : t('lvl.req.opened', { answered: r.info.answered, invited: r.info.invited })) + (r.info.status !== 'open' ? ' ' + t('lvl.req.' + r.info.status) : '') : null)),
-          el('table', { className: 'tc-qty-table tc-lvl-table' },
-            el('thead', {}, el('tr', {}, ...['bidder', 'bid', 'left', 'plug', 'leveled', 'diff', 'low', 'award'].map((k) => el('th', { scope: 'col' }, t('lvl.head.' + k))), el('th', {}))),
-            el('tbody', {}, ...rows, el('tr', {}, el('td', {}, nb), el('td', {}, na), el('td', { colSpan: 7 }, add)))));
-      }));
-    };
-    draw();
-    if ((model.state.bidreqs || []).length && bidsUi.connected()) bidsUi.getPrices(undefined, { quiet: true }).then((r) => { if (r.added || r.updated) say(t('lvl.get.done', { added: r.added, updated: r.updated })); draw(); });    // quietly, when this tab is already signed in
-    const stopWatching = bidsUi.onConnectionChange(() => draw());
-    const asked = ask(root, { title: t('lvl.h'), text: t('lvl.text'), body: el('div', {}, box, msg), buttons: [['cancel', t('btn.close'), 'btn-line']] });
-    root.querySelector('dialog.tc-dialog[open]')?.classList.add('is-wide');
-    await asked;
-    stopWatching();
-  }
 
-  // ---- the assembly and price library (T9): per viewer, kept in this browser for every takeoff ----
-  const LIB_KEY = 'takeoffcraft.library';
-  const loadLib = () => { try { return readStored(JSON.parse(localStorage.getItem(LIB_KEY) || '[]')); } catch { return []; } };
-  const saveLib = (lib) => { try { localStorage.setItem(LIB_KEY, JSON.stringify(lib)); return true; } catch { return false; } };
 
-  async function libraryDialog() {
-    let lib = loadLib();
-    const picked = new Set();
-    const msg = el('p', { className: 'tc-lib-msg', role: 'status', dataset: { libMsg: '' } });
-    const say = (text) => { msg.textContent = text; };
-    const store = (next, text) => { lib = next; say(saveLib(lib) ? text : t('lib.err.store')); picked.clear(); draw(); };
-    const search = el('input', { type: 'search', className: 'tc-input', placeholder: t('lib.search'), 'aria-label': t('lib.search'), dataset: { libSearch: '' } });
-    const list = el('ul', { className: 'tc-lib-list', dataset: { libList: '' } });
-    const count = el('p', { className: 'tc-note' });
-    const money = U.formatRate;
-    function draw() {
-      const q = search.value.trim().toLowerCase();
-      count.textContent = t('lib.count', { n: lib.length });
-      list.replaceChildren(...lib.map((e, i) => [e, i]).filter(([e]) => !q || e.name.toLowerCase().includes(q)).slice(0, 300).map(([e, i]) => {
-        const cb = el('input', { type: 'checkbox', checked: picked.has(i), dataset: { libEntry: String(i) } });
-        cb.addEventListener('change', () => { if (cb.checked) picked.add(i); else picked.delete(i); });
-        const unit = U.UNITS[e.unit].label;
-        const meta = rateUnset(e) ? t('lib.row.unset', { unit }) : t('lib.meta', { unit, mat: money(e.mat), lab: money(e.lab) });   // TK.1: a pack's entries start without rates
-        return el('li', {}, el('label', { className: 'tc-lib-row', title: [e.src, e.note].filter(Boolean).join('\n') || null }, cb, icon(TYPE_ICONS[e.type]),
-          el('span', { className: 'tc-lib-name' }, e.name, e.pack ? el('span', { className: 'tc-lib-tag', dataset: { libPackTag: e.pack.id } }, t('lib.row.pack', { pack: e.pack.name })) : null),
-          el('span', { className: 'tc-lib-meta', dataset: rateUnset(e) ? { libUnset: '' } : {} }, meta + (e.components.length ? ' · ' + t('lib.parts', { n: e.components.length }) : ''))));
-      }));
-      if (!lib.length) list.replaceChildren(el('li', { className: 'tc-note' }, t('lib.empty')));
-    }
-    search.addEventListener('input', draw);
-    const file = el('input', { type: 'file', accept: '.csv,.txt,text/csv', hidden: true, dataset: { libFile: '' } });
-    file.addEventListener('change', async () => {
-      const f = file.files[0];
-      file.value = '';
-      if (!f) return;
-      if (f.size > 20e6) { say(t('lib.err.big')); return; }
-      const r = readLibraryCsv(await f.text());
-      if (!r.ok) { say(t('lib.err.read', { file: f.name, why: r.error })); return; }
-      const m = mergeEntries(lib, r.entries);
-      store(m.lib, t('lib.imported', { file: f.name, added: m.added, updated: m.updated }) + (r.warnings.length ? ' ' + t('lib.skipped', { n: r.warnings.length, first: r.warnings[0] }) : ''));
-    });
-    const btn = (label, data, fn, ic) => { const b = el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: data }, ic ? icon(ic) : null, ic ? ' ' + label : label); b.addEventListener('click', fn); return b; };
-    const clear = btn(t('lib.clear'), { libClear: '' }, () => {
-      if (!lib.length) return;
-      if (clear.dataset.armed !== '1') { clear.dataset.armed = '1'; clear.textContent = t('lib.clear.sure', { n: lib.length }); return; }
-      clear.dataset.armed = ''; clear.textContent = t('lib.clear');
-      store([], t('lib.cleared'));
-    });
-    const tools = el('div', { className: 'tc-lib-tools' },
-      btn(t('lib.import'), { libImport: '' }, () => file.click(), 'upload'),
-      btn(t('lib.save'), { libSave: '' }, () => {
-        if (!model.state.items.length) { say(t('lib.save.none')); return; }
-        const m = mergeEntries(lib, model.state.items.map(entryFromItem));
-        store(m.lib, t('lib.saved', { added: m.added, updated: m.updated }));
-      }, 'box-arrow-in-down'),
-      btn(t('lib.export'), { libExport: '' }, () => {
-        if (!lib.length) { say(t('lib.empty')); return; }
-        host.download('\uFEFF' + libraryCsv(lib), t('lib.file') + '.csv', 'text/csv;charset=utf-8');
-      }, 'download'),
-      clear, file,
-      // TK.1: these two close the library (data-key) and open their own dialog; the library opens again after
-      btn(t('lib.packs'), { key: 'packs', libPacks: '' }, () => {}, 'box-seam'),
-      btn(t('lib.exportpack'), { key: 'export-pack', libExportPack: '' }, () => {}, 'box-arrow-up'));
-    tools.querySelector('[data-lib-packs]').title = t('lib.packs.title');
-    draw();
-    const asked = ask(root, {
-      title: t('lib.title'), text: t('lib.text'),
-      body: el('div', { className: 'tc-lib' }, tools, msg, search, count, list),
-      buttons: [['cancel', t('btn.close'), 'btn-line'], ['reprice', t('lib.reprice'), 'btn-line'], ['ok', t('lib.add'), 'btn-plot']],
-      focus: '[data-lib-search]',
-      onOk: () => (picked.size ? null : t('lib.err.pick')),
-    });
-    root.querySelector('dialog.tc-dialog[open]')?.classList.add('is-wide');
-    const choice = await asked;
-    if (choice === 'ok') {
-      const list2 = [...picked].sort((a, b) => a - b).map((i) => lib[i]).filter(Boolean);
-      const taken = new Set(model.state.items.map((i) => i.name.toLowerCase()));
-      const fields = list2.map((e) => { const f = itemFromEntry(e); let n = f.name, k = 2; while (taken.has(n.toLowerCase())) n = f.name + ' (' + k++ + ')'; taken.add(n.toLowerCase()); return { ...f, name: n }; });
-      try {
-        const ids = model.addItems(fields);
-        if (ids.length) setActive(ids.at(-1));
-        status(t('lib.added', { n: ids.length }));
-      } catch (err) { status(err.message, 9000); }
-    } else if (choice === 'reprice') {
-      const patches = repricePatches(model.state.items, lib);
-      if (!patches.length) { status(t('lib.repriced.none')); return; }
-      model.updateItems(patches);
-      status(t('lib.repriced', { n: patches.length }), 9000);
-    } else if (choice === 'packs') {
-      await packsDialog();
-      return libraryDialog();
-    } else if (choice === 'export-pack') {
-      await exportPackDialog();
-      return libraryDialog();
-    }
-  }
 
-  // ---- trade packs (0.5 TK.1, packs.js): data-only add-ons that install assemblies into the library ----
-  const PACKS_DIR = new URL('./packs/', import.meta.url);
-  const PACK_FILE_RE = /^[a-z0-9][a-z0-9.-]{0,80}\.ccpack\.json$/;
-  const UNITS_KEY = 'takeoffcraft.packs.units';
-  let packIndex = null;                       // the build's packs/index.json, read once
-  async function loadPackIndex() {
-    if (packIndex) return packIndex;
-    const r = await fetch(new URL('index.json', PACKS_DIR), { cache: 'no-cache' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const j = await r.json();
-    packIndex = (Array.isArray(j?.packs) ? j.packs : []).filter((p) => p && typeof p.id === 'string' && typeof p.file === 'string' && PACK_FILE_RE.test(p.file));
-    return packIndex;
-  }
-  async function fetchPack(meta) {
-    const r = await fetch(new URL(meta.file, PACKS_DIR), { cache: 'no-cache' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const text = await r.text();
-    if (text.length > PACK_LIMITS.bytes) throw new Error(t('packs.err.big'));
-    let json;
-    try { json = JSON.parse(text); } catch { throw new Error(t('packs.err.json')); }
-    const res = readPack(json);
-    if (!res.ok) throw new Error(res.error);
-    return res;
-  }
 
-  /** The Trade packs dialog. offer: a pack id to point at (the directory's Install link, ?pack=<id>). */
-  async function packsDialog({ offer = null } = {}) {
-    let lib = loadLib();
-    const rows = [];                          // [{ meta, pack?, warnings?, fromFile? }]
-    const msg = el('p', { className: 'tc-lib-msg', role: 'status', dataset: { packsMsg: '' } });
-    const say = (text) => { msg.textContent = text; };
-    const stored = localStorage.getItem(UNITS_KEY);
-    const units = el('select', { className: 'tc-input', id: 'tc-packs-units', dataset: { packsUnits: '' } },
-      ...PACK_SYSTEMS.map((k) => el('option', { value: k, selected: k === (PACK_SYSTEMS.includes(stored) ? stored : 'imperial') }, t('packs.units.' + k))));
-    units.addEventListener('change', () => { try { localStorage.setItem(UNITS_KEY, units.value); } catch { /* private mode */ } });
-    const list = el('ul', { className: 'tc-pack-list', dataset: { packsList: '' } }, el('li', { className: 'tc-note' }, t('packs.loading')));
-    const fileIn = el('input', { type: 'file', accept: PACK_EXT + ',.json,application/json', hidden: true, dataset: { packsFile: '' } });
-    const fileBtn = el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { packsOpen: '' } }, icon('folder2-open'), ' ' + t('packs.file'));
-    fileBtn.addEventListener('click', () => fileIn.click());
-    fileIn.addEventListener('change', async () => {
-      const f = fileIn.files[0];
-      fileIn.value = '';
-      if (!f) return;
-      if (f.size > PACK_LIMITS.bytes) { say(t('packs.err.big')); return; }
-      let json;
-      try { json = JSON.parse(await f.text()); } catch { say(t('packs.err.file', { file: f.name, why: t('packs.err.json') })); return; }
-      const res = readPack(json);
-      if (!res.ok) { say(t('packs.err.file', { file: f.name, why: res.error })); return; }
-      const p = res.pack;
-      const row = { meta: { id: p.id, name: p.name, packVersion: p.packVersion, status: p.status, license: p.license, description: p.description, items: p.items.length, sources: p.sources.length }, pack: p, warnings: res.warnings, fromFile: true };
-      const i = rows.findIndex((r) => r.meta.id === p.id);
-      if (i >= 0) rows[i] = row; else rows.unshift(row);
-      say(res.warnings.length ? t('packs.notes', { first: res.warnings[0] }) : '');
-      draw();
-    });
 
-    const store = (next) => { lib = next; return saveLib(lib); };
-    async function packOf(row) { if (!row.pack) { const r = await fetchPack(row.meta); row.pack = r.pack; row.warnings = r.warnings; } return row.pack; }
-    async function install(row, samples) {
-      let p;
-      try { p = await packOf(row); } catch (err) { say(t('packs.err.file', { file: row.meta.file || row.meta.name, why: err.message })); return; }
-      const r = installPack(lib, p, { system: units.value, samples });
-      if (!store(r.lib)) { say(t('lib.err.store')); return; }
-      say([t('packs.done', { name: p.name, added: r.added, updated: r.updated }), r.kept ? t('packs.done.kept', { n: r.kept }) : '', r.full ? t('packs.done.full') : '', samples && p.samples ? '' : t('packs.done.rates')].filter(Boolean).join(' '));
-      draw();
-    }
-    function draw() {
-      const have = new Map(installedPacks(lib).map((p) => [p.id, p]));
-      list.replaceChildren(...rows.map((row) => {
-        const m = row.meta, inst = have.get(m.id);
-        const head = el('div', { className: 'tc-pack-head' },
-          el('strong', { className: 'tc-pack-name' }, m.name), ' ', el('span', { className: 'tc-pack-ver' }, m.packVersion || ''),
-          el('span', { className: 'tc-pack-status' + (m.status === 'reviewed' ? ' is-reviewed' : ''), dataset: { packStatus: m.status } },
-            m.status === 'reviewed' && row.pack?.reviewedBy ? t('packs.status.reviewed', { by: row.pack.reviewedBy, date: row.pack.reviewedOn }) : t('packs.status.starter')));
-        const meta = el('p', { className: 'tc-pack-meta' }, t('packs.meta', { n: m.items, sources: m.sources, license: m.license || 'CC0-1.0' }) + (inst ? ' · ' + t('packs.installed', { n: inst.count }) : ''));
-        const samples = row.pack?.samples ? el('input', { type: 'checkbox', dataset: { packSamples: m.id } }) : null;
-        const go = el('button', { type: 'button', className: (inst ? 'btn-line' : 'btn-plot') + ' btn-sm-cc', dataset: { packInstall: m.id } }, inst ? t('packs.update') : t('packs.install'));
-        go.addEventListener('click', () => install(row, !!samples?.checked));
-        const rm = inst ? el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { packRemove: m.id } }, t('packs.remove')) : null;
-        rm?.addEventListener('click', () => {
-          if (rm.dataset.armed !== '1') { rm.dataset.armed = '1'; rm.textContent = t('packs.remove.sure', { n: inst.count }); return; }
-          const r = removePack(lib, m.id);
-          if (!store(r.lib)) { say(t('lib.err.store')); return; }
-          say(t('packs.removed', { name: m.name, n: r.removed }));
-          draw();
-        });
-        const det = el('details', { className: 'tc-pack-more' }, el('summary', {}, t('packs.sources')), el('p', {}, m.description || ''));
-        det.addEventListener('toggle', async () => {
-          if (!det.open || det.dataset.filled) return;
-          det.dataset.filled = '1';
-          try {
-            const p = await packOf(row);
-            det.append(el('ul', { className: 'tc-pack-src' }, ...p.sources.map((x) => el('li', {}, [x.title, x.edition, x.publisher].filter(Boolean).join(', '), x.url ? ' ' : '', x.url ? el('a', { href: x.url, target: '_blank', rel: 'noopener noreferrer' }, x.url.replace(/^https:\/\//, '').replace(/\/$/, '')) : null))));   // i18n-ignore (rel attribute)
-          } catch (err) { det.append(el('p', { className: 'tc-note' }, err.message)); }
-        });
-        return el('li', { className: 'tc-pack' + (offer === m.id ? ' is-offered' : ''), dataset: { pack: m.id } }, head, meta,
-          samples ? el('label', { className: 'tc-check' }, samples, ' ' + t('packs.samples', { label: row.pack.samples.label, region: row.pack.samples.region, date: row.pack.samples.date })) : null,
-          el('div', { className: 'tc-pack-act' }, go, rm), det);
-      }));
-      if (!rows.length) list.replaceChildren(el('li', { className: 'tc-note' }, t('packs.none')));
-    }
-    const asked = ask(root, {
-      title: t('packs.title'), text: t('packs.text'),
-      body: el('div', { className: 'tc-lib tc-packs' },
-        el('div', { className: 'tc-lib-tools' }, el('label', { for: 'tc-packs-units' }, t('packs.units')), units, fileBtn, fileIn), msg, list),
-      buttons: [['cancel', t('btn.close'), 'btn-plot']],
-    });
-    root.querySelector('dialog.tc-dialog[open]')?.classList.add('is-wide');
-    loadPackIndex().then((idx) => {
-      for (const meta of idx) if (!rows.some((r) => r.meta.id === meta.id)) rows.push({ meta });
-      if (offer) {
-        const o = rows.find((r) => r.meta.id === offer);
-        say(o ? t('packs.offered', { name: o.meta.name }) : t('packs.unknown', { id: offer }));
-        if (o) requestAnimationFrame(() => list.querySelector('[data-pack="' + CSS.escape(offer) + '"]')?.scrollIntoView({ block: 'nearest' }));
-      }
-      draw();
-    }, (err) => { say(t('packs.err.load', { why: err.message })); draw(); });
-    await asked;
-  }
 
-  /** Your library as a trade pack file (TK.1). */
-  async function exportPackDialog() {
-    const lib = loadLib();
-    const f = (k, input) => [el('label', { for: input.id }, t('packs.export.f.' + k)), input];
-    const name = el('input', { type: 'text', className: 'tc-input', id: 'tc-xp-name', value: t('pack.export.name'), dataset: { xpName: '' } });
-    const author = el('input', { type: 'text', className: 'tc-input', id: 'tc-xp-author', dataset: { xpAuthor: '' } });
-    const desc = el('textarea', { className: 'tc-input', id: 'tc-xp-desc', rows: 2, dataset: { xpDesc: '' } });
-    const own = el('input', { type: 'checkbox', checked: true, dataset: { xpOwn: '' } });
-    const rates = el('input', { type: 'checkbox', dataset: { xpRates: '' } });
-    const region = el('input', { type: 'text', className: 'tc-input', id: 'tc-xp-region', placeholder: t('packs.export.ph.region'), dataset: { xpRegion: '' } });
-    const date = el('input', { type: 'date', className: 'tc-input', id: 'tc-xp-date', value: new Date().toISOString().slice(0, 10), dataset: { xpDate: '' } });
-    const ratesBox = el('div', { className: 'tc-props', hidden: true }, ...f('region', region), ...f('date', date));
-    rates.addEventListener('change', () => { ratesBox.hidden = !rates.checked; });
-    const pick = () => (own.checked ? lib.filter((e) => !e.pack) : lib);
-    const choice = await ask(root, {
-      title: t('packs.export.title'), text: t('packs.export.text'),
-      body: el('div', { className: 'tc-lib' }, el('div', { className: 'tc-props' }, ...f('name', name), ...f('author', author), ...f('desc', desc)),
-        el('label', { className: 'tc-check' }, own, ' ' + t('packs.export.f.own')), el('label', { className: 'tc-check' }, rates, ' ' + t('packs.export.f.rates')), ratesBox),
-      buttons: [['cancel', t('btn.cancel'), 'btn-line'], ['ok', t('packs.export.btn'), 'btn-plot']],
-      focus: '[data-xp-name]',
-      onOk: () => (!pick().length ? t('packs.export.err.none') : rates.checked && (!region.value.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(date.value)) ? t('packs.export.err.region') : null),
-    });
-    if (choice !== 'ok') return;
-    const slug = (name.value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'my-library').slice(0, 50);
-    const id = /^[a-z]/.test(slug) ? slug : 'pack-' + slug;
-    const entries = pick();
-    const pack = libraryPack(entries, { id, name: name.value, author: author.value, description: desc.value, rates: rates.checked, region: region.value, date: date.value });
-    const file = id + PACK_EXT;
-    host.download(JSON.stringify(pack, null, 1) + '\n', file, 'application/json');
-    status(t('packs.export.done', { file, n: pack.items.length }), 9000);
-  }
-
-  async function levelsDialog() {
-    if (!sheets.length) return;
-    const fu = fieldUnit('ft');
-    const inputs = sheets.map((s) => {
-      const v = model.levelOf(s.key);
-      return { s, input: el('input', { type: 'text', className: 'tc-input', value: v === null ? '' : lenField(v, fu), placeholder: lenHint(fu, 'base'), dataset: { levelFor: s.key }, 'aria-label': s.title }) };
-    });
-    let map = null;
-    const choice = await ask(root, {
-      title: t('d3.levels.dlg'), text: t('d3.levels.text'),
-      body: el('div', { className: 'tc-levels' }, inputs.map(({ s, input }) => el('label', { className: 'tc-level-row' }, el('span', {}, s.title), input))),
-      buttons: [['cancel', t('btn.cancel'), 'btn-line'], ['ok', t('d3.levels.ok'), 'btn-plot']],
-      focus: '[data-level-for]',
-      onOk: () => {
-        const m = {};
-        for (const { s, input } of inputs) {
-          const txt = input.value.trim();
-          if (!txt) { m[s.key] = null; continue; }
-          const neg = /^[-−]/.test(txt);
-          const r = /^[-−]?0+(\.0*)?\s*('|"|ft|mm|cm|m)?$/.test(txt) ? { ok: true, ft: 0 } : U.parseLength(txt.replace(/^[-−]/, ''), { defaultUnit: fu });
-          if (!r.ok) { input.classList.add('is-invalid'); return s.title + ': ' + r.error; }
-          m[s.key] = neg ? -r.ft : r.ft;
-        }
-        map = m;
-        return null;
-      },
-    });
-    if (choice === 'ok' && map) model.setLevels(map);
-  }
   async function exportGlb() {
     if (!d3.scene?.objects?.some((o) => o.kind !== 'frame' && (o.tris.length || o.kind === 'run'))) { status(t('d3.glb.empty')); return; }
     const { sceneToGlb } = await import('./glb.js');
@@ -4312,18 +3474,30 @@ function init(root) {
 
   const AUTOSAVE_PDF_MAX = 64 * 1024 * 1024;
   const autosave = new Autosave({ app: 'takeoffcraft' });
-  const adoc = autosave.doc({ id: 'takeoff', name: model.state.name, snapshot: async () => {
-    const total = files.reduce((n, f) => n + f.size, 0);
-    const pdfs = total <= AUTOSAVE_PDF_MAX ? files.map((f) => ({ name: f.name, blob: (f.blob ??= new Blob([f.bytes], { type: isCad(f) ? 'application/octet-stream' : 'application/pdf' })) })) : [];
-    return { data: { project: model.toJSON(), pdfs }, meta: { name: model.state.name, pdfs: files.map((f) => f.name), kept: pdfs.length } };
-  } });
+  // 0.10 PERF.24: the first copy has the project and the PDFs, then only what changed; each PDF is an extra chunk written once (again only when its bytes are replaced)
+  const pdfBlob = (f) => { if (!f.blob || f.blobOf !== f.bytes) { f.blob = new Blob([f.bytes], { type: isCad(f) ? 'application/octet-stream' : 'application/pdf' }); f.blobOf = f.bytes; } return f.blob; };
+  const adoc = autosave.doc({ id: 'takeoff', name: model.state.name, journal: objectJournal({
+    spec: { autoArrays: 'id' }, identity: () => model,
+    get: () => model.toJSON(),
+    extras: (h) => {
+      const keep = files.reduce((n, f) => n + f.size, 0) <= AUTOSAVE_PDF_MAX;   // over the cap the PDFs stay out of the copy (listed by name in meta; opened again by hand)
+      files.forEach((f, i) => { h.setExtra('x:pdf:' + i, keep ? pdfBlob(f) : null); h.setExtra('x:name:' + i, f.name); });
+      for (const k of h.extraKeys()) { const i = Number(k.split(':')[2]); if (i >= files.length) h.setExtra(k, null); }
+    },
+    meta: () => ({ name: model.state.name, pdfs: files.map((f) => f.name), kept: files.reduce((n, f) => n + f.size, 0) <= AUTOSAVE_PDF_MAX ? files.length : 0 }),
+  }) });
   model.on(() => {
     if (!model.dirty) { adoc.clean(); return; }
     adoc.rename(model.state.name);
     adoc.changed();
   });
   async function recoverCopy(rec) {
-    const d = rec.data;
+    let d = rec.data;
+    if (d && d.kind === 'chunks') {   // 0.10: a base and its changes
+      const x = recoverExtras(rec), pdfs = [];
+      for (let i = 0; x.has('x:name:' + i); i++) if (x.get('x:pdf:' + i) instanceof Blob) pdfs.push({ name: x.get('x:name:' + i), blob: x.get('x:pdf:' + i) });
+      d = { project: recoverState(rec, { autoArrays: 'id' }), pdfs };
+    }
     if (!d || !d.project || typeof d.project !== 'object') throw new Error(t('autosave.empty'));
     await ready;
     const pdfs = Array.isArray(d.pdfs) ? d.pdfs.filter((p) => p && p.blob instanceof Blob) : [];
@@ -4369,6 +3543,59 @@ function init(root) {
     if (a === 'new-takeoff') return t('ws.why.new');
     return '';
   }
+  // ---- SC.5 (sc-r5-select): the pick is announced to the page (SuperCad Studio hears `cc-pick` and keeps one selection across its panels) and a pick from
+  // another panel comes back through window.ccPickers.takeoffcraft. Both are inert outside Super. The pick is the selected marks (`mark:<id>`, as the project's
+  // object registry names them) or, with no mark selected, the quantity row a person chose (its id; `key` = the sender's key of a quantity that came from a model).
+  function pickRefs() {
+    const marks = selIds();
+    if (marks.length) { pickRow = null; return marks.map((id) => ({ id: 'mark:' + id })); }
+    const it = pickRow && model.item(pickRow);
+    return it ? [{ id: String(it.id), ...(it.origin && it.origin.key ? { key: String(it.origin.key) } : {}) }] : [];
+  }
+  function announcePick() {
+    if (pickQueued) return;
+    pickQueued = true;
+    queueMicrotask(() => {   // once per change: the main mark and the others are set one after another
+      pickQueued = false;
+      const refs = pickRefs(), key = refs.map((r) => r.id).join(',');
+      if (key === pickLast) return;
+      pickLast = key;
+      try { window.dispatchEvent(new CustomEvent('cc-pick', { detail: { app: 'takeoffcraft', ids: refs.map((r) => r.id), refs } })); } catch { /* no window */ }
+    });
+  }
+  selListeners.add(announcePick);
+  /** Show a pick from another panel: marks by `mark:<id>` (on the sheet that has them), else the first quantity row named by its id or by its sender's key. → the ids shown, or false */
+  async function pickApply(refs) {
+    const marks = [], items = [];
+    for (const r of (refs || []).slice(0, 5000)) {
+      const id = String(r && r.id != null ? r.id : '');
+      if (id.startsWith('mark:')) { const m = model.mark(id.slice(5)); if (m) marks.push(m); continue; }
+      const it = model.item(id) || model.state.items.find((i) => i.origin && typeof i.origin.key === 'string' && i.origin.key.toLowerCase() === id.toLowerCase());
+      if (it) items.push(it);
+    }
+    if (marks.length) {
+      if (!marks.some((m) => m.sheet === cur?.key)) { const target = sheets.find((x) => marks.some((m) => m.sheet === x.key)); if (!target) return false; await showSheet(target.key); }
+      const here = marks.filter((m) => m.sheet === cur?.key).map((m) => m.id);
+      if (!here.length) return false;
+      if (app.active !== marks[0].item) setActive(marks[0].item, false);
+      setSelection(here); renderMarkProps(); renderItems(); renderItemProps(); view.overlayOnly();
+    } else if (items.length) {
+      if (selIds().length) { app.sel = null; renderMarkProps(); }
+      setActive(items[0].id, true);
+    } else return false;
+    const now = pickRefs();
+    pickLast = now.map((r) => r.id).join(',');   // shown from elsewhere: not a new pick of this panel
+    return now.map((r) => r.id);
+  }
+  function pickClear() {
+    if (selIds().length) { app.sel = null; renderMarkProps(); }
+    pickRow = null; pickLast = '';
+    if (app.hl) { app.hl = null; renderItems(); renderSheets(); renderQty(); }
+    view.overlayOnly();
+    return true;
+  }
+  (window.ccPickers = window.ccPickers || {}).takeoffcraft = { apply: pickApply, clear: pickClear, get: () => { const refs = pickRefs(); return { ids: refs.map((r) => r.id), refs }; } };
+
   const wsHost = {
     root, stage: ui.stage, panels: { left: $('.tc-left'), right: $('.tc-right') }, status: ui.status,
     say: (text, bad) => status(text || '', bad ? 8000 : 6000),
@@ -4417,6 +3644,7 @@ function init(root) {
       boxes: acVisible().filter((c) => c.sheet === cur?.key).map((c) => ({ center: c.center, score: c.score, rejected: c.rejected })) } : null),
     selection: () => selIds(),
     pick: () => (app.pick ? { gap: settings.pickGap, hover: app.pick.hover.length, staged: app.pick.staged.map((e) => ({ kind: e.kind, segs: e.path.segs.length, closed: e.path.closed, gaps: e.path.gaps.length, len: PP.pathLength(e.path), area: PP.pathArea(e.path) })) } : null),   // 0.8 SU.880 (tools/takeoffcraft-test/browser-pickpath.mjs)
+    signoff: () => signoffUi?.api || null,   // 0.10 BK.62 (tools/takeoffcraft-test/browser-signoff.mjs)
     carbonDrive: () => carbonUi?.drive, tagQty: () => tagQtyUi?.drive,   // tools/takeoffcraft-test/browser-eg14.mjs
     shell: () => shellMount?.host || null,   // 0.8 round 3 (tools/takeoffcraft-test/browser-mount.mjs)
     tool: () => app.tool,   // 0.7 WS.11: the running tool (tools/workspace-test/apps/takeoffcraft.mjs)
@@ -4480,6 +3708,10 @@ function init(root) {
 
   // 0.8 EG.14 + EG.17 (takeoff_PART_3, carbon-ui.js): embodied carbon from the quantities, and the takeoff's rates as a 5D price table
   carbonUi = mountCarbon({ root, model, status, host, estimate: () => est, setActive: (id) => setActive(id, true) });
+  // 0.10 BK.62 / BK.142 (estimate-signoff-ui.js): missing rates flagged, the estimate signed off by a person (recorded in the file), figures select their marks
+  window.takeoffcraftIssues = mountTakeoffIssues({ root, t, model, sheets: () => sheets.map((x) => ({ key: x.key, title: x.title })), goTo: (key) => showSheet(key), download: (text, name, type) => host.download(text, name, type) });   // 0.10 BK.48; tests
+  signoffUi = mountSignoff({ root, model, status, estimate: () => est, selectMarks, selectAll: () => { selectAll(); return selIds().length; }, columns: () => columnsNow(), download: (text, name, type) => host.download(text, name, type) });
+  renderQty();
   // 0.8 SU.915 (takeoff_PART_3, tagqty-ui.js): a tag schedule from the building model as typed quantities
   tagQtyUi = mountTagQty({ root, model, status, importFile: (json, name) => importQuantityFile(json, name) });
 
@@ -4508,13 +3740,14 @@ function init(root) {
     const goStatus = () => window.ccAccess.follow(ui.status, { max: 240 });
     for (const f of [goAccess, goStatus]) { if (window.ccAccess) f(); else document.addEventListener('cc-access-ready', f, { once: true }); }
   }
+  onDefaults(() => { try { renderQty(); } catch (e) { /* not drawn yet */ } });   // 0.10 BK.149: an office policy changed (or the add-on was switched): the tables follow at once
   // ---- add-ons (0.5 AO.6, session addons; docs/ADDONS-SPEC.md §5.6): TakeoffCraft's own loader and API 1.0 (manifest "addons": "own") ----
   let addonsApi = null;
   startAddons({ model, status, setActive: (id) => setActive(id), typeSelect: ui.itemForm.elements.type, rightPanel: root.querySelector('.tc-right'),
     refresh: () => { renderItems(); renderItemProps(); renderQty(); } })
     .then((a) => { addonsApi = a; }).catch((err) => console.warn('add-ons did not start:', err));   // i18n-ignore (developer message)
 
-  installAgents({ model, sheetLabel, countAll: () => countAllUi?.drive, prices: () => pricesUi?.drive, supply: () => supplyUi?.drive, carbon: () => carbonUi?.drive, sheetByKey: (key) => sheets.find((s) => s.key === key), sheets: () => sheets.map((s) => ({ key: s.key, title: s.title, view: s.info.view })), current: () => (cur ? cur.key : null), exportCsv, exportXlsx,
+  installAgents({ model, sheetLabel, countAll: () => countAllUi?.drive, prices: () => pricesUi?.drive, supply: () => supplyUi?.drive, carbon: () => carbonUi?.drive, sheetByKey: (key) => sheets.find((s) => s.key === key), sheets: () => sheets.map((s) => ({ key: s.key, title: s.title, view: s.info.view })), current: () => (cur ? cur.key : null), exportCsv, exportXlsx, selectMarks, estimateTsv: () => estimateTsv(model.state, est, columnsNow()),
     cadSets: () => files.filter(isCad),   // 0.7 AS.6 (assistants-gaps): the open DWG / DXF drawings for cad_count, cad_measure
     usd: async (key, format) => {   // 0.7 AS.6: the sheet's 3D check view as OpenUSD, as exportUsd makes it (needs a scaled sheet; the 3D view need not be open)
       const s = sheets.find((x) => x.key === key);

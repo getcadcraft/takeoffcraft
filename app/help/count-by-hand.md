@@ -29,6 +29,12 @@ Click the count item to highlight its dots on every sheet. The sheets list then 
 - **Move a dot**: select it, then drag it.
 - **Counted under the wrong item**: select the dot and pick the right count item in the **Item** list under **Selected mark**.
 
+## Dot size, on screen and in the PDF
+
+The dots keep one size on screen however far you zoom. To change it, open {{ui:Settings}}, the TakeoffCraft tab, and choose **Count marker size**: Extra small, Small, Medium (the default) or Large.
+
+The PDF export ({{ui:Export}} › the marked PDF) draws each dot at the same size on paper, whatever the sheet size: a viewer showing the PDF at 100% shows the dots as big as they are on screen. Where the dots on a sheet would still touch, the export makes that sheet's dots smaller so each one can be read.
+
 ## Many identical symbols
 
 For a symbol that repeats many times on a sheet, try [Auto count](topic:auto-count): box one, review what it finds, and add them all in one step.

@@ -14,11 +14,12 @@
  *   edit one undo step "Assistant: …"; CAD_QUERY_SCHEMA. `set` = cadset.js openCad's record, `i` = the sheet's index in set.cad.sheets.
  * The page (takeoffcraft.js) calls installAgents({...}) once.
  */
-import { quantities, estimate, itemQty, sheetBreakdown, TYPES, sheetKey } from './model.js';
+import { quantities, estimate, itemQty, sheetBreakdown, TYPES, sheetKey, missingRates, signoffHolds } from './model.js';
 import { UNITS, UNITS_FOR, formatRate, parseRate, parsePercent, scaleRecord, matchPreset, presetFtPerUnit, describeScale } from './units.js';
 import { t } from './i18n.js';
 import { outlineProblem } from './geom.js';
 import { getHost, stackRollback, ToolError } from "./host.js";
+import { estimateLayout, sheetLayout, layoutAnswer } from './estimate-layout.js';   // 0.10 BK.149: the office standard on what the tools answer
 
 const r4 = (n) => (typeof n === 'number' && Number.isFinite(n) ? Math.round(n * 1e4) / 1e4 : n);
 const money = (cents) => (cents < 0 ? '-' : '') + '$' + (Math.abs(cents) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -42,7 +43,7 @@ export function itemsList(state) {
 
 export function takeoffQuantities(state, sheetLabel, { by = 'item' } = {}) {
   const q = quantities(state);
-  if (by === 'sheet') return { rows: sheetBreakdown(state, q).map((r) => ({ sheet: sheetLabel(r.sheet), item: r.name, quantity: r4(r.qty), unit: r.unit, marks: r.marks })) };
+  if (by === 'sheet') { const sb = sheetBreakdown(state, q), lay = layoutAnswer(sheetLayout(sb, sheetLabel), { marks: 'marks' }); return { rows: sb.map((r) => ({ sheet: sheetLabel(r.sheet), item: r.name, quantity: r4(r.qty), unit: r.unit, marks: r.marks })), ...(lay ? { layout: lay } : {}) }; }
   return {
     items: state.items.map((it) => {
       const t = q.get(it.id);
@@ -57,8 +58,20 @@ export function takeoffEstimate(state) {
   const rows = e.rows.map((r) => (r.error
     ? { kind: r.kind, name: r.name, unit: r.unit, formula: r.formula, error: r.error }
     : { kind: r.kind, name: r.name, unit: r.unit, ...(r.formula ? { formula: r.formula } : {}), quantity: r4(r.qty), wastePercent: r4((r.waste || 0) / 100), quantityWithWaste: r4(r.qtyW),
-      materialPerUnit: formatRate(r.mat || 0), laborPerUnit: formatRate(r.lab || 0), materialCents: r.matExt, laborCents: r.labExt, totalCents: r.total, total: money(r.total), ...(r.unscaled ? { unscaledMarks: r.unscaled } : {}) }));
-  return { rows, materialCents: e.matTotal, laborCents: e.labTotal, totalCents: e.total, total: money(e.total), errors: e.errors, unscaledMarks: e.unscaled, incomplete: e.incomplete };
+      materialPerUnit: formatRate(r.mat || 0), laborPerUnit: formatRate(r.lab || 0), materialCents: r.matExt, laborCents: r.labExt, totalCents: r.total, total: money(r.total), ...(r.unscaled ? { unscaledMarks: r.unscaled } : {}),
+      ...(r.noRate ? { missingRate: true } : {}) }));
+  // 0.10 BK.142: every line names the marks its figures came from (marks_select shows them); a component's are its item's
+  const marksOf = new Map();
+  for (const m of state.marks) { if (!marksOf.has(m.item)) marksOf.set(m.item, []); marksOf.get(m.item).push(m.id); }
+  e.rows.forEach((r, i) => { const ids = marksOf.get(r.itemId) || []; rows[i].itemId = r.itemId; rows[i].markCount = ids.length; rows[i].marks = ids.slice(0, 200); });
+  // 0.10 BK.62: the lines with a quantity and no rate, and the person's sign-off (only while it holds for these figures)
+  const missing = missingRates(e).map((x) => ({ kind: x.kind, name: x.name, unit: x.unit, quantity: r4(x.qty) }));
+  const so = state.signoff && signoffHolds(state) ? state.signoff : null;
+  return { rows, materialCents: e.matTotal, laborCents: e.labTotal, totalCents: e.total, total: money(e.total), errors: e.errors, unscaledMarks: e.unscaled, incomplete: e.incomplete,
+    missingRates: missing, missingRateCount: missing.length,
+    ...(() => { const lay = layoutAnswer(estimateLayout(state, e), { mat: 'materialCents', lab: 'laborCents', total: 'totalCents' }); return lay ? { layout: lay } : {}; })(),   // 0.10 BK.149: only when the office set a standard
+    signoff: so ? { signedOff: true, by: so.by, ...(so.role ? { role: so.role } : {}), at: so.at, totalCents: so.total, total: money(so.total), linesWithNoRateWhenSigned: so.missing } : { signedOff: false },
+    signoffNote: 'Only a person signs an estimate off, in TakeoffCraft (Quantities › Sign off the estimate). No tool signs. Any change to a quantity, a rate or a line clears the sign-off.' };
 }
 
 // ---------------------------------------------------------------- 0.7 AS.5: items and marks
@@ -235,14 +248,27 @@ export function installAgents(app) {
     run: async () => ({ items: itemsList(st()) }) });
   C.tool({ name: 'takeoff_quantities', group: 'read', untrusted: true, title: 'Quantities', description: 'Quantities per item (in its unit) or per sheet. Marks on sheets with no scale are listed as unscaled, never counted as zero.',
     inputSchema: obj({ by: { description: 'item (default) or sheet.', type: 'string', enum: ['item', 'sheet'], default: 'item' } }), run: async (a) => takeoffQuantities(st(), app.sheetLabel, a) });
-  C.tool({ name: 'takeoff_estimate', group: 'read', untrusted: true, title: 'Estimate', description: 'The priced estimate as TakeoffCraft computes it: a row per item and per assembly component, totals in cents and as text; incomplete when a formula fails or marks are unscaled.',
+  C.tool({ name: 'takeoff_estimate', group: 'read', untrusted: true, title: 'Estimate', description: 'The priced estimate as TakeoffCraft computes it: a row per item and per assembly component, totals in cents and as text; incomplete when a formula fails or marks are unscaled. Rows with a quantity and no rate carry missingRate and are listed under missingRates (an item priced through its components is not one). Each row names the marks its figures came from (marks, for marks_select). signoff says whether a person signed the estimate off, who, when and for what total; a sign-off is made only by a person in the app and is cleared by any change to the figures.',
     run: async () => takeoffEstimate(st()) });
-  C.tool({ name: 'takeoff_export', group: 'export', title: 'Export the estimate', description: 'TakeoffCraft\'s own export of the estimate, as .csv or .xlsx, downloaded (desktop: saved where the person chooses).',
-    inputSchema: obj({ format: { description: 'csv or xlsx (default xlsx).', type: 'string', enum: ['csv', 'xlsx'], default: 'xlsx' } }),
+  C.tool({ name: 'takeoff_export', group: 'export', title: 'Export the estimate', description: 'TakeoffCraft\'s own export of the estimate, as .csv or .xlsx, downloaded (desktop: saved where the person chooses), or as sheets: the same lines as tab-separated text that comes back, to paste into cell A1 of a Google Sheet (TakeoffCraft does not sign in to Google and sends nothing there).',
+    inputSchema: obj({ format: { description: 'csv, xlsx (default) or sheets (tab-separated text to paste into Google Sheets).', type: 'string', enum: ['csv', 'xlsx', 'sheets'], default: 'xlsx' } }),
     run: async (a) => {
       if (!st().items.length) throw new Error('The takeoff has no items yet.');
+      if (a.format === 'sheets') {
+        if (!app.estimateTsv) throw new ToolError('unsupported', 'Tab-separated text is not available here.', { next: ['Use format csv.'] });
+        return { exported: 'sheets', text: app.estimateTsv().slice(0, 200000), how: 'Open a Google Sheet (sheets.new makes an empty one in the person\'s own account), click cell A1 and paste this text. Nothing was sent to Google.' };
+      }
       await (a.format === 'csv' ? app.exportCsv() : app.exportXlsx());
       return { exported: a.format };
+    } });
+  // 0.10 BK.142 (bk-r3-schedules-10): the marks behind a figure of the estimate, shown in the window
+  if (app.selectMarks) C.tool({ name: 'marks_select', group: 'read', title: 'Show the marks behind a figure', description: 'Selects in the window the marks a line of the estimate came from: give the item (its id or name from takeoff_estimate or items_list). The sheet that holds them is opened when the marks are not on the sheet shown. View state only: nothing in the takeoff changes.',
+    inputSchema: obj({ item: { description: 'The item: its id (itemId in takeoff_estimate) or its name.', type: 'string', minLength: 1, maxLength: 200 } }, ['item']),
+    run: async (a) => {
+      const it = st().items.find((x) => x.id === a.item) || st().items.find((x) => x.name.toLowerCase() === String(a.item).toLowerCase());
+      if (!it) throw new ToolError('not_found', 'No item "' + a.item + '".', { next: ['Call items_list for the items.'] });
+      const n = await app.selectMarks(it.id);
+      return { item: it.name, selected: n, total: st().marks.filter((m) => m.item === it.id).length, ...(n ? {} : { note: 'This item has no marks on an open sheet (a typed quantity has none).' }) };
     } });
   // ---- 0.7 AS.5 (session assistants)
   const findSheet = (q) => {

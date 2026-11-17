@@ -16,7 +16,7 @@ Open it with {{ui:Library}} at the top of the {{ui:Items}} panel.
 - {{ui:Add this takeoff's items}} copies every item of the open takeoff into the library, with its rates and assembly (not its marks).
 - The estimate CSV TakeoffCraft exports ([Export the estimate](topic:export-estimate)) imports as it is: last job's prices seed the next one.
 
-- {{ui:Trade packs…}} installs free assemblies for a trade, such as drywall, electrical or concrete, without prices. See [Trade packs](topic:trade-packs).
+- {{ui:Trade packs…}} adds free assemblies for a trade, such as drywall, electrical or concrete, without prices. See [Trade packs](topic:trade-packs).
 
 {{ui:Export CSV}} saves the library as a CSV, to keep a copy, to edit it in a spreadsheet or to give it to a colleague. {{ui:Clear}} empties it (click twice).
 

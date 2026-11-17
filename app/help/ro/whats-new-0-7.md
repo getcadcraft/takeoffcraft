@@ -1,0 +1,59 @@
+---
+title: Noutăți în 0.7 (anterior)
+summary: Desenele DWG și DXF se deschid ca foi cu propria lor scară, cu numărări și lungimi exacte din desenul în sine, prețul ofertei alese a subcontractorului ca preț al pachetului, invitații de ofertare cu prețuri sigilate, unelte pentru desene în asistenți și USD din vizualizarea 3D de verificare.
+keywords: noutăți 0.7, versiune anterioară, note de lansare, jurnal de modificări, modificări, 0.7, versiune, funcții noi, dwg, dxf, desen, aranjamente în pagină, spațiu model, scara desenului, numărare din desen, numărare CAD, blocuri, blocuri dinamice, atribute, straturi, xref, desen extern, măsurare desen, polilinie, hașură, PDF marcat, ofertă aleasă, folosire ofertă, trimitere pentru ofertare, invitație de ofertare, oferte sigilate, deschidere oferte, ofertă întârziată, înregistrări subcontractori, csv, asistent, mcp, usd, usdz, unități, liste de unități, compact, panouri, casete de dialog, portugheză
+from: de1dca2b
+---
+
+Aceasta este lista modificărilor din TakeoffCraft 0.7, față de 0.6. Desenele se deschid acum așa cum sunt, fără trasare în PDF înainte, iar un pachet de ofertare poate fi trimis subcontractorilor și primit înapoi cu prețuri.
+
+## Noutăți
+
+### Desene DWG și DXF
+
+- **Deschiderea unui desen ca foi.** {{ui:Deschidere planuri}} din grupul {{ui:Fișier}} ({{key:Mod+O}}, sau trageți fișierele) acceptă desene DWG și DXF alături de PDF-uri. Spațiul model și fiecare aranjare în pagină (layout) devin foi în lista {{ui:Foi}}, iar o antemăsurătoare poate acoperi desene și PDF-uri împreună. Nimic nu este încărcat. Vedeți [Deschiderea unui desen DWG sau DXF](topic:open-a-drawing).
+- **Scara vine din desen.** O aranjare în pagină pornește la scara celei mai mari ferestre de vizualizare a sa, numită drept presetare dacă este una, precum 1/2" = 1'-0". Modelul pornește în unitățile desenului. Un desen fără unități afișează „Fără scară” până îl calibrați. {{ui:Calibrare}}, {{ui:Verificare}} și {{ui:Presetare}} au în continuare prioritate. Vedeți [Scara](topic:open-a-drawing#the-scale).
+- **Straturi și desene externe.** {{ui:Straturi}} din bara foii arată sau ascunde straturile desenului. Straturile pe care fișierul le-a oprit sau înghețat încep ascunse și nu sunt numărate decât dacă alegeți altfel. Un desen extern (xref) deschis lângă desenul gazdă este desenat și numărat acolo unde este inserat; până când este deschis, bara de stare spune ce lipsește. Vedeți [Straturi](topic:open-a-drawing#layers).
+- **PDF-ul marcat funcționează dintr-un desen.** {{ui:Export}} › {{ui:PDF marcat}} desenează întâi foile marcate ale unui desen ca PDF, astfel că exemplarul arată marcajele și legenda fără un pas de trasare. Se desenează în negru sau în culorile desenului, fără tabele de stil de trasare. Vedeți [PDF marcat](topic:export-estimate#a-marked-pdf).
+
+### Numărări și lungimi exacte dintr-un desen
+
+- **Numărați ce arată desenul că există.** {{ui:Numărare CAD}} din bara foii numără un bloc după nume (inclusiv blocurile imbricate, stările blocurilor dinamice și matricele de blocuri), tot ce este de un tip pe un strat sau o valoare de text ori de atribut. Numără ce arată foaia sau întregul desen, o singură dată. Adăugarea marcajelor este un pas de anulare, iar numărarea din nou adaugă doar ce este nou. {{ui:Numărare automată}} rămâne pentru PDF-uri și pentru simboluri care nu sunt blocuri. Vedeți [Numărare dintr-un desen](topic:count-from-a-drawing).
+- **Măsurați din liniile desenului.** {{ui:Măsurare desen}} ia liniile, arcele, polilinile, cercurile, hașurile și solidele pe care le indicați sau le încadrați ca marcaje ale unui articol liniar sau de arie. Arcele, bombările și golurile unei hașuri ies exacte; elipsele și spline-urile sunt măsurate în coarde fine, iar bara spune asta. Vedeți [Măsurare dintr-un desen](topic:measure-from-a-drawing).
+
+### Oferte
+
+- **Folosiți oferta unui subcontractor ca preț al pachetului.** În {{ui:Export}} › {{ui:Pachete de ofertă și nivelare…}}, alegeți {{ui:Folosire}} la o ofertă. Articolele pachetului rămân ca cantități, o linie **Ofertă aleasă** poartă prețul, articolele pe care oferta nu le include rămân la costul propriu, iar cheltuielile generale, profitul și garanția se aplică pe acesta. Schimbarea ofertelor este un singur pas de anulare; fișierul de calcul și sumarul ofertelor le conțin. Vedeți [Folosirea unei oferte ca preț al pachetului](topic:bid-leveling#use-a-bid-as-the-packages-price).
+- **Trimiteți un pachet la ofertare.** {{ui:Trimitere pentru ofertare…}} de sub un pachet trimite fiecărui subcontractor un link către o pagină care nu cere cont: acesta vede domeniul lucrărilor și foile ca PDF, scrie un preț pe fiecare linie sau o marchează ca neinclusă, adaugă note și până la trei fișiere, ori refuză. {{ui:Preluare prețuri}} aduce înapoi în foaia de nivelare ce a sosit, marcat **web**. Trimiterea este deschisă doar conturilor pe care echipa CadCraft le-a activat cât timp funcția este testată (vedeți mai jos). Vedeți [Trimiterea unui pachet la ofertare](topic:bid-invitations).
+- **Sigilate până la deschidere.** Prețurile pot rămâne sigilate până la un moment de deschidere pe care îl stabiliți: până atunci nu vede niciun preț nimeni, nici cel care a trimis invitația. La deschidere, toate ofertele apar deodată, iar o ofertă trimisă după termen este marcată ca întârziată. Vedeți [Oferte sigilate și deschiderea](topic:bid-invitations#sealed-bids-and-the-opening).
+- **Înregistrări de subcontractori.** Contul de pe getcadcraft.com păstrează pentru fiecare firmă contactele, specialitățile, răspunsurile de calificare și datele asigurărilor și licențelor (marcate o dată ce au trecut sau dacă expiră în 30 de zile), împreună cu ofertele anterioare. Se importă și se exportă ca CSV, iar le alegeți la trimiterea unui pachet. Vedeți [Pe site](topic:bid-invitations#on-the-website).
+
+### Asistenți AI
+
+- **Asistenții pot adăuga în antemăsurătoare.** Cu **Editare** bifată, propriul asistent poate adăuga articole (`items_add`) și măsura tronsoane, arii și numărări pe o foaie (`marks_add`; lungimi și arii doar pe o foaie scalată), fiecare apel fiind un singur pas de anulare.
+- **Unelte pentru desene.** Pe un DWG sau DXF deschis, un asistent își poate lista foile și ce se poate număra, poate număra exact, poate adăuga marcajele de numărare și poate măsura din geometria desenului. Fără TakeoffCraft deschis, serverul CadCraft MCP deschide un desen ca antemăsurătoare nouă și o salvează, iar `cadcraft count` numără din linia de comandă. Vedeți [Ce poate solicita un asistent](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+
+### USD
+
+- **Vizualizarea 3D de verificare ca USD.** {{ui:Pachet USD (.usdz)}} lângă {{ui:GLB}} din vizualizarea 3D de verificare scrie fiecare perete, planșeu, placă, stâlp de numărare și tronson ca obiect propriu, numit după articolul său și purtând cantitatea sa, în metri. Un asistent îl poate exporta și el (`usd_export`). Vedeți [Exportul vizualizării 3D de verificare ca USD](topic:usd).
+
+## În fiecare aplicație
+
+- **Unități.** {{ui:Setări}} › {{ui:General}} › {{ui:Unități}} are câte o listă pentru lungime, arie, volum, unghi și pantă, cu dimensiunile exacte pe care le dau definițiile unităților (piciorul topografic american este o unitate proprie). Dezactivați unitățile pe care nu le folosiți și ies din liste; marcați una cu steluță și lucrarea nouă începe în ea. Un fișier își păstrează întotdeauna propria unitate. În TakeoffCraft, listele {{ui:UM}} ale unui articol urmează comutatoarele, un articol nou începe în unitatea de lungime sau de arie marcată cu steluță, pătratele de acoperiș (SQ), acrele și hectarele sunt unități noi de arie, iar o casetă de lungime acceptă semnul oricărei unități, precum `3 yd`. Vedeți [Unități, valori introduse și listele de unități](common:unit-lists).
+- **Un aranjament mai dens și panouri care se ascund.** {{ui:Setări}} › {{ui:General}} › {{ui:Densitatea aspectului}} › {{ui:Compactă}} încape mai mult pe ecran (ecranele tactile și telefoanele păstrează butoanele mari). Fiecare panou lateral are o bară de titlu subțire: trageți-o ca să ancorați sau să detașați panoul, lăsați-l pe bara altui panou ca să împărțiți un cadru ca file, fixați-l ca să alunece spre margine sau ascundeți-l și aduceți-l înapoi de la margine. Vedeți [Aranjarea panourilor](common:arrange-panels#make-the-layout-denser).
+- **Casetele de dialog se mută.** Trageți o casetă de dialog de bara ei de titlu, în afara drumului desenului; revine unde ați lăsat-o. Faceți dublu clic pe bara de titlu ca să o centrați din nou. Vedeți [Mutarea unei casete de dialog](common:arrange-panels#move-a-dialog).
+- **Rețete pentru asistenții AI.** Zece cereri exemplificate pentru propriul asistent (curățarea unui desen, trasarea unui set, verificarea desenelor, întrebări către un model, totalizarea unei antemăsurători, încercarea unei variante de piesă…), fiecare cu uneltele pe care le apelează și permisiunile de care are nevoie, și fiecare reluată de testele noastre. Aplicațiile nu conțin AI. Vedeți [Rețete pentru asistenții AI](common:assistants-recipes).
+- **Limbi.** **Português (Portugal)** este nou în {{ui:Setări}} › {{ui:General}} › {{ui:Limbă}}. Acesta, **Português (Brasil)**, **Español (México)** și **Bahasa Indonesia** au acum fiecare cuvânt din aplicații, ca ciorne încă nerevizuite de un vorbitor nativ. Subiectele de ajutor sunt în limba engleză.
+- **CadCraft Studio** arată de ce a eșuat o verificare de actualizare (nu există încă fișier pentru acest sistem, lipsă de rețea, semnătură greșită) în loc să afișeze doar „Gata”, și nu mai aduce înapoi un card Noutăți pe care l-ați închis până apare o versiune mai nouă.
+
+## Nu este încă în această versiune
+
+- **0.7 nu este semnată digital.** Semnarea și pachetul pentru Microsoft Store au trecut în 0.8, deoarece validarea certificatului nu a sosit încă. Verificați SHA-256 de lângă fiecare fișier de pe getcadcraft.com/download. Pe Windows, dacă SmartScreen oprește programul de instalare, alegeți {{ui:Mai multe informații}}, apoi {{ui:Rulare oricum}}. Pe Mac, prima dată, faceți clic dreapta pe CadCraft Studio și alegeți {{ui:Deschis}}. CadCraft Studio nu este încă într-un magazin de aplicații, iar nu există încă o versiune pentru iPad sau iPhone.
+- Listele de unghi și pantă din {{ui:Unități}} sunt salvate, dar nicio casetă nu le citește încă.
+- **Invitațiile de ofertare sunt oprite pentru majoritatea conturilor.** Cât timp funcția este testată, e-mailurile către ofertanți din afară pleacă doar din conturile activate de echipa CadCraft. Paginile ofertanților funcționează pentru fiecare invitație deja trimisă. Ceilalți: descărcați {{ui:CSV domeniu}}, trimiteți-l prin e-mail și introduceți ofertele manual.
+- O fereastră CadCraft Studio nu poate trimite încă invitații de ofertare: spune să folosiți TakeoffCraft în browser. Deschiderea unei antemăsurători cu cereri trimise, nivelarea și alegerea unei oferte funcționează în Studio.
+- Addenda, scrisorile de adjudecare, o foaie de domeniu pe care fiecare ofertant o semnează și mementourile automate înainte de expirarea unei asigurări sunt încă nerealizate. O ofertă aleasă nu reprețuiește suprafața ofertei unei alternative.
+- Desene: tabelele de stil de trasare și fișierele CTB nu se aplică, un DXF binar este refuzat (salvați-l ca DXF ASCII sau DWG), desenele externe sunt găsite doar printre fișierele deschise, după numele fișierului, iar substraturile PDF, imaginile și obiectele OLE dintr-un desen nu sunt desenate sau numărate. Numărările și scările au fost verificate pe desene de probă, nu încă pe desene dintr-o lucrare reală, deschise în programul care le-a creat.
+- Un asistent poate adăuga articole și marcaje, dar nu poate muta, modifica sau șterge marcajele deja existente.
+
+Restul se găsește în [Încă nerealizat](topic:not-built-yet).

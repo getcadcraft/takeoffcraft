@@ -1,63 +1,106 @@
 ---
-title: Waxa cusub ee 0.8 iyo 0.8.1
-summary: Tiri jadwal-astaamo oo dhan xaashiyada furan oo dhan hal socod, qiimee shayada iyo qiimaha mashaariicdii hore, hubi xisaabinta marka loo barbardhigo kaydka bixiyaha iyo waqtiga gaadhista, iyo qalabka cusub ee caawiyeyaasha AI saddexdaba, oo ay ku jiraan isbedelada wadaaga 0.8 iyo hagaajinta 0.8.1 ee DWG.
-keywords: waxa cusub, ogeysiisyada nooca, isbedelo, 0.8, 0.8.1, nooca, astaamo cusub, tiri wax kasta, jadwalka astaamaha, xaashiyada oo dhan, xusuusta qiimaha, shaqooyinkii hore, shaqadii ugu dambaysay, qiimaha caadiga, bixiye, kaydka, waqtiga gaadhista, dalab dib u dhac, liiska dalabka, dhibaato, caawiye, luqadaha, aaladaha gelinta, safafka qalabka, dwg
-from: a04adef6
+title: Waxa cusub ee 0.9
+summary: Akhri dherarka mitir, sentimitir ama millimitir, aagga metric-ka oo m2 ah oo leh aagga darbiga, diyaarka miisaanka 1:75 iyo 1:150, unitiyada miisaanka iyo heerkulka, Qaanso oo leh toban habood, iyo live cursors, Raac iyo liiska dadka.
+keywords: waxa cusub, what's new, sheekada isbeddelada, changelog, 0.9, muuji dherarka sida, mitir, sentimitir, millimitir, metric, raac guud, unitiyo, unitiyada muuqaalka, m2, mitir laba jibbaaran, aagga darbiga, diyaarka miisaanka, 1:75, 1:150, miisaan, kiilo, kg, tonne, ton, lb, heerkul, celsius, fahrenheit, qaanso, habka qaansada, radius, live, cursors, raac, liiska dadka, class, tooltips, qaabeyn, isbeddel, 0.8, 0.8.1, nooca, astaamo cusub, tirinta oo dhan, legend, calaamada legend, set oo dhan, xusuusta qiimaha, shaqooyinka hore, shaqadii ugu dambaysay, qiimaha typical, bixiye, kaydka, waqtiga sugitaanka, backorder, liiska dalabka, yaraanta, panelka dhibaatooyinka, kaaliye, luuqadaha, aaladaha gelinta, safafka qalabka, dwg
+from: 6182b998
 ---
 
-Tani waa wixii isbedelay TakeoffCraft 0.8 (la sii daayay 2026-11-01) iyo 0.8.1 (2026-11-02), marka loo barbardhigo 0.7. Jadwalka astaamaha hadda waa la tiri karaa xaashiyada oo dhan hal mar, xisaabin cusub waxay ka bilaabi kartaa qiimayaasha shaqooyinkii hore, xisaabintana waxaa lagu hubin karaa kaydka bixiyaha. 0.8.1 waa nooc hagaajin.
+Waxaa kaga wada hadlaynaa waxa isbeddelay TakeoffCraft 0.9, marka la barbardhigo 0.8.1. Waa sii deyn yar oo app-kan: dherarka hadda waa la akhriyi karaa mitir, sentimitir ama millimitir, aagga iyo miisaankuna si sax ah ayay u raacaan metric-ka, Qaanso waxay leedahay toban siyaabood oo loo rinjiyeeyo. Fadhiyada toosan waxay sidoo kale muujiyaan qofka halka uu joogo.
 
 ## Cusub
 
-### Tiri wax kasta qaybta shaqada
+### Akhri dherarka mitir, sentimitir ama millimitir
 
-- **Jadwalka astaamaha mar keliya ku hareeeyee.** {{ui:Tiri wax kasta}} toolbar-ka wuxuu akhrinayaa jadwalka astaamaha: jiid sanduuq ku wareegsan astaamaha iyo magacyada lagu qoray dhinacooda. Astaama kasta waxaa lagu liisankaa sawirkeeda iyo magaceeda, magacuna wuxuu noqdaa magaca shayga. Ka saar wixii aanad rabin, kadibna dooro {{ui:Tiri N xaashi}}. Bar ayaa tusaya xaashiga la baarayo, {{ui:Jooji}} wuxuu joojiyaa socodka, bogguna wuu isticmaali karaa.
-- **Dhammaan xaashiyada hal socod.** Astaama kasta waa la tirinayaa xaashi kasta oo furan. Xaashi lagu sawiray miisaan kale waa la baaraa miisaankaas, astaamaha waxaa la helaa iyagoo lagu jeedsaday xagal kasta oo xagal sax ah. Astaamaha jadwalka ku jira xaashigaas lama tirin.
-- **Dib u eeg ka hor intaan wax lagu darin.** Wadar kasta waxay leedahay xiriir xaashi kasta ("E-103: 4") oo tusa xaashigaas. Guji sanduuqa helitaan si aad uga saarto, mar kale gujina si aad dib ugu soo celiso. Heerka isku-mid ah (50% ilaa 100%) wuxuu kaliya shaandheeyaa wixii la helay; waa dib loo baarin.
-- **Hal tallaabo oo dib u noqod.** {{ui:Ku dar N calaamad}} wuxuu sameeyaa shay tiro ah astaama kasta, oo calaamad ku taal helitaan kasta. Magac horay u ahaa shay tiro ah oo aad leedahay ayaa dib loo isticmaalaa. {{key:Ctrl+Z}} wuxuu dib u qaadayaa dhammaan shayada iyo calaamadaha. Wixii aad aqbashid waxaa sidoo kale lagu daraa {{ui:Waxa la baray}}.
-- **Astaamaha xagal kasta.** Calaamadi {{ui:Astaamaha xagal kasta}} ka hor tirinta si aad u hesho astaamaha la leexiyay xagal aan xagal sax ahayn. Baadhistu wuxuu leexin doonaa astaama kasta 15 darajo kasta, astaama aan wareeg ahayn wuxuu qaadan karaa ilaa lix jeer ka dheer.
-- **Waa maxay.** Isku-mid astaameed fudud oo ku saabsan xaashiyadaada, iyada oo aan model tababar ah la isticmaalin, waxna kumbiyuutarkaaga kama baxaan. Xaashi been ah oo 200 xaashi ah, Chrome oo kumbiyuutar degdeg ah wuxuu qaatay 9.4 ilbiriqsi bilowga ilaa dhammaadka; jadwallada dhabta ah way ka gaabiyaan. Eeg [Tiri wax kasta qaybta shaqada](topic:count-everything).
+- **Muuji dherarka sida.** {{ui:Dejinta}} › {{ui:TakeoffCraft}} wuxuu leeyahay {{ui:Muuji dherarka sida}} oo leh {{ui:Raac Guud}}, {{ui:Fut-inji}}, m, cm iyo mm. {{ui:Raac Guud}} wuxuu isticmaalaa unitiga dherarka metric-ka ee aad calaamadisay {{ui:Dejinta}} › {{ui:Caalami}} › {{ui:Unit-yada}}, iyo fut-inji marka mid aan la calaamadin. Waxa uu beddelaa sida dherarku u akhriyo xaashiga, safka xaaladda iyo panelada, oo ay ku jiraan dhererka, qotada, dhumucda iyo heerarka. Lambar aan unit lahayn oo lagu qoro sanduuqa dhererka waxaa loo akhrinayaa unitiga la muujiyay.
+- **Muuqaal kaliya.** Qadarrada, kharashyada iyo dhoofinta waxaa laga xisaabiyaa dherarka saxda ah. Doorashada 1/16, 1/8 iyo 1/4 inch waxay muuqataa kaliya fut-inji. Eeg [Muuji dherarka mitir](topic:show-lengths-in-meters).
+- **Unitiyada miisaanka.** Walax {{ui:Qadar gacanta lagu qoray (naqshadaa la'aan)}} waxay hadda ku jiri kartaa lb, TON, kg ama t, waxaana lagu qiimayn karaa unit kasta.
+- **Heerkulka.** Walax kasta waxay leedahay goob ikhtiyaari ah oo {{ui:Heerkulka}} ah oo ku jirta tafatiraha walaxda, oo lagu qoro digrii C ama F. {{ui:Muuji heerkulka sida}} ee {{ui:Dejinta}} › {{ui:TakeoffCraft}} wuxuu bixiyaa {{ui:Raac Guud}}, °C ama °F.
 
-### Xusuusta qiimaha shaqooyinkaaga
+### Aagga iyo miisaanka shaqada metric-ka
 
-- **TakeoffCraft wuxuu xusuustaa qiimayaasha.** Markaad kaydiso xisaabin, shay kasta oo qiimaysan ee la isticmaalay waxaa lagu xusuustaa magac iyo nooc: qiimaha agabka, qiimaha shaqada, qashinka iyo unugga. Magac kasta waxaa loo kaydiyaa 12 shaqo oo ugu dambeeya. Waxaa lagu kaydiyaa kumbiyuutarkan dhinaca Library-ga qiimaha, ma jiro gudaha fayl xisaabin, mana loo diro meel.
-- **Xisaabin cusub ka bilow.** {{ui:Qiimayaasha}} toolbar-ka wuxuu tusaa, shay kasta, qiimayaasha shaqada ugu dambaysay, qiimayaasha caadiga iyo kala duwanaanshaha. {{ui:Isticmaal kii ugu dambaysay}} ama {{ui:Isticmaal caadiga}} wuxuu qiimeeyaa hal shay, {{ui:Qiime N shay oo aan qiimo lahayn xasuusta ka}} wuxuu qiimeeyaa shay kasta oo aan qiimo lahayn. Isticmaal kasta waa hal tallaabo oo dib u noqod.
-- **Shaqooyin hore.** {{ui:Ka bar tirin hore…}} wuxuu xusuustaa shayada qiimaysan ee xisaabin kaydsan (.json).
-- **Eeg, beddel, illow.** {{ui:Wax walba oo xusuusan}} wuxuu liisankaa magac kasta; badhanka qashinka wuxuu illoobiyaa mid, {{ui:Nadiifi qiimaha oo dhan}} wuxuu illoobiyaa dhammaan. Ka demi {{ui:Xasuuso qiimayaasha markaan tirin kaydiyo}} si aad joojiso. Qiimaha halkii unug looma geeyo shay lagu cabbiro cagaha. Eeg [Xusuusta qiimaha shaqooyinkaaga](topic:price-memory).
+- **Aagga m2 naqshadda.** Aag la cabbiray walax metric ah hadda waxay ku qortaa m2 calaamadda naqshadda iyo panelka calaamadaha sidoo kale, halkii SF; wuxuu u dhowdahay waxa ku qoran shaxanka. Xeerku waa m2 marka walaxda lagu qiimeeyo metric ama dherarka lagu muujiyo m, cm ama mm, iyo SF haddii kale.
+- **Aagga darbiga.** Walax xariiq ah oo leh dhererka ayaa sidoo kale muujinaysa aagga darbiga (dherer x joog) liiska Walaxaha iyo safka qoraalka hoosta shaxanka qadarka walax walax.
+- **Diyaarka miisaanka 1:75 iyo 1:150.** Waxay ku jiraan liiska {{ui:Diyaar}} ee kooxda {{ui:Miisaan}}, oo hadda leedahay 32 miisaan. Eeg [Diyaarka miisaanka](topic:scale-presets).
 
-### Bixiyaha stock iyo waqtiga gaadhista
+### Qaanso oo leh toban habood
 
-- **Hubi liiska bixiyaha.** {{ui:Bixin}} toolbar-ka wuxuu qaataa liiska kaydka bixiyaha ({{ui:Ku dar fayl bixiye…}}), CSV ama jadwal, wuxuuna hubiyaa wixii xisaabintu u baahan tahay, oo ay ku jiraan qashinka. Ilaa shan fayl ayaa la kaydiyaa. Waxba lama diro, bixiyuhuna ma la waydiiyo: adigaa keenaya faylka.
-- **Waxa uu leeyahay.** Shayada gaaban ayaa hore u yimaadda: "Ka yar 120 EA", "Waqtiga gaadhista 21 maal", "Dalabka dib u dhac ayaa ku jira", "Cutubku way kala duwan yahay", "Tiro kaydka ma jirto", ama "Kaydka ku jira". {{ui:Waqtiga ugu dheer ee la doonayo (maalmo)}} wuxuu bilaabmaa 14.
-- **Liiska dalabka.** {{ui:Liiska dalabka (CSV)}} wuxuu soo dejiyaa shayada gaaban oo ay ku jiraan tirada ka yar, bixiyaha iyo waqtiga gaadhista.
-- **Qiimayaasha Library-ga.** Haddii faylku leeyahay qiimayaal, {{ui:Qiimayaasha Maktabadda}} wuxuu dejinayaa qiimaha agabka Library kasta oo magac iyo unug isku mid ah. Dib u qiimee Library-ga si aad ugu soo celiso xisaabinta.
-- **Panelka dhibaatooyinka.** Digniin waa dhibaato, dib u dhac dheer waa fiiro, waxaana lagu arkaa "Stock-ka bixiyaha" hoosta. Waxaad aqbali kartaa mid sabab la sheegay, sababtana waxaa lagu kaydiyaa xisaabinta. Eeg [Hubi stock-ka bixiyaha iyo waqtiga gaadhista](topic:supplier-stock).
+- Inta {{ui:Qaanso}} la shido (badhanka qalabka sare ama {{key:R}}), sanduuq {{ui:Habka qaansada}} wuxuu soo baxaa safka xaashiga: Saddex-Barbar, Bilow, Dhexe, Dhammaad, Bilow, Dhexe, Xagal, Bilow, Dhexe, Dherer, Bilow, Dhammaad, Xagal, Bilow, Dhammaad, Jihada, Bilow, Dhammaad, Radius, Dhexe, Bilow, Dhammaad, Dhexe, Bilow, Xagal iyo Dhexe, Bilow, Dherer. Xagal, dherer, radius iyo jihada waxa la riixi karaa ama lagu qori karaa. Waxay ku shaqeysaa safafka toosan, aagga iyo jarista. Faylasha la kaydiyay ka hor 0.9 isla sidaas ayay furmaan. Eeg [Qaansooyin toban habood](topic:draw-arcs-ten-methods).
 
-### Caawiyeyaasha AI
+### Wada shaqaynta
 
-- **Qalab saddexdaba.** Marka {{ui:Dejinta}} loo ogolaado caawiyeyaasha, caawiye wuxuu akhrin karaa jadwalka astaamaha (`legend_open`), wuxuu socodsiin karaa tirinta (`legend_count_start`, kadibna `legend_count_status` iyo `legend_count_result`), wuxuuna ku dari karaa (`legend_count_add`, oo horey u eegi kara). Wuxuu akhrin karaa qiimayaasha la xusuustay (`prices_list`), wuxuuna shayada ka qiimeyn karaa (`prices_apply`, oo horey u eegi kara), wuxuuna akhrin karaa hubinta bixiyaha (`supply_check`). Ku darista faylka bixiyaha adigaa qabanaya. Eeg [Isticmaal TakeoffCraft caawiyeyaasha AI](topic:use-with-ai-assistants).
+- **Arag cursors-ka kale.** Fadhiga Live, mid kasta oo ka mid ah wuxuu muujiyaa dhibcihiisa xaashiga oo leh magacyadiisa iyo midabkiisa, iyo sanduuq jajab ah oo ku wareegsan calaamadaha uu xulay. Dadka xaashi kale joogaa waxa lagu liistaa magaca xaashigaas. Eeg [Wada shaqee Live](topic:work-live).
+- **Raac qof, iyo liiska dadka.** Badhanka {{ui:Dadka}} ee fadhiga Live wuxuu liisayaa qof kasta qalabka uu isticmaalo, xaashiga uu joogo, iyo waqtiga ugu dambeeyay ee tafatiray. {{ui:Raac}} wuxuu dhaqaajiyaa aragtaadaas la socota, martiqaadaha ayaa isticmaali kara {{ui:Ku dalbo dhammaan inay i raacaan}}. Eeg [Raac saaxiibka fadhiga Live](topic:follow-a-teammate).
 
-### Dhammaan apps-ka
+## In every app
 
-- **Luqadaha.** Afar iyo konton luqadood oo dhan; toban ayaa cusub (Lituaaniyaan, Laatfiyaan, Bosniyaan, Maraathi, Teelugu, Albaaniyaan, Afrikaans, Filipiino, Sawaahili iyo Usbeegi). Luqadaha aan Ingiriisi ahayn waa qabyo otomaatig ah ilaa uu af-hooyo akhriyo.
-- **Aaladaha gelinta.** {{ui:Dejinta}} › {{ui:Caalami}} › {{ui:Aaladaha gelinta}} waxay dejisaa waxa trackpad, badhamada dhinaca mouse-ka, qalin, mouse 3D, kontoroolka ciyaarta ama kontoroolka MIDI sameeyaan, app kasta ama mid kaliya. Eeg [Isticmaal trackpad, mouse 3D ama kontoroolka](common:input-devices).
-- **Safafka qalabka.** {{ui:Dejinta}} › {{ui:Guud}} › {{ui:Safafka qalabka}} wuxuu bixiyaa {{ui:Lafmeyso}} (bilowga), {{ui:2 safka}} iyo {{ui:1 safka}}; kooxaha aan ku habboonayn ayaa u gurbanaya dhinac. Eeg [Habee panelada](common:arrange-panels).
-- **Panelka dhibaatooyinka.** Panelka wadaaga ah ee digniinaha iyo fiiro gaarka ah hadda wuxuu ku qabaa hubinta stock-ka bixiyaha ee kor ku xusan, meel ay ku dhowyihiin hubinta kale.
-- **Kordhinta.** Kordhinta waxay raacaan liiska akoonkaaga. Eeg [Kordhinta iyo liiska akoonkaaga](common:addons-basics).
-- **Ku xidh AI-gaaga.** CadCraft Studio waa xarunta: ku xidh caawiyahaaga hal mar dhammaan siddeeda app. Studio ma lahan AI u gaar ah.
+- **Tooltips iyo tilmaamaha bilowga.** Qoraalka hover-ka waa Bootstrap tooltip, tilmaamaha bilowga waa la xidhi karaa.
+- **Liisaska tab-ka ee soo-jeedinta.** Safka tab-ka panel-ka oo aan ku habboonayn wuu soo jeediyaa halkii uu ka jari lahaa.
+- **Cinwaanka tab-ka.** Tab-ka browser-ka wuxuu akhrinayaa `<document> - TakeoffCraft | CadCraft`.
+- **Qaabeyn.** Liiska qaabeynta ku jira {{ui:Dejinta}} waa drop-down wuxuuna muujinayaa qaabeynta la doortay.
+- **Luuqad.** Luuqada aad doorato hadda waxay gaadhaa ereyada bogga laftiisa ku daabacan, sida New, Open iyo Save. Luuqadaha aan Ingiriisi ahayn waa qabyo ilaa dad ku hadla luuqadda ay akhriyaan.
 
-## Waxa la hagaajiyay 0.8.1
+## Xaddidaadaha runta ah
 
-- **Qaybta fasalada DWG.** Qaybta fasalada faylka DWG waxaa la akhriyay nooc qaldan. Taas waa la hagaajiyay TakeoffCraft iyo afar app oo kale.
-- **Studio wuu beddeli karaa luqadda intuu shaqaynayo.** Hore, Studio iyo nooca lagu xidhay waxay ahaayeen Ingiriis oo keliya. Tan lama tijaabin desktop-ka nidaamyada oo dhan; noo sheeg haddii luqaddu ku beddelmin.
+- Muujinta dherarka, unitiyada miisaanka iyo heerkulka iyo diyaarradii cusbaa waxa tijaabiyay tijaabooyin iyo bogga. Dhammaan panelada unit kasta looma hubin gacanta.
+- Liiska dadka looma hubin gacanta fasal dhab ah oo macallimiin iyo arday.
+- Luuqadaha aan Ingiriisi ahayn waa qabyo mashiinka.
+- Installers-ka Windows lama saxeexin (More info, ka dibna Run anyway). Sawirka diskiga Mac lama bixin (midig-riix, ka dibna Open).
 
-## Nooca tan weli ma jiro
+## Dib u eeg: 0.8 iyo 0.8.1
 
-- **Lama saxiixin code-ka.** Windows wuu digi karaa, Mac-ka waxaad midig ku riixdaa oo dooro {{ui:Furan}} markii ugu horreysay. Dhismayaasha dukaamada (Microsoft Store, Google Play, App Store) waa la joogsiyay, dhismaha iPad iyo iPhone lama dib u dhisin 0.8.1 ah.
-- **Cusboonaysiinta Studio.** Rakibaha Windows iyo xirmooyinka Linux maalin mar ayay hubiyaan, marka hore wax ayay weydiiyaan. Zip-ka portable-ka kaliya ayuu sheegaa, macOS iyo APK-ga naftooda ma cusboonaysiiyaan. .dmg-ga macOS 0.8 wuxuu raacaa sii deynta.
-- **Ku xidh AI-gaaga.** Ku xidhka hal tallaabo gudaha Studio, connector-ka hosted ee AI browserka, furaha API-gaaga gudaha Studio iyo xirmo MCP la daabacay lama ballan qaado nooca tan.
-- **Tirin wax kasta.** Waxay u baahan tahay astaamo la sawiray sida jadwalka oo kale, astaama ay ku jirto xariiq ama wareeg dhex marta ayaa la luminayaa. Astaamaha la muraayadeeyay lama helo, xaashi aan miisaan lahayn oo lagu sawiray cabbir kale waxaa lagu baaraa cabbirka jadwalka. Hubi natiijooyinka xaashiga koowaad ka hor intaadan isku hallayn kuwa kale.
-- **Stock-ka bixiyaha.** Tirooyinka kaydka waxay ka saxan yihiin faylka aad ku darto oo keliya. Hubinta ma weydiiso bixiye.
-- **Luqadaha.** Tamil: barta app-ka way ka baxaa.
+Waxaa kaga wada hadlaynaa waxa isbeddelay TakeoffCraft 0.8 (la sii daayay 2026-11-01) iyo 0.8.1 (2026-11-02), marka la barbardhigo 0.7. Legend-ka calaamadda waxa hadda la tiri karaa set oo dhan marka hal mar, shaqo cusub waxay ka bilaabi kartaa qiimaha shaqooyinkaaga hore, oo xisaabintana waxa lagu hubin karaa kaydka bixiyaha. 0.8.1 waa sii deyn sixitaan.
 
-Wixii kale waxaa ku jira [Wali lama dhisin](topic:not-built-yet). Nooca ka horreeya, eeg [Waxa cusub ee 0.7](topic:whats-new-0-7).
+### Cusub
+
+**Tiri wax kasta oo ku jira set-ka**
+
+- **Sanduuq legend mar keliya.** {{ui:Tiri wax kasta}} ee qalabka sare wuxuu akhrinayaa legend calaamadeed: jiid sanduuq calaamadaha iyo magacyada lagu qoro dhinaciisa. Calaamad kasta waxa lagu liistaa sawirkeeda iyo magaciisa, magacuna wuxuu noqdaa magaca walaxda. Kuwa aadan doonin ka saar, ka dibna dooro {{ui:Tiri xaashiyada N}}. Safka wuxuu muujiyaa xaashiga la raadinayo, {{ui:Jooji}} wuxuu joojiyaa socodka, bogguna wuu sii shaqeynayaa.
+- **Dhammaan xaashiyada hal socod.** Calaamad kasta waxa lagu tiraa xaashi kasta oo furan. Xaashi loo rinjiyeeyay miisaan kale waxa lagu raadiyaa miisaankaas, calaamadaha waxa laga helaa xagal kasta oo toosan. Calaamadaha legend-ka laftiisa lagama tiro xaashigiisa.
+- **Eegis ka hor intaan wax lagu dhicin.** Tirada kasta waxay leedahay xiriir xaashi kasta ("E-103: 4") oo tagaya xaashigaas. Guji sanduuq si aad uga baxdo, ku guji mar kale si aad u soo celiso. Heerka isbarbardhigga (50% ilaa 100%) wuxuu kaliya shaandhaynayaa waxa la helay; ma jiro raadin dib loo sameeyo.
+- **Hal tallaabo oo dib loo celin karo.** {{ui:Ku dar N calaamadood}} wuxuu sameeyaa walax tiro ah calaamad kasta, calaamad calaamad kasta oo la helay. Magaca walax tiro oo horeba kuu jirta waa dib loo isticmaalaa. {{key:Ctrl+Z}} wuxuu dib u qaadaa walaxda iyo calaamadaha oo dhan. Waxa aad aqbasho waxa kaloo lagu daraa {{ui:Waxa la baray}}.
+- **Calaamadaha xagal kasta.** Calaamad {{ui:Astaamaha xagal kasta}} ka hor inta aadan tirin si aad u hesho calaamadaha loo rogay xagal aan toosan. Raadintu markaas wuxuu calaamad kasta u rogaa 15 darajo kasta, calaamad aan wareeg ahayn waxay qaadan kartaa ilaa lix jeer wakhti dheer.
+- **Waxa ay tahay.** Isbarbardhig calaamadaha fudud oo ku salaysan xaashiyadaada, oo aan moodel tababarnayn, wax kastana kumbuyuutarkaaga ma ka baxo. Set ka 200 xaashi oo la sameeyay, wuxuu qaadday 9.4 ilbiriqsi dhammaantiis Chrome ee desktop degdeg ah; set-yada dhabta ah way ka daahaan doonaan. Eeg [Tiri wax kasta set-ka](topic:count-everything).
+
+**Xusuusta qiimaha shaqooyinkaaga hore**
+
+- **TakeoffCraft wuu xasuustaa qiimahaaga.** Marka aad xisaabinta kaydiso, walax kasta oo qiimaysan oo la isticmaalay waa la xasuustaa magac iyo nooc: qiimaha agabka, qiimaha shaqada, qashinka iyo unit-ka. 12 shaqo ugu dambeeya ayaa loo hayaa magac kasta. Waxay ku kaydsan tahay kombiyuutarkan dhinaca kaydka qiimaha Library, marna kuma jirto fayl xisaabin, waxna looma dirayo.
+- **Bilow xisaabin cusub qiimaha ka soo qaad.** {{ui:Qiimayaasha}} qalabka sare wuxuu muujiyaa, walax kasta, qiimaha shaqada ugu dambeeya, qiimaha caadiga ah iyo kala duwanaanshaha. {{ui:Isticmaal kii ugu dambaysay}} ama {{ui:Isticmaal caadiga}} waxay qiimeeyaan hal walax, {{ui:Qiimee N walax aan qiimo lahayn xusuusta}} wuxuu buuxiyaa walax kasta oo aan qiimo lahayn. Isticmaal kasta waa hal tallaabo oo dib loo celin karo.
+- **Shaqooyinka hore.** {{ui:Ka bar tirin hore…}} wuxuu xasuustaa walaxda qiimaysan ee xisaabin kaydsan (.json).
+- **Eeg, beddel, illow.** {{ui:Wax walba oo xusuusan}} wuxuu liisayaa magac kasta; badhanka qashinka wuxuu illoobiyaa mid, {{ui:Nadiifi qiimaha oo dhan}} wuxuu illoobiyaa dhammaan. Demi {{ui:Xasuso qiimayaasha markaan tirin kaydiyo}} si aad joojiso. Qiimaha halkii unit-ka lagu qiimeeyo marna lagama dhigo walax lagu qiimeeyo dherer. Eeg [Xusuusta qiimaha shaqooyinkaaga hore](topic:price-memory).
+
+**Kaydka bixiyaha iyo waqtiga sugitaanka**
+
+- **Hubi liiska bixiyaha.** {{ui:Bixin}} qalabka sare wuxuu qaataa liiska kaydka bixiyaha ({{ui:Ku dar fayl bixiye…}}), CSV ama miiska xisaabta, wuxuuna hubiyaa waxa xisaabintu u baahan tahay, iyo qashinka, marka la barbardhigo. Ilaa shan fayl ayaa la kaydiyaa. Waxba lama dirayo, bixiyaha weydiinna ma jiro: adigu fayl keenta.
+- **Waxa uu sheegayaa.** Walaxaha yaraanta marka hore ayay yimaadaan: "Yaraanta 120 EA", "Waqtiga sugitaanka 21 maalmood", "On backorder", "Unitigu way kala duwan yahay", "Ma jiro tirada kaydka" ama "Kaydka waa jiraa". {{ui:Waqtiga ugu dheer ee la doonayo (maalmo)}} wuxuu ka bilaabmaa 14.
+- **Liiska dalabka.** {{ui:Liiska dalabka (CSV)}} wuxuu soo dejiyaa walaxaha yaraanta, tirada ay yaraatay, bixiyaha iyo waqtiga sugitaanka.
+- **Qiimayaasha u gudba Library.** Haddii faylku leeyo qiimo, {{ui:Qiimayaasha Maktabadda}} wuxuu dejiyaa qiimaha agabka mid kasta oo Library ah oo magac iyo unit isku mid ah. Dib u qiimee Library si aad xisaabinta ugu soo celiso.
+- **Panelka dhibaatooyinka.** Yaraanta waa digniin, waqtiga dheer waa qoraal, waxaana ku jira "Kaydka bixiyaha". Waad aqbali kartaa sabab, sababtaasna waa la kaydiyaa xisaabinta. Eeg [Hubi kaydka bixiyaha iyo waqtiga sugitaanka](topic:supplier-stock).
+
+**Kaaliyayaasha AI**
+
+- **Qalab dhammaantood.** Marka kaaliyayaasha la ogolaado {{ui:Dejinta}}, kaaliyuhu wuxuu akhrin karaa legend (`legend_open`), wuxuu socodsiin karaa tirinta (`legend_count_start`, ka dibna `legend_count_status` iyo `legend_count_result`) wuxuuna ku dari karaa (`legend_count_add`, oo hore u eegi karaa). Wuxuu akhrin karaa qiimaha la xasuusto (`prices_list`) wuxuuna walaxda ka qiimayn karaa (`prices_apply`, oo hore u eegi karaa), wuxuuna akhrin karaa hubinta bixiyaha (`supply_check`). Ku darista fayl bixiye waxa uu adigu sameynaysaa. Eeg [Isticmaal TakeoffCraft kaaliye AI ah](topic:use-with-ai-assistants).
+
+**Dhammaan appsyada**
+
+- **Luuqadaha.** Shan iyo konton luuqadood oo wadar ah; toban ayaa cusub (Lithuanian, Latvian, Bosnian, Marathi, Telugu, Albanian, Afrikaans, Filipino, Swahili iyo Uzbek). Luuqadaha aan Ingiriisi ahayn waa qabyo mashiinka ilaa dad ku hadla luuqadda ay akhriyaan.
+- **Aaladaha gelinta.** {{ui:Dejinta}} › {{ui:Caalami}} › {{ui:Aaladaha gelinta}} wuxuu dejiyaa waxa trackpad, badhanka dhinaca ee mouse, qalin, 3D mouse, controller-ka ciyaarta ama controller-ka MIDI ay sameeyaan, app kasta ama mid keliya. Eeg [Isticmaal trackpad, 3D mouse ama controller](common:input-devices).
+- **Safafka qalabka.** {{ui:Dejinta}} › {{ui:Guud}} › {{ui:Safafka qalabka}} wuxuu bixiyaa {{ui:Lafmeyso}} (bilowga), {{ui:2 safka}} iyo {{ui:1 safka}}; kooxaha aan ku habboonayn waxay u dhaqaaqaan dhinac. Eeg [Habee panelada](common:arrange-panels).
+- **Panelka dhibaatooyinka.** Panelka wadaagga ah ee digniinta iyo qoraalada hadda wuxuu leeyahay hubinta kaydka bixiyaha oo sare, oo ku dhaaftay hubinta kale.
+- **Add-ons.** Add-ons waxay raacaan liiska account-kaaga. Eeg [Add-ons iyo liiska account-kaaga](common:addons-basics).
+- **Ku xidh AI-gaaga.** CadCraft Studio waa xarunta: ku xidh kaaliyahaaga mar keliya dhammaan siddeed appsyada. Studio ma lahan AI gaar ah.
+
+### Waxa la sixay 0.8.1
+
+- **Qaybta classes ee DWG.** Qaybta classes ee faylka DWG waxa loo akhriyay nooc khalad ah. Taas waa la sixay TakeoffCraft, iyo afar app oo kale.
+- **Studio wuu beddeli karaa luuqadda isagoo socda.** Hore, Studio iyo nooceeda la xidhay waxay ahaayeen Ingiriisi kaliya. Tani looma tijaabin desktop-ka dhammaan platform-yada; sheeg haddii luuqadda aanay isbeddelin.
+
+### Weli kuma jirto nooca tan
+
+- **Lama saxeexin koodka.** Windows way digi karaa, Mac-ka markii ugu horeysay midig-riix oo dooro {{ui:Fur}}. Dukaamada store-ka (Microsoft Store, Google Play, App Store) waa la hakiyay, dhismaha iPad iyo iPhone looma dib u dhisin 0.8.1.
+- **Cusboonaysiinta Studio.** Installer-ka Windows iyo xirmooyinka Linux maalin kasta ayay hubiyaan, oo marka hore way weydiiyaan. Zip-ka portable-ka kaliya ayuu sheegaa, macOS iyo APK-du isma cusboonaysiiyaan. .dmg-ka macOS ee 0.8 wuxuu raacayaa sii deynta.
+- **Ku xidh AI-gaaga.** Ku xidhid hal-guji oo ka dhex jira Studio, connector-ka martiqaadka ah ee AI ee browser-ka, furaha API-gaaga oo ka dhex jira Studio, iyo xirmada MCP ee la daabacay lama ballan qaadayo nooca tan.
+- **Tirinta wax kasta.** Waxay u baahan tahay calaamado loo rinjiyeeyay sida ay ku jirtaan legend-ka, calaamad ay ku jirto derbi ama xariiq dheer ayaa laga dhici karaa. Calaamadaha la rogay lama helo, xaashi aan miisaan lahayn oo lagu rinjiyeeyay cabbir kale waxa lagu raadiyaa cabbirka legend-ka. Hubi raadinta xaashiga koowaad ka hor intaadan kuwa kale isku halayn.
+- **Kaydka bixiyaha.** Tirooyinka kaydka waxay la mid yihiin faylka aad ku darto oo keliya. Hubinta ma weydiiso bixiye.
+- **Luuqadaha.** Tamil app bar-ka wuu dhacaa.
+
+Waxa kale oo dhan waxaa laga akhrin karaa [Weli lama dhisin](topic:not-built-yet). Sii deynta ka horreysa, eeg [Waxa cusub ee 0.7](topic:whats-new-0-7).

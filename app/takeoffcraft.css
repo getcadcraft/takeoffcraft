@@ -87,6 +87,8 @@ body.app-shell .sp-tab { bottom: 2.25rem; }
 
 /* sheets */
 .tc-sheets { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; gap: .5rem; }
+.tc-sheets.is-windowed { display: block; }   /* windowed (sheetlist.js): rows not drawn are the list's padding; the grid gap is a margin */
+.tc-sheets.is-windowed > li { margin-bottom: .5rem; }
 .tc-sheet { display: block; width: 100%; padding: .35rem; text-align: left; font: inherit; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
 .tc-sheet:hover { border-color: var(--ink); }
 .tc-sheet[aria-current="true"] { border: var(--pen-3) solid var(--layer); padding: calc(.35rem - 1px); }
@@ -95,6 +97,12 @@ body.app-shell .sp-tab { bottom: 2.25rem; }
 .tc-sheet-title { display: block; margin-top: .3rem; font-size: .8125rem; font-weight: 700; overflow-wrap: anywhere; }
 .tc-sheet-meta { display: flex; justify-content: space-between; gap: .4rem; font-size: .75rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .tc-sheet-meta .is-unscaled { color: var(--layer-orange); font-weight: 600; }
+.tc-sheet-size { display: block; font-size: .75rem; color: var(--ink-2); }
+.tc-sheet-group { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .5rem; margin-top: .4rem; padding: .15rem .25rem; border-bottom: var(--pen-1) solid var(--line); font-size: .75rem; color: var(--ink-2); list-style: none; }
+.tc-sheet-group-name { font-weight: 700; color: var(--ink); }
+.tc-sheet-group-odd { color: var(--layer-orange); font-weight: 600; }
+.tc-sheet-group.is-odd { border-bottom-color: var(--layer-orange); }
+.tc-sec-head [data-sheets-by-size][aria-pressed="true"] { border-color: var(--ink); background: var(--sheet); }
 .tc-sheet-hits { font-weight: 700; color: var(--ink); }
 .tc-missing { margin-top: .75rem; padding: .5rem .6rem; font-size: .8125rem; border-left: var(--pen-3) solid var(--layer); background: var(--sheet); }
 .tc-missing p { margin: 0; }
@@ -160,6 +168,7 @@ tr.is-alt td { font-style: italic; }
 .tc-hint-h { margin: 0 0 .4rem; font-weight: 700; font-stretch: 112%; }
 .tc-hint ol { margin: 0; padding-left: 1.2rem; }
 .tc-hint li + li { margin-top: .2rem; }
+.tc-hint-sample { margin: .6rem 0 .2rem; }
 .tc-drop, .tc-busy {
   position: absolute; inset: .75rem; z-index: 3; display: grid; place-items: center; font-weight: 700;
   background: color-mix(in srgb, var(--sheet) 85%, transparent);
@@ -525,3 +534,32 @@ html.cc-compact .tc-sheetbar-name, html.cc-compact .tc-sheetbar-scale { font-siz
 .tc-pb-group > .tc-linkbtn { margin: .25rem .5rem .5rem 1.25rem; }
 /* the scale presets in the view bar (Ribbon and project browser): one line, the name beside the list */
 .ws-view-controls .tc-preset { flex-direction: row; align-items: center; gap: .35rem; }
+/* 0.10 BK.62 / BK.142 (bk-r3-schedules-10): the estimate's sign-off bar, no-rate flags, figures that select their marks */
+.tc-signoff { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 0 0 .4rem; font-size: .8125rem; }
+.tc-signoff[data-state="signed"] .tc-signoff-text { font-weight: 600; }
+.tc-table td[data-fig] { cursor: pointer; }
+.tc-dialog .tc-field { display: grid; gap: .15rem; margin: .4rem 0; }
+/* 0.10 BK.149 (bk-r3-schedules-10): the Quantities tables in the office layout */
+.tc-table .tc-lay-group th { text-align: left; font-weight: 700; border-top: var(--pen-1) solid currentColor; }
+.tc-table .tc-lay-sub td { font-weight: 700; }
+.tc-lay-title { margin: 0 0 .15rem; }
+.tc-lay-note { margin: 0 0 .3rem; font-size: .75rem; opacity: .8; }
+
+/* A section's links sat on its title's line and both were cut short. Owner 2026-11-12 (CadCraft first, then "do the same for the other seven apps"): open, or a
+   layout whose sections do not fold, the title has its own line and the links a line under it with icon and label; closed, only the icons, on the title's line.
+   A count beside the title stays on the title's line. */
+.tc-sec-head { flex-wrap: wrap; }
+.tc-sec-head::before { content: ""; order: 4; flex: 0 0 100%; height: 0; margin-top: -.5rem; }   /* a full-width nothing: what comes after it starts a new line */
+.tc-sec-head:not(:has(> :is(.tc-linkbtn, .tc-links, .tc-sec-acts, .tc-check):not([hidden])))::before { display: none; }
+.tc-sec-head > :is(.tc-linkbtn, .tc-links, .tc-sec-acts, .tc-check):not([hidden]) { order: 5; flex: 0 1 auto; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .9rem; text-align: left; }
+.tc-sec-head > .tc-linkbtn:not([hidden]) { gap: .3rem; }
+.tc-sec-head[data-af] { overflow: visible; }
+.tc-sec-head[data-af] > :is(.tc-linkbtn, .tc-links, .tc-sec-acts, .tc-check):not([hidden]) { overflow: visible; white-space: normal; }
+.tc-sec-head[data-af] > .tc-h { flex: 0 1 auto; }
+.tc-sec-head[data-af="closed"] { flex-wrap: nowrap; }
+.tc-sec-head[data-af="closed"]::before { display: none; }
+.tc-sec-head[data-af="closed"] > :is(.tc-linkbtn, .tc-links, .tc-sec-acts, .tc-check):not([hidden]) { order: 0; flex: 0 0 auto; flex-wrap: nowrap; gap: .1rem; }
+.tc-sec-head[data-af="closed"] > .tc-check { display: none; }   /* a filter for a list that is folded away */
+.tc-sec-head[data-af="closed"] .tc-linkbtn { font-size: 0; text-decoration: none; padding: .15rem .3rem; border-radius: var(--radius); line-height: 1; }
+.tc-sec-head[data-af="closed"] .tc-linkbtn .bi { font-size: 1rem; }
+.tc-sec-head[data-af="closed"] .tc-linkbtn:hover { background: var(--sheet); }

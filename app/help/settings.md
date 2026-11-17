@@ -34,6 +34,10 @@ On at the start. While you measure or calibrate, a point near a line of the PDF 
 
 Off at the start. When it is on, runs, outlines, cut-outs and dragged corners go at 0°, 45°, 90° or 135° from the last point without holding {{key:Shift}}; hold {{key:Shift}} to click at any angle. The status bar then reads "Snaps to 45°; Shift frees the angle". The point you click on an arc's curve and circles are never snapped; an arc's end is.
 
+## Count marker size
+
+How big the count dots are: {{ui:Extra small}}, {{ui:Small}}, {{ui:Medium}} (the start: the size the dots always had) or {{ui:Large}}. The size holds on screen at every zoom, and the marked PDF draws each dot at the same size on paper, whatever the sheet size, so the PDF at 100% looks as the screen does. More: [Count by hand](topic:count-by-hand#dot-size-on-screen-and-in-the-pdf).
+
 ## Corner indicator
 
 For the [3D check view](topic:check-in-3d) only: {{ui:View cube}} (the start: a cube at the top right to click, drag and turn), {{ui:Axis icon}} (a small X, Y, Z marker at the bottom right) or {{ui:None}}. It changes at once and is kept in this browser. The flat sheet never shows one.

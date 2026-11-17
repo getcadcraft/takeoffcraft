@@ -4,7 +4,7 @@
  *
  * The page's vector paths come from pdf.js's operator list (the same one it draws from), in PDF user space:
  *   const lw = await pageLinework(pdfjs, page)          → { segs: Float64Array [x1,y1,x2,y2, …], curve: Uint8Array, n, truncated }
- *   const idx = new SnapIndex(lw)
+ *   const idx = new SnapIndex(lw)                       (or new SnapIndex(lw, gridFromWorker): snap-worker.js builds the grid off the page's thread)
  *   idx.snap({x, y}, tol)                               → { x, y, kind: 'end'|'mid'|'int'|'near', d } | null
  *
  * Lines and polygon edges are kept as they are; Bézier curves are flattened (their two ends are real end points,
@@ -95,50 +95,62 @@ export async function pageLinework(pdfjs, page, opts = {}) {
   return extractSegments(pdfjs.OPS, ops, opts);
 }
 
-/** A uniform grid over the segments, for "what is near the pointer". */
-export class SnapIndex {
-  constructor({ segs, curve, n }) {
-    this.segs = segs; this.curve = curve || new Uint8Array(n); this.n = n;
-    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    for (let i = 0; i < n * 4; i += 2) { const x = segs[i], y = segs[i + 1]; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
-    if (!n) { x0 = y0 = 0; x1 = y1 = 1; }
-    const span = Math.max(x1 - x0, y1 - y0, 1);
-    const cols = Math.max(1, Math.min(1024, Math.round(Math.sqrt(n) * 2)));
-    this.cell = span / cols;
-    this.x0 = x0; this.y0 = y0;
-    this.cols = Math.max(1, Math.ceil((x1 - x0) / this.cell) + 1);
-    this.rows = Math.max(1, Math.ceil((y1 - y0) / this.cell) + 1);
-    this.grid = new Map();
-    for (let s = 0; s < n; s++) this.insert(s);
-  }
-  cellOf(x, y) { return [Math.floor((x - this.x0) / this.cell), Math.floor((y - this.y0) / this.cell)]; }
-  insert(s) {
-    const g = this.segs, ax = g[s * 4], ay = g[s * 4 + 1], bx = g[s * 4 + 2], by = g[s * 4 + 3];
-    const len = Math.hypot(bx - ax, by - ay);
-    const steps = Math.max(1, Math.ceil(len / (this.cell * 0.5)));
+/**
+ * The grid of a set of segments as plain typed arrays: { x0, y0, cell, cols, rows, start: Int32Array (cells + 1), items: Int32Array }.
+ * Cell c holds segment numbers items[start[c] .. start[c + 1]), in segment order. Built in two passes (count, fill) with no per-cell
+ * lists or Map: 390,000 segments took 13 s as lists in a Map on the main thread (0.10 PERF.34). Pure, so a Worker can run it
+ * (snap-worker.js) and hand the arrays back by transfer.
+ */
+export function buildGrid({ segs, n }) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (let i = 0; i < n * 4; i += 2) { const x = segs[i], y = segs[i + 1]; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  if (!n) { x0 = y0 = 0; x1 = y1 = 1; }
+  const span = Math.max(x1 - x0, y1 - y0, 1);
+  const cols0 = Math.max(1, Math.min(1024, Math.round(Math.sqrt(n) * 2)));
+  const cell = span / cols0;
+  const cols = Math.max(1, Math.ceil((x1 - x0) / cell) + 1), rows = Math.max(1, Math.ceil((y1 - y0) / cell) + 1);
+  const start = new Int32Array(cols * rows + 1);
+  // the cells a segment crosses, sampled every half cell along it (consecutive repeats skipped): the same cells as ever
+  const walk = (s, visit) => {
+    const ax = segs[s * 4], ay = segs[s * 4 + 1], bx = segs[s * 4 + 2], by = segs[s * 4 + 3];
+    const steps = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay) / (cell * 0.5)));
     let last = -1;
     for (let k = 0; k <= steps; k++) {
       const t = k / steps;
-      const [cx, cy] = this.cellOf(ax + (bx - ax) * t, ay + (by - ay) * t);
-      const key = cy * this.cols + cx;
+      const key = Math.floor((ay + (by - ay) * t - y0) / cell) * cols + Math.floor((ax + (bx - ax) * t - x0) / cell);
       if (key === last) continue;
       last = key;
-      let list = this.grid.get(key);
-      if (!list) this.grid.set(key, (list = []));
-      if (list[list.length - 1] !== s) list.push(s);
+      visit(key);
     }
+  };
+  for (let s = 0; s < n; s++) walk(s, (key) => { start[key + 1]++; });
+  for (let c = 0; c < cols * rows; c++) start[c + 1] += start[c];
+  const items = new Int32Array(start[cols * rows]), fill = start.slice(0, cols * rows);
+  for (let s = 0; s < n; s++) walk(s, (key) => { items[fill[key]++] = s; });
+  return { x0, y0, cell, cols, rows, start, items };
+}
+
+/** A uniform grid over the segments, for "what is near the pointer". `grid` = buildGrid()'s result, when a Worker already made it. */
+export class SnapIndex {
+  constructor({ segs, curve, n }, grid = null) {
+    this.segs = segs; this.curve = curve || new Uint8Array(n); this.n = n;
+    const g = grid || buildGrid({ segs, n });
+    this.cell = g.cell; this.x0 = g.x0; this.y0 = g.y0; this.cols = g.cols; this.rows = g.rows;
+    this.start = g.start; this.items = g.items;
+    this.mark = new Int32Array(n); this.epoch = 0;
   }
-  /** Segment numbers whose cells are within `r` of p (deduped). */
+  cellOf(x, y) { return [Math.floor((x - this.x0) / this.cell), Math.floor((y - this.y0) / this.cell)]; }
+  /** Segment numbers whose cells are within `r` of p (deduped, in the order met). */
   near(p, r) {
     const [c0, r0] = this.cellOf(p.x - r, p.y - r), [c1, r1] = this.cellOf(p.x + r, p.y + r);
-    const seen = new Set();
+    const out = [], mark = this.mark, e = ++this.epoch, start = this.start, items = this.items;
     for (let cy = Math.max(0, r0); cy <= Math.min(this.rows - 1, r1); cy++) {
       for (let cx = Math.max(0, c0); cx <= Math.min(this.cols - 1, c1); cx++) {
-        const list = this.grid.get(cy * this.cols + cx);
-        if (list) for (const s of list) seen.add(s);
+        const c = cy * this.cols + cx;
+        for (let k = start[c]; k < start[c + 1]; k++) { const s = items[k]; if (mark[s] !== e) { mark[s] = e; out.push(s); } }
       }
     }
-    return [...seen];
+    return out;
   }
   /**
    * The snap point for p within tol (user units), or null.

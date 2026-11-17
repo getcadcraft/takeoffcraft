@@ -13,9 +13,9 @@ Each item has a type (and can take other kinds of marks too, see [One item, seve
 | Type | You draw | It reports | Units |
 |---|---|---|---|
 | Linear | Runs of connected points | Length, number of runs, and wall area when it has a height | LF or m |
-| Area | Closed outlines, with cut-outs | Area, perimeter, number of areas | SF, SY or m² |
+| Area | Closed outlines, with cut-outs | Area, perimeter, number of areas | SF, SY, SQ, ac, ha or m² |
 | Count | One click per thing | How many | EA |
-| Typed quantity | Nothing: you type the quantity | The number you typed (or one brought in from CivilCraft) | LS, EA, CY, m³, LF, m, SF, SY or m² |
+| Typed quantity | Nothing: you type the quantity | The number you typed (or one brought in from CivilCraft) | LS, EA, CY, m³, lb, TON, kg, t, LF, m, SF, SY, SQ, ac, ha or m² |
 
 ## Typed quantities (no drawing)
 
@@ -56,9 +56,9 @@ The item editor (**Item: (name)**) has these fields. Each one is saved when you 
 | {{ui:Name}} | Shown in the list, the tables and the exports. |
 | {{ui:Type}} | Linear, Area or Count. It is locked once the item has marks ("An item with marks keeps its type"). |
 | {{ui:Color}} | The color of its marks on screen and in the marked PDF. |
-| {{ui:Unit}} | What the quantity is reported in: LF or m for linear; SF, SY or m² for area; EA for count. |
+| {{ui:Unit}} | What the quantity is reported in: LF or m for linear; SF, SY, SQ, ac, ha or m² for area; EA for count. |
 | {{ui:Also measure}} | The other kinds of marks the item takes, each with its own unit. See below. |
-| {{ui:Height}} (linear) | A wall height. The item then also reports wall area (length × height). |
+| {{ui:Height}} (linear) | A wall height. The item then also reports wall area (length × height). Runs that came from a BimCraft model carry their doors and windows: those are taken out once, and the item says the gross area, the openings and the net. A takeoff from a BimCraft project that chose a measurement method is measured by that method here too (the note names it, with its source, and says it is unchecked by a quantity surveyor); the method cannot be changed in TakeoffCraft. Bricks or blocks and mortar from a wall type arrive as two components: the units to order and the mortar volume. |
 | {{ui:Depth}} (area) | A depth or thickness, used in assembly formulas (for example concrete volume). |
 | {{ui:Waste %}} | Added to the quantity before pricing: 10 means quantity × 1.10. |
 | {{ui:Material $/LF}} | Material cost per unit. The label follows the unit: $/SF, $/EA and so on. |

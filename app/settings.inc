@@ -14,6 +14,8 @@
  *   tcTempShow   how temperatures read: follow (the temperature unit starred in Global › Units, else °C when lengths are metric, °F otherwise; default) / degc / degf — display only
  *   tcCorner     corner indicator of the 3D check view: cube (default) / axes / none (the flat sheet has none)
  *   tcRoomGap    Room fill closes door openings up to this many feet (3 / 3.5 / 4 default / 5 / 6 / 8)
+ *   tcMarker     count marker size, on screen and in the marked PDF alike (countmarker.js): xsmall 3 px / small 4.5 / medium 6 (default: what the screen always drew) / large 8;
+ *                the PDF draws px × 0.75 pt, so it matches the screen at 100% whatever the sheet size (0.9.1, suggestion 1494)
  *   tcPickGap    Path tool: the largest gap in the drawing's lines it still joins, in PDF points (0.05–60; default 1.5; [ and ] change it too; 0.8 takeoff_PART_3)
  */
 ?>
@@ -112,6 +114,16 @@
   <p class="shell-hint-text"><?= Lang::e('settings.snap.hint') ?></p>
   <label class="shell-check"><input type="checkbox" name="tcSnap45"> <?= Lang::e('set.snap45') ?></label>
   <p class="shell-hint-text"><?= Lang::e('set.snap45.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set" data-tc-marker>
+  <legend><?= Lang::e('set.marker') ?></legend>
+  <div class="shell-seg" role="radiogroup" aria-label="<?= Lang::e('set.marker') ?>">
+    <label><input type="radio" name="tcMarker" value="xsmall"> <?= Lang::e('set.marker.xsmall') ?></label>
+    <label><input type="radio" name="tcMarker" value="small"> <?= Lang::e('set.marker.small') ?></label>
+    <label><input type="radio" name="tcMarker" value="medium"> <?= Lang::e('set.marker.medium') ?></label>
+    <label><input type="radio" name="tcMarker" value="large"> <?= Lang::e('set.marker.large') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.marker.hint') ?></p>
 </fieldset>
 <fieldset class="shell-set">
   <legend><?= Lang::e('set.corner') ?></legend>

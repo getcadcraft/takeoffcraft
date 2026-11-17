@@ -135,6 +135,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
       <div class="tc-sec-head">
         <h2 class="tc-h"><?= Lang::e('sheets.h') ?></h2>
         <span class="tc-muted" data-sheet-count></span>
+        <button type="button" class="btn-line btn-sm-cc" data-sheets-by-size aria-pressed="false" title="<?= Lang::e('psize.by.title') ?>"><i class="bi bi-rulers" aria-hidden="true"></i> <?= Lang::e('psize.by') ?></button>
       </div>
       <label class="visually-hidden" for="tc-sheet-q"><?= Lang::e('sheets.search') ?></label>
       <input type="search" id="tc-sheet-q" class="tc-input" placeholder="<?= Lang::e('sheets.search') ?>" autocomplete="off" data-sheet-q>
@@ -158,6 +159,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         <li><?= Lang::e('hint.4') ?></li>
         <li><strong><?= Lang::e('tool.save-project') ?></strong> <?= Lang::e('hint.5') ?></li>
       </ol>
+      <p class="tc-hint-sample"><button type="button" class="btn-line btn-sm-cc" data-hint-sample><i class="bi bi-lightning-charge" aria-hidden="true"></i> <?= Lang::e('hint.trysample') ?></button></p>
       <div data-recent-files data-max="6"></div>
     </div>
     <div class="tc-drop" data-drop hidden><span><i class="bi bi-box-arrow-in-down-right" aria-hidden="true"></i> <?= Lang::e('drop.hint') ?></span></div>
@@ -224,6 +226,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
     <div class="tc-sheetbar" data-sheetbar hidden>
       <span class="tc-sheetbar-name" data-sheet-name></span>
       <span class="tc-sheetbar-scale" data-sheet-scale></span>
+      <span class="tc-sheetbar-scale" data-sheet-size hidden></span>
       <?php if ($__reviewUrl): ?>
         <button type="button" class="tc-3d-toggle" data-handoff-pdf data-handoff-url="<?= e($__reviewUrl) ?>" data-handoff-app="<?= e($__review['name']) ?>" title="<?= Lang::e('handoff.pdf.title', ['app' => $__review['name']]) ?>"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> <?= Lang::e('handoff.pdf.button', ['app' => $__review['name']]) ?></button>
       <?php endif; ?>
@@ -261,12 +264,19 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         </select>
       </label>
     </section>
+    <?php /* 0.10 BK.48 issues and revisions (session bk-r3-stages-10): issues-takeoff.js fills it with the shared issue panel. */ ?>
+    <section class="tc-sec" data-af-id="issuelog">
+      <details data-issues-details>
+        <summary class="tc-h"><?= Lang::e('issues.title') ?></summary>
+        <div data-issues></div>
+      </details>
+    </section>
     <section class="tc-sec" data-af-id="items">
       <div class="tc-sec-head">
         <h2 class="tc-h"><?= Lang::e('items.h') ?></h2>
         <span class="tc-sec-acts">
           <button type="button" class="tc-linkbtn" data-library title="<?= Lang::e('lib.button.title') ?>"><i class="bi bi-journal-bookmark" aria-hidden="true"></i> <?= Lang::e('lib.button') ?></button>
-          <button type="button" class="tc-linkbtn" data-item-new><i class="bi bi-plus-lg" aria-hidden="true"></i> <?= Lang::e('items.new') ?></button>
+          <button type="button" class="tc-linkbtn" data-item-new title="<?= Lang::e('items.new') ?>"><i class="bi bi-plus-lg" aria-hidden="true"></i> <?= Lang::e('items.new') ?></button>
         </span>
       </div>
       <form class="tc-item-form" data-item-form hidden>

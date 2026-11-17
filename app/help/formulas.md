@@ -14,7 +14,7 @@ Assembly components get their quantity from a formula. A formula is a small arit
 |---|---|---|
 | Linear | `L` | Total length |
 | Linear | `H` | The item's height |
-| Linear | `A` | Wall area, L × H |
+| Linear | `A` | Wall area, L × H, less the openings of runs that carry them (a takeoff from BimCraft). When that takeoff names a measurement method, `A` is measured by it: openings no larger than the method's smallest size stay in, and what the method takes off where walls meet is left out. The note under the item names the method |
 | Linear | `N` | Number of runs |
 | Area | `A` | Total net area (outlines minus cut-outs) |
 | Area | `P` | Total perimeter, including cut-out edges |

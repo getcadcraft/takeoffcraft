@@ -1,0 +1,19 @@
+{
+  "id": "default-policies",
+  "name": "Default Policies",
+  "version": "0.1.0",
+  "apps": [
+    "takeoffcraft"
+  ],
+  "api": "1.1",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "settings",
+    "storage"
+  ],
+  "description": "Your office's defaults, set once for every app: the unit system of a new project, the sizes of annotations on paper and the layout of schedules. In TakeoffCraft the schedule layout (grouping, totals, title, column headings) is used by the estimate, the quantities by sheet, the exports and what an assistant reads. A policy you do not set leaves TakeoffCraft exactly as it is.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

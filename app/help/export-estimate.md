@@ -41,6 +41,14 @@ Open the {{ui:Export}} menu and choose {{ui:CSV}}. You get `(name).csv`: the sam
 
 The CSV has only the estimate; for quantities by sheet and the mark list, use XLSX. {{ui:Material list}} in the same menu saves the material list alone as CSV, for ordering.
 
+## The estimate in Google Sheets
+
+Above the Quantities table, **Copy for Google Sheets** puts the estimate on your clipboard as tab-separated text, with the same lines as the CSV. In a Google Sheet, click cell A1 and paste. TakeoffCraft does not sign in to Google and sends nothing there.
+
+## Missing rates and the sign-off
+
+A line with a quantity and no rate says **No rate** in its Notes, and the export counts them under the totals. When the estimate was signed off, the export names who signed, when and for what total. See [Missing rates and signing the estimate off](topic:sign-off-the-estimate).
+
 ## A marked PDF
 
 1. Open the PDFs whose marks you want drawn.

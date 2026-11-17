@@ -19,6 +19,9 @@
  *   marks   [{ id, item, sheet, kind, pts: [{x,y}], holes: [[{x,y}]], …extras }]   PDF user space
  *           extras (optional, MARK_EXTRAS; validated by readProject, carried by files and the clipboard):
  *             deducts  [segment index]   linear: segments drawn but not counted (a door in a wall run) — T2
+ *             opens    [[width, height]]  linear, feet: the door and window openings in this wall run (0.10 BK.11). Each is deducted
+ *                                         once from the wall area (run × the item's height) by the shared rule, quantities/rules.js
+ *                                         'wall.side'. BimCraft's takeoff hands them over; the run's length is not changed
  *             area     bid area id        the building / floor / phase the mark belongs to — T12
  *             flag     'rev'              the drawing changed under it when it moved to a revised sheet: check it — T13
  *             pitch    rise per 12        this mark's own pitch (instead of its item's) — T15
@@ -44,10 +47,14 @@ import { cleanAddonData } from './addons.js';
 import { segmentLengths, areaWithHoles, isConvex, overlapArea, bounds } from './geom.js';
 import { normalBid, bidUsed } from './bid.js';
 import { cleanBids, cleanAwards, applyAwards, cleanRequests } from './level.js';
-import { UNITS, UNITS_FOR, DEFAULT_UNIT, lengthUnitOf, areaUnitOf, ftTo, sqftTo, withWaste, extendCents, MAX_PITCH, slopeFactor, hipFactor, roundTo } from './units.js';
+import { UNITS, UNITS_FOR, DEFAULT_UNIT, lengthUnitOf, areaUnitOf, ftTo, sqftTo, withWaste, extendCents, MAX_PITCH, slopeFactor, hipFactor, roundTo, currencySymbol } from './units.js';
 import { parse, evaluate } from './formula.js';
 import { t } from './i18n.js';
+import { wallSide, deducts } from './quantities/rules.js';   // 0.10 BK.11 (bk-quantities-10): the one stated measuring rule, shared with BimCraft
+// 0.10 BK.42 (bk-measure-10): the measurement method the takeoff carries (set by BimCraft's hand-over; none = the CadCraft default)
+import { cleanMethod, findMethod, defaultMethod, isDefault, methodRule, methodLine, builtinMethods } from './quantities/methods.js';
 import { readSupply, writeSupply } from './supply.js';
+import { makeSignoff, cleanSignoff, holds } from './tables/signoff.js';   // 0.10 BK.62 (bk-r3-schedules-10): the estimate's sign-off, recorded in the file
 import { readCarbon, writeCarbon } from './carbon.js';   // 0.8 EG.14 (takeoff_PART_3): embodied carbon choices, kept in the project file   // 0.8 EG.51 (takeoff_PART_2): supplier stock and lead-time files, kept in the project file
 import { readLearn, writeLearn } from './learn.js';   // 0.8 SU.811 (sx-learn): what it learned, kept in the project file
 
@@ -116,7 +123,10 @@ export function normalNote(f) {
   return { id: String(f.id), sheet: f.sheet, kind: f.kind, pts, text, status: NOTE_STATUS.includes(f.status) ? f.status : 'open' };
 }
 
-export const MARK_EXTRAS = ['deducts', 'area', 'flag', 'pitch', 'slopes', 'group', 'z'];
+export const MARK_EXTRAS = ['deducts', 'area', 'flag', 'pitch', 'slopes', 'group', 'z', 'opens', 'junc'];
+const juncOk = (j) => Array.isArray(j) && j.length === 2 && j.every((v) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v < 1e7) && (j[0] > 0 || j[1] > 0);
+export const MAX_OPENS = 500;   // openings on one wall run
+const openOk = (o) => Array.isArray(o) && o.length === 2 && feetOk(o[0]) && feetOk(o[1]);
 export const SLOPE_KINDS = ['flat', 'rake', 'hip'];
 const pitchOk = (p) => typeof p === 'number' && Number.isFinite(p) && p >= 0 && p <= MAX_PITCH;
 /** 0.9: an item's temperature (a spec such as the lowest pour or install temperature), held in kelvin: above 0 K, below 10,000 K. */
@@ -128,6 +138,8 @@ export const sheetKey = (hash, pageIndex) => hash + ':' + pageIndex;
 export function markExtras(m) {
   const o = {};
   if (m.kind === 'linear' && m.deducts?.length) o.deducts = m.deducts.slice();
+  if (m.kind === 'linear' && m.opens?.length) o.opens = m.opens.map((x) => [x[0], x[1]]);
+  if (m.kind === 'linear' && juncOk(m.junc)) o.junc = [m.junc[0], m.junc[1]];
   if (m.area) o.area = m.area;
   if (m.group) o.group = m.group;
   if (m.flag) o.flag = m.flag;
@@ -158,6 +170,11 @@ export function readExtras(raw, m, ctx = {}) {
     });
     if (raw.slopes.length === n && sl.some(Boolean)) o.slopes = sl;      // other segments than the run has: dropped
   }
+  if (m.kind === 'linear' && Array.isArray(raw?.opens)) {                 // 0.10 BK.11: a wrong entry is dropped, the others kept
+    const op = raw.opens.filter(openOk).slice(0, MAX_OPENS).map((x) => [x[0], x[1]]);
+    if (op.length) o.opens = op;
+  }
+  if (m.kind === 'linear' && juncOk(raw?.junc)) o.junc = [raw.junc[0], raw.junc[1]];   // 0.10 BK.42: [to the face, overlap] square feet off this run's wall face where walls meet
   if (m.kind === 'linear' && Array.isArray(raw?.deducts)) {
     const n = m.pts.length - 1;
     const d = [...new Set(raw.deducts.filter((i) => Number.isInteger(i) && i >= 0 && i < n))].sort((a, b) => a - b);
@@ -194,6 +211,8 @@ export class Takeoff {
     let r;
     try { r = fn(this.state); } catch (err) { this.state = before; throw err; }
     if (r === false) { this.state = before; return false; }
+    // 0.10 BK.62: an edit that changes any figure of a signed-off estimate clears the sign-off (inside this undo step: undo brings both back)
+    if (this.state.signoff && !signoffHolds(this.state)) { this.cleared = this.state.signoff; delete this.state.signoff; } else this.cleared = null;
     this.undoStack.push({ label, before });
     if (this.undoStack.length > 300) this.undoStack.shift();
     this.redoStack = [];
@@ -493,6 +512,19 @@ export class Takeoff {
     });
   }
 
+  // ---- the estimate's sign-off (0.10 BK.62): who, when, what total; kept in the file; gone when a figure changes ----
+  signoff() { return this.state.signoff || null; }
+  /** A person signs the estimate as it stands. → { ok, signoff } | { ok: false, error: 'name' | 'when' | 'total' | 'empty' } */
+  signOff({ by, role = '', at = new Date().toISOString() } = {}) {
+    const est = baseEstimate(this.state);
+    if (!this.state.items.length) return { ok: false, error: 'empty' };
+    const r = makeSignoff({ by, role, at, total: est.total, currency: currencySymbol(), lines: estimateLines(est), missing: missingRates(est).length });
+    if (!r.ok) return r;
+    this.change(t('undo.signoff'), (s) => { s.signoff = r.signoff; });
+    return r;
+  }
+  clearSignoff() { return this.change(t('undo.signoff.clear'), (s) => { if (!s.signoff) return false; delete s.signoff; }); }
+
   // ---- the bid summary and proposal (T19) ----
   bid() { return normalBid(this.state.bid); }
   setBid(patch, label = t('undo.bid')) {
@@ -696,10 +728,13 @@ export class Takeoff {
       ...(s.bids?.length ? { bids: s.bids.map((b) => ({ ...b, excl: b.excl.slice() })) } : {}),
       ...(s.awards?.length ? { awards: s.awards.map((a) => ({ pkg: a.pkg, bid: a.bid })) } : {}),
       ...(s.bidreqs?.length ? { bidreqs: s.bidreqs.map((r) => ({ ...r })) } : {}),
+      ...(s.signoff ? { signoff: { ...s.signoff } } : {}),   // 0.10 BK.62: the estimate's sign-off (optional key, older builds ignore it)
+      ...(s.method?.id ? { method: { id: s.method.id, name: s.method.name, ...(s.method.file ? { file: s.method.file } : {}) } } : {}),   // 0.10 BK.42: the measurement method (optional key)
       ...(s.carbon ? { carbon: writeCarbon(s.carbon) } : {}),                        // 0.8 EG.14: optional key, older builds ignore it
       ...(s.calcs ? { calcs: s.calcs } : {}),                                        // 0.8 EG.18 (shell calc sheets) and EG.34 (design reasons): the shell modules' own JSON, kept as they save it
       ...(s.reasons ? { reasons: s.reasons } : {}),
       ...(s.docinfo ? { docinfo: s.docinfo } : {}),                                  // 0.9 DI.1: the drawing details (docinfo.js), the module's own JSON
+      ...(s.issuelog ? { issuelog: s.issuelog } : {}),                              // 0.10 BK.48: the shared issue history (issues-takeoff.js, issuelog/history.js cleans it); optional key
       ...(s.supply ? { supply: writeSupply(s.supply) } : {}),                       // 0.8 EG.51: optional key, older builds ignore it
       ...(s.problems?.accepted?.length ? { problems: { accepted: s.problems.accepted.map((a) => ({ ...a })) } } : {}),   // 0.8 EG.51: Problems the person accepted (shell's ⚠ panel)
       ...(s.learn ? { learn: writeLearn(s.learn, s) } : {}),                        // 0.8 SU.811: optional key, older builds ignore it
@@ -800,6 +835,7 @@ export function readProject(json) {
   const state = emptyState();
   state.name = str(json.name) || 'Takeoff';
   state.seq = int(json.seq, 0, 1e9);
+  { const m = readMethod(json.method); if (m) state.method = m; }   // 0.10 BK.42: optional key, older builds ignore it
   const finite = (n) => typeof n === 'number' && Number.isFinite(n) && Math.abs(n) < 1e7;
   const ptsOk = (a, min) => Array.isArray(a) && a.length >= min && a.length <= LIMITS.points && a.every((p) => Array.isArray(p) && (p.length === 2 || (p.length === 3 && finite(p[2]) && Math.abs(p[2]) <= 1000)) && finite(p[0]) && finite(p[1]));
 
@@ -856,6 +892,7 @@ export function readProject(json) {
     const v = json[k];
     if (v && typeof v === 'object' && !Array.isArray(v) && v.format === 'cadcraft-' + k && JSON.stringify(v).length <= 2e6) state[k] = JSON.parse(JSON.stringify(v));
   }
+  if (json.issuelog && typeof json.issuelog === 'object' && json.issuelog.format === 'cadcraft-issues' && JSON.stringify(json.issuelog).length <= 8e6) state.issuelog = JSON.parse(JSON.stringify(json.issuelog));   // 0.10 BK.48
   const su = readSupply(json.supply);                                                // 0.8 EG.51 (supply.js)
   if (su) state.supply = su;
   if (Array.isArray(json.problems?.accepted)) { const acc = json.problems.accepted.filter((a) => a && typeof a === 'object' && typeof a.id === 'string' && a.id.length <= 300).slice(0, 500).map((a) => ({ ...a })); if (acc.length) state.problems = { accepted: acc }; }
@@ -881,6 +918,10 @@ export function readProject(json) {
   // keep ids unique going forward
   const maxN = Math.max(0, ...[...ids, ...mids, ...state.areas.map((a) => a.id), ...(state.groups || []).map((g) => g.id), ...(state.notes || []).map((n) => n.id), ...(state.bids || []).map((b) => b.id), ...state.items.flatMap((i) => i.components.map((c) => c.id))].map((id) => parseInt(String(id).slice(1), 10) || 0));
   state.seq = Math.max(state.seq, maxN);
+  { // 0.10 BK.62: a sign-off is read only when the estimate in the file is the one that was signed
+    const so = cleanSignoff(json.signoff);
+    if (so) { state.signoff = so; if (!signoffHolds(state)) { delete state.signoff; warnings.push(t('file.warn.signoff', { by: so.by })); } }
+  }
   return { ok: true, state, warnings };
 }
 
@@ -892,7 +933,7 @@ export function readProject(json) {
  * (T15): runs measure their rake / hip segments along the slope, areas their sloped surface. Plan values are kept
  * (planFt, planSqft, segmentsFt in plan; slopedFt per segment) and the factor an area used.
  */
-export function measureMark(m, ftPerUnit, it = null) {
+export function measureMark(m, ftPerUnit, it = null, rule = null) {
   if (m.kind === 'count') return { count: 1 };
   if (it && it.type !== m.kind) it = null;                 // a second condition's mark (T8): the item's pitch is not its own
   if (!(ftPerUnit > 0)) return null;
@@ -904,7 +945,12 @@ export function measureMark(m, ftPerUnit, it = null) {
     const ded = new Set(m.deducts || []);
     let len = 0, cut = 0, plan = 0;
     sloped.forEach((d, i) => { if (ded.has(i)) cut += d; else { len += d; plan += segs[i]; } });
-    return { lengthFt: len, grossFt: len + cut, deductFt: cut, planFt: plan, segmentsFt: segs, slopedFt: sloped, slopes: kinds, deducts: [...ded] };
+    // 0.10 BK.11: the openings in this wall run (wallArea deducts them). BK.42: under a measurement method (`rule`, wallRule(state)) an
+    // opening not above the method's smallest size stays in, and what the junctions take off the face is counted
+    let openSqft = 0, openN = 0, openKeptSqft = 0;
+    for (const o of m.opens || []) { const a = o[0] * o[1]; if (rule && !deducts(a, rule)) openKeptSqft += a; else { openSqft += a; openN++; } }
+    const juncSqft = rule && m.junc ? (rule.junction === 'face' ? m.junc[0] : rule.junction === 'overlap' ? m.junc[1] : 0) : 0;
+    return { lengthFt: len, grossFt: len + cut, deductFt: cut, planFt: plan, segmentsFt: segs, slopedFt: sloped, slopes: kinds, deducts: [...ded], openSqft, openN, openKeptSqft, juncSqft };
   }
   const a = areaWithHoles(m.pts, m.holes);
   const k2 = ftPerUnit * ftPerUnit, f = slopeFactor(pitch);
@@ -925,7 +971,7 @@ export function segSlope(m, it, i) {
 export function quantities(state, { area, exclude } = {}) {
   const out = new Map();
   for (const it of state.items) {
-    const q = { item: it, lengthFt: 0, areaSqft: 0, perimeterFt: 0, count: 0, marks: 0, unscaled: 0, backoutSqft: 0, bySheet: new Map() };
+    const q = { item: it, lengthFt: 0, areaSqft: 0, perimeterFt: 0, count: 0, marks: 0, unscaled: 0, backoutSqft: 0, openSqft: 0, juncSqft: 0, bySheet: new Map() };
     if (it.type === 'fixed') {                             // a typed quantity (TK.5+): in its bid area like a mark would be
       const a = it.area || null;
       q.fixed = (area !== undefined && a !== area) || (exclude && a && exclude.has(a)) ? 0 : it.qty || 0;
@@ -933,6 +979,7 @@ export function quantities(state, { area, exclude } = {}) {
     out.set(it.id, q);
   }
   const bo = backouts(state);
+  const rule = wallRule(state);   // 0.10 BK.42: the takeoff's measurement method (null = the default)
   const rep = new Map((state.groups || []).map((g) => [g.id, g.repeat]));
   for (const m of state.marks) {
     if (area !== undefined && (m.area || null) !== area) continue;      // one bid area (null: the marks in none)
@@ -941,10 +988,10 @@ export function quantities(state, { area, exclude } = {}) {
     if (!q) continue;
     q.marks++;
     const sc = state.sheets[m.sheet]?.scale;
-    const r = measureMark(m, sc?.ftPerUnit, q.item);
+    const r = measureMark(m, sc?.ftPerUnit, q.item, rule);
     if (!r) { q.unscaled++; continue; }
     let s = q.bySheet.get(m.sheet);
-    if (!s) q.bySheet.set(m.sheet, (s = { lengthFt: 0, areaSqft: 0, perimeterFt: 0, count: 0, marks: 0 }));
+    if (!s) q.bySheet.set(m.sheet, (s = { lengthFt: 0, areaSqft: 0, perimeterFt: 0, count: 0, marks: 0, openSqft: 0, juncSqft: 0 }));
     s.marks++;
     const k = rep.get(m.group) || 1;                       // a typical group's mark (T16) counts `repeat` times
     if (m.kind !== q.item.type) {                          // a second condition (T8): its own totals, measured plainly
@@ -954,7 +1001,7 @@ export function quantities(state, { area, exclude } = {}) {
       continue;
     }
     if (m.kind === 'count') { q.count += k; s.count += k; }
-    else if (m.kind === 'linear') { q.lengthFt += r.lengthFt * k; s.lengthFt += r.lengthFt * k; q.count += k; s.count += k; }
+    else if (m.kind === 'linear') { q.lengthFt += r.lengthFt * k; s.lengthFt += r.lengthFt * k; q.count += k; s.count += k; q.openSqft += (r.openSqft || 0) * k; s.openSqft += (r.openSqft || 0) * k; q.juncSqft += (r.juncSqft || 0) * k; s.juncSqft += (r.juncSqft || 0) * k; }
     else {
       const cut = bo.cut(m, sc.ftPerUnit) * r.factor;     // back-outs (T14) that cover part of it, on the slope (T15)
       const a = Math.max(0, r.areaSqft - cut);
@@ -1000,11 +1047,49 @@ export function backouts(state) {
   };
 }
 
+/**
+ * A linear item's wall area in square feet, by the one stated rule (0.10 BK.11; quantities/rules.js 'wall.side', the function BimCraft's
+ * schedules and IFC quantities use): gross = the counted run × the item's height, deductions = the openings its marks carry (`opens`),
+ * net = gross less deductions. → { gross, deductions, net }; all 0 without a height.
+ */
+export function wallArea(it, t) {
+  return wallSide({ length: t?.lengthFt || 0, height: it?.type === 'linear' ? it.heightFt || 0 : 0, openings: [{ area: t?.openSqft || 0 }], ...(t?.juncSqft > 0 ? { cut: t.juncSqft } : {}) });
+}
+/**
+ * 0.10 BK.42 (bk-measure-10): the measurement method a takeoff carries. state.method = { id, name, file? } (file: an office's own
+ * pack, validated). BimCraft's hand-over sets it from the project; a takeoff without one is measured by the CadCraft default.
+ *   methodOf(state) → { method, missing }   the pack in force (never null); missing: the id is not known here, the default is used
+ *   wallRule(state) → methods.js methodRule for a wall face in square feet, or null under the default
+ *   methodNote(state, tr) → "Measurement method: … Unchecked by a quantity surveyor." or '' under the default
+ *   readMethod(raw) → the clean { id, name, file? } of an untrusted file, or null
+ */
+const SQFT = Object.freeze({ m2: 1 / 0.09290304, mm: 1 / 304.8 });
+export function readMethod(raw) {
+  if (!raw || typeof raw !== 'object' || typeof raw.id !== 'string' || !/^[a-z0-9][a-z0-9._-]{0,79}$/.test(raw.id)) return null;
+  const out = { id: raw.id, name: String(raw.name ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 120) };
+  if (raw.file) { const r = cleanMethod(raw.file); if (r.method && r.method.id === raw.id && !builtinMethods().some((m) => m.id === raw.id)) out.file = r.method; }
+  return out;
+}
+export function methodOf(state) {
+  const s = state?.method;
+  if (!s || !s.id) return { method: defaultMethod(), missing: false };
+  const m = findMethod(s.id, s.file ? [s.file] : []);
+  return m ? { method: m, missing: false } : { method: defaultMethod(), missing: true };
+}
+export function wallRule(state) {
+  const { method } = methodOf(state);
+  return isDefault(method) ? null : methodRule(method, 'wall.side', SQFT);
+}
+export function methodNote(state, tr = undefined) {
+  const { method, missing } = methodOf(state);
+  if (missing) return t('qty.method.missing', { id: state.method.id });
+  return isDefault(method) ? '' : methodLine(method, tr || ((key, params) => t('qty.m.' + key, params)));
+}
 /** Formula variables for an item's totals (or one sheet's), in the item's own units. */
 export function itemVars(it, t) {
   const lu = lengthUnitOf(it.unit);
   if (it.type === 'linear') {
-    return { L: ftTo(t.lengthFt, lu), H: ftTo(it.heightFt, lu), A: sqftTo(t.lengthFt * it.heightFt, areaUnitOf(it.unit)), N: t.count };
+    return { L: ftTo(t.lengthFt, lu), H: ftTo(it.heightFt, lu), A: sqftTo(wallArea(it, t).net, areaUnitOf(it.unit)), N: t.count };   // A: the NET wall area
   }
   if (it.type === 'area') return { A: sqftTo(t.areaSqft, it.unit), P: ftTo(t.perimeterFt, lu), H: ftTo(it.heightFt, lu), N: t.count };
   if (it.type === 'fixed') return { Q: t.fixed ?? it.qty ?? 0 };
@@ -1038,7 +1123,10 @@ export function estimate(state, q = quantities(state)) {
     row.unscaled = t.unscaled;
     row.marks = t.marks - Object.values(t.conds || {}).reduce((n, c) => n + c.marks, 0);
     if (t.backoutSqft > 0) row.backout = { value: sqftTo(t.backoutSqft, it.unit), unit: UNITS[it.unit].label };
-    if (it.type === 'linear' && it.heightFt > 0) row.wallArea = { value: vars.A, unit: areaUnitOf(it.unit) };
+    if (it.type === 'linear' && it.heightFt > 0) {
+      const wa = wallArea(it, t), au = areaUnitOf(it.unit);
+      row.wallArea = { value: vars.A, unit: au, ...(wa.deductions > 0 ? { gross: sqftTo(wa.gross, au), deductions: sqftTo(wa.deductions, au) } : {}), ...(wa.junctions > 0 ? { junctions: sqftTo(wa.junctions, au) } : {}) };   // 0.10 BK.11: net, and what was taken out; BK.42: what the junctions took off the gross
+    }
     if (it.type === 'area') row.perimeter = { value: vars.P, unit: lengthUnitOf(it.unit) === 'm' ? 'm' : 'LF' };
     if (it.type === 'fixed' && it.origin) row.origin = it.origin;
     unscaled += t.unscaled;
@@ -1064,8 +1152,38 @@ export function estimate(state, q = quantities(state)) {
       rows.push(cr);
     }
   }
-  return { rows, matTotal: mat, labTotal: lab, total: mat + lab, errors, unscaled, incomplete: errors > 0 || unscaled > 0, hours, workerHours, days: hours / CREW_DAY };
+  const noRate = flagNoRate(rows);   // 0.10 BK.62: lines with a quantity and no rate at all
+  return { rows, matTotal: mat, labTotal: lab, total: mat + lab, errors, unscaled, incomplete: errors > 0 || unscaled > 0, hours, workerHours, days: hours / CREW_DAY, noRate };
 }
+
+/**
+ * 0.10 BK.62: the lines that have a quantity and no rate. A line is priced when it has a material or a labor rate; an item with
+ * none of its own is still priced when one of its components or second conditions is (an assembly is priced through its parts).
+ * Sets `noRate` on those rows and returns how many. A formula error or a subcontract line is not a missing rate.
+ */
+export function flagNoRate(rows) {
+  const has = (r) => (r.mat || 0) !== 0 || (r.lab || 0) !== 0 || !!r.crew;
+  const pricedParts = new Set(rows.filter((r) => (r.kind === 'component' || r.kind === 'condition') && !r.error && has(r)).map((r) => r.itemId));
+  let n = 0;
+  for (const r of rows) {
+    delete r.noRate;
+    if (r.error || r.kind === 'subcontract' || r.awarded || !(r.qty > 0) || has(r)) continue;
+    if (r.kind === 'item' && pricedParts.has(r.itemId)) continue;
+    r.noRate = true; n++;
+  }
+  return n;
+}
+/** The rows with no rate, as the assistant tools and the sign-off dialog list them. */
+export const missingRates = (est) => est.rows.filter((r) => r.noRate).map((r) => ({ kind: r.kind, itemId: r.itemId, ...(r.compId ? { compId: r.compId } : {}), ...(r.cond ? { cond: r.cond } : {}), name: r.name, unit: r.unit, qty: r.qty }));
+/** The figures of an estimate that a sign-off covers (tables/signoff.js): one line per row, in order. */
+export const estimateLines = (est) => est.rows.map((r) => ({ key: r.kind + ':' + (r.itemId || r.pkg || '') + ':' + (r.compId || r.cond || ''), name: r.name, qty: r.error ? 0 : r.qty, unit: r.unit, waste: r.waste, mat: r.mat, lab: r.lab, total: r.error ? 0 : r.total }));
+/** Is the estimate still the one that was signed? */
+export function signoffHolds(state) {
+  if (!state.signoff) return false;
+  const est = baseEstimate(state);
+  return holds(state.signoff, estimateLines(est), est.total);
+}
+
 
 /**
  * The estimate of each bid area (T12): [{ area: {id, name} | null (marks in no bid area), est }], in the
@@ -1093,7 +1211,9 @@ export const addAlternates = (state) => new Set((state.areas || []).filter((a) =
 export function baseEstimate(state, { awards = true } = {}) {
   const ex = addAlternates(state);
   const est = estimate(state, ex.size ? quantities(state, { exclude: ex }) : quantities(state));
-  return awards ? applyAwards(state, est) : est;
+  const out = awards ? applyAwards(state, est) : est;
+  if (awards) out.noRate = flagNoRate(out.rows);   // 0.10 BK.62: a package given to a subcontractor is not a missing rate
+  return out;
 }
 
 /**

@@ -1,63 +1,106 @@
 ---
-title: Okusha ku-0.8 nasku-0.8.1
-summary: Bala ilejenda yesimboli yonke ezishidini ezivulekile ngokusebenza kanye, bhekisa izinto ngamanani wamaphrojekthi akho edlule, hlola ukubala ngesitoko nezikhathi zokulinda zomhlinzeki, kanye namathuluzi amasha e-assistant kukho kokuthathu, kanye nezinguquko ezabelwe ku-0.8 nokulungisa kwe-0.8.1 kumafayela e-DWG.
-keywords: okusha, yini esha, amanothi wokukhishwa, ushintsho, 0.8, 0.8.1, inguqulo, izici ezintsha, bala konke, ilejenda, ilejenda yesimboli, sonke isethi, inkumbulo yamanani, amaphrojekthi edlule, umsebenzi wokugcina, intengo ejwayelekile, umhlinzeki, isitoko, isikhathi sokulinda, ukuyala, uhlu lokuyala, ukushoda, ipanele yezinkinga, assistant, izilimi, amadivayisi okufaka, imigqa yebha yamathuluzi, dwg
-from: a04adef6
+title: Okusha ku-0.9
+summary: Funda ubude ngamamitha, amasentimitha noma amamilimitha, izindawo ze-metric ngamamitha esikwele nendawo yodonga, izikali ezisethiwe ngaphambili ka-1:75 no-1:150, amayunithi wesisindo nezinga lokushisa, i-Arc enezindlela eziyishumi, namakhesa aphilayo, ukulandela nohlu lwabantu.
+keywords: okusha, yini emisha, amanothi okukhishwa, changelog, 0.9, bonisa ubude njenge, amamitha, amasentimitha, amamilimitha, metric, landela okujwayelekile, amayunithi, amayunithi okubonisa, m2, amamitha esikwele, indawo yodonga, izikali ezisethiwe ngaphambili, 1:75, 1:150, isisindo, amakhilogremu, kg, itoni, ithani, lb, izinga lokushisa, celsius, fahrenheit, arc, izindlela ze-arc, ijika elingu-3, iradiyasi, ephilayo, amakhesa, landela, uhlu lwabantu, ikilasi, amathiphu, isakhiwo, izinguquko, 0.8, 0.8.1, inguqulo, izici ezintsha, bala konke, isiqondisi, isiqondisi sezimpawu, isethi yonke, inkumbulo yamanani, imisebenzi edlule, umsebenzi wokugcina, izinga lajwayelekile, umhlinzeki, isitoko, isikhathi sokulinda, ukushoda ngemva, uhlu lokuyala, ukushoda, iphaneli yezinkinga, izisizi, izilimi, amadivayisi okufaka, imigqa yebha yamathuluzi, dwg
+from: 6182b998
 ---
 
-Lokhu kushintshile ku-TakeoffCraft 0.8 (ikhishwe ngo-2026-11-01) nasku-0.8.1 (2026-11-02), kuqhathaniswa ne-0.7. Ilejenda yesimboli ingabalwa yonke isethi ngesikhathi esisodwa, ukubala okusha kungaqala ngamanani amaphrojekthi akho edlule, futhi ukubala kungahlolwa ngesitoko somhlinzeki. I-0.8.1 kuyisilungiso.
+Lokhu yikho okushintshile ku-TakeoffCraft 0.9, uma kuqhathaniswa ne-0.8.1. Ukukhishwa okuncane kule app: ubude bungafundeka manje ngamamitha, amasentimitha noma amamilimitha, izindawo nezikali zilandela umsebenzi we-metric ngendlela efanele, futhi i-Arc inezindlela eziyishumi zokudweba. Iseshini ephilayo nayo ikhombisa ukuthi ubani usendaweni nini.
 
 ## Okusha
 
-### Bala konke esethini
+### Funda ubude ngamamitha, amasentimitha noma amamilimitha
 
-- **Bopha ilejenda kanye.** {{ui:Count everything}} ethuluzini ifunda ilejenda yesimboli: hudula ibhokisi ezungeze izimboli nemigomo ebhalwe ngasemabhalweni. Isimboli ngasinye sidwetshwa nesithombe negama layo, futhi igama liba yigama lento. Susa okungakufuni, bese ukhetha {{ui:Count on N sheets}}. Ibha ikhombisa ishidi okusesingwa kulo, {{ui:Cancel}} iyeka ukusesha, futhi ikhasi lisasebenziseka.
-- **Wonke amashidi ngesisodwa.** Isimboli ngasinye sibalwa kuwo wonke amashidi avulekile. Ishidi elidwetshwe ngesikali esihlukile lisesha ngalesosikali, futhi izimboli zitholakala uma zijikile ngakunoma yiliphi ikhona langqo. Izimboli zelejenda ngokwazo azibalwa kuleshidi lazo.
-- **Buyekeza ngaphambi kokungeza noma yini.** Yonke inani linesixhumanisi ngesishidi ngasinye ("E-103: 4") esiyisa kuleshidi. Chofoza ibhokisi kutholakalo ukuze uyikhiphe, bese uyichofoza futhi ukuze uyibuyisele. Izinga lokufana (50% kuya ku-100%) lihlunga okutholakele kuphela; akukho okusesingwa futhi.
-- **Isinyathelo esisodwa sokuhlehlisa.** {{ui:Add N marks}} yenza into yokubala ngesimboli ngasinye, nophawu ezindaweni zonke ezitholakale. Igama elisukeliyinto yokubala yakho liyasetshenziswa kabusha. {{key:Ctrl+Z}} ibuyisela zonke izinto namakwe. Okwamukelwe nakho kuyafundwa ku-{{ui:Learned}}.
-- **Izimboli ngazo zonke izingeli.** Khetha {{ui:Symbols at any angle}} ngaphambi kokubala ukuze ufumane nezimboli ezijikelwe ngengeli engeyona eyi-engeli yangqo. Ukusesha kujikeleza ngayinye isimboli njalo ngamadigri ayi-15, futhi isimboli esingeyona eyendilinga singathatha isikhathi esingafika kwesi-6 esiphindwe kasithupha.
-- **Yini.** Ukufanisa okujwayelekile kwezimboli emashidini akho, ngaphandle kwemodeli efundisiwe, futhi akukho okushiya ikhompyutha yakho. Kusethi yamashidi angu-200 eyenziwe, kuthathe amasekhondi angu-9.4 kusukela ekuqaleni kuya ekupheleni ku-Chrome kudeskithophu esheshayo; amasethi wangempela wamapulani azothatha isikhathi eside. Bona [Bala konke esethini](topic:count-everything).
+- **Bonisa ubude njenge.** {{ui:Settings}} › {{ui:TakeoffCraft}} unento ethi {{ui:Show lengths as}} enezinketho ezithi {{ui:Follow Global}}, {{ui:Feet-inches}}, m, cm kanye ne-mm. {{ui:Follow Global}} isebenzisa iyunithi yobude ye-metric oyiphawulile kumenyu {{ui:Settings}} › {{ui:Global}} › {{ui:Units}}, futhi isebenzisa amafiti namainshi uma kungekho lutho oluphawulwe. Ishintsha indlela ubude obufundeka ngayo ephepheni, kubha yesimo nasemaphaneleni, kuhlanganise nokuphakama, ukujula, ukuqina namazinga. Inombolo engenalutho etshalwe enkundleni yokuphakama ifundwa ngeyunithi ebonisiwe.
+- **Ukubonisa kuphela.** Izinani, izindleko namaphrinti kubalwa kusukela ebudeni obunembile. Ukukhetha kwe-1/16, 1/8 kanye ne-1/4 yeyinci kuvela kumafiti namainshi kuphela. Bona [Bonisa ubude ngamamitha](topic:show-lengths-in-meters).
+- **Amayunithi wesisindo.** Into ethi {{ui:Typed quantity (no drawing)}} ingaba ngu-lb, TON, kg noma t, futhi inganikezwa amanani ngeyunithi ngayinye.
+- **Izinga lokushisa.** Yonke into inenkundla ekhethwayo ethi {{ui:Temperature}} kumhleli wento, ibhalwe ngamadigri C noma F. {{ui:Show temperatures as}} kumenyu {{ui:Settings}} › {{ui:TakeoffCraft}} inikeza {{ui:Follow Global}}, °C noma °F.
 
-### Inkumbulo yentengo kumaphrojekthi akho
+### Izindawo nezikali zomsebenzi we-metric
 
-- **I-TakeoffCraft ikhumbula amarethi akho.** Uma ulondoloza ukubala, yonke into enentengo esetshenzisiwe ikhunjulwa ngegama nangohlobo: izinga lempahla, izinga lomsebenzi, ukulahleka neyunithi. Kugcinwa amaphrojekthi angu-12 okokugcina ngegama ngalinye. Igcinwa kule khompyutha ecishe ibe yiLibrary yentengo, hhayi ngaphakathi kwefayela lokubala, futhi akukho okuthunyelwa noma yikuphi.
-- **Qala ukubala okusha ngayo.** {{ui:Prices}} ethuluzini ibonisa, ngento ngayinye, amarethi wephrojekthi yokugcina, amarethi ajwayelekile nobubanzi. {{ui:Use last}} noma {{ui:Use typical}} ibiza into eyodwa, kuyilapho {{ui:Price N unpriced items from memory}} inikeza intengo kuzo zonke izinto ezingenayo. Isinyathelo ngasinye sisinyathelo esisodwa sokuhlehlisa.
-- **Umsebenzi odlule.** {{ui:Learn from a past takeoff…}} ikhumbula izinto ezinentengo zokubala okulondoloziwe (.json).
-- **Bona, shintsha, ukhohlwe.** {{ui:Everything remembered}} ibonisa wonke amagama; inkinobho yotshani ikhohlisa eyodwa, kuyilapho {{ui:Clear all prices}} ikhohlisa zonke. Vala {{ui:Remember my prices when I save a takeoff}} ukuze kumiswe. Intengo ngeyunithi ngayinye ayisoze ibekwe into ngefidi. Bona [Inkumbulo yentengo kumaphrojekthi akho edlule](topic:price-memory).
+- **Izindawo ngama-m2 kumdwebo.** Indawo ekalwe ngento ye-metric manje ithi m2 ethegini yomdwebo nasephaneli yamamaki, nakwethebula, esikhundleni se-SF. Umthetho uthi m2 uma into inikezwa amanani nge-metric noma ubude bubonisa m, cm noma mm, kanti SF uma kungenjalo.
+- **Indawo yodonga.** Into yomugqa enobude nayo inobude bayo ibonisa nendawo yodonga (ubude kuphindwe ngobude) ohlwini lwezinto nanjengomugqa wensula ngaphansi kwethebula lezinani ngento.
+- **Izikali ezisethiwe ngaphambili 1:75 no-1:150.** Zisohlwini lwe-{{ui:Preset}} eqenjini {{ui:Scale}}, okumanje linezikali ezingu-32. Bona [Izikali ezisethiwe ngaphambili](topic:scale-presets).
 
-### Isitoko somhlinzeki nezikhathi zokulinda
+### I-Arc enezindlela eziyishumi
 
-- **Hlola ngohlu lomhlinzeki.** {{ui:Supply}} ethuluzini ithatha uhlu lwesitoko somhlinzeki ({{ui:Add a supplier file…}}), i-CSV noma ishidi lokusebenza, bese ihlola okudingwa ukubala, kubalwe ukulahleka, ngalo. Kugcinwa amafayela amahlanu kuphela. Akukho okuthunyelwa futhi akukho ocelwa umhlinzeki: wena uletha ifayela.
-- **Okushoyo.** Izinto ezishodayo zivela qala: "Kushoda angu-120 EA", "Isikhathi sokulinda ezinsukwini ezingu-21", "Kuyi-backorder", "Iyunithi ihlukile", "Akukho inani lesitoko" noma "Kukhona esitokweni". {{ui:Longest wait wanted (days)}} iqala ku-14.
-- **Uhlu lokuyala.** {{ui:Order list (CSV)}} ilanda izinto ezishodayo ngenani elishodayo, umhlinzeki nesikhathi sokulinda.
-- **Amanani aya kwiLibrary.** Uma ifayela linamanani, {{ui:Prices into the Library}} ibeka intengo yempahla yakho ngayinye yeLibrary enegama neyunithi efanayo. Phinda ulinganise kusuka eLibrary ukuze uwafake kubalo.
-- **Kwiphaneli yezinkinga.** Ukushoda kuyisexwayiso kanti isikhathi eside sokulinda siyinothi, ngaphansi kuka "Supply stock". Ungakwamukela ngesizathu, futhi lesosizathu silondolozwa kubalo. Bona [Hlola isitoko somhlinzeki nezikhathi zokulinda](topic:supplier-stock).
+- Uma {{ui:Arc}} isebenza (inkinobho yethuluzi noma {{key:R}}), kuvela ibhokisi elithi {{ui:Arc method}} ebhareni leshidi: 3-Point, Start, Center, End, Start, Center, Angle, Start, Center, Length, Start, End, Angle, Start, End, Direction, Start, End, Radius, Center, Start, End, Center, Start, Angle kanye no-Center, Start, Length. Ingalo, ubude, iradiyasi nesiqondiso kungachofozwa noma kubhalwe. Isebenza emigqeni eqondile, ezindaweni nasemigodini ekhethiwe. Amafayela alondolozwe ngaphambi kwe-0.9 avula ngendlela efanayo. Bona [Dweba amajika ngezindlela eziyishumi](topic:draw-arcs-ten-methods).
 
-### Abasizi be-AI
+### Ukusebenza ndawonye
 
-- **Amathuluzi kokukodwa kokuthathu.** Uma abasizi bevunyelwe ku-{{ui:Settings}}, umsizi angafunda ilejenda (`legend_open`), enze ukubala (`legend_count_start`, bese `legend_count_status` no-`legend_count_result`) bese ekwengeza (`legend_count_add`, ongabona kuqala ukubukeka). Ungafunda amanani agciniwe (`prices_list`) futhi abhekise izinto kusuka kuwo (`prices_apply`, ongabona kuqala), bese efunda ukuhlolwa kwesitoko somhlinzeki (`supply_check`). Ukungeza ifayela lomhlinzeki kusalele wena ukuthi ukwenze. Bona [Sebenzisa i-TakeoffCraft nabasizi be-AI](topic:use-with-ai-assistants).
+- **Bona amakhesa abanye.** Kuseshini ephilayo, indlela yokubhekisa yalowo nalowo ibonakala ephepheni negama lakhe nombala wakhe, nebhokisi elinemigqa emincane ezungeze izimaka azikhethile. Abantu abasephepheni elehlukile babhalwa ngegama leshidi labo. Bona [Sebenzani ngokuphila nabanye](topic:work-live).
+- **Landela umuntu, nohlu lwabantu.** Inkinobho ethi {{ui:People}} kuseshini ephilayo idweba uhlu lwabantu ngabanye, ngethuluzi abalisebenzisayo, ishidi abakulo nesikhathi ekhishe ngaso ukuhlelwa kokugcina. {{ui:Follow}} ishintsha ukubuka kwakho ukuze ihambisane nokwakhe, futhi umphathi angasebenzisa {{ui:Ask everyone to follow me}}. Bona [Landela umngane wethimba kuseshini ephilayo](topic:follow-a-teammate).
 
-### Kuzo zonke izinhlelo
+## Kuyo yonke i-app
 
-- **Izilimi.** Izilimi ezingamashumi amahlanu nane ngokupheleleyo; eziyishumi ziyizintsha (isiLithuania, isiLatvia, isiBosnia, isiMarathi, isiTelugu, isiAlbania, isiAfrikaans, isiFilipino, isiSwahili nesiUzbek). Izilimi ezingaphandle kwesiNgisi ziyizinhlaka zomshini kuze kufundwe umuntu ozalwe ngayo.
-- **Amadivayisi okufaka.** {{ui:Settings}} › {{ui:Global}} › {{ui:Input devices}} ibeka ukuthi i-trackpad, izinkinobho zangasese zemouse, ipeni, i-3D mouse, i-game controller noma i-MIDI controller yenza ini, kuzo zonke izinhlelo noma kwesisodwa. Bona [Sebenzisa i-trackpad, i-3D mouse noma i-controller](common:input-devices).
-- **Imigqa yebha yamathuluzi.** {{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} inikeza {{ui:Wrap}} (okuqalayo), {{ui:2 rows}} no-{{ui:1 row}}; amaqembu angafaneleki ascolisa ngokuvundlile. Bona [Hlela amapanele](common:arrange-panels).
-- **Ipanele yezinkinga.** Ipanele eyabelwe yezexwayiso nezinothi manje inesheke lesitoko somhlinzeki elisendulo, eduze kwezinye izheke.
-- **Izengezo.** Izengezo zilandela uhlu lwakho lwe-akhawunti. Bona [Izengezo nohlu lwe-akhawunti yakho](common:addons-basics).
-- **Xhuma i-AI yakho.** I-CadCraft Studio iyisikhungo: xhuma umsizi wakho kanye kuzo zonke izinhlelo ezisishiyagalombili. I-Studio ayinayo i-AI yayo.
+- **Umbhalo wesiqondiso kanye neseluleko sokuqala.** Umbhalo ovela uma uhambisa isikhombi uyithiphu ye-Bootstrap, futhi iseluleko sokuqala singavalwa.
+- **Amathebhu askrola.** Ibhande lamathebhu ephaneli elingangeni liyaskrola esikhundleni sokusikwa.
+- **Izihloko zamathebhu.** Ithebhu yesiphequluli ifunda `<document> - TakeoffCraft | CadCraft`.
+- **Isakhiwo.** Uhlu lwesakhiwo kumenyu {{ui:Settings}} luuhlu olwehlisekayo olubonisa isakhiwo osikhethile.
+- **Ulimi.** Ulimi oluyikhethayo manje lufinyelela amagama aphrintwa yikhasi ngokwalo, njengoKusha, {{ui:Open}} kanye ne-Londoloza. Izilimi ezingesona isiNgisi ziyizidrafu zomshini kuze kufundwe umuntu wendabuko.
 
-## Kulungisiwe ku-0.8.1
+## Imikhawulo engisho iqiniso
 
-- **Isigaba samakilasi e-DWG.** Isigaba samakilasi efayela le-DWG sifundwe njengohlobo olungalungile. Lokhu kulungisiwe ku-TakeoffCraft nakwezinye izinhlelo ezinhlanu.
-- **I-Studio ingashintsha ulimi ngesikhathi isebenza.** Ngaphambili i-Studio nezinguqulo zayo ezipakiwe zazisesiNgisini kuphela. Lokhu akuhlolwanga ku-build yedesktop kuzo zonke izinhlelo; sitshele uma ulimi lungashintshi.
+- Ukubonisa ubude, amayunithi wesisindo nezinga lokushisa kanye nezilungiselelo ezintsha kuhlolwe ngamathesti nasekhasini. Akukahlolwa ngesandla zonke amaphaneli kuzo zonke iziyunithi.
+- Uhlu lwabantu alikaze luhlolwe ngesandla ngekilasi langempela lothisha nabafundi.
+- Izilimi ezingesona isiNgisi ziyizidrafu zomshini.
+- Abafakeli be-Windows abaqinisekiswanga ngekhodi (Ulwazi olwengeziwe, bese Qhuba noma kunjalo). Isithombe sedisiki se-macOS asikaqinisekiswa (chofoza ngenkinobho yesokudla, bese {{ui:Open}}).
 
-## Akusakatholakali kulolu hlelo okwamanje
+## Kwangaphambili: 0.8 kanye ne-0.8.1
 
-- **Akukasayinwa ngekhodi.** I-Windows ingase isexwayise, futhi kwi-Mac uchofoza ngakwesokudla bese ukhetha {{ui:Open}} ngokokuqala. Izakhiwo ze-store (Microsoft Store, Google Play, App Store) zimisiwe, futhi isakhiwo se-iPad ne-iPhone kakuzange sakhiwe kabusha ngo-0.8.1.
-- **Izibuyekezo ze-Studio.** Umfakeli we-Windows nezikhwama ze-Linux zihlola kanye ngosuku futhi zibuze kuqala. Isip zip esingahanjiswa sikutshela kuphela, futhi i-macOS ne-APK azizibuyekezi zodwa. I-.dmg ye-macOS ye-0.8 ilandela ukukhishwa.
-- **Xhuma i-AI yakho.** Ukuxhuma ngokuchofoza kube kodwa ku-Studio, isixhumi esiphethwe ku-AI esisesiphequluluni, ukhiye wakho we-API ku-Studio nephakheji ye-MCP eshicilelwe akwethenjiswanga kulolu hlelo.
-- **Bala konke.** Idinga izimboli ezidwetshwe ngendlela efanayo nakwilejenda, nesimboli enodonga noma umugqa omude odlule kuso singase singatholakali. Izimboli ezingcolile azitholakali, futhi ishidi elingenasikali elidwetshwe ngesinye usayizi lisesha ngosayizi welejenda. Hlola okutholakele kushidi lokuqala ngaphambi kokwethemba okunye.
-- **Isitoko somhlinzeki.** Inani lesitoko lilungile njengefayela oyengeza. Ukuhlola akusoze kubuze umhlinzeki.
-- **Izilimi.** Ibha yohlelo ye-Tamil iyagcwala.
+Lokhu yikho okushintshile ku-TakeoffCraft 0.8 (kukhishwe ngo-2026-11-01) ne-0.8.1 (2026-11-02), uma kuqhathaniswa ne-0.7. Umugqa wezimpawu ungabalwa manje kuso sonke isethi ngasikhathi sinye, umsebenzi omusha ungaqala ngamanani emisebenzi yakho edlule, futhi umsebenzi ungahlolwa ngesitoko somhlinzeki. I-0.8.1 ukulungisa iphutha.
 
-Konke okunye kukuthi [Akukakwakhiwa](topic:not-built-yet). Ngokukhishwa okwandulela lokhu, bona [Okusha ku-0.7](topic:whats-new-0-7).
+### Okusha
+
+**Bala konke esethini**
+
+- **Yiboksa isiqondisi kanye.** {{ui:Count everything}} ethulini ifunda isiqondisi sezimpawu: hudula ibhokisi ozungeze izimpawu namagama ezibhalwe eduze kwazo. Impawu ngayinye ibhalwa nesithombe negama layo, futhi igama liba yigama lento. Susa ukukhetha kokungakudingi, bese ukhetha {{ui:Count on N sheets}}. Ibha ikhombisa ishidi elisesekwa, {{ui:Cancel}} iyeka ukusebenza, futhi ikhasi lisasebenziseka.
+- **Wonke amashidi kokusebenza kunye.** Impawu ngayinye ibalwa kuwo wonke amashidi avulekile. Ishidi elidwetshwe ngesikali esihlukile liseshwa ngalesosikali, futhi izimpawu zitholakala zijikiwe kunoma yiliphi i-engeli eqondile. Izimpawu zesiqondisi ngokwaso azibalwa kuleyoshidi.
+- **Hlola ngaphambi kokungeza noma yini.** Isamba ngasinye sinesixhumanisi ngeshidi ngalinye ("E-103: 4") esiya kuleyoshidi. Chofoza ibhokisi kokutholakele ukuze ulisuse, bese uchofoza futhi ukuze ulibuyisele. Izinga lokufana (50% kuya ku-100%) lihlunga kuphela okutholakele; akukho okuphinde kusekwe.
+- **Isinyathelo esisodwa sokubuyisela.** {{ui:Add N marks}} yenza into yokubala ngento ngayinye, ngophawu ezindaweni zonke ezitholakele. Igama elisuke liyinto yakho yokubala lisetshenziswa kabusha. {{key:Ctrl+Z}} ibuyisela zonke izinto nezimaka. Okwamukelwe nakho kuyengezwa kuthi {{ui:Learned}}.
+- **Izimpawu nganoma yiliphi i-engeli.** Khetha {{ui:Symbols at any angle}} ngaphambi kokubala ukuze uthole nezimpawu ezijikiwe ngengalo engeyona eyisikhombisa. Ukusesha kujikisa ngayinye impawu njalo ngama-degree ayi-15, futhi impawu engeyona eyindilinga ingathatha isikhathi esingaphezu kwamaphindwe ayisithupha.
+- **Yini kanye.** Ukufanisa izimpawu okuvamile kumashidi akho, akukho imodeli eqeqeshiwe, futhi akukho okushiya ikhompyutha yakho. Kwisethi eyenziwe ngamashidi angu-200 yathatha amasekhondi ayi-9.4 ukusuka kuqala kuya ekugcineni ku-Chrome ekhompyutheni ejwayelekile esheshayo; amaseti wamaplani angempela azoba nzima kakhulu. Bona [Bala konke esethini](topic:count-everything).
+
+**Inkumbulo yamanani emisebenzini yakho**
+
+- **I-TakeoffCraft ikhumbula amazinga akho.** Uma ulondoloza ibalo, into ngayinye enamanani esetshenziswayo ikhunjulwa ngegama nangohlobo: izinga lempahla, izinga lomsebenzi, ukulahleka neyunithi. Imisebenzi eyi-12 yokugcina igcinwa ngegama ngalinye. Igcinwa kulo khompyutha eceleni komtapo wamanani, ingasoze igcinwe ngaphakathi kwefayela lebalo, futhi akukho okuthunyelwa noyiphi indawo.
+- **Qala ibalo elisha kuwo.** {{ui:Prices}} ethulini ibonisa, ngento ngayinye, amazinga womsebenzi wokugcina, amazinga ajwayelekile nobubanzi. {{ui:Use last}} noma {{ui:Use typical}} inikeza into eyodwa amanani, futhi {{ui:Price N unpriced items from memory}} igcwalisa zonke izinto ezingenawo amanani okwamanje. Ukusebenzisa ngakunye kuyisinyathelo esisodwa sokubuyisela.
+- **Imisebenzi edlule.** {{ui:Learn from a past takeoff…}} ikhumbula izinto ezinamanani zebalo elilondoloziwe (.json).
+- **Bona, shintsha, khohlwa.** {{ui:Everything remembered}} ibonisa uhlu lwawo wonke amagama; inkinobho yokusula ikhohlwa igama elilodwa, futhi {{ui:Clear all prices}} ikhohlwa konke. Vala {{ui:Remember my prices when I save a takeoff}} ukuze kuyeke. Amanani "ngakunye" awasoze afakwe kuto eqoshwa ngefidi. Bona [Inkumbulo yamanani emisebenzini yakho edlule](topic:price-memory).
+
+**Isitoko somhlinzeki nezikhathi zokulinda**
+
+- **Hlola ngohlu lomhlinzeki.** {{ui:Supply}} ethulini ithatha uhlu lwesitoko somhlinzeki ({{ui:Add a supplier file…}}), i-CSV noma ishidi lezibalo, bese ihlola okudingekayo ibalo, kanye nokulahleka, ngakho. Kugcinwa kuze kube yimafayela amahlanu. Akukho okuthunyelwa futhi akukho okucela umhlinzeki: wena uletha ifayela.
+- **Okushoyo.** Izinto ezinganele zivela kuqala: "Short by 120 EA" ihunyushwa ibe "Ishoda ngo-120 EA", "Isikhathi sokulinda izinsuku ezi-21", "Ioda ilindile", "Iyunithi ihlukile", "Akukho inani lesitoko" noma "Kukhona esitokweni". {{ui:Longest wait wanted (days)}} iqala ku-14.
+- **Uhlu lokuyala.** {{ui:Order list (CSV)}} ilanda izinto ezishoda ngenani elishodayo, umhlinzeki kanye nesikhathi sokulinda.
+- **Amanani angena emtapweni.** Uma ifayela linamanani, {{ui:Prices into the Library}} isetha izinga lempahla ye-Library ngayinye enegama neyunithi efanayo. Phinda unikeze amanani kusuka emtapweni ukuze uwafake ebalweni.
+- **Ephaneli yezinkinga.** Ukushoda kuyisexwayiso kanti isikhathi eside kuyisaziso, ngaphansi kwe-"Supplier stock". Ungamukela okukodwa ngesizathu, futhi isizathu siyagcinwa ebalweni. Bona [Hlola isitoko somhlinzeki nezikhathi zokulinda](topic:supplier-stock).
+
+**Izisizi ze-AI**
+
+- **Amathuluzi kubo bonke abathathu.** Uma izisizi zivunyelwe kumenyu {{ui:Settings}}, isizi singafunda isiqondisi (`legend_open`), senze ukubala (`legend_count_start`, bese `legend_count_status` kanye ne-`legend_count_result`) bese siyengeza (`legend_count_add`, okungabonisa kuqala). Singafunda amanani agciniwe (`prices_list`) futhi sinikeze izinto amanani kuwo (`prices_apply`, okungabonisa kuqala), futhi singafunda ukuhlolwa kwesitoko somhlinzeki (`supply_check`). Ukungeza ifayela lomhlinzeki kuseyisandla sakho. Bona [Sebenzisa i-TakeoffCraft nezisizi ze-AI](topic:use-with-ai-assistants).
+
+**Kuyo yonke i-app**
+
+- **Izilimi.** Izilimi ezingama-54 ngokubonke; eziyishumi ziyizintsha (isiLithuania, isiLatvia, isiBosnia, isiMarathi, isiTelugu, isiAlbania, isiAfrikaans, isiFilipino, isiSwahili kanye nesiUzbek). Izilimi ezingesona isiNgisi ziyizidrafu zomshini kuze kufundwe umuntu wendabuko.
+- **Amadivayisi okufaka.** {{ui:Settings}} › {{ui:Global}} › {{ui:Input devices}} isetha ukuthi i-trackpad, izinkinobho zangasese ze-mouse, ipeni, i-mouse ye-3D, isilawuli segeyimu noma isilawuli se-MIDI senzani, kuyo yonke i-app noma kwesodwa. Bona [Sebenzisa i-trackpad, i-mouse ye-3D noma isilawuli](common:input-devices).
+- **Imigqa yebha yamathuluzi.** {{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} inikeza {{ui:Wrap}} (okokuqala), {{ui:2 rows}} kanye {{ui:1 row}}; amaqembu angangeni askrola ohlangothini. Bona [Hlela amaphaneli](common:arrange-panels).
+- **Ephaneli yezinkinga.** Iphaneli elabelanwa ngezexwayiso nezaziso manje liqukethe ukuhlolwa kwesitoko somhlinzeki okungenhla, eceleni kwezinye izinhlolo.
+- **Okwengeziwe.** Okwengeziwe kulandela uhlu lwe-akhawunti yakho. Bona [Okwengeziwe nohlu lwe-akhawunti](common:addons-basics).
+- **Xhuma i-AI yakho.** I-CadCraft Studio iyisikhungo: xhuma isizi sakho kanye kuphela kuzo zonke izinhlelo eziyisishiyagalombili. I-Studio ayinayo i-AI yayo.
+
+### Kulungisiwe ku-0.8.1
+
+- **Isigaba samakilasi e-DWG.** Isigaba samakilasi efayeleni le-DWG safundwa njengohlobo olungalungile. Lokhu kulungisiwe ku-TakeoffCraft nakwamanye ama-app amane.
+- **I-Studio ingashintsha ulimi isasebenza.** Ngaphambili i-Studio nezinhlobo zayo ezipakishiwe zaziyisiNgisi kuphela. Lokhu akuhlolwanga kuwo wonke amapuleti ohlelo lwedeskthophu; sitshele uma ulimi lungashintshi.
+
+### Akukakufakwa kulolu hlobo
+
+- **Akukaqinisekiswa ngekhodi.** I-Windows ingase isixwayise, futhi ku-Mac uchofoza ngenkinobho yesokudla bese ukhetha {{ui:Open}} ngokokuqala. Izakhiwo zesitolo (Microsoft Store, Google Play, App Store) zimisiwe, futhi isakhiwo se-iPad ne-iPhone asizange sakhiwe kabusha ngo-0.8.1.
+- **Izibuyekezo ze-Studio.** Umfakeli we-Windows namaphakheji e-Linux ahlola kanye ngosuku futhi ayabuza kuqala. Ifayela le-zip elihambisekayo liyakutshela kuphela, kanti i-macOS ne-APK azibuyekezi ngokuzenzakalelayo. Ifayela le-.dmg le-macOS ka-0.8 lilandela ukukhishwa.
+- **Xhuma i-AI yakho.** Ukuxhuma ngokuchofoza kanye ngaphakathi kwe-Studio, isixhumi esisebenza kusiphequluli, ukhiye wakho we-API ngaphakathi kwe-Studio kanye nephakheji le-MCP elishicilelwe akuthenjiswa kulolu hlobo.
+- **Bala konke.** Idinga izimpawu ezidwetshwe ngendlela efanayo nasesiqondisini, futhi impawu enodonga noma umugqa omude ushayiwe ingase iphuthelwe. Izimpawu ezigoqwe azitholakali, futhi ishidi elingenasikali elidwetshwe ngesinye isilinganiso liseshwa ngesilinganiso sesiqondisi. Hlola okutholakele kushidi lokuqala ngaphambi kokuthembela kokunye.
+- **Isitoko somhlinzeki.** Izibalo zesitoko zisemusha njengefayela oliwengezayo. Ukuhlolwa akukaze kucele umhlinzeki.
+- **Izilimi.** Ibha yoku-app ye-Tamil iyachichima.
+
+Konke okunye kusohlwini [Akukakwakhiwa](topic:not-built-yet). Ngokukhishwa okwandulela lona, bona [Okusha ku-0.7](topic:whats-new-0-7).

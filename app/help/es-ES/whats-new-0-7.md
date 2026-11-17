@@ -1,0 +1,59 @@
+---
+title: Novedades de la versión 0.7 (anteriores)
+summary: Los dibujos DWG y DXF se abren como hojas con su propia escala, recuentos y longitudes exactos del propio dibujo, la oferta de subcontrata elegida como precio de un paquete, invitaciones a ofertar con precios cerrados, herramientas de asistente para dibujos y USD desde la vista de comprobación 3D.
+keywords: novedades 0.7, versión anterior, notas de la versión, registro de cambios, cambios, 0.7, versión, nuevas funciones, dwg, dxf, dibujo, presentaciones, espacio modelo, escala del dibujo, recuento desde dibujo, recuento CAD, bloques, bloques dinámicos, atributos, capas, xref, dibujo vinculado, medir dibujo, polilínea, trama, PDF anotado, oferta elegida, usar una oferta, enviar para ofertas, invitación a ofertar, ofertas cerradas, apertura de ofertas, oferta tardía, registros de subcontratistas, csv, asistente, mcp, usd, usdz, unidades, listas de unidades, compacta, paneles, diálogos, portugués
+from: de1dca2b
+---
+
+Esto es lo que cambió en TakeoffCraft 0.7, en comparación con la 0.6. Ahora los dibujos se abren tal cual, sin imprimirlos antes a PDF, y un paquete de ofertas puede enviarse a los subcontratistas y volver con precios.
+
+## Nuevo
+
+### Dibujos DWG y DXF
+
+- **Abra un dibujo como hojas.** {{ui:Abrir PDF}} en el grupo {{ui:Archivo}} ({{key:Mod+O}}, o arrastre los archivos) acepta dibujos DWG y DXF junto con los PDF. El espacio modelo y cada presentación se convierten en hojas de la lista {{ui:Hojas}}, y una cuantificación puede cubrir dibujos y PDF a la vez. Nada se sube. Véase [Abrir un dibujo DWG o DXF](topic:open-a-drawing).
+- **La escala viene del dibujo.** Una presentación empieza con la escala de su ventana gráfica mayor, con el nombre de un preajuste cuando lo es, como 1/2" = 1'-0". El modelo empieza en las unidades del dibujo. Un dibujo sin unidades indica «Sin escala» hasta que lo calibre. {{ui:Calibrar}}, {{ui:Comprobar}} y {{ui:Preajuste}} siguen teniendo prioridad. Véase [La escala](topic:open-a-drawing#the-scale).
+- **Capas y dibujos vinculados.** {{ui:Capas}} en la barra de hojas muestra u oculta las capas del dibujo. Las capas que el archivo apagó o congeló empiezan ocultas y no se cuentan salvo que lo elija. Un dibujo vinculado (xref) abierto junto a su dibujo principal se dibuja y se cuenta donde está insertado; mientras no esté abierto, la barra de estado indica qué falta. Véase [Capas](topic:open-a-drawing#layers).
+- **El PDF anotado funciona desde un dibujo.** {{ui:Exportar}} › {{ui:PDF anotado}} dibuja antes en PDF las hojas marcadas de un dibujo, así que la copia muestra sus marcas y su leyenda sin paso de impresión. Se dibuja en negro o en los colores del dibujo, sin tablas de estilos de trazado. Véase [Un PDF anotado](topic:export-estimate#a-marked-pdf).
+
+### Recuentos y longitudes exactos desde un dibujo
+
+- **Cuente lo que el dibujo dice que hay.** {{ui:Recuento CAD}} en la barra de hojas cuenta un bloque por su nombre (incluidos los bloques anidados, los estados de bloques dinámicos y las matrices de bloques), todo lo de un tipo en una capa, o un valor de texto o de atributo. Cuenta lo que muestra la hoja, o el dibujo completo una vez. Añadir las marcas es un paso de deshacer, y volver a contar añade solo lo nuevo. {{ui:Autorrecuento}} se mantiene para PDF y para símbolos que no son bloques. Véase [Contar desde un dibujo](topic:count-from-a-drawing).
+- **Mida a partir de las propias líneas del dibujo.** {{ui:Medir dibujo}} toma las líneas, arcos, polilíneas, círculos, tramas y sólidos que haga clic o seleccione por ventana como marcas de una partida lineal o de área. Los arcos, los abultamientos y los huecos de una trama salen exactos; las elipses y las splines se miden en cuerdas finas, y la barra lo indica. Véase [Medir desde un dibujo](topic:measure-from-a-drawing).
+
+### Ofertas
+
+- **Use la oferta de un subcontratista como precio del paquete.** En {{ui:Exportar}} › {{ui:Paquetes de oferta y nivelación…}}, elija {{ui:Usar}} en una oferta. Las partidas del paquete siguen como cantidades, una línea **Oferta elegida** lleva el precio, las partidas que la oferta deja fuera siguen a su coste propio, y los gastos generales, el beneficio y la fianza se aplican sobre ella. Cambiar de oferta es un paso de deshacer; el libro de cálculo y el resumen de ofertas lo recogen. Véase [Usar una oferta como precio del paquete](topic:bid-leveling#use-a-bid-as-the-packages-price).
+- **Envíe un paquete a licitación.** {{ui:Enviar a licitación…}} bajo un paquete envía a cada subcontratista un enlace por correo a una página que no requiere cuenta: ven el alcance y las hojas en PDF, escriben un precio en cada línea o la marcan como no incluida, añaden notas y hasta tres archivos, o declinan. {{ui:Obtener precios}} lleva lo recibido a la hoja de nivelación, marcado **web**. El envío solo está abierto a las cuentas que el equipo de CadCraft haya habilitado mientras se prueba (véase abajo). Véase [Enviar un paquete a ofertar](topic:bid-invitations).
+- **Cerrado hasta la apertura.** Los precios pueden quedar cerrados hasta una hora de apertura que usted fije: hasta entonces nadie ve un precio, usted incluido. En la apertura se muestran todas las ofertas a la vez, y una oferta recibida después de la fecha límite se marca como tardía. Véase [Ofertas cerradas y la apertura](topic:bid-invitations#sealed-bids-and-the-opening).
+- **Registros de subcontratistas.** Su cuenta en getcadcraft.com guarda los contactos, oficios, respuestas de cualificación y fechas de seguro y licencia de cada empresa (marcadas una vez vencidas o dentro de 30 días), con sus ofertas anteriores. Impórtelos y expórtelos como CSV, y elíjalos al enviar un paquete. Véase [En el sitio web](topic:bid-invitations#on-the-website).
+
+### Asistentes de IA
+
+- **Los asistentes pueden añadir a la cuantificación.** Con **Editar** marcado, su propio asistente puede añadir partidas (`items_add`) y medir tramos, áreas y recuentos en una hoja (`marks_add`; longitudes y áreas solo en una hoja escalada), y cada llamada es un paso de deshacer.
+- **Herramientas de dibujo para asistentes.** En un DWG o DXF abierto, un asistente puede listar sus hojas y lo que se puede contar, contar con exactitud, añadir las marcas de recuento y medir a partir de la geometría del dibujo. Sin TakeoffCraft abierto, el servidor MCP de CadCraft abre un dibujo como una nueva cuantificación y la guarda, y `cadcraft count` cuenta desde la línea de comandos. Véase [Qué puede pedir un asistente](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+
+### USD
+
+- **La vista de comprobación 3D como USD.** {{ui:Paquete USD (.usdz)}} junto a {{ui:GLB}} en la vista de comprobación 3D escribe cada muro, losa, chapa, poste de recuento y tramo como su propio objeto, con el nombre de su partida y su cantidad, en metros. Un asistente también puede exportarlo (`usd_export`). Véase [Exportar la vista de comprobación 3D como USD](topic:usd).
+
+## En todas las aplicaciones
+
+- **Unidades.** {{ui:Ajustes}} › {{ui:General}} › {{ui:Unidades}} tiene una lista para longitud, área, volumen, ángulo y pendiente, con los tamaños exactos que indican las definiciones de cada unidad (el pie de agrimensura de EE. UU. es una unidad propia). Desactive las unidades que nunca usa y salen de las listas; márquela con una estrella y el trabajo nuevo empieza en ella. Un archivo siempre conserva su propia unidad. En TakeoffCraft, las listas {{ui:Unidad}} de una partida siguen los interruptores, una partida nueva empieza en la unidad de longitud o de área marcada con estrella, los cuadros de tejado (SQ), los acres y las hectáreas son unidades de área nuevas, y un cuadro de longitud acepta la marca de cualquier unidad, como `3 yd`. Véase [Unidades, valores escritos y listas de unidades](common:unit-lists).
+- **Una disposición más densa y paneles que se recogen.** {{ui:Ajustes}} › {{ui:General}} › {{ui:Densidad de la disposición}} › {{ui:Compacta}} cabe más en pantalla (las pantallas táctiles y los teléfonos mantienen sus botones grandes). Cada panel lateral tiene una barra de título estrecha: arrástrela para acoplar o flotar el panel, suéltela sobre la barra de otro panel para compartir un marco como pestañas, fíjela para que se deslice hacia el borde, u oculte el panel y tráigalo de vuelta desde el borde. Véase [Organizar los paneles](common:arrange-panels#make-the-layout-denser).
+- **Los diálogos se mueven.** Arrastre un diálogo por su barra de título para apartarlo del dibujo; vuelve a donde lo dejó. Haga doble clic en la barra de título para centrarlo de nuevo. Véase [Mover un diálogo](common:arrange-panels#move-a-dialog).
+- **Recetas para asistentes de IA.** Diez peticiones resueltas para su propio asistente (ordenar un dibujo, imprimir un conjunto, comprobar dibujos, hacer preguntas a un modelo, totalizar una cuantificación, probar una variante de pieza…), cada una con las herramientas que llama y los permisos que necesita, y cada una repetida por nuestras pruebas. Las aplicaciones no contienen IA. Véase [Recetas para asistentes de IA](common:assistants-recipes).
+- **Idiomas.** **Português (Portugal)** es nuevo en {{ui:Ajustes}} › {{ui:General}} › {{ui:Idioma}}. Este idioma, **Português (Brasil)**, **Español (México)** y **Bahasa Indonesia** tienen ahora todas las palabras de las aplicaciones, como borradores aún no revisados por un hablante nativo. Los temas de ayuda están en inglés.
+- **CadCraft Studio** indica por qué falló una comprobación de actualización (aún no hay archivo para su sistema, no hay red, una firma incorrecta) en lugar de solo «Hecho», y deja de volver a mostrar una tarjeta de Novedades que cerró hasta que haya una versión más nueva.
+
+## Aún no en esta versión
+
+- **La 0.7 no está firmada digitalmente.** La firma, y el paquete para Microsoft Store, pasaron a la 0.8 porque la validación del certificado aún no ha llegado. Compruebe el SHA-256 junto a cada archivo en getcadcraft.com/download. En Windows, si SmartScreen detiene el instalador, elija {{ui:Más información}} y después {{ui:Ejecutar de todos modos}}. En un Mac, la primera vez, haga clic con el botón derecho en CadCraft Studio y elija {{ui:Abrir}}. CadCraft Studio aún no está en una tienda de aplicaciones, y todavía no hay versión para iPad ni para iPhone.
+- Las tablas de ángulo y de pendiente de {{ui:Unidades}} se guardan, pero ningún campo las lee aún.
+- **Las invitaciones a ofertar están desactivadas para la mayoría de las cuentas.** Mientras la función se prueba, el correo a licitadores externos solo sale desde las cuentas que el equipo de CadCraft haya habilitado. Las páginas de los licitadores funcionan para todas las invitaciones ya enviadas. Para los demás: descargue el {{ui:CSV del alcance}}, envíelo por correo usted mismo y escriba las ofertas a mano.
+- Una ventana de CadCraft Studio no puede enviar aún invitaciones a ofertar: indica que use TakeoffCraft en el navegador. Abrir una cuantificación con solicitudes enviadas, la nivelación y elegir una oferta funcionan en Studio.
+- Las adendas, las cartas de adjudicación, una hoja de alcance que cada licitador firma y los recordatorios automáticos antes de que venza una fecha de seguro no están construidos. Una oferta elegida no recalcula el área de oferta de una alternativa.
+- Dibujos: no se aplican las tablas de estilos de trazado ni los archivos CTB; un DXF binario se rechaza (guárdelo como DXF ASCII o DWG); los dibujos vinculados solo se encuentran entre los archivos abiertos, por nombre de archivo; y los PDF de fondo, imágenes y objetos OLE de un dibujo no se dibujan ni se cuentan. Los recuentos y las escalas se han comprobado con dibujos de muestra, no todavía con dibujos de una obra real abiertos en el programa que los creó.
+- Un asistente puede añadir partidas y marcas, pero no puede mover, cambiar ni borrar las marcas que ya existen.
+
+Todo lo demás está en [Aún no construido](topic:not-built-yet).

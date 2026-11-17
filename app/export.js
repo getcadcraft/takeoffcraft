@@ -9,8 +9,9 @@
  */
 
 import { writeXlsx, ref } from './xlsx.js';
-import { estimate, baseEstimate, alternates, quantities, sheetBreakdown, measureMark, TYPE_LABELS, areaEstimates, unitOf } from './model.js';
-import { UNITS, formatFtIn, describeScale, roundTo, formatPitch } from './units.js';
+import { estimate, baseEstimate, alternates, quantities, sheetBreakdown, measureMark, methodNote, TYPE_LABELS, areaEstimates, unitOf, signoffHolds } from './model.js';
+import { UNITS, formatFtIn, describeScale, roundTo, formatPitch, formatCents } from './units.js';
+import { estimateLayout } from './estimate-layout.js';   // 0.10 BK.149: the office standard's grouping, subtotals and heading case (nothing set = the export as it always was)
 import { t } from './i18n.js';
 import { bidSummary, bidUsed, normalBid } from './bid.js';
 import { originText } from './fixedqty.js';
@@ -24,7 +25,9 @@ const rowNote = (r) => {
   if (r.error) n.push(t('x.note.error', { error: r.error }));
   if (r.formula !== undefined && !r.error) n.push(t('x.note.formula', { formula: r.formula }));
   if (r.unscaled) n.push(t('x.note.unscaled', { n: r.unscaled }));
-  if (r.wallArea) n.push(t('x.note.wall', { value: roundTo(r.wallArea.value, 2), unit: r.wallArea.unit }));
+  if (r.noRate) n.push(t('x.note.norate'));   // 0.10 BK.62: a quantity with no rate
+  if (r.wallArea?.junctions > 0) n.push(t('x.note.walljunc', { value: roundTo(r.wallArea.junctions, 2), unit: r.wallArea.unit }));   // 0.10 BK.42
+  if (r.wallArea) n.push(r.wallArea.deductions > 0 ? t('x.note.wallnet', { value: roundTo(r.wallArea.value, 2), unit: r.wallArea.unit, gross: roundTo(r.wallArea.gross, 2), deductions: roundTo(r.wallArea.deductions, 2) }) : t('x.note.wall', { value: roundTo(r.wallArea.value, 2), unit: r.wallArea.unit }));
   if (r.perimeter) n.push(t('x.note.perimeter', { value: roundTo(r.perimeter.value, 2), unit: r.perimeter.unit }));
   if (r.backout) n.push(t('export.backout.note', { value: roundTo(r.backout.value, 2), unit: r.backout.unit }));
   if (r.kind === 'subcontract') n.push(t('export.sub.note', { pkg: (r.pkg ? r.pkg + ' ' : '') + (r.pkg ? divisionTitle(r.pkg) : t('csi.div.none')) }));
@@ -59,10 +62,28 @@ function colCells(columns, r, state) {
   return columns.map((c) => { try { const v = c.value(r, it); return v === undefined || v === '' ? null : v; } catch { return null; } });
 }
 
+/**
+ * 0.10 BK.62: what the exported estimate says about its rates and its sign-off: how many lines have no rate, and who signed it
+ * off, when and for what total. The sign-off is only ever the one that holds for the figures exported. An estimate with every
+ * line priced and no sign-off adds nothing (the export is then exactly what it was before 0.10).
+ */
+export function signoffLines(state, est = baseEstimate(state)) {
+  const out = [], n = est.rows.filter((r) => r.noRate).length;
+  if (n) out.push(t('x.norate.count', { n }));
+  const so = state.signoff && signoffHolds(state) ? state.signoff : null;
+  if (so) out.push(t('signoff.line', { by: so.by + (so.role ? ', ' + so.role : ''), when: so.at.slice(0, 10), total: formatCents(so.total) }) + (so.missing ? ' ' + t('signoff.line.missing', { n: so.missing }) : ''));
+  else if (n) out.push(t('signoff.none'));
+  return out;
+}
+
 /** The estimate as CSV text (values, not formulas). */
 export function estimateCsv(state, est = baseEstimate(state), columns = []) {
-  const lines = [csvLine([...estimateHead(), ...columns.map((c) => c.name)])];
-  for (const r of est.rows) {
+  const L = estimateLayout(state, est);   // 0.10 BK.149: the rows in the office layout; with no standard the plan is the rows in order
+  const lines = [csvLine([...estimateHead(), ...columns.map((c) => c.name)].map(L.caseOf))];
+  for (const p of L.plan) {
+    if (p.kind === 'group') { lines.push(csvLine([p.label])); continue; }
+    if (p.kind === 'subtotal') { lines.push(csvLine([p.label, null, null, null, null, null, null, null, dollars(p.sums.mat || 0), dollars(p.sums.lab || 0), dollars(p.sums.total || 0), null])); continue; }
+    const r = est.rows[p.index];
     const name = r.kind === 'component' ? '  ' + r.name : r.name;
     const type = r.kind === 'component' ? t('x.component') : r.kind === 'subcontract' ? t('x.sub') : TYPE_LABELS[r.type];
     if (r.error) lines.push(csvLine([name, type, r.unit, null, r.waste / 100, null, rate(r.mat), rate(r.lab), null, null, null, rowNote(r), ...colCells(columns, r, state)]));
@@ -70,6 +91,7 @@ export function estimateCsv(state, est = baseEstimate(state), columns = []) {
   }
   const alts = alternates(state);
   lines.push(csvLine([alts.length ? t('export.alt.base') : t('x.total'), null, null, null, null, null, null, null, dollars(est.matTotal), dollars(est.labTotal), dollars(est.total), est.incomplete ? t('x.incomplete') : '']));
+  { const mn = methodNote(state); if (mn) lines.push(csvLine([mn])); }   // 0.10 BK.42: wall areas measured by a method other than the default say so
   if (alts.length) {                                       // T17: each alternate and what it does to the base bid
     lines.push('', csvLine([t('export.alt.h'), t('export.alt.kind'), null, null, null, null, null, null, null, null, t('export.alt.amount'), null]));
     for (const a of alts) lines.push(csvLine([a.area.name, t('alt.' + a.alt), null, null, null, null, null, null, dollars(a.est.matTotal * Math.sign(a.amount || 1)), dollars(a.est.labTotal * Math.sign(a.amount || 1)), dollars(a.amount), a.est.incomplete ? t('x.incomplete') : '']));
@@ -80,6 +102,7 @@ export function estimateCsv(state, est = baseEstimate(state), columns = []) {
     for (const l of b.lines) lines.push(csvLine([l.label, l.pct ? (l.pct / 100) + '%' : null, null, null, null, null, null, null, null, null, dollars(l.cents), null]));
     for (const a of b.alts) lines.push(csvLine([t('bid.pdf.alt', { name: a.name, kind: t('alt.' + a.alt).toLowerCase() }), null, null, null, null, null, null, null, null, null, dollars(a.withMarkup), t('bid.alt.note')]));
   }
+  { const sl = signoffLines(state, est); if (sl.length) lines.push('', ...sl.map((l) => csvLine([l]))); }   // 0.10 BK.62: after an empty line, like the other parts (a price-library import stops there)
   return lines.join('\r\n') + '\r\n';
 }
 
@@ -203,9 +226,19 @@ function markupRows(est, bid, totalRow, firstRow) {
 }
 
 /** Workbook sheets for writeXlsx: Estimate (with formulas), By sheet, Marks, Scales. */
-export function estimateSheets(state, sheetLabel, est = baseEstimate(state), columns = []) {
-  const rows = [[...estimateHead(), ...columns.map((c) => c.name)].map((h) => ({ v: h, s: 'head' }))];
-  for (const r of est.rows) {
+export function estimateSheets(state, sheetLabel, est = baseEstimate(state), columns = [], pageSizes = null) {
+  const L = estimateLayout(state, est);   // 0.10 BK.149: the rows in the office layout; with no standard the plan is the rows in order
+  const grouped = L.plan.some((p) => p.kind === 'subtotal');
+  const rows = [[...estimateHead(), ...columns.map((c) => c.name)].map((h) => ({ v: L.caseOf(h), s: 'head' }))];
+  let groupStart = 2;   // 1-based number of the first row of the group being written
+  for (const p of L.plan) {
+    if (p.kind === 'group') { rows.push([{ v: p.label, s: 'bold' }]); groupStart = rows.length + 1; continue; }
+    if (p.kind === 'subtotal') {   // SUBTOTAL(9, …) so the job total below (also SUBTOTAL) does not count a subtotal twice
+      const a = groupStart, b = rows.length;
+      rows.push([{ v: p.label, s: 'bold' }, null, null, null, null, null, null, null, ...['I', 'J', 'K'].map((c, i) => ({ v: dollars([p.sums.mat, p.sums.lab, p.sums.total][i] || 0), f: 'SUBTOTAL(9,' + c + a + ':' + c + b + ')', s: 'boldMoney' }))]);
+      continue;
+    }
+    const r = est.rows[p.index];
     const n = rows.length; // 0-based row index of this row
     const name = r.kind === 'component' ? { v: '    ' + r.name } : { v: r.name, s: 'bold' };
     const type = r.kind === 'component' ? t('x.component') : r.kind === 'subcontract' ? t('x.sub') : TYPE_LABELS[r.type];
@@ -240,14 +273,16 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
   const last = rows.length; // 1-based number of the last data row
   rows.push([]);
   rows.push([{ v: (state.areas || []).some((a) => a.alt) ? t('export.alt.base') : t('x.total'), s: 'bold' }, null, null, null, null, null, null, null,
-    { v: dollars(est.matTotal), f: 'SUM(I2:I' + last + ')', s: 'boldMoney' },
-    { v: dollars(est.labTotal), f: 'SUM(J2:J' + last + ')', s: 'boldMoney' },
-    { v: dollars(est.total), f: 'SUM(K2:K' + last + ')', s: 'boldMoney' },
+    { v: dollars(est.matTotal), f: (grouped ? 'SUBTOTAL(9,' : 'SUM(') + 'I2:I' + last + ')', s: 'boldMoney' },
+    { v: dollars(est.labTotal), f: (grouped ? 'SUBTOTAL(9,' : 'SUM(') + 'J2:J' + last + ')', s: 'boldMoney' },
+    { v: dollars(est.total), f: (grouped ? 'SUBTOTAL(9,' : 'SUM(') + 'K2:K' + last + ')', s: 'boldMoney' },
     est.incomplete ? t('x.incomplete') : '']);
+  const signRows = signoffLines(state, est).map((l) => [l]);   // 0.10 BK.62: under the total (and under the markups, so their row numbers stay)
   if (bidUsed(state.bid)) {                                 // TK.4: the markups on the estimate itself, live
     rows.push([]);
     rows.push(...markupRows(est, state.bid, rows.length - 1, rows.length + 1));
   }
+  if (signRows.length) rows.push([], ...signRows);
 
   const q = quantities(state);
   const bySheet = [['sheet', 'item', 'qty', 'unit', 'marks'].map((k) => ({ v: t('x.head.' + k), s: 'head' }))];
@@ -302,6 +337,11 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
     { name: t('x.sheet.marks'), rows: marks, cols: [40, 34, 9, 12, 7, 60], freeze: 1 },
     { name: t('x.sheet.scales'), rows: scales, cols: [40, 18, 30, 18], freeze: 1 },
   ];
+  // every PDF page with its size and paper name, the odd sizes marked (0.10 SU.1805): [{ title, file, page, size, mm, orient, wMm, hMm, odd }]
+  if (pageSizes?.length) {
+    const head = ['sheet', 'file', 'page', 'size', 'wmm', 'hmm', 'mm', 'orient', 'odd'].map((k) => ({ v: t('x.size.' + k), s: 'head' }));
+    out.push({ name: t('x.sheet.sizes'), rows: [head, ...pageSizes.map((p) => [p.title || '', p.file || '', p.page ?? null, p.size || '', p.wMm, p.hMm, p.mm || '', p.orient || '', p.odd ? t('x.size.odd.yes') : ''])], cols: [40, 24, 6, 10, 10, 10, 30, 11, 14], freeze: 1 });
+  }
   if (state.areas?.length) out.push({ name: t('export.areas.sheet'), rows: areaRows(state), cols: [30, 34, 7, 12, 14, 14, 14, 14, 40], freeze: 1 });
   const alts = alternates(state);
   if (alts.length) out.push({ name: t('export.alt.sheet'), rows: alternateRows(state, est, alts), cols: [34, 34, 7, 12, 14, 40], freeze: 1 });
@@ -426,6 +466,6 @@ export function areaRows(state) {
 }
 
 export async function estimateXlsx(state, sheetLabel, opts = {}) {
-  const { columns = [], ...rest } = opts;
-  return writeXlsx(estimateSheets(state, sheetLabel, undefined, columns), { title: state.name, ...rest });
+  const { columns = [], pageSizes = null, ...rest } = opts;
+  return writeXlsx(estimateSheets(state, sheetLabel, undefined, columns, pageSizes), { title: state.name, ...rest });
 }

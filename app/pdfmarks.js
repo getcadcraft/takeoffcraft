@@ -6,7 +6,7 @@
  *
  * Marks are already in PDF user space, so they are drawn as they are (arcs as cubic Béziers): linear runs as stroked
  * paths, areas filled at 22% (cut-outs left open: even-odd) with a solid outline, counts as
- * dots. pdf-lib wraps the page's own content in q … Q, so a page that leaves its graphics
+ * dots with a white outline, sized by countmarker.js (the screen's size on paper, not a share of the page). pdf-lib wraps the page's own content in q … Q, so a page that leaves its graphics
  * state changed cannot shift the marks. Each marked page gets a small legend (item, colour,
  * quantity on that sheet) in its visual bottom-left corner, upright whatever /Rotate says.
  * The original file is never changed: this returns new bytes.
@@ -16,6 +16,7 @@ import { quantities, itemQty, condQty } from './model.js';
 import { UNITS, fixed } from './units.js';
 import { pathOps, spans } from './geom.js';
 import { t } from './i18n.js';
+import { pageMarkerRadius, OUTLINE } from './countmarker.js';
 
 /** Helvetica (WinAnsi) can't draw every character; anything else prints as "?". */
 export const winAnsi = (s) => String(s).replace(/[^\x20-\x7E\xA0-\xFF€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ]/g, '?');
@@ -31,9 +32,10 @@ const hexRgb = (PDFLib, hex) => {
  * @param fileHash   which project file this is (marks are keyed "<hash>:<page>")
  * @param state      Takeoff state
  * @param opts.legend  draw the per-page legend (default true)
+ * @param opts.marker  count marker size, a key of countmarker.js MARKER_SIZES (default medium: the screen's 6 px dot)
  * @returns { bytes, pages: number of pages marked, marks: number of marks drawn }
  */
-export async function pdfWithMarks(PDFLib, bytes, fileHash, state, { legend = true } = {}) {
+export async function pdfWithMarks(PDFLib, bytes, fileHash, state, { legend = true, marker } = {}) {
   const { PDFDocument, StandardFonts, PDFOperator, PDFOperatorNames: Ops, pushGraphicsState, popGraphicsState, moveTo, lineTo,
     closePath, stroke, setLineWidth, setStrokingColor, setFillingColor, setGraphicsState, setLineCap, setLineJoin, appendBezierCurve, fill, degrees, rgb, setDashPattern } = PDFLib;
   const doc = await PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false });
@@ -58,6 +60,9 @@ export async function pdfWithMarks(PDFLib, bytes, fileHash, state, { legend = tr
     const fillName = page.node.newExtGState('TcFill', doc.context.register(fillGs));
     const dotName = page.node.newExtGState('TcDot', doc.context.register(dotGs));
     const ops = [pushGraphicsState(), setLineCap(1), setLineJoin(1), setLineWidth(w)];
+    // count dots: the screen's size on paper, whatever the sheet size; smaller on a page whose dots would touch (countmarker.js)
+    const uu = page.node.lookupMaybe?.(PDFLib.PDFName.of('UserUnit'), PDFLib.PDFNumber)?.asNumber() || 1;
+    const dotR = pageMarkerRadius(marker, marks.filter((m) => m.kind === 'count').map((m) => m.pts[0]), uu);
     const path = (pts, close) => {
       for (const op of pathOps(pts, close)) {
         if (op[0] === 'M') ops.push(moveTo(op[1].x, op[1].y));
@@ -86,10 +91,11 @@ export async function pdfWithMarks(PDFLib, bytes, fileHash, state, { legend = tr
         for (const h of m.holes) path(h, true);
         ops.push(stroke());
       } else {
-        const r = w * 3.5, k = 0.5523 * r, { x, y } = m.pts[0];
-        ops.push(pushGraphicsState(), setGraphicsState(dotName), moveTo(x + r, y),
+        const r = dotR, k = 0.5523 * r, { x, y } = m.pts[0];
+        ops.push(pushGraphicsState(), setGraphicsState(dotName), setStrokingColor(rgb(1, 1, 1)), setLineWidth(r * OUTLINE), moveTo(x + r, y),
           appendBezierCurve(x + r, y + k, x + k, y + r, x, y + r), appendBezierCurve(x - k, y + r, x - r, y + k, x - r, y),
-          appendBezierCurve(x - r, y - k, x - k, y - r, x, y - r), appendBezierCurve(x + k, y - r, x + r, y - k, x + r, y), closePath(), fill(), popGraphicsState());
+          appendBezierCurve(x - r, y - k, x - k, y - r, x, y - r), appendBezierCurve(x + k, y - r, x + r, y - k, x + r, y), closePath(),
+          PDFOperator.of(Ops.FillNonZeroAndStroke), popGraphicsState());
       }
       drawn++;
     }

@@ -1,0 +1,59 @@
+---
+title: Què hi ha de nou a la versió 0.7 (anterior)
+summary: Els dibuixos DWG i DXF s'obren com a fulls amb la seva pròpia escala, recomptes i longituds exactes del propi dibuix, l'oferta de subcontractista escollida com a preu del paquet, invitacions a ofertes amb preus segellats, eines d'assistent per a dibuixos, i USD des de la vista de revisió 3D.
+keywords: novetats 0.7, versió anterior, notes de la versió, registre de canvis, canvis, 0.7, versió, noves funcions, DWG, DXF, dibuix, presentacions, espai model, escala del dibuix, recompte des d'un dibuix, recompte CAD, blocs, blocs dinàmics, atributs, capes, xref, dibuix enllaçat, mesura del dibuix, polilínia, trama, PDF marcat, oferta escollida, usar una oferta, enviar per a ofertes, invitació a oferta, ofertes segellades, obertura d'ofertes, oferta tardana, registres de subcontractistes, CSV, assistent, MCP, USD, USDZ, unitats, llistes d'unitats, compacta, panells, diàlegs, portuguès
+from: de1dca2b
+---
+
+Això és el que ha canviat a TakeoffCraft 0.7, en comparació amb la 0.6. Els dibuixos ara s'obren tal com són, sense haver de traçar-los abans a PDF, i un paquet d'ofertes pot sortir cap als subcontractistes i tornar amb preus.
+
+## Novetats
+
+### Dibuixos DWG i DXF
+
+- **Obrir un dibuix com a fulls.** {{ui:Obre plànols}} al grup {{ui:Fitxer}} ({{key:Mod+O}}, o arrossegueu els fitxers) accepta dibuixos DWG i DXF al costat dels PDF. L'espai model i cada presentació es converteixen en fulls a la llista {{ui:Fulls}}, i un amidament pot cobrir dibuixos i PDF alhora. No es puja res. Vegeu [Obre un dibuix DWG o DXF](topic:open-a-drawing).
+- **L'escala ve del dibuix.** Una presentació comença a l'escala de la seva finestra gràfica més gran, amb el nom del predefinit quan n'hi ha un, com 1/2" = 1'-0". L'espai model comença en les unitats del dibuix. Un dibuix sense unitats mostra "No scale" fins que el calibreu. {{ui:Calibra}}, {{ui:Comprova}} i {{ui:Predefinida}} encara tenen prioritat. Vegeu [L'escala](topic:open-a-drawing#the-scale).
+- **Capes i dibuixos enllaçats.** {{ui:Capes}} a la barra de full mostra o amaga les capes del dibuix. Les capes que el fitxer ha apagat o congelat comencen amagades i no es compten tret que les trieu. Un dibuix enllaçat (xref) obert al costat del seu dibuix amfitrió es dibuixa i es compta on està inserit; fins que no s'obre, la barra d'estat diu què falta. Vegeu [Capes](topic:open-a-drawing#layers).
+- **El PDF marcat funciona amb un dibuix.** {{ui:Exporta}} › {{ui:PDF marcat}} dibuixa primer en PDF els fulls marcats d'un dibuix, de manera que la còpia mostra les vostres marques i la llegenda sense cap pas de traçat. Es dibuixa en negre o en els colors del dibuix, sense taules d'estil de traçat. Vegeu [Un PDF marcat](topic:export-estimate#a-marked-pdf).
+
+### Recomptes i longituds exactes d'un dibuix
+
+- **Comptar el que el dibuix diu que hi ha.** {{ui:Recompte CAD}} a la barra de full compta un bloc pel nom (inclosos els blocs imbricats, els estats de blocs dinàmics i les matrius de blocs), tot d'un tipus en una capa, o un valor de text o atribut. Compta el que mostra el full o el dibuix sencer una vegada. Afegir les marques és un sol pas de desfer, i tornar a comptar només afegeix el que és nou. {{ui:Recompte automàtic}} es manté per als PDF i per als símbols que no són blocs. Vegeu [Compta des d'un dibuix](topic:count-from-a-drawing).
+- **Mesurar des de les pròpies línies del dibuix.** {{ui:Mesura del dibuix}} agafa les línies, arcs, polilínies, cercles, trames i sòlids que hi cliqueu o que seleccioneu amb una finestra, com a marques d'un element lineal o d'àrea. Els arcs, els bulges i els forats d'una trama surten exactes; les el·lipses i les splines es mesuren en cordes fines, i la barra ho diu. Vegeu [Mesura des d'un dibuix](topic:measure-from-a-drawing).
+
+### Ofertes
+
+- **Usar l'oferta d'un subcontractista com a preu del paquet.** A {{ui:Exporta}} › {{ui:Paquets d'ofertes i nivellació…}}, trieu {{ui:Utilitza}} en una oferta. Els elements del paquet es queden com a quantitats, una línia **Oferta escollida** porta el preu, els elements que l'oferta deixa fora es queden amb el vostre propi cost, i les despeses generals, el benefici i la fiança s'hi apliquen. Canviar d'oferta és un sol pas de desfer; el full de càlcul i el resum d'ofertes ho porten. Vegeu [Usa una oferta com a preu del paquet](topic:bid-leveling#use-a-bid-as-the-packages-price).
+- **Enviar un paquet per a ofertes.** {{ui:Envia per a ofertes…}} sota un paquet envia a cada subcontractista un enllaç per correu a una pàgina que no necessita compte: veuen l'abast i els fulls en PDF, escriuen un preu a cada línia o la marquen com a no inclosa, afegeixen notes i fins a tres fitxers, o refusen. {{ui:Obté els preus}} porta el que ha tornat al full de nivellació, marcat **web**. Enviar només està obert als comptes que l'equip de CadCraft ha habilitat mentre es prova (vegeu més avall). Vegeu [Envia un paquet per a ofertes](topic:bid-invitations).
+- **Segellades fins a l'obertura.** Els preus poden quedar segellats fins a una hora d'obertura que fixeu: fins llavors ningú no veu cap preu, vosaltres tampoc. A l'obertura, totes les ofertes es mostren de cop, i una oferta que arriba després de la data límit es marca com a tardana. Vegeu [Ofertes segellades i l'obertura](topic:bid-invitations#sealed-bids-and-the-opening).
+- **Registres de subcontractistes.** El vostre compte a getcadcraft.com guarda els contactes de cada empresa, els oficis, les respostes de qualificació, i les dates d'assegurança i de llicència (marcades una vegada passades o dins dels 30 dies), amb les seves ofertes anteriors. Importeu-les i exporteu-les com a CSV, i trieu-les quan envieu un paquet. Vegeu [Al lloc web](topic:bid-invitations#on-the-website).
+
+### Assistents d'IA
+
+- **Els assistents poden afegir a l'amidament.** Amb **Edició** marcada, el vostre propi assistent pot afegir elements (`items_add`) i mesurar recorreguts, àrees i recomptes en un full (`marks_add`; longituds i àrees només en un full amb escala), cada crida és un sol pas de desfer.
+- **Eines d'assistent per a dibuixos.** En un DWG o DXF obert, un assistent pot llistar els seus fulls i el que es pot comptar, comptar amb exactitud, afegir les marques de recompte, i mesurar des de la geometria del dibuix. Sense TakeoffCraft obert, el servidor MCP de CadCraft obre un dibuix com a amidament nou i el desa, i `cadcraft count` compta des de la línia d'ordres. Vegeu [Què pot demanar un assistent](topic:use-with-ai-assistants#what-an-assistant-can-ask-for).
+
+### USD
+
+- **La vista de revisió 3D com a USD.** {{ui:Paquet USD (.usdz)}} al costat de {{ui:GLB}} a la vista de revisió 3D escriu cada mur, forjat, placa, pilar de recompte i recorregut com el seu propi objecte, amb el nom del seu element i portant la seva quantitat, en metres. Un assistent també la pot exportar (`usd_export`). Vegeu [Exporta la vista de revisió 3D com a USD](topic:usd).
+
+## A totes les aplicacions
+
+- **Unitats.** {{ui:Configuració}} › {{ui:General}} › {{ui:Unitats}} té una llista per a cada magnitud: longitud, àrea, volum, angle i pendent, amb les mides exactes que donen les definicions de les unitats (el peu d'enquesta dels EUA és una unitat pròpia). Desactiveu les unitats que mai useu i surten de les llistes; marqueu-ne una amb una estrella i el treball nou comença amb ella. Un fitxer sempre manté la seva pròpia unitat. A TakeoffCraft, les llistes {{ui:Unitat}} d'un element segueixen els interruptors, un element nou comença amb la unitat de longitud o àrea marcada, els quadres de coberta (SQ), les acres i les hectàrees són unitats d'àrea noves, i un quadre de longitud accepta el símbol de qualsevol unitat, com `3 yd`. Vegeu [Unitats, valors escrits i les llistes d'unitats](common:unit-lists).
+- **Una disposició més densa i panells que es recullen.** {{ui:Configuració}} › {{ui:General}} › {{ui:Densitat de la disposició}} › {{ui:Compacta}} hi cap més a la pantalla (les pantalles tàctils i els mòbils mantenen els botons grans). Cada panell lateral té una barra de títol prima: arrossegueu-la per acoblar o fer flotar el panell, deixeu-la sobre la barra d'un altre panell per compartir un marc com a pestanyes, fixeu-la perquè es desplaci fins a la vora, o amagueu-la i torneu-la a treure des de la vora. Vegeu [Organitza els panells](common:arrange-panels#make-the-layout-denser).
+- **Els diàlegs es mouen.** Arrossegueu un diàleg per la seva barra de títol perquè no tapi el dibuix; tornarà on l'heu deixat. Feu doble clic a la barra de títol per tornar-lo a centrar. Vegeu [Mou un diàleg](common:arrange-panels#move-a-dialog).
+- **Receptes per a assistents d'IA.** Deu peticions resoltes per al vostre propi assistent (ordenar un dibuix, traçar un conjunt, revisar dibuixos, fer preguntes a un model, sumar un amidament, provar una variant de peça…), cadascuna amb les eines que crida i els permisos que necessita, i cadascuna repetida per les nostres proves. Les aplicacions no contenen cap IA. Vegeu [Receptes per a assistents d'IA](common:assistants-recipes).
+- **Idiomes.** **Português (Portugal)** és nou a {{ui:Configuració}} › {{ui:General}} › {{ui:Idioma}}. Aquest, **Português (Brasil)**, **Español (México)** i **Bahasa Indonesia** tenen ara cada paraula de les aplicacions, com a esborranys encara no revisats per un parlant natiu. Els temes d'ajuda són en anglès.
+- **CadCraft Studio** indica per què ha fallat una comprovació d'actualització (encara no hi ha fitxer per al vostre sistema, sense xarxa, una signatura incorrecta) en lloc de només "Fet", i deixa de tornar a mostrar una targeta de Novetats que heu tancat fins que hi hagi una versió més nova.
+
+## Encara no en aquesta versió
+
+- **La 0.7 no està signada digitalment.** La signatura, i el paquet de la Microsoft Store, es van traslladar a la 0.8 perquè la validació del certificat encara no ha arribat. Comproveu el SHA-256 al costat de cada fitxer a getcadcraft.com/download. A Windows, si SmartScreen atura l'instal·lador, trieu {{ui:Més informació}}, i després {{ui:Executa igualment}}. A un Mac, la primera vegada, feu clic dret a CadCraft Studio i trieu {{ui:Obert}}. CadCraft Studio encara no és a cap botiga d'aplicacions, i encara no hi ha versió per a iPad ni iPhone.
+- Les llistes d'angles i pendents de {{ui:Unitats}} es desen, però cap camp encara les llegeix.
+- **Les invitacions a ofertes estan desactivades per a la majoria de comptes.** Mentre es prova la funció, el correu als licitadors externs només surt des dels comptes que l'equip de CadCraft ha habilitat. Les pàgines dels licitadors funcionen per a totes les invitacions ja enviades. Per a la resta: baixeu el {{ui:Abast CSV}}, envieu-lo vosaltres mateixos per correu i escriviu les ofertes.
+- Una finestra de CadCraft Studio encara no pot enviar invitacions a ofertes: indica que utilitzeu TakeoffCraft al navegador. Obrir un amidament amb sol·licituds enviades, la nivellació i escollir una oferta funcionen a Studio.
+- Els addenda, les cartes d'adjudicació, un full d'abast que signa cada licitador i els recordatoris automàtics abans que caduqui una data d'assegurança no estan fets. Una oferta escollida no reprecia l'àrea d'oferta d'una alternativa.
+- Dibuixos: les taules d'estil de traçat i els fitxers CTB no s'apliquen, un DXF binari es rebutja (deseu-lo com a DXF ASCII o DWG), els dibuixos enllaçats només es troben entre els fitxers oberts pel nom del fitxer, i els PDF subjacents, les imatges i els objectes OLE d'un dibuix no es dibuixen ni es compten. Els recomptes i les escales s'han revisat en dibuixos d'exemple, encara no en dibuixos d'una obra real oberts al programa que els va fer.
+- Un assistent pot afegir elements i marques però no pot moure, canviar ni suprimir les marques que ja hi ha.
+
+La resta és a [Encara no implementat](topic:not-built-yet).

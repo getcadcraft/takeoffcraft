@@ -8,7 +8,8 @@
  *   api = { ...sharedApi (ui.toolbarGroup, ui.panelSection, ui.settingsSection, files.importer / exporter),
  *           takeoff: { model, state, quantities, estimate, onChange },
  *           items: { defineType, create, add, is, kindOf, dataOf, data: { get, set } },
- *           export: { column }, status, ui.panelTab }
+ *           export: { column }, status, ui.panelTab,
+ *           defaults: { provide, changed } }   1.1: the Default Policies add-on's door to defaults-hook.js
  *
  * Item types of an add-on are TakeoffCraft's own item types (linear, area, count) with defaults: unit, waste, rates, height,
  * assembly components (formulas), second conditions (T8) and the add-on's data in the item's `xd` under its id: { kind, v,
@@ -22,8 +23,9 @@
 import { AddonLoader, sharedApi } from '../addons.js';
 import { TYPES, quantities, estimate } from '../model.js';
 import { installTrust, bundledOnly, NO_PACKAGES } from './trust.js';
+import { hostDefaultsApi } from '../defaults-hook.js';
 
-export const TAKEOFFCRAFT_API_VERSION = '1.0';
+export const TAKEOFFCRAFT_API_VERSION = '1.1';   // 1.1 (0.10 BK.149, bk-r3-schedules-10): api.defaults.provide / changed (defaults-hook.js: the office's Default Policies)
 const SAFE_ID = /^[a-z0-9][a-z0-9-]{0,40}$/;
 const KIND_RE = /^[a-z][a-z0-9-]{0,40}$/;
 const clone = (v) => (v === undefined || v === null ? v ?? null : JSON.parse(JSON.stringify(v)));
@@ -147,7 +149,7 @@ export function makeTakeoffcraftApi(base, addon, ctx) {
     },
   };
 
-  return { ...shared, ui, takeoff, items, export: exp, status: (text) => ctx.status(String(text)) };
+  return { ...shared, ui, takeoff, items, export: exp, status: (text) => ctx.status(String(text)), defaults: hostDefaultsApi(track) };
 }
 
 /**

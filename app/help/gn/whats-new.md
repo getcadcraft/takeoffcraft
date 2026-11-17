@@ -1,63 +1,106 @@
 ---
-title: Novedades en 0.8 ha 0.8.1
-summary: Contar un juego completo de leyenda de símbolos en todas las hojas abiertas en una corrida, poner precio a ítems según tarifas de trabajos pasados, verificar el cómputo contra stock y plazos de entrega de un proveedor, y nuevas herramientas de asistente para las tres, más los cambios compartidos de 0.8 y la corrección 0.8.1 para archivos DWG.
-keywords: novedades, qué hay de nuevo, notas de versión, registro de cambios, cambios, 0.8, 0.8.1, versión, nuevas funciones, contar todo, leyenda, leyenda de símbolos, conjunto completo, memoria de precios, trabajos pasados, último trabajo, precio típico, proveedor, stock, plazo de entrega, pedido pendiente, lista de pedido, faltante, panel de problemas, asistente, idiomas, dispositivos de entrada, filas de la barra, dwg
-from: a04adef6
+title: Mba'e pyahu 0.9-pe
+summary: Longitudes metro, centímetro térã milímetro-pe ehecha, metrico área m2 ha pared área, escala predeterminada 1:75 ha 1:150, peso ha temperatura unidades, Arco diez método-pe, ha tiempo real cursor-kuéra, Seguir ha persona lista.
+keywords: novedades, qué hay de nuevo, notas de versión, changelog, 0.9, mostrar longitudes como, metros, centímetros, milímetros, métrico, seguir global, unidades, unidades de visualización, m2, metros cuadrados, área de pared, escalas predeterminadas, 1:75, 1:150, peso, kilogramos, kg, tonelada, ton, lb, temperatura, celsius, fahrenheit, arco, métodos de arco, arco de 3 puntos, radio, en vivo, cursores, seguir, lista de personas, clase, globos de ayuda, diseño, novedades, cambios, 0.8, 0.8.1, versión, nuevas funciones, contar todo, leyenda, leyenda de símbolos, conjunto completo, memoria de precios, trabajos anteriores, última trabajo, precio típico, proveedor, stock, tiempo de entrega, pedido pendiente, lista de pedido, faltante, panel de problemas, asistente, idiomas, dispositivos de entrada, filas de la barra, dwg
+from: 6182b998
 ---
 
-Esto cambió en TakeoffCraft 0.8 (publicado 2026-11-01) y 0.8.1 (2026-11-02), comparado con 0.7. Una leyenda de símbolos ahora puede contarse en todo el conjunto a la vez, un cómputo nuevo puede empezar con los precios de tus trabajos pasados, y el cómputo puede verificarse contra stock de un proveedor. 0.8.1 es una versión de corrección.
+Ko'ã ojeguerekóva TakeoffCraft 0.9-pe, 0.8.1 rehe. Peteĩ versión michĩ ko aplicación-pe: longitudes metro, centímetro térã milímetro-pe ehechaukáva, áreas ha escalas metrico trabajo porã, ha Arco-pe diez tape ojapo ramo. Tiempo real sesiones ohechauka avei máva ha mba'épa.
 
-## Nuevo
+## Pyahu
 
-### Contar todo en el conjunto
+### Longitudes metro, centímetro térã milímetro-pe
 
-- **Encuadra la leyenda una vez.** {{ui:Count everything}} en la barra lee una leyenda de símbolos: arrastra un recuadro alrededor de los símbolos y de los nombres impresos junto a ellos. Cada símbolo se lista con su imagen y su nombre, y el nombre pasa a ser el nombre del ítem. Desmarca lo que no quieras, luego eliminá {{ui:Count on N sheets}}. Una barra muestra la hoja que se busca, {{ui:Cancel}} detiene la corrida, y la página sigue usable.
-- **Todas las hojas en una corrida.** Cada símbolo se cuenta en cada hoja abierta. Una hoja dibujada a otra escala se busca a esa escala, y los símbolos se encuentran girados en cualquier ángulo recto. Los propios símbolos de la leyenda no se cuentan en su hoja.
-- **Revisa antes de agregar nada.** Cada total tiene un enlace por hoja ("E-103: 4") que lleva a esa hoja. Haz clic en un recuadro para dejarlo fuera, y clic otra vez para volverlo. El nivel de coincidencia (50% a 100%) solo filtra lo encontrado; no se busca de nuevo.
-- **Un paso de deshacer.** {{ui:Add N marks}} crea un ítem de conteo por símbolo con una marca en cada hallazgo. Un nombre que ya sea un ítem de conteo tuyo se reutiliza. {{key:Ctrl+Z}} quita todos los ítems y marcas. Lo que aceptes también alimenta {{ui:Learned}}.
-- **Símbolos en cualquier ángulo.** Marca {{ui:Symbols at any angle}} antes de contar para encontrar también símbolos girados en un ángulo que no sea recto. La búsqueda entonces gira cada símbolo cada 15 grados, y un símbolo que no sea redondo puede tardar hasta seis veces más.
-- **Qué es.** Coincidencia simple de símbolos en tus propias hojas, sin modelo entrenado, y nada sale de tu computadora. En un conjunto de 200 hojas inventado tomó 9,4 segundos de principio a fin en Chrome en una computadora de escritorio rápida; los conjuntos de planos reales serán más lentos. Ver [Contar todo en el conjunto](topic:count-everything).
+- **Mostrar longitudes como.** {{ui:Configuración}} › {{ui:TakeoffCraft}}-pe oguereko {{ui:Mostrar longitudes como}} {{ui:Seguir Global}}, {{ui:Pies-pulgadas}}, m, cm ha mm. {{ui:Seguir Global}} oipuru metrico longitud unidad marcado {{ui:Configuración}} › {{ui:Global}} › {{ui:Unidades}}-pe, ha pies-pulgadas ndojeporúi ndaipóri marcado. Hoja-pe, barra de estado-pe, paneles-pe ha altura, profundidad, grosor ha niveles-pe oñemoĩ. Altura caja-pe número pelado ojeporu unidad ohechaukáva.
+- **Solo visualización.** Cantidades, costos ha exportaciones ojejapo longitud exacta-gui. 1/16, 1/8 ha 1/4 pulgada elección ojehechakuaáva pies-pulgadas-pe añónte. Ehechá [Mostrar longitudes en metros](topic:show-lengths-in-meters).
+- **Peso unidades.** {{ui:Cantidad escrita (sin plano)}} ítem ikatu lb, TON, kg térã t-pe, ha precio unidad-pe.
+- **Temperatura.** Cada ítem oguereko {{ui:Temperatura}} campo ítem editor-pe, grados C térã F-pe escrito. {{ui:Mostrar temperaturas como}} {{ui:Configuración}} › {{ui:TakeoffCraft}}-pe omoĩ {{ui:Seguir Global}}, °C térã °F.
 
-### Memoria de precios de tus propios trabajos
+### Áreas ha escalas trabajo metrico-pe
 
-- **TakeoffCraft recuerda tus tarifas.** Cuando guardas un cómputo, cada ítem con precio que se usa se recuerda por nombre y tipo: tarifa de material, tarifa de mano de obra, desperdicio y unidad. Se guardan los últimos 12 trabajos por nombre. Se mantiene en esta computadora junto a la Biblioteca de precios, nunca dentro de un archivo de cómputo, y nada se envía a ningún lado.
-- **Empieza un cómputo nuevo desde ella.** {{ui:Prices}} en la barra muestra, para cada ítem, las tarifas del último trabajo, las tarifas típicas y el rango. {{ui:Use last}} o {{ui:Use typical}} ponen precio a un ítem, y {{ui:Price N unpriced items from memory}} completa cada ítem que todavía no tiene precio. Cada uso es un paso de deshacer.
-- **Trabajos anteriores.** {{ui:Learn from a past takeoff…}} recuerda los ítems con precio de un cómputo guardado (.json).
-- **Mírala, cámbiala, olvídala.** {{ui:Everything remembered}} lista cada nombre; el botón de papelera olvida uno, y {{ui:Clear all prices}} olvida todos. Desactiva {{ui:Remember my prices when I save a takeoff}} para dejar de guardar. Un precio por unidad nunca se pone en un ítem por pie. Ver [Memoria de precios de tus trabajos pasados](topic:price-memory).
+- **Áreas m2 planopegua.** Metrico ítem-gui medida área oñeha m2 plano etiqueta ha marca panel-pe, tabla-pe ojehecha ramo SF'ỹva. Regla: m2 ítem metrico-pe precio oguereko térã longitud m, cm térã mm-pe, ha SF ambue jave.
+- **Área de pared.** Altura oguereko linear ítem ohechauka pared área (longitud por altura) Ítems lista-pe ha nota fila-pe ítem cantidades tabla vaekue rupi.
+- **Escala predeterminada 1:75 ha 1:150.** Oĩ {{ui:Predeterminada}} lista-pe {{ui:Escala}} grupo-pe, ko'ágã 32 escala oguereko. Ehechá [Escalas predeterminadas](topic:scale-presets).
 
-### Existencias del proveedor y plazos de entrega
+### Arco diez método-pe
 
-- **Verifica contra la lista de un proveedor.** {{ui:Supply}} en la barra toma una lista de existencias de un proveedor ({{ui:Add a supplier file…}}), un CSV o una planilla, y verifica lo que necesita el cómputo, con desperdicio, contra ella. Se guardan hasta cinco archivos. Nada se envía y nada le pregunta a un proveedor: tú traes el archivo.
-- **Qué dice.** Los ítems faltantes aparecen primero: "Faltan 120 EA", "Plazo de entrega 21 días", "En pedido pendiente", "La unidad difiere", "Sin cifra de existencias" o "En existencia". {{ui:Longest wait wanted (days)}} empieza en 14.
-- **Lista de pedido.** {{ui:Order list (CSV)}} descarga los ítems faltantes con la cantidad que falta, el proveedor y el plazo de entrega.
-- **Precios en la Biblioteca.** Si el archivo tiene precios, {{ui:Prices into the Library}} define el precio de material de cada entrada de la Biblioteca con el mismo nombre y unidad. Vuelve a poner precio desde la Biblioteca para llevarlos al cómputo.
-- **En el panel de Problemas.** Un faltante es un aviso y una espera larga es una nota, bajo "Existencias del proveedor". Puedes aceptar uno con un motivo, y el motivo se guarda en el cómputo. Ver [Verificar existencias del proveedor y plazos de entrega](topic:supplier-stock).
+- {{ui:Arco}} oñemoĩ jave (toolbar botón térã {{key:R}}), {{ui:Método de arco}} caja hoja bar-pe ojekuaa: 3 puntos, Inicio, Centro, Fin, Inicio, Centro, Ángulo, Inicio, Centro, Longitud, Inicio, Fin, Ángulo, Inicio, Fin, Dirección, Inicio, Fin, Radio, Centro, Inicio, Fin, Centro, Inicio, Ángulo ha Centro, Inicio, Longitud. Ángulo, longitud, radio ha dirección ojeeha térã ojeʼẽ. Linear tramo, área ha recorte-pe oñemboguejy. 0.9 rire oñemboguejy archivo-kuéra oñepyrũ upéicha avei. Ehechá [Dibujar arcos con diez métodos](topic:draw-arcs-ten-methods).
 
-### Asistentes de IA
+### Trabajo ojoaprái
 
-- **Herramientas para las tres.** Con asistentes permitidos en {{ui:Settings}}, un asistente puede leer una leyenda (`legend_open`), ejecutar el conteo (`legend_count_start`, luego `legend_count_status` y `legend_count_result`) y agregarlo (`legend_count_add`, que puede previsualizar antes). Puede leer los precios recordados (`prices_list`) y poner precio a ítems desde ellos (`prices_apply`, que puede previsualizar antes), y leer la verificación de proveedor (`supply_check`). Agregar un archivo de proveedor sigue siendo algo que haces tú. Ver [Usar TakeoffCraft con asistentes de IA](topic:use-with-ai-assistants).
+- **Ojehecha cursores.** Tiempo real sesión-pe persona peteĩ peteĩ punteró oñemboguejy hoja-pe nombre ha color-gui, ha marcas ojeporúva punteado caja-pe. Ambue hoja-pe personas ojeikuaa hoja nombre-gui. Ehechá [Trabajar en vivo con otros](topic:work-live).
+- **Seguir persona, ha personas lista.** {{ui:Personas}} botón tiempo real sesión-pe lista persona peteĩ peteĩ herramienta, hoja ha mboyve ojeeditáva. {{ui:Seguir}} nde vista omoĩ hína ndejoaprái ndive, ha anfitrión oñeʼẽ {{ui:Pedir a todos que me sigan}}. Ehechá [Seguir a un compañero en una sesión en vivo](topic:follow-a-teammate).
 
-### En todas las aplicaciones
+## Opa aplicación-pe
 
-- **Idiomas.** Cincuenta y cuatro idiomas en total; diez son nuevos (lituano, letón, bosnio, marathi, telugu, albanés, afrikáans, filipino, suajili y uzbeko). Los idiomas distintos del inglés son borradores automáticos hasta que un hablante nativo los haya leído.
-- **Dispositivos de entrada.** {{ui:Settings}} › {{ui:Global}} › {{ui:Input devices}} define qué hacen un trackpad, los botones laterales de un ratón, un lápiz, un ratón 3D, un control de juego o un controlador MIDI, para todas las aplicaciones o para una. Ver [Usar un trackpad, ratón 3D o controlador](common:input-devices).
-- **Filas de la barra.** {{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} ofrece {{ui:Wrap}} (el inicio), {{ui:2 rows}} y {{ui:1 row}}; los grupos que no caben se desplazan de lado. Ver [Organizar los paneles](common:arrange-panels).
-- **Panel de problemas.** El panel compartido de avisos y notas ahora incluye la verificación de existencias del proveedor descrita arriba, junto a las otras verificaciones.
-- **Complementos.** Los complementos siguen tu lista de cuenta. Ver [Complementos y tu lista de cuenta](common:addons-basics).
-- **Conecta tu IA.** CadCraft Studio es el centro: conecta tu asistente una vez para las ocho aplicaciones. Studio no tiene IA propia.
+- **Globos de ayuda ha inicio consejo.** Mouse ryepýpe tekstu Bootstrap globo, ha inicio consejo ojejoko ojeikuaáva.
+- **Pestañas ojeʼẽ.** Panel pestaña tira ndojeporúiva ojeʼẽ ojeporta'ỹ.
+- **Pestaña títulos.** Nave pestaña-pe `<document> - TakeoffCraft | CadCraft` ohechauka.
+- **Diseño.** {{ui:Configuración}}-pe diseño lista oñemoĩ desplegable, ha oñemboguejy ojeporúva.
+- **Idioma.** Oiporavo ñe'ẽ ojeporúva oiko ojeñeʼẽ páginas ha app bar-pe, por ejemplo Nuevo, Abrir ha Guardar. Inglés'ỹ ñe'ẽ borrador ojehechaháicha nativo ojeʼẽ peve.
 
-## Corregido en 0.8.1
+## Ojehechaháicha
 
-- **Sección de clases de DWG.** La sección de clases de un archivo DWG se leía como un tipo equivocado. Esto está corregido en TakeoffCraft y en otras cuatro aplicaciones.
-- **Studio puede cambiar de idioma mientras corre.** Antes, Studio y sus ediciones empaquetadas eran solo en inglés. Esto no se probó en la versión de escritorio en todas las plataformas; avísanos si el idioma no cambia.
+- Longitud ehechaukáva, peso ha temperatura unidades ha pyahu predeterminadas oñemoĩ prueba-pe ha página-pe. Opa panel opa unidad-pe ndojehechaporã'ỹ mano-pe.
+- Personas lista ndojehechaporã'ỹ mano-pe maestro ha alumno-kuéra clase-pe.
+- Inglés'ỹ ñe'ẽ borrador ojehechaháicha.
+- Windows instalador ndaipóri código-firma (Más información, upéi Ejecutar igual). macOS disco imagen ndaipóri notarización (derecha clic, upéi Abrir).
 
-## Todavía no en esta versión
+## Mboyve: 0.8 ha 0.8.1
 
-- **Sin firma de código.** Windows puede avisar, y en un Mac haces clic derecho y eliges {{ui:Open}} la primera vez. Las versiones de tiendas (Microsoft Store, Google Play, App Store) están en espera, y la versión de iPad e iPhone no se recompiló para 0.8.1.
-- **Actualizaciones de Studio.** El instalador de Windows y los paquetes de Linux verifican una vez al día y preguntan antes. El zip portátil solo avisa, y macOS y el APK no se actualizan solos. El .dmg de macOS 0.8 sigue a la versión.
-- **Conecta tu IA.** Conexión con un clic dentro de Studio, el conector alojado para IA en el navegador, tu propia clave de API dentro de Studio y un paquete MCP publicado no están prometidos en esta versión.
-- **Contar todo.** Necesita símbolos dibujados igual que en la leyenda, y un símbolo con un muro o una línea larga encima puede no encontrarse. Los símbolos espejados no se encuentran, y una hoja sin escala dibujada a otro tamaño se busca al tamaño de la leyenda. Revisa los hallazgos de la primera hoja antes de confiar en el resto.
-- **Existencias del proveedor.** Las cifras de stock son tan actuales como el archivo que agregas. La verificación nunca le pregunta a un proveedor.
-- **Idiomas.** La barra de la aplicación en tamil se desborda.
+Ko'ã ojeguerekóva TakeoffCraft 0.8 (2026-11-01 ojeʼẽ) ha 0.8.1 (2026-11-02), 0.7 rehe. Símbolo leyenda opavave conjunto-pe oconta peteĩ jey, takeoff pyahu oñepyrũ ojepyrũ memoria-gui nde trabajo ymaguare precio-kuéragui, ha takeoff oñemoĩ proveedor stock-pe. 0.8.1 ojeheka fix.
 
-Todo lo demás está en [Todavía no construido](topic:not-built-yet). Para la versión anterior, ver [Novedades en 0.7](topic:whats-new-0-7).
+### Pyahu
+
+**Opa conjunto-pe conta**
+
+- **Leyenda peteĩ jey boxeá.** {{ui:Contar todo}} toolbar-pe ohecha símbolo leyenda: eñeñandu box símbolo ha leyenda-pe ñeʼẽ nombre. Símbolo peteĩ peteĩ ohechaukáva ilustración ha nombre-gui, nombre ojehechaha ítem nombre. Ndeporemoĩ'ỹ, upéi eiporavo {{ui:Contar en N hojas}}. Barra omombe'u ojeresarekóva hoja, {{ui:Cancelar}} oñemboja, ha página oñeʼẽ.
+- **Opa hoja peteĩ tembiapo.** Símbolo peteĩ peteĩ oconta opa abierta hoja-pe. Hoja ambue escala-pe ojeheka escala-pe, ha símbolos ojejuhu angulo derecho-pe ojevolteáva.
+- **Revisión antes oñemoĩ.** Total peteĩ peteĩ hoja enlace (ejemplo "E-103: 4") ohupyty hoja-pe. Eikytĩ box find-pe ndaikatúi, ha eikytĩ jey oñemoĩ jey. Coincidencia nivel (50% a 100%) hína oiporavo ojejuhu; ndojejeho jey.
+- **Peteĩ tembiapo undo.** {{ui:Agregar N marcas}} peteĩ símbolo-pe conteo ítem omoĩ ha find opavave marca. Ítem conteo nombre mesmo ojeporúva ojeporu. {{key:Ctrl+Z}} omboguejy ítems ha marcas opa. Ojeaceptáva ojeguerekóva {{ui:Ohekágui}}-pe avei.
+- **Símbolos angulo ndojeguerúva.** Marcá {{ui:Símbolos en cualquier ángulo}} conteo oñepyrũ jave, angulo derecho'ỹ ojevoltéva jejuhu. Búsqueda cada 15 grado ojevolta símbolo, ha símbolo redondo'ỹ seis veces ojepytyvõ ikatu.
+- **Mba'e ha'e.** Símbolo ojehecha hoja-pe, modelo entrenado'ỹ, ha ndaipóri nde computadora-gui ojeikuaa. 200 hoja falsa conjunto-pe 9.4 segundo Chrome-pe ojeporu, ha ñande mesa; plano real conjuntos hasy. Ehechá [Contar todo el conjunto](topic:count-everything).
+
+**Precio memoria nde trabajo-kuéragui**
+
+- **TakeoffCraft ohekáva nde tasas.** Takeoff ñongatu, ítem precio oñeporúva nombre ha tipo-gui ohekáva: material tasa, mano de obra tasa, desperdicio ha unidad. Trabajo 12 ohekáva nombre peteĩ peteĩ-pe. Ko computadora-pe oñongatu precios biblioteca ryepýpe, takeoff archivo-pe ndaha'éi, ha ndaiporúi mba'eve ndaha'éi.
+- **Takeoff pyahu oñepyrũ.** {{ui:Precios}} toolbar-pe ohechauka, ítem peteĩ peteĩ, última trabajo tasa, tasas típicas ha rango. {{ui:Usar última}} térã {{ui:Usar típico}} peteĩ ítem precio-pe, {{ui:Precio N ítems sin precio de memoria}} oñemboheraha ítem precio'ỹva. Ojeporu peteĩ tembiapo undo-pe.
+- **Mboyve trabajo.** {{ui:Aprender de cómputo anterior…}} ohekáva oñongatu takeoff precio ítems-gui (.json).
+- **Ehecha, emoambue, ejejoko.** {{ui:Todo lo recordado}} lista opa nombre; papelera botón peteĩ jejoko, {{ui:Limpiar todos los precios}} opa. {{ui:Recordar mis precios al guardar un cómputo}} emboguejy ojeheka'ỹ. Cada unidad precio ndoinsertaʼỹ longitud pie-pe ítem. Ehechá [Memoria de precios de trabajos pasados](topic:price-memory).
+
+**Proveedor stock ha tiempo de entrega**
+
+- **Proveedor lista-pe ehechá.** {{ui:Suministro}} toolbar-pe ojeʼẽ proveedor stock lista ({{ui:Agregar archivo de proveedor…}}), CSV térã planilla, ha takeoff necesidades desperdicio-gui ehechá. Hasta mbohapy archivo ñongatu. Ndaikatúi oho proveedor-pe: nde ojeru archivo.
+- **Mba'e omombe'u.** Faltantes oñemoĩ primero: "Faltan 120 EA", "Tiempo de entrega 21 días", "Pedido pendiente", "Unidad distinta", "Sin dato de stock" térã "En stock". {{ui:Espera más larga deseada (días)}} 14-gui oñepyrũ.
+- **Pedido lista.** {{ui:Lista de pedido (CSV)}} omboja faltante ítems faltante cantidad, proveedor ha tiempo de entrega.
+- **Precios biblioteka-pe.** Archivo precios oguereko, {{ui:Precios en la Biblioteca}} oñemoĩ material precio cada biblioteca entrada nombre ha unidad mesmo. Biblioteca-gui reprecio oñemoĩ takeoff-pe.
+- **Problemas panel-pe.** Faltante advertencia, tiempo largo nota, "Stock de proveedor" rehe. Razón ndive ikatu eaceptá, ha takeoff-pe oñongatu. Ehechá [Verificar stock del proveedor y tiempos de entrega](topic:supplier-stock).
+
+**Asistente AI**
+
+- **Herramientas heta.** Asistente permitido {{ui:Configuración}}-pe, asistente ikatu leyenda ojeʼẽ (`legend_open`), conteo oñemoĩ (`legend_count_start`, upéi `legend_count_status` ha `legend_count_result`) ha oñemoĩ (`legend_count_add`, ojehecha mboyve). Oikuaa memoria precios (`prices_list`) ha oñemoĩ ítems-pe (`prices_apply`, ojehecha mboyve), ha oikuaa proveedor revisión (`supply_check`). Proveedor archivo ñemoĩ nde mba'e. Ehechá [Usar TakeoffCraft con asistentes AI](topic:use-with-ai-assistants).
+
+**Opa aplicación-pe**
+
+- **Idiomas.** Cincuenta y cuatro ñe'ẽ; diez pyahu (lituano, letón, bosnio, maratí, telugu, albanés, afrikáans, filipino, suajili ha uzbeko). Inglés'ỹ ñe'ẽ borrador ojehechaháicha nativo ojeʼẽ peve.
+- **Dispositivos de entrada.** {{ui:Configuración}} › {{ui:Global}} › {{ui:Dispositivos de entrada}} omoĩ trackpad, mouse lateral botón, pluma, 3D mouse, control de juego térã MIDI control mba'e ojapo, opa aplicación-pe térã peteĩ-pe. Ehechá [Usar trackpad, mouse 3D o control](common:input-devices).
+- **Barra filas.** {{ui:Configuración}} › {{ui:General}} › {{ui:Filas de la barra}} omoĩ {{ui:Ajustar}} (inicio), {{ui:2 filas}} ha {{ui:1 fila}}; ndojeeha grupo oñemoʼã mbaʼeve hyʼapýpe. Ehechá [Organizar los paneles](common:arrange-panels).
+- **Problemas panel.** Advertencias ha notas compartido panel-pe ojeguerekóva stock proveedor revisión, ambue revisiones ryepýpe.
+- **Complementos.** Complementos cuenta lista ojeporu. Ehechá [Complementos y tu lista de cuenta](common:addons-basics).
+- **Emboguejy AI.** CadCraft Studio hub: asistente peteĩ jey emboguejy ocho aplicación-kuérape. Studio AI'ỹ.
+
+### Ojehechaporã 0.8.1-pe
+
+- **DWG clases sección.** DWG archivo clases sección tipo mba'eichaitépe oñe'ẽ. Ojehechaporã TakeoffCraft-pe, ha ambue cinco aplicación-pe.
+- **Studio ñe'ẽ ojeporúva oñemoĩ jave.** Ymaguare Studio ha paquete ñe'ẽ inglés-pe añónte. Ndojehechaporã'ỹ opa plataforma escritorio-pe; ehecha ñe'ẽ ndojemoambue'ỹramo.
+
+### Ndaipóri ko versión-pe
+
+- **Código-firma'ỹ.** Windows omombe'u oñemboguejy, Mac-pe derecha clic ha {{ui:Abrir}} peteĩ jey. Tienda build (Microsoft Store, Google Play, App Store) oñemoĩ mboyve, iPad ha iPhone build 0.8.1-pe ndojejapóiva.
+- **Studio actualizaciones.** Windows instalador ha Linux paquetes peteĩ ára ojehecha ha ojeporu nde ndive. Zip portátil omombe'u, macOS ha APK ndojeʼẽ hyeʼỹ. 0.8 macOS .dmg versión rupi.
+- **Asistente AI.** Clic peteĩ Studio-pe, navegador-pe hospedado AI conector, nde API clave Studio-pe, ha MCP paquete publicado ndojeporã ko versión-pe.
+- **Contar todo.** Leyenda-pe ojeporu símbolo ojehechaháicha ojapova ndive, pared térã línea mbaʼe ndive símbolo ojehecha'ỹ. Espejo símbolo ndojejuhu, hoja escala'ỹ ojapova leyenda tamaño-pe ojeheka. Hoja primero ha'e tuichave ohecha upe rire ejerovia'ỹ.
+- **Proveedor stock.** Stock figura ndaipóri mbaʼe ko archivo cuidado'ỹva. Revisión ndojeporúi proveedor-pe.
+- **Idiomas.** Tamil app bar-pe ndojeikóri.
+
+Opa ambue [Ndojapóiva jave](topic:not-built-yet) rehe. Mboyve versión rehe, ehechá [Mba'e pyahu 0.7-pe](topic:whats-new-0-7).
