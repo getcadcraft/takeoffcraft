@@ -6,9 +6,9 @@ Measure the drawings. Count the work. Price the job.
 
 **[Website](https://getcadcraft.com/apps/takeoffcraft) | [Use it in your browser](https://getcadcraft.com/use/takeoffcraft) | [Download CadCraft Studio](https://getcadcraft.com/download#studio) | [Help and tutorials](https://getcadcraft.com/tutorials/takeoffcraft) | [News](https://getcadcraft.com/news) | [Suggest a feature](https://getcadcraft.com/suggest)**
 
-[![TakeoffCraft 0.9](screenshots/paper.png)](https://getcadcraft.com/use/takeoffcraft)
+[![TakeoffCraft 0.10](screenshots/paper.png)](https://getcadcraft.com/use/takeoffcraft)
 
-<sub>TakeoffCraft 0.9 in the browser, dark theme. [A second view](screenshots/model.png).</sub>
+<sub>TakeoffCraft 0.10 in the browser, dark theme. [A second view](screenshots/model.png).</sub>
 
 TakeoffCraft is the quantity takeoff & estimating app in the [CadCraft](https://getcadcraft.com) family: Calibrated linear, area and count takeoff from PDF plans, with assemblies, cost columns and quantities that export.
 
