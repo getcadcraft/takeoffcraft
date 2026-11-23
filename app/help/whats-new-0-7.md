@@ -2,7 +2,7 @@
 title: What's new in 0.7 (earlier)
 summary: DWG and DXF drawings open as sheets with their own scale, exact counts and lengths from the drawing itself, the chosen subcontractor bid as a package's price, bid invitations with sealed prices, assistant tools for drawings, and USD from the 3D check view.
 section: start
-order: 6
+order: 7
 keywords: whats new 0.7, earlier release, release notes, changelog, changes, 0.7, version, new features, dwg, dxf, drawing, layouts, model space, drawing scale, count from drawing, cad count, blocks, dynamic blocks, attributes, layers, xref, linked drawing, measure drawing, polyline, hatch, marked pdf, chosen bid, use a bid, send for bids, bid invitation, sealed bids, bid opening, late bid, subcontractor records, csv, assistant, mcp, usd, usdz, units, unit lists, compact, panels, dialogs, portuguese
 ---
 

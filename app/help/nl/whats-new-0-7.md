@@ -2,7 +2,7 @@
 title: Wat is er nieuw in 0.7 (eerder)
 summary: DWG- en DXF-tekeningen openen als bladen met hun eigen schaal, exacte tellingen en lengten uit de tekening zelf, de gekozen inschrijving van de onderaannemer als prijs van een pakket, uitnodigingen voor inschrijving met verzegelde prijzen, assistenttools voor tekeningen, en USD vanuit de 3D-controleweergave.
 keywords: wat is er nieuw 0.7, eerdere uitgave, uitgavenotities, wijzigingenlogboek, wijzigingen, 0.7, versie, nieuwe functies, dwg, dxf, tekening, indelingen, modelruimte, tekeningschaal, tellen vanuit tekening, cad-telling, blokken, dynamische blokken, attributen, lagen, xref, gekoppelde tekening, tekening meten, polylijn, arcering, gemarkeerde pdf, gekozen inschrijving, inschrijving gebruiken, voor inschrijving verzenden, uitnodiging voor inschrijving, verzegelde inschrijvingen, opening inschrijvingen, late inschrijving, gegevens onderaannemers, csv, assistent, mcp, usd, usdz, eenheden, eenheidslijsten, compact, panelen, dialoogvensters, portugees
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Dit is wat er in TakeoffCraft 0.7 is veranderd, vergeleken met 0.6. Tekeningen openen nu zoals ze zijn, zonder eerst te plotten naar pdf, en een inschrijvingspakket kan naar onderaannemers gaan en geprijsd terugkomen.

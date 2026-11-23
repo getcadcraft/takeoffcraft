@@ -19,6 +19,12 @@ $__review = Catalog::app('markupcraft');
 $__reviewBuild = $__review && Catalog::openIn($__review, $__area['key']) ? AppBuilds::resolve($__review['slug'], $__area['key']) : null;
 $__reviewUrl = $__reviewBuild && in_array('handoff', $__reviewBuild['manifest']['accepts'] ?? [], true) ? $__area['path'] . '/' . $__review['slug'] : '';
 // names of the apps that may hand a PDF over (status message only); the dev shell's Catalog stub has no apps(): none there
+// Model takeoff from an .rvt file (0.11 MT.2, modeltakeoff-takeoff.js): the lab only, exactly as BimCraft's RVT preview (0.5 SG.8 b). The library's
+// pinned URL reaches the page here, not through manifest.json (and written so the packers' vendor scan does not see it), so editions, the public
+// repo and Studio never carry it before the owner's legal look (docs/spikes/rvt-preview.md, roadmap SG.8-LEGAL). A release of this build keeps it off.
+$__rvtLib = 'rvt';
+$__rvtVer = ($__area['key'] ?? '') === 'lab' ? basename((string)@readlink(dirname(__DIR__, 3) . "/vendor/$__rvtLib/current")) : '';
+$__rvtModel = $__rvtVer !== '' ? "/assets/vendor/$__rvtLib/$__rvtVer/rvt.js" : '';
 $__appNames = [];
 foreach (is_callable([Catalog::class, 'apps']) ? Catalog::apps() : [] as $__a) $__appNames[$__a['slug']] = $__a['name'];
 $__tools = [   // group key => [kind, key, icon, label key, title key]; group names: Lang 'group.<key>'
@@ -27,6 +33,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         ['act', 'open-pdf', 'folder2-open', 'tool.open-pdf', 'tool.open-pdf.title'],
         ['act', 'open-project', 'file-earmark-arrow-up', 'tool.open-project', 'tool.open-project.title'],
         ['act', 'save-project', 'download', 'tool.save-project', 'tool.save-project.title'],
+        ['act', 'save-older', 'clock-history', 'tool.save-older', 'tool.save-older.title'],   // 0.11 DC.27: a copy for 0.10 and older (Save itself writes the large ids)
     ],
     'Export' => [   // i18n-ignore: the group's key (data-tb-key); its name is Lang 'group.*'
         ['act', 'export-xlsx', 'file-earmark-spreadsheet', 'tool.export-xlsx', 'tool.export-xlsx.title'],
@@ -58,6 +65,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         ['act', 'supply', 'truck', 'eg51.tool', 'eg51.tool.title'],   // 0.8 EG.51 (takeoff_PART_2): supplier stock and lead times (supply-ui.js)
         ['act', 'carbon', 'cloud', 'eg14.tool', 'eg14.tool.title'],   // 0.8 EG.14 + EG.17 (takeoff_PART_3): embodied carbon and the 5D price table (carbon-ui.js)
         ['act', 'tagqty', 'tags', 'eg915.tool', 'eg915.tool.title'],   // 0.8 SU.915 (takeoff_PART_3): a tag schedule from the building model as quantities (tagqty-ui.js)
+        ['act', 'model-takeoff', 'box', 'mt.tool', 'mt.tool.title'],   // 0.11 MT.1: quantities from a building model, IFC (and .rvt in the lab) (modeltakeoff-takeoff.js)
         ['act', 'prices', 'currency-dollar', 'eg68.tool', 'eg68.tool.title'],   // 0.8 EG.68 (takeoff_PART_2): price memory (prices-ui.js)
         ['act', 'learned', 'lightbulb', 'sx.su811.tool', 'sx.su811.tool.title'],   // 0.8 SU.811 (sx-learn): what it learned (learn-ui.js)
     ],
@@ -76,7 +84,7 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
 <main id="main" class="tc" data-takeoffcraft
       data-pdf-worker="<?= e($__manifest['pdfWorker'] ?? '') ?>" data-pdf-cmaps="<?= e($__manifest['pdfCmaps'] ?? '') ?>"
       data-pdf-fonts="<?= e($__manifest['pdfFonts'] ?? '') ?>" data-pdf-wasm="<?= e($__manifest['pdfWasm'] ?? '') ?>"
-      data-pdf-icc="<?= e($__manifest['pdfIcc'] ?? '') ?>" data-app-names="<?= e(json_encode($__appNames)) ?>">
+      data-pdf-icc="<?= e($__manifest['pdfIcc'] ?? '') ?>" data-app-names="<?= e(json_encode($__appNames)) ?>"<?php if ($__rvtModel): ?> data-rvt-model="<?= e($__rvtModel) ?>"<?php endif; ?>>
   <h1 class="visually-hidden"><?= Lang::e('ui.h1', ['app' => $app['name']]) ?></h1>
 
   <div class="tc-tools" role="toolbar" aria-label="<?= Lang::e('ui.tools') ?>">
@@ -126,8 +134,9 @@ $__tools = [   // group key => [kind, key, icon, label key, title key]; group na
         </div>
       </div>
     <?php endforeach; ?>
-    <input type="file" class="visually-hidden" accept=".pdf,.dwg,.dxf,.ifc,.ccbundle,.zip,application/pdf" multiple tabindex="-1" aria-hidden="true" data-file-pdf>
+    <input type="file" class="visually-hidden" accept=".pdf,.dwg,.dxf,.ifc,.rvt,.ccbundle,.zip,application/pdf" multiple tabindex="-1" aria-hidden="true" data-file-pdf>
     <input type="file" class="visually-hidden" accept=".json,application/json" tabindex="-1" aria-hidden="true" data-file-project>
+    <input type="file" class="visually-hidden" accept=".ifc,.rvt" tabindex="-1" aria-hidden="true" data-file-model>
   </div>
 
   <aside class="tc-panel tc-left" aria-label="<?= Lang::e('sheets.h') ?>">

@@ -26,6 +26,12 @@ that name one of them record what it reported when it read a file, nothing more.
 Read and written by our own code from Autodesk's published DXF reference (group codes). ezdxf (MIT) checks our
 files in the tests.
 
+### Revit files (`rvt-reader.js`)
+
+The container is read from Microsoft's published *[MS-CFB] Compound File Binary File Format* specification; the
+few streams shown (file information, project information, preview, links) are read as the files store them. Model
+geometry is not read.
+
 ### IFC (cc-ifc, `ifc/`)
 
 Our own IFC engine, written from ISO 10303-21 (STEP physical files) and the buildingSMART IFC2X3, IFC4 and IFC4X3

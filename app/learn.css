@@ -37,3 +37,7 @@
 .tc-learn-field { display: flex; flex-direction: column; gap: .25rem; font-weight: 600; font-size: .8125rem; }
 .tc-learn-field .tc-input { font-weight: 400; }
 .tc-learn .btn-sm-cc, .tc-learnbar .btn-sm-cc { padding: .15rem .55rem; font-size: .8125rem; line-height: 1.4; }
+
+/* 0.11 MT.1: the model takeoff dialog (modeltakeoff-takeoff.js; the table's own layout is the shared panel's) */
+.tc-dialog.tc-learn.tc-mt { width: min(72rem, calc(100vw - 2rem)); }
+.tc-mt .tc-dialog-head { justify-content: space-between; }

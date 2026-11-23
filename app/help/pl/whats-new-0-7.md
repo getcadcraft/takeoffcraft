@@ -2,7 +2,7 @@
 title: Co nowego w 0.7 (wcześniej)
 summary: Rysunki DWG i DXF otwierają się jako arkusze z własną skalą, dokładne liczby i długości z samego rysunku, wybrana oferta podwykonawcy jako cena pakietu, zaproszenia do wyceny z zapieczętowanymi cenami, narzędzia asystenta dla rysunków oraz USD z widoku sprawdzenia 3D.
 keywords: co nowego 0.7, wcześniejsze wydanie, informacje o wydaniu, dziennik zmian, zmiany, 0.7, wersja, nowe funkcje, dwg, dxf, rysunek, układy, przestrzeń modelu, skala rysunku, liczenie z rysunku, liczenie z CAD, bloki, bloki dynamiczne, atrybuty, warstwy, xref, dołączony rysunek, zmierz rysunek, polilinia, kreskowanie, PDF z oznaczeniami, wybrana oferta, użyj oferty, wyślij do wyceny, zaproszenie do oferty, zapieczętowane oferty, otwarcie ofert, spóźniona oferta, rekordy podwykonawców, csv, asystent, mcp, usd, usdz, jednostki, listy jednostek, zwarty, panele, okna dialogowe, portugalski
-from: de1dca2b
+from: 0e3a424f
 ---
 
 To, co zmieniło się w TakeoffCraft 0.7 w porównaniu z 0.6. Rysunki otwierają się teraz takie, jakie są, bez wcześniejszego drukowania do PDF, a pakiet ofertowy może trafić do podwykonawców i wrócić z wyceną.

@@ -60,7 +60,7 @@ export function mountTagQty(ctx) {
         b?.ok ? el('ul', { className: 'tc-learn-list' }, ...b.file.items.slice(0, 12).map((it) => el('li', { className: 'tc-learn-row', dataset: { tagqtyRow: it.key } }, el('div', { className: 'tc-learn-main' }, el('span', { className: 'tc-learn-name' }, it.name), el('span', { className: 'tc-learn-sub' }, it.qty + ' ' + it.unit + ' - ' + it.note))))) : null,
         b?.ok && b.groups > 12 ? el('p', { className: 'tc-learn-intro' }, t('eg915.more', { n: b.groups - 12 })) : null];
     dlg.replaceChildren(el('div', { className: 'tc-dialog-head' }, el('h2', { className: 'tc-h', id: 'tc-tagqty-h' }, t('eg915.h'))), el('div', { className: 'tc-learn-body' }, ...body),
-      el('div', { className: 'tc-dialog-foot' }, sched ? el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { tagqtyAdd: '' }, disabled: !b?.ok, onclick: () => addNow() }, t('eg915.add')) : null,
+      el('div', { className: 'tc-dialog-foot' }, sched ? el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { tagqtyAdd: '' }, disabled: !b?.ok, onclick: addNow }, t('eg915.add')) : null,
         el('button', { type: 'button', className: 'btn-plot btn-sm-cc', onclick: () => dlg.close() }, t('btn.close'))));
   }
   return { open, drive: { load, add: addNow, state: () => ({ loaded: !!sched, pick }) } };

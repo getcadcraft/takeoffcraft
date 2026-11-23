@@ -33,6 +33,7 @@ export const COMMANDS = [
   C('file.open-pdf', 'file', 'bi-folder2-open', T('File', 'data-act="open-pdf"'), { defKeys: ['Ctrl+O'] }),
   C('file.open-project', 'file', 'bi-file-earmark-arrow-up', T('File', 'data-act="open-project"')),
   C('file.save', 'file', 'bi-download', T('File', 'data-act="save-project"'), { defKeys: ['Ctrl+S'] }),
+  C('file.save-older', 'file', 'bi-clock-history', T('File', 'data-act="save-older"')),   // 0.11 DC.27
 
   C('export.xlsx', 'export', 'bi-file-earmark-spreadsheet', '[data-export-menu] [data-act="export-xlsx"]'),
   C('export.csv', 'export', 'bi-filetype-csv', '[data-export-menu] [data-act="export-csv"]'),
@@ -61,6 +62,7 @@ export const COMMANDS = [
   C('takeoff.supply', 'takeoff', 'bi-truck', T('Takeoff', 'data-act="supply"'), { label: 'eg51.tool' }),   // 0.8 EG.51 (takeoff_PART_2)
   C('takeoff.carbon', 'takeoff', 'bi-cloud', T('Takeoff', 'data-act="carbon"'), { label: 'eg14.tool' }),   // 0.8 EG.14 + EG.17 (takeoff_PART_3)
   C('takeoff.tagqty', 'takeoff', 'bi-tags', T('Takeoff', 'data-act="tagqty"'), { label: 'eg915.tool' }),   // 0.8 SU.915 (takeoff_PART_3)
+  C('takeoff.model', 'takeoff', 'bi-box', T('Takeoff', 'data-act="model-takeoff"'), { label: 'mt.tool' }),   // 0.11 MT.1: quantities from a building model
   C('takeoff.prices', 'takeoff', 'bi-currency-dollar', T('Takeoff', 'data-act="prices"'), { label: 'eg68.tool' }),   // 0.8 EG.68 (takeoff_PART_2)
   C('takeoff.learned', 'takeoff', 'bi-lightbulb', T('Takeoff', 'data-act="learned"'), { label: 'sx.su811.tool' }),   // 0.8 SU.811 (sx-learn)
 
@@ -117,11 +119,11 @@ export const STYLES = {
   desk: {
     format: 'cadcraft-input', version: 1, id: 'desk', name: 'input.style.desk', builtin: true, layout: 'menubar',
     menus: [
-      m('file', ['file.new', 'file.open-pdf', 'file.open-project', '-', 'file.save', '-', 'app.settings', 'app.palette', 'app.help']),
+      m('file', ['file.new', 'file.open-pdf', 'file.open-project', '-', 'file.save', 'file.save-older', '-', 'app.settings', 'app.palette', 'app.help']),
       m('edit', ['edit.undo', 'edit.redo', '-', 'edit.cut', 'edit.copy', 'edit.paste', 'edit.paste-in-place', 'edit.duplicate', 'edit.delete', '-', 'edit.select-all', 'edit.select-none']),
       m('view', ['view.fit-page', 'view.fit-width', '-', 'view.3d', 'view.compare', 'view.next-flag', '-', 'view.snap']),
       m('scale', ['scale.calibrate', 'scale.check']),
-      m('takeoff', ['takeoff.select', '-', 'takeoff.linear', 'takeoff.area', 'takeoff.circle', 'takeoff.room', 'takeoff.path', 'takeoff.count', 'takeoff.autocount', 'takeoff.legend', 'takeoff.learned', 'takeoff.prices', 'takeoff.supply', 'takeoff.carbon', 'takeoff.tagqty', 'takeoff.cad-count', 'takeoff.cad-geom', '-', 'takeoff.arc', 'takeoff.deduct', 'takeoff.cutout']),
+      m('takeoff', ['takeoff.select', '-', 'takeoff.linear', 'takeoff.area', 'takeoff.circle', 'takeoff.room', 'takeoff.path', 'takeoff.count', 'takeoff.autocount', 'takeoff.legend', 'takeoff.learned', 'takeoff.prices', 'takeoff.supply', 'takeoff.carbon', 'takeoff.tagqty', 'takeoff.model', 'takeoff.cad-count', 'takeoff.cad-geom', '-', 'takeoff.arc', 'takeoff.deduct', 'takeoff.cutout']),
       m('items', ['items.new', 'items.library']),
       m('markup', ['markup.note', 'markup.cloud', 'markup.highlight', '-', 'markup.handoff']),
       m('export', EXPORTS),
@@ -136,7 +138,7 @@ export const STYLES = {
   // the tools used all day large, their neighbours small and stacked three high. The workspace layouts' ribbon is this style.
   ribbon: {
     format: 'cadcraft-input', version: 1, id: 'ribbon', name: 'input.style.ribbon', builtin: true, layout: 'ribbon',
-    menus: [m('file', ['file.new', 'file.open-pdf', 'file.open-project', '-', 'file.save', '-', 'export.xlsx', 'export.pdf', '-', 'app.settings', 'app.palette', 'app.help'])],
+    menus: [m('file', ['file.new', 'file.open-pdf', 'file.open-project', '-', 'file.save', 'file.save-older', '-', 'export.xlsx', 'export.pdf', '-', 'app.settings', 'app.palette', 'app.help'])],
     quick: ['file.open-pdf', 'file.save', 'edit.undo', 'edit.redo'],
     tabs: [
       tab('takeoff', [
@@ -144,7 +146,7 @@ export const STYLES = {
         ['shape', [sm('takeoff.arc'), sm('takeoff.deduct'), sm('takeoff.cutout')]],
         ['scale', ['scale.calibrate', sm('scale.check')]],
         ['drawing', ['takeoff.cad-count', sm('takeoff.cad-geom')]],
-        ['conditions', ['items.new', sm('items.library'), sm('takeoff.prices'), sm('takeoff.supply'), sm('takeoff.carbon'), sm('takeoff.tagqty'), sm('takeoff.learned')]],   // takeoff.learned: 0.8 SU.811
+        ['conditions', ['items.new', sm('items.library'), sm('takeoff.prices'), sm('takeoff.supply'), sm('takeoff.carbon'), sm('takeoff.tagqty'), sm('takeoff.model'), sm('takeoff.learned')]],   // takeoff.learned: 0.8 SU.811
       ]),
       tab('edit', [
         ['clipboard', ['edit.paste', sm('edit.cut'), sm('edit.copy'), sm('edit.paste-in-place')]],

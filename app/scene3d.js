@@ -32,6 +32,7 @@ import { flatten, spans } from './geom.js';
 import { measureMark, backouts } from './model.js';
 import { earcut } from './m3d/earcut.js';
 import { t } from './i18n.js';
+import { ringArea } from './geom2d.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 export const THIN_FT = 2 / 12;               // a plate for an area with no depth: 2"
 export const STEP = Math.PI / 72;            // arcs drawn with 2.5° chords
@@ -55,11 +56,6 @@ export function sheetFrame(ftPerUnit, { transform = null, width = 0, height = 0 
 }
 
 /** Signed area of a 2D ring [[x, y], …] (positive = counter-clockwise). */
-function ringArea(r) {
-  let a = 0;
-  for (let i = 0, n = r.length; i < n; i++) { const p = r[i], q = r[(i + 1) % n]; a += p[0] * q[1] - q[0] * p[1]; }
-  return a / 2;
-}
 /** Drop repeated points (a closing point equal to the first, zero-length chords). */
 function clean(r, closed) {
   const out = [];

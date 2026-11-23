@@ -2,6 +2,7 @@
 
 import { t } from './i18n.js';
 import { outlineArea } from './quantities/rules.js';
+import { pointInPolygon as pip2d } from './geom2d.js';   // 0.11 PERF.74: one copy of the ray cast (lib/geom2d)
 /**
  * geom.js — plane geometry for takeoff marks, in PDF user space. DOM-free (tested in Node).
  * Points are {x, y}. Lengths come out in user-space units; units.js turns them into feet.
@@ -148,12 +149,7 @@ export function areaWithHoles(outer, holes = []) {
 /** Ray-cast point in polygon (arcs followed); the boundary itself is not relied on by callers. */
 export function pointInPolygon(p, pts0) {
   const pts = hasArcs(pts0) ? flatten(pts0, true) : pts0;
-  let inside = false;
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-    const a = pts[i], b = pts[j];
-    if ((a.y > p.y) !== (b.y > p.y) && p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x) inside = !inside;
-  }
-  return inside;
+  return pip2d(p.x, p.y, pts);
 }
 
 const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);

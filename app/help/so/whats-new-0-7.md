@@ -2,7 +2,7 @@
 title: Waxa cusub ee 0.7 (hore)
 summary: Naqshadaha DWG iyo DXF waxay furmaan sida xaashiyo leh miisaankooda, tirooyin iyo dherer saxda ah oo naqshadda laftiisa ka timid, qiimaha tartanka qandaraasleyda la doortay oo ah qiimaha xidhmada, memo tartan oo qiimo la xidhay, awoodaha kaaliyaha ee naqshadaha, iyo USD oo ka timid muuqaalka hubinta 3D.
 keywords: waxa cusub 0.7, nooca hore, sii deynta, sheekada isbeddelada, isbeddel, 0.7, nooca, astaamo cusub, dwg, dxf, naqshad, qaabab, model space, miisaanka naqshadda, tirinta naqshadda, cad count, bloogyo, bloogyo dynamic, sifooyin, lakabyo, xref, naqshad xiriirsan, cabbir naqshadda, polilayn, hatch, PDF calaamadsan, qiimaha tartanka, isticmaal tartan, dir tartan, memo tartan, tartan xidhan, furitaanka tartanka, tartan dambe, diiwaanka qandaraasleyda, csv, kaaliye, mcp, usd, usdz, unitiyo, liisaska unitiyada, kooban, panels, dialogs, Portuguese
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Waxaan kaga wada hadlaynaa waxa isbeddelay TakeoffCraft 0.7, marka la barbardhigo 0.6. Hadda naqshadaha waxay furmaan sida ay yihiin, iyada oo aan marka hore PDF loo daabicin, xirmada tartanka waxaa loo diri karaa qandaraasleyda, oo waxaa dib loo soo celin karaa iyada oo qiimaysan.

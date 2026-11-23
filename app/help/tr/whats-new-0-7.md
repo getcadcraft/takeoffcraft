@@ -2,7 +2,7 @@
 title: 0.7 sürümünde yenilikler (daha önce)
 summary: DWG ve DXF çizimleri kendi ölçekleriyle sayfa olarak açılır; çizimin kendisinden kesin sayımlar ve uzunluklar; seçilen taşeron teklifi bir paketin fiyatı olarak; mühürlü fiyatlarla teklif davetleri; çizimler için asistan araçları ve 3D kontrol görünümünden USD.
 keywords: yenilikler 0.7, daha önceki sürüm, sürüm notları, değişiklik günlüğü, değişiklikler, 0.7, sürüm, yeni özellikler, dwg, dxf, çizim, düzenler, model uzayı, çizim ölçeği, çizimden say, cad sayımı, bloklar, dinamik bloklar, öznitelikler, katmanlar, xref, bağlı çizim, çizimi ölç, çoklu çizgi, taralama, işaretli pdf, seçilen teklif, teklif kullan, teklif için gönder, teklif daveti, mühürlü teklifler, teklif açılışı, geç teklif, taşeron kayıtları, csv, asistan, mcp, usd, usdz, birimler, birim listeleri, sıkı, paneller, iletişim kutuları, portekizce
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Bu, TakeoffCraft 0.7 sürümünde 0.6'ya göre neyin değiştiğidir. Çizimler artık önce PDF'e çıktı almadan olduğu gibi açılır ve bir teklif paketi taşeronlara gönderilip fiyatlanmış olarak geri alınabilir.

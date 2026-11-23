@@ -2,7 +2,7 @@
 title: Okusha ku-0.7 (kwangaphambili)
 summary: Imidwebo ye-DWG ne-DXF ivulwa njengamashidi anesilinganiso sawo, izinani nobude obunembile kusukela komdwebo uqobo, inani lesabelomsebenzi elikhethiwe njengexabiso lephakheji, izimemo zamathenda ezinamanani avalekile, amathuluzi abasizi emidwebweni, nama-USD asuka ku-3D check view.
 keywords: okusha 0.7, inguqulo yangaphambili, amanothi okukhishwa, izinguquko, 0.7, inguqulo, izici ezintsha, dwg, dxf, umdwebo, izingqimba, isikali somdwebo, bala kusukela komdwebo, ukubala kwe-cad, amabhulokhi, amabhulokhi aguquguqukayo, izindawo, izingqimba, xref, umdwebo oxhunyiwe, linganisa umdwebo, polyline, ukufiphaza, i-pdf emakwe, inani elikhethiwe, sebenzisa ithenda, thumela amathenda, imemo yethenda, amathenda avaliwe, ukuvulwa kwamathenda, ithenda elisemuva, amarekhodi wesabelomsebenzi, csv, umsizi, mcp, usd, usdz, amayunithi, uhlu lwamayunithi, okuhlangene, amaphaneli, izingxoxo, isiPutukezi
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Lokhu yikho okushintshe ku-TakeoffCraft 0.7, uma kuqhathaniswa ne-0.6. Imidwebo manje ivulwa njengoba ibe, ngaphandle kokuyiphrinta kuqala ibe yi-PDF, futhi iphakheji yethenda ingathunyelwa kubasebenzi besabelomsebenzi ibuyele inexabiso.

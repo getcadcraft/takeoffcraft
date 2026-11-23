@@ -2,7 +2,7 @@
 title: Noutăți în 0.7 (anterior)
 summary: Desenele DWG și DXF se deschid ca foi cu propria lor scară, cu numărări și lungimi exacte din desenul în sine, prețul ofertei alese a subcontractorului ca preț al pachetului, invitații de ofertare cu prețuri sigilate, unelte pentru desene în asistenți și USD din vizualizarea 3D de verificare.
 keywords: noutăți 0.7, versiune anterioară, note de lansare, jurnal de modificări, modificări, 0.7, versiune, funcții noi, dwg, dxf, desen, aranjamente în pagină, spațiu model, scara desenului, numărare din desen, numărare CAD, blocuri, blocuri dinamice, atribute, straturi, xref, desen extern, măsurare desen, polilinie, hașură, PDF marcat, ofertă aleasă, folosire ofertă, trimitere pentru ofertare, invitație de ofertare, oferte sigilate, deschidere oferte, ofertă întârziată, înregistrări subcontractori, csv, asistent, mcp, usd, usdz, unități, liste de unități, compact, panouri, casete de dialog, portugheză
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Aceasta este lista modificărilor din TakeoffCraft 0.7, față de 0.6. Desenele se deschid acum așa cum sunt, fără trasare în PDF înainte, iar un pachet de ofertare poate fi trimis subcontractorilor și primit înapoi cu prețuri.

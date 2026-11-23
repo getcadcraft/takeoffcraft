@@ -2,7 +2,7 @@
 title: Mis on uut versioonis 0.7 (varem)
 summary: DWG- ja DXF-joonised avanevad lehtedena oma mõõtkavaga, täpsed loendused ja pikkused joonisest endast, valitud alltöövõtja pakkumine paketi hinnana, pakkumiskutsed suletud hindadega, assistendi tööriistad joonistele ning USD 3D-kontrollvaatest.
 keywords: mis on uut 0.7, varasem väljalase, väljalaskemärkmed, muudatuste logi, muudatused, 0.7, versioon, uued funktsioonid, dwg, dxf, joonis, paigutused, mudeliruum, joonise mõõtkava, loenda joonisest, cad-loendus, plokid, dünaamilised plokid, atribuudid, kihid, xref, lingitud joonis, mõõda joonist, murdjoon, viirutus, märgitud pdf, valitud pakkumine, kasuta pakkumist, saada pakkumiseks, pakkumiskutse, suletud pakkumised, pakkumise avamine, hiline pakkumine, alltöövõtja kirjed, csv, assistent, mcp, usd, usdz, ühikud, ühikute loendid, tihe, paneelid, dialoogid, portugali
-from: de1dca2b
+from: 0e3a424f
 ---
 
 See on see, mis muutus TakeoffCrafti versioonis 0.7 võrreldes versiooniga 0.6. Joonised avanevad nüüd nii, nagu need on, ilma et neid enne PDF-iks plottida, ja pakettpakkumine võib minna alltöövõtjatele välja ning tulla tagasi hinnastatuna.

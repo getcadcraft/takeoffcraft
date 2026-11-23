@@ -2,7 +2,7 @@
 title: Újdonságok a 0.7-es verzióban (korábbi)
 summary: A DWG- és DXF-rajzok a saját méretarányukkal nyílnak meg lapokként, pontos darabszámok és hosszak a rajzból, a kiválasztott alvállalkozói ajánlat mint egy csomag ára, lezárt árakkal rendelkező ajánlatkérések, asszisztens-eszközök rajzokhoz, és USD a 3D-s ellenőrző nézetből.
 keywords: újdonságok 0.7, korábbi kiadás, kiadási megjegyzések, változásnapló, változások, 0.7, verzió, új funkciók, dwg, dxf, rajz, elrendezések, modelltér, rajz méretaránya, darabszámlálás rajzból, cad darabszám, blokkok, dinamikus blokkok, attribútumok, rétegek, külső hivatkozás, rajz mérése, polivonal, sraffozás, jelölt pdf, kiválasztott ajánlat, ajánlat használata, ajánlatkérés küldése, ajánlatkérés, lezárt ajánlatok, ajánlat felbontása, késői ajánlat, alvállalkozói nyilvántartás, csv, asszisztens, mcp, usd, usdz, mértékegységek, mértékegység-listák, kompakt, panelek, párbeszédpanelek, portugál
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Ez az, ami változott a TakeoffCraft 0.7-ben, a 0.6-hoz képest. A rajzok most úgy nyílnak meg, ahogy vannak, PDF-be nyomtatás nélkül, és egy ajánlati csomag kimehet az alvállalkozókhoz, és árazva térhet vissza.

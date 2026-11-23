@@ -50,6 +50,11 @@
         }
     },
     "known": {
+        "manifold-3d": {
+            "name": "Manifold",
+            "spdx": "Apache-2.0",
+            "url": "https://github.com/elalish/manifold"
+        },
         "noble-ciphers": {
             "name": "noble-ciphers",
             "spdx": "MIT",

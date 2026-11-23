@@ -2,7 +2,7 @@
 title: Novedades de la versión 0.7 (anterior)
 summary: Los dibujos DWG y DXF se abren como hojas con su propia escala, conteos y longitudes exactos del propio dibujo, la licitación de subcontratista elegida como precio del paquete, invitaciones a licitar con precios sellados, herramientas de asistente para dibujos y USD desde la vista de revisión 3D.
 keywords: novedades 0.7, versión anterior, notas de la versión, historial de cambios, cambios, 0.7, versión, nuevas funciones, dwg, dxf, dibujo, presentaciones, espacio modelo, escala del dibujo, contar desde dibujo, conteo CAD, bloques, bloques dinámicos, atributos, capas, xref, dibujo vinculado, medir dibujo, polilínea, sombreado, PDF marcado, licitación elegida, usar una licitación, enviar para licitación, invitación a licitar, licitaciones selladas, apertura de licitaciones, licitación tardía, registros de subcontratistas, csv, asistente, mcp, usd, usdz, unidades, listas de unidades, compacta, paneles, diálogos, portugués
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Esto es lo que cambió en TakeoffCraft 0.7, comparado con la 0.6. Ahora los dibujos se abren tal como son, sin trazar antes a PDF, y un paquete de licitación puede salir hacia los subcontratistas y regresar con precios.

@@ -1299,6 +1299,9 @@ section('Quantities, wall area, waste and cost');
   const csv = E.estimateCsv(t.state);
   const lines = csv.trim().split('\r\n');
   eq(lines[0], E.estimateHead().join(','), 'header row');
+  // 0.11 BK.144: an unsigned estimate always ends with an empty line and "Not signed off by a person."
+  ok(lines.at(-1) === 'Not signed off by a person.' && lines.at(-2) === '', 'an unsigned export says so, after an empty line', lines.slice(-2));
+  lines.length -= 2;
   eq(lines.length, 1 + est.rows.length + 1, 'a line per row + job total');
   ok(lines.at(-1).startsWith('Job total,') && lines.at(-1).includes(',1597.87,'), 'job total line = 1597.87', lines.at(-1));
   ok(lines.some((l) => l.includes('Formula error: The formula divides by zero.')), 'error row explains itself');
@@ -2605,8 +2608,9 @@ section('3D');
   const src3 = (f) => fs.readFileSync(path.join(APP, f), 'utf8');
   ok(!/from ['"]three['"]|\bdocument\b|\bwindow\b/.test(src3('scene3d.js')), 'scene3d.js is DOM-free and never imports three');
   ok(/from 'three'/.test(src3('view3d.js')) && !/from '\.\.\//.test(src3('view3d.js')) && ![...src3('view3d.js').matchAll(/from '\.\/([^']+)'/g)].some((m) => !m[1].startsWith('m3d/') && m[1] !== 'i18n.js' && m[1] !== 'input-mouse.js'), 'view3d.js imports three, the m3d copies, the language file and the menu style\'s mouse (input-mouse.js, 0.5 IP.3) only');
-  const appJs = src3('takeoffcraft.js');
-  ok(!/^import .*(view3d|scene3d)/m.test(appJs) && /import\('\.\/view3d\.js'\)/.test(appJs) && /import\('\.\/scene3d\.js'\)/.test(appJs), 'the 3D modules (and so three.js) load lazily with import()');
+  // perf-finish-11 r2 (PERF.71): the 3D check view moved out of init() into view3d-ui.js; the rule is the same for the main and that module
+  const appJs = src3('takeoffcraft.js') + '\n' + (fs.existsSync(path.join(APP, 'view3d-ui.js')) ? src3('view3d-ui.js') : '');
+  ok(!/^import .*from '\.\/(view3d|scene3d)\.js'/m.test(appJs) && /import\('\.\/view3d\.js'\)/.test(appJs) && /import\('\.\/scene3d\.js'\)/.test(appJs), 'the 3D modules (and so three.js) load lazily with import()');
   ok(!/\.\.\/\.\.\/modelcraft|apps\/modelcraft/.test(src3('view3d.js') + src3('scene3d.js') + appJs), 'nothing imports from ModelCraft\'s folder');
   const man = JSON.parse(src3('manifest.json'));
   eq(man.imports.three, '/assets/vendor/three/current/three.module.js', 'manifest maps "three" to the vendored three.js');

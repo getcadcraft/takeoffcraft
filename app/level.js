@@ -30,6 +30,7 @@
  */
 
 import { t } from './i18n.js';
+import { csvCell as cell } from './util.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 export const BID_LIMITS = { bids: 500, bidder: 120, note: 400, requests: 200 };
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -163,7 +164,6 @@ export function leveling(state, est, opts = {}) {
   return out;
 }
 
-const cell = (v) => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
 /** A package's scope for a subcontractor: item, CSI number, quantity, unit, the sheets its marks are on. No prices. */
 export function packageCsv(pkg, sheetLabel = (k) => k) {
   const lines = [[t('pkg.csv.title', { pkg: pkg.title })], ['item', 'csi', 'qty', 'unit', 'sheets'].map((k) => t('pkg.csv.' + k))];

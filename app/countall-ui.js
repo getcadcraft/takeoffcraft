@@ -13,8 +13,8 @@ import { crop } from './match.js';
 import { groupLabels, readLegend, runScale } from './legend.js';
 import { runCountAll, decide, planItems, sheetLinks, FLOOR, MAX_PIXELS } from './countall.js';
 import { t } from './i18n.js';
+import { affineMul as mul } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
-const mul = (m, n) => [m[0] * n[0] + m[2] * n[1], m[1] * n[0] + m[3] * n[1], m[0] * n[2] + m[2] * n[3], m[1] * n[2] + m[3] * n[3], m[0] * n[4] + m[2] * n[5] + m[4], m[1] * n[4] + m[3] * n[5] + m[5]];
 
 /** pdf.js text pieces of a page in the pixels of a viewport: [{ str, x0, y0, x1, y1 }] (upright text only: a turned note is not a legend row). */
 export function textPieces(content, vp) {
@@ -41,9 +41,11 @@ export function mountCountAll(ctx) {
   stage?.append(panel);
   let st = null;                    // the run in progress or under review: { legendSheet, w, box, entries, running, hits, th, off:Set, ms, skipped, ... }
   let workers = [], pool = [], nextId = 1;
+  let waiters = [];   // 0.11 PERF.75: a search that finds every worker busy waits here and is handed the next free one (it used to poll every 20 ms)
+  const release = (wk) => { const w = waiters.shift(); if (w) w(wk); else pool.push(wk); };
 
   const cores = () => Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1));
-  const stopWorkers = () => { for (const w of workers) w.terminate(); workers = []; pool = []; };
+  const stopWorkers = () => { for (const w of workers) w.terminate(); workers = []; pool = []; waiters = []; };
   const asInk = (e) => ({ data: e.tpl.data, w: e.tpl.w, h: e.tpl.h });
 
   // ---------------------------------------------------------------------------
@@ -102,7 +104,7 @@ export function mountCountAll(ctx) {
         const id = nextId++;
         wk.onmessage = (e) => {
           if (e.data.id !== id) return;
-          pool.push(wk);
+          release(wk);
           if (e.data.type === 'done') resolve(e.data.res); else reject(new Error(e.data.message));
         };
         wk.onerror = (e) => { reject(new Error(e.message || t('ac.stopped'))); };
@@ -110,7 +112,7 @@ export function mountCountAll(ctx) {
       };
       if (pool.length) return go(pool.pop());
       if (workers.length < cores()) { const wk = new Worker(import.meta.resolve('./countall-worker.js'), { type: 'module' }); workers.push(wk); return go(wk); }
-      const wait = setInterval(() => { if (pool.length) { clearInterval(wait); go(pool.pop()); } }, 20);
+      waiters.push(go);
     });
   }
 
@@ -236,7 +238,7 @@ export function mountCountAll(ctx) {
         st.anyAngle ? el('p', { className: 'tc-learn-sub' }, t('eg67.any.hint')) : null,
         st.running
           ? el('div', { className: 'tc-learn-top' }, el('progress', { max: 1, value: st.progress || 0, dataset: { caProgress: '' } }), el('span', { className: 'tc-learn-sub', dataset: { caWhere: '' } }, ''), small(t('btn.cancel'), () => stop(), { caStop: '' }))
-          : el('div', { className: 'tc-learn-top' }, el('button', { type: 'button', className: 'btn-plot btn-sm-cc', dataset: { caStart: '' }, disabled: !n || !order.length, onclick: () => start() }, t('eg67.start', { n: t('ac.sheets', { n: order.length }) })), small(t('btn.cancel'), () => close(), { caCancel: '' })));
+          : el('div', { className: 'tc-learn-top' }, el('button', { type: 'button', className: 'btn-plot btn-sm-cc', dataset: { caStart: '' }, disabled: !n || !order.length, onclick: start }, t('eg67.start', { n: t('ac.sheets', { n: order.length }) })), small(t('btn.cancel'), () => close(), { caCancel: '' })));
       if (st.running) renderProgress();
       return;
     }

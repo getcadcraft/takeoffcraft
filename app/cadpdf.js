@@ -15,13 +15,9 @@
 
 import { layerShown } from './cadset.js';
 import { winAnsi } from './pdfmarks.js';
+import { affineMul as mul } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 const PT_MM = 72 / 25.4;
-const mul = (p, q) => [
-  p[0] * q[0] + p[2] * q[1], p[1] * q[0] + p[3] * q[1],
-  p[0] * q[2] + p[2] * q[3], p[1] * q[2] + p[3] * q[3],
-  p[0] * q[4] + p[2] * q[5] + p[4], p[1] * q[4] + p[3] * q[5] + p[5],
-];
 const lin = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
 /** 'ink' → black; other colours darkened when pale (as the sheet on screen does), as 0..1 rgb. */
 function colorOf(c) {

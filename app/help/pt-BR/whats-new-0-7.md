@@ -2,7 +2,7 @@
 title: Novidades na 0.7 (anterior)
 summary: Desenhos DWG e DXF abrem como folhas com a própria escala, contagens e comprimentos exatos a partir do próprio desenho, a proposta escolhida de um subempreiteiro como preço do pacote, convites para propostas com preços lacrados, ferramentas de assistente para desenhos e USD a partir da visualização de verificação 3D.
 keywords: novidades 0.7, versão anterior, notas de versão, registro de alterações, alterações, 0.7, versão, novos recursos, dwg, dxf, desenho, layouts, espaço modelo, escala do desenho, contar a partir do desenho, contagem CAD, blocos, blocos dinâmicos, atributos, camadas, xref, desenho vinculado, medir desenho, polilinha, hachura, PDF marcado, proposta escolhida, usar uma proposta, enviar para propostas, convite para proposta, propostas lacradas, abertura de propostas, proposta atrasada, registros de subempreiteiros, csv, assistente, mcp, usd, usdz, unidades, listas de unidades, compacta, painéis, caixas de diálogo, português
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Esta é a lista do que mudou no TakeoffCraft 0.7, em comparação com a 0.6. Os desenhos agora abrem como estão, sem plotar antes para PDF, e um pacote de propostas pode ser enviado a subempreiteiros e voltar com preços.

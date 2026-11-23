@@ -18,6 +18,27 @@
  */
 
 import { parseCsv } from './library.js';
+
+// The words this module says. English here is the source; the same keys are in lang/en.json, and a page in another language reads its own (no page, no catalog in Node: the English below).
+// i18n-ignore-start: English source of the keys in lang/en.json (words-11)
+export const MESSAGES = {
+  'supply.err.empty': 'The file is empty.',
+  'supply.err.noheader': 'The file has no header row.',
+  'supply.err.noname': 'No Item, Name, Description or SKU column was found in the header row.',
+  'supply.err.nostock': 'No stock or lead-time column was found in the header row.',
+  'supply.err.norows': 'No row had an item and a stock or lead time.',
+  'supply.warn.limit': 'Only the first 20,000 rows were read.',
+  'supply.warn.skipped': { one: '{n} row had no name or no stock and lead time and was left out.', other: '{n} rows had no name or no stock and lead time and were left out.' },
+  'supply.file.default': 'Supplier file',
+};
+// i18n-ignore-end
+export function msg(key, fills = {}) {
+  const i18n = globalThis.ccI18n;
+  if (i18n && typeof i18n.has === 'function' && i18n.has(key)) return i18n.t(key, fills);
+  let m = MESSAGES[key] ?? key;
+  if (m && typeof m === 'object') m = fills.n === 1 ? m.one : m.other;
+  return String(m).replace(/\{(\w+)\}/g, (_, k) => (fills[k] === undefined ? '{' + k + '}' : String(fills[k])));
+}
 import { keyOf } from './prices.js';
 
 export const LIMIT = { rows: 2000, sources: 5, text: 200 };
@@ -63,14 +84,14 @@ export function readSupplyCsv(text) { return readSupplyRows(parseCsv(text)); }
 /** The same reading over rows of cells already split (a CSV's, or an Excel sheet's from xlsx-read.js). */
 export function readSupplyRows(all) {
   all = (Array.isArray(all) ? all : []).map((r) => (Array.isArray(r) ? r.map((c) => String(c ?? '')) : []));
-  if (!all.length) return { ok: false, error: 'The file is empty.' };
+  if (!all.length) return { ok: false, error: msg('supply.err.empty') };
   let hi = all.findIndex((r) => r.filter((c) => c && c.trim()).length >= 2);
-  if (hi < 0) return { ok: false, error: 'The file has no header row.' };
+  if (hi < 0) return { ok: false, error: msg('supply.err.noheader') };
   const head = all[hi].map((h) => clean(h, 80));
   const col = {};
   head.forEach((h, i) => { for (const [k, re] of HEAD) if (col[k] === undefined && re.test(h)) { col[k] = i; break; } });
-  if (col.name === undefined && col.sku === undefined) return { ok: false, error: 'No Item, Name, Description or SKU column was found in the header row.' };
-  if (col.stock === undefined && col.lead === undefined) return { ok: false, error: 'No stock or lead-time column was found in the header row.' };
+  if (col.name === undefined && col.sku === undefined) return { ok: false, error: msg('supply.err.noname') };
+  if (col.stock === undefined && col.lead === undefined) return { ok: false, error: msg('supply.err.nostock') };
   const leadBare = /week|wk/i.test(head[col.lead] || '') ? 'week' : /month/i.test(head[col.lead] || '') ? 'month' : 'day';
   const rows = [], warnings = [];
   let skipped = 0;
@@ -81,11 +102,11 @@ export function readSupplyRows(all) {
     if (!name && !sku) { skipped++; continue; }
     const st = parseStock(g('stock')), ld = parseLead(g('lead'), leadBare);
     if (st.stock === null && st.inStock === null && ld.lead === null && !ld.backorder) { skipped++; continue; }
-    if (rows.length >= 20000) { warnings.push('Only the first 20,000 rows were read.'); break; }
+    if (rows.length >= 20000) { warnings.push(msg('supply.warn.limit')); break; }
     rows.push({ name: name || sku, sku, unit: clean(g('unit'), 12), ...st, ...ld, price: col.price === undefined ? null : money(g('price')), supplier: clean(g('supplier'), 80), eta: clean(g('eta'), 40) });
   }
-  if (skipped) warnings.push(skipped + (skipped === 1 ? ' row had no name or no stock and lead time and was left out.' : ' rows had no name or no stock and lead time and were left out.'));
-  if (!rows.length) return { ok: false, error: 'No row had an item and a stock or lead time.' };
+  if (skipped) warnings.push(msg('supply.warn.skipped', { n: skipped }));
+  if (!rows.length) return { ok: false, error: msg('supply.err.norows') };
   return { ok: true, rows, warnings };
 }
 
@@ -102,7 +123,7 @@ export function readSupply(json) {
   for (const src of (Array.isArray(json.sources) ? json.sources : []).slice(0, LIMIT.sources)) {
     const rows = (Array.isArray(src?.rows) ? src.rows : []).filter(rowOk).slice(0, Math.max(0, LIMIT.rows - n)).map(cleanRow);
     n += rows.length;
-    if (rows.length) s.sources.push({ name: clean(src.name, 120) || 'Supplier file', at: typeof src.at === 'string' ? src.at.slice(0, 24) : '', rows });
+    if (rows.length) s.sources.push({ name: clean(src.name, 120) || msg('supply.file.default'), at: typeof src.at === 'string' ? src.at.slice(0, 24) : '', rows });
   }
   s.ignore = (Array.isArray(json.ignore) ? json.ignore : []).filter((x) => typeof x === 'string' && x.length <= 80).slice(0, 500);
   return s.sources.length || s.ignore.length ? s : null;

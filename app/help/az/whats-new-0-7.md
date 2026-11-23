@@ -2,7 +2,7 @@
 title: 0.7-də yeniliklər (əvvəlki)
 summary: DWG və DXF çertyojları öz miqyası ilə vərəq kimi açılır, çertyojun özündən dəqiq saylar və uzunluqlar, seçilmiş subpodratçı təklifi tender paketinin qiyməti kimi, möhürlənmiş qiymətli tender dəvətnamələri, çertyojlar üçün köməkçi alətləri və 3D yoxlama görünüşündən USD.
 keywords: 0.7-də yeniliklər, əvvəlki buraxılış, buraxılış qeydləri, dəyişikliklər, 0.7, versiya, yeni xüsusiyyətlər, dwg, dxf, çertyoj, tərtibatlar, model sahəsi, çertyoj miqyası, çertyojdan say, CAD sayı, bloklar, dinamik bloklar, atributlar, qatlar, xref, əlaqəli çertyoj, çertyojdan ölçmə, polixətt, ştrixlama, işarələnmiş PDF, seçilmiş təklif, təklifi istifadə et, təklif üçün göndər, tender dəvətnaməsi, möhürlənmiş təkliflər, təkliflərin açılışı, gecikmiş təklif, subpodratçı qeydləri, csv, köməkçi, mcp, usd, usdz, vahidlər, vahid siyahıları, yığcam, panellər, dialoqlar, portuqal
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Bu, TakeoffCraft 0.6-ya nisbətən 0.7-də nəyin dəyişdiyidir. Çertyojlar indi əvvəlcə PDF-ə çap etmədən olduğu kimi açılır, tender paketi isə subpodratçılara göndərilə və qiymətləndirilmiş halda geri qayıda bilər.

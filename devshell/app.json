@@ -19,6 +19,7 @@
         "partcraft": "PartCraft"
     },
     "vendor": {
+        "manifold-3d": "3.5.4",
         "noble-ciphers": "2.4.0",
         "noble-curves": "2.4.0",
         "noble-hashes": "2.4.0",
@@ -28,7 +29,7 @@
     },
     "origin": "https://getcadcraft.com",
     "packed": {
-        "at": "2026-11-17T04:54:27Z",
+        "at": "2026-11-23T06:20:42Z",
         "build": "dev"
     }
 }

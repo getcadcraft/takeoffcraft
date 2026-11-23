@@ -31,6 +31,7 @@
 
 import { dynamicDefs, dynamicOf } from './dwg-dynamic.js';
 import { plainText, mtextLines, planOcs } from './dwg-compile.js';
+import { affineMul as mul } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 export const LIMITS = Object.freeze({ depth: 20, refs: 1_500_000, array: 1_000_000 });
 
@@ -50,11 +51,6 @@ export function drawingUnits(model) {
 
 // ---- affine matrices [a, b, c, d, e, f] as dwg-compile.js uses them
 const IDENT = [1, 0, 0, 1, 0, 0];
-const mul = (p, q) => [
-  p[0] * q[0] + p[2] * q[1], p[1] * q[0] + p[3] * q[1],
-  p[0] * q[2] + p[2] * q[3], p[1] * q[2] + p[3] * q[3],
-  p[0] * q[4] + p[2] * q[5] + p[4], p[1] * q[4] + p[3] * q[5] + p[5],
-];
 const translate = (x, y) => [1, 0, 0, 1, x, y];
 const scaleM = (sx, sy) => [sx, 0, 0, sy, 0, 0];
 const rotM = (r) => { const c = Math.cos(r), s = Math.sin(r); return [c, s, -s, c, 0, 0]; };

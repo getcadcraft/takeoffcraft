@@ -56,6 +56,7 @@ import { cleanMethod, findMethod, defaultMethod, isDefault, methodRule, methodLi
 import { readSupply, writeSupply } from './supply.js';
 import { makeSignoff, cleanSignoff, holds } from './tables/signoff.js';   // 0.10 BK.62 (bk-r3-schedules-10): the estimate's sign-off, recorded in the file
 import { readCarbon, writeCarbon } from './carbon.js';   // 0.8 EG.14 (takeoff_PART_3): embodied carbon choices, kept in the project file   // 0.8 EG.51 (takeoff_PART_2): supplier stock and lead-time files, kept in the project file
+import { openBlock, nextNumber, savedCounter, dropBlocks, idNumbers, narrowIds, maxOf, FILE_IDS, TAKEOFF_LIMIT } from './history/ids.js';   // 0.11 DC.27: each session's ids from its own random tag
 import { readLearn, writeLearn } from './learn.js';   // 0.8 SU.811 (sx-learn): what it learned, kept in the project file
 
 export const FORMAT = 'takeoffcraft-project';
@@ -241,7 +242,10 @@ export class Takeoff {
   get canUndo() { return this.undoStack.length > 0; }
   get canRedo() { return this.redoStack.length > 0; }
 
-  nextId(prefix) { this.state.seq = (this.state.seq || 0) + 1; return prefix + this.state.seq; }
+  nextId(prefix) { this.state.seq = nextNumber((this.state.seq || 0) + 1, this); return prefix + this.state.seq; }   // 0.11 DC.27: past its tag's last number, a new tag
+  /** 0.11 DC.27: a file was opened: this session hands out its new ids from a random tag of its own (history/ids.js), so two people
+   *  adding to the same file do not make the same id. `seq` holds the last number handed out. */
+  takeIdBlock() { this.state.seq = openBlock(this, this.state.seq || 0, idNumbers(this.state), { last: true }); return this.state.seq; }
 
   // ---- reads ----
   item(id) { return this.state.items.find((i) => i.id === id) || null; }
@@ -717,8 +721,8 @@ export class Takeoff {
   toJSON(savedAt = new Date().toISOString()) {
     const s = this.state;
     return {
-      format: FORMAT, version: FORMAT_VERSION, app: 'TakeoffCraft', savedAt,
-      name: s.name, seq: s.seq,
+      format: FORMAT, version: FORMAT_VERSION, formatVersion: FILE_IDS, app: 'TakeoffCraft', savedAt,   // formatVersion (0.11 DC.27): ids from session blocks; older builds ignore it
+      name: s.name, seq: savedCounter(this, s.seq),
       files: s.files.map((f) => ({ hash: f.hash, name: f.name, size: f.size, pages: f.pages })),
       sheets: s.sheets,
       ...(s.areas?.length ? { areas: s.areas.map((a) => ({ id: a.id, name: a.name, ...(a.alt ? { alt: a.alt } : {}) })) } : {}),
@@ -747,6 +751,7 @@ export class Takeoff {
     const r = readProject(json);
     if (!r.ok) return r;
     this.state = r.state;
+    dropBlocks(this);   // 0.11 DC.27: the opener takes a new block (takeIdBlock)
     this.undoStack = []; this.redoStack = [];
     this.version++; this.savedVersion = this.version;
     this.emit('load');
@@ -825,6 +830,18 @@ export function normalComponent(f) {
   };
 }
 
+/**
+ * 0.11 DC.27: Save for an older version (0.10 and before): the project file (toJSON) with every id above 1e9 numbered again from
+ * the lowest free number and every reference rewritten (history/ids.js narrowIds), seq the highest id (those builds clamp seq at
+ * 1e9), no formatVersion. Throws when the ids do not fit. → a new object.
+ */
+export function olderCopy(file) {
+  const { obj } = narrowIds(file, { limit: TAKEOFF_LIMIT });
+  delete obj.formatVersion;
+  obj.seq = Math.max(Number.isInteger(file.seq) && file.seq <= TAKEOFF_LIMIT ? file.seq : 0, maxOf(idNumbers(obj)));
+  return obj;
+}
+
 /** Validate + normalise a project file. → { ok, state, warnings } | { ok: false, error } */
 export function readProject(json) {
   const fail = (e) => ({ ok: false, error: e });
@@ -834,7 +851,7 @@ export function readProject(json) {
   const warnings = [];
   const state = emptyState();
   state.name = str(json.name) || 'Takeoff';
-  state.seq = int(json.seq, 0, 1e9);
+  state.seq = int(json.seq, 0, Number.MAX_SAFE_INTEGER);   // 0.11 DC.27: was 1e9; session tags go up to 2^53
   { const m = readMethod(json.method); if (m) state.method = m; }   // 0.10 BK.42: optional key, older builds ignore it
   const finite = (n) => typeof n === 'number' && Number.isFinite(n) && Math.abs(n) < 1e7;
   const ptsOk = (a, min) => Array.isArray(a) && a.length >= min && a.length <= LIMITS.points && a.every((p) => Array.isArray(p) && (p.length === 2 || (p.length === 3 && finite(p[2]) && Math.abs(p[2]) <= 1000)) && finite(p[0]) && finite(p[1]));

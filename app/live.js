@@ -127,7 +127,7 @@ export function createLive(model, opts = {}) {
   function walk(op, list) {
     if (op.o === 'add') { const i = list.indexOf(op.id); if (i < 0) list.splice(Number.isInteger(op.at) ? Math.min(op.at, list.length) : list.length, 0, op.id); }
     else if (op.o === 'del') { const i = list.indexOf(op.id); if (i >= 0) list.splice(i, 1); }
-    else if (op.o === 'ord') { const next = op.v.filter((id) => list.includes(id)); for (const id of list) if (!next.includes(id)) next.push(id); list.splice(0, list.length, ...next); }
+    else if (op.o === 'ord') { const have = new Set(list), next = op.v.filter((id) => have.has(id)), put = new Set(next); for (const id of list) if (!put.has(id)) { next.push(id); put.add(id); } list.splice(0, list.length, ...next); }   // 0.11 PERF.76: Sets
   }
   function changed() {
     model.version++;

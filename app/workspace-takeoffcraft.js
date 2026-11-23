@@ -96,10 +96,19 @@ export async function mountTakeoffcraftWorkspace(host) {
   browserEl.addEventListener('click', (e) => {
     const b = e.target.closest?.('button'); if (!b) return;
     if (b.dataset.pbSheet) { if (ctx) ctx.open(b.dataset.pbSheet); else host.show(b.dataset.pbSheet); return; }
-    if (b.dataset.pbItem) { host.focusItem(b.dataset.pbItem); return; }
-    if (b.dataset.pbEst) { host.focusItem(b.dataset.pbEst); host.openQty(); return; }
+    // 0.11 UI.25: a condition row goes through the one state (ccState → this adapter's highlight = the same focusItem a click made before)
+    if (b.dataset.pbItem) { pick([{ kind: 'item', id: b.dataset.pbItem }], 'highlight'); return; }
+    if (b.dataset.pbEst) { pick([{ kind: 'item', id: b.dataset.pbEst }], 'highlight'); host.openQty(); return; }
     if (b.hasAttribute('data-pb-qty')) host.openQty();
   });
+
+  // ---- 0.11 UI.25: the reverse channel. Refs: { kind: 'mark' | 'item', id } or 'mark:<id>' / '<item id>' (a Problems line, a Browser row, SuperCad) ----
+  const S = () => window.ccState;
+  const pick = (ids, how) => { if (!S()?.select(ids, how)) highlight(ids); };   // no host (another app's page): the row still works
+  const isMark = (r) => (r.kind === 'mark' || !r.kind) && !!host.isMark?.(r.id), isItem = (r) => (r.kind === 'item' || !r.kind) && !!host.isItem?.(r.id);
+  const toPicker = (ids) => (S()?.refs(ids) || []).filter((r) => isMark(r) || isItem(r)).map((r) => ({ id: isMark(r) ? 'mark:' + r.id : r.id }));   // a bare id: a mark (selection.ids) or a condition; anything else is not ours
+  function select(ids) { const r = toPicker(ids); if (!r.length || !host.pick) return false; host.pick(r); return true; }
+  function highlight(ids) { const r = (S()?.refs(ids) || []).find(isItem); if (!r) return select(ids); host.focusItem(r.id); return true; }
 
   // ---- the view bar's controls ----
   const fitNodes = (c) => [c.tool('fit', 'viewbar', true), c.tool('view.fit-width', 'viewbar', true)];
@@ -112,8 +121,10 @@ export async function mountTakeoffcraftWorkspace(host) {
     state() {
       const tool = host.tool(), c = cmd(TOOL_CMD[tool] || 'takeoff.select');
       return { document: host.hasFiles() ? 'takeoff' : null, name: host.name(), dirty: host.dirty(), busy: host.busy(), selection: host.selection(), other: host.is3d(),
-        tool, toolLabel: tool !== 'select' && c ? base.tool(c.id).label : '' };
+        tool, toolLabel: tool !== 'select' && c ? base.tool(c.id).label : '',
+        kinds: host.selectionKinds ? host.selectionKinds() : undefined, mode: host.is3d() ? '3d' : 'paper' };   // 0.11 UI.25: published into ccState
     },
+    select, reveal: select, highlight,   // 0.11 UI.25: ccState.select / reveal / highlight land here (marks: shown on their sheet and selected)
     endTool: () => host.endTool(),
     // the ribbon's panel names, short enough for the toolbox's icon column (a group is never narrower than its name)
     toolbox: () => TOOLBOX.map(([g, tools]) => ({ id: g, label: t(g === 'drawing' ? 'ws.tbx.drawing' : 'input.m.' + g), tools: tools.filter((id) => !!cmd(id)) })),
@@ -166,7 +177,7 @@ export async function mountTakeoffcraftWorkspace(host) {
     },
   };
   // the app's own toolbar block keeps the base's (its <main>'s role=toolbar); the toolbox is the takeoff tools, not the whole toolbar
-  engine = mountWorkspaces(adapter);
+  engine = mountWorkspaces(window.ccState?.adapt ? window.ccState.adapt(adapter) : adapter);   // 0.11 UI.25: kinds, mode, view, problems into ccState
   return {
     engine,
     changed: () => engine.refresh(),

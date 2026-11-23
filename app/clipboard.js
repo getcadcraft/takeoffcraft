@@ -34,6 +34,8 @@ const SCALE_TOL = 0.001;      // 0.1 %: two scales this close are the same scale
 const SIZE_TOL = 1;           // PDF units (1/72 in): two sheets this close are the same size
 
 const clone = (v) => JSON.parse(JSON.stringify(v));
+/** The items with these ids, in the order asked (an id with no item is skipped; the first item of an id wins). One index, not a search per id (0.11 PERF.76). */
+const pickItems = (state, ids) => { const at = new Map(); for (const i of state.items) if (!at.has(i.id)) at.set(i.id, i); return ids.map((id) => at.get(id)).filter(Boolean); };
 const arr = (p) => (p.b ? [p.x, p.y, p.b] : [p.x, p.y]);
 const finite = (n) => typeof n === 'number' && Number.isFinite(n);
 const str = (v, max) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
@@ -73,14 +75,14 @@ export function copyMarks(state, ids, ctx = {}) {
     format: CLIP_FORMAT, version: CLIP_VERSION, source: ctx.source || '', copiedAt: ctx.now ?? Date.now(),
     sheet: sheetInfo(state, sheet, ctx),
     anchor: anchorOf(marks),
-    items: itemIds.map((id) => clone(state.items.find((i) => i.id === id))).filter(Boolean),
+    items: pickItems(state, itemIds).map(clone),
     marks: marks.map((m) => ({ item: m.item, kind: m.kind, pts: m.pts.map(arr), ...(m.holes?.length ? { holes: m.holes.map((h) => h.map(arr)) } : {}), ...markExtras(m) })),
   };
 }
 
 /** Copy items only (with their assemblies). → clip | null */
 export function copyItems(state, itemIds, ctx = {}) {
-  const items = itemIds.map((id) => state.items.find((i) => i.id === id)).filter(Boolean).map(clone);
+  const items = pickItems(state, itemIds).map(clone);
   if (!items.length) return null;
   return { format: CLIP_FORMAT, version: CLIP_VERSION, source: ctx.source || '', copiedAt: ctx.now ?? Date.now(), sheet: null, anchor: { x: 0, y: 0 }, items, marks: [] };
 }

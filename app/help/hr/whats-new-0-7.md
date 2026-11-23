@@ -2,7 +2,7 @@
 title: Novosti u 0.7 (ranije)
 summary: DWG i DXF crteži otvaraju se kao listovi s vlastitim mjerilom, točne količine i duljine iz samog crteža, odabrana ponuda podizvođača kao cijena paketa, pozivi na ponude sa zapečaćenim cijenama, alati pomoćnika za crteže i USD iz 3D prikaza za provjeru.
 keywords: novosti 0.7, ranije izdanje, bilješke o izdanju, dnevnik promjena, promjene, 0.7, verzija, nove značajke, dwg, dxf, crtež, layout, prostor modela, mjerilo crteža, brojanje iz crteža, cad brojanje, blokovi, dinamički blokovi, atributi, slojevi, xref, vanjska referenca, mjeri crtež, polilinija, šrafura, označeni pdf, odabrana ponuda, koristi ponudu, pošalji za ponude, poziv na ponudu, zapečaćene ponude, otvaranje ponuda, kasna ponuda, zapisi podizvođača, csv, pomoćnik, mcp, usd, usdz, jedinice, popisi jedinica, zbijeno, ploče, dijalozi, portugalski
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Ovo je ono što se promijenilo u aplikaciji TakeoffCraft 0.7 u odnosu na 0.6. Crteži se sada otvaraju onakvi kakvi jesu, bez prethodnog ispisa u PDF, a paket ponude može se poslati podizvođačima i vratiti s cijenama.

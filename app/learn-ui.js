@@ -342,7 +342,7 @@ export function mountLearn(ctx) {
         section('repeats', t('sx.su811.rep.h2'), t('sx.su811.rep.intro'), repRows, t('sx.su811.rep.empty'),
           el('div', { className: 'tc-learn-top' }, small(sel ? t('sx.su811.rep.sel', { n: sel }) : t('sx.su811.rep.sel.none'), () => { dlg.close(); repeatSelected(); }, { learnRepeatSel: '' }, !sel || !!l.off)))),
       el('div', { className: 'tc-dialog-foot' },
-        el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { learnClear: '' }, disabled: !learnedCount(l), onclick: () => clearAll() }, t('sx.su811.clear')),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { learnClear: '' }, disabled: !learnedCount(l), onclick: clearAll }, t('sx.su811.clear')),
         el('button', { type: 'button', className: 'btn-plot btn-sm-cc', onclick: () => dlg.close() }, t('btn.close'))));
   }
 

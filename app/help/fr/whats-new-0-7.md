@@ -2,7 +2,7 @@
 title: Nouveautés de la version 0.7 (antérieure)
 summary: Les dessins DWG et DXF s'ouvrent en feuilles avec leur propre échelle, des comptages et longueurs exacts tirés du dessin lui-même, l'offre retenue d'un sous-traitant comme prix d'un lot, les invitations à soumissionner avec prix scellés, des outils d'assistant pour les dessins, et l'USD depuis la vue de contrôle 3D.
 keywords: nouveautés 0.7, version antérieure, notes de version, journal des modifications, modifications, 0.7, version, nouvelles fonctionnalités, dwg, dxf, dessin, présentations, espace objet, échelle de dessin, comptage depuis le dessin, comptage CAO, blocs, blocs dynamiques, attributs, calques, référence externe, mesurer le dessin, polyligne, hachure, PDF annoté, offre retenue, utiliser une offre, envoyer en consultation, invitation à soumissionner, offres scellées, ouverture des offres, offre tardive, fiches sous-traitants, csv, assistant, mcp, usd, usdz, unités, listes d'unités, compacte, panneaux, boîtes de dialogue, portugais
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Voici ce qui a changé dans TakeoffCraft 0.7, par rapport à la 0.6. Les dessins s'ouvrent désormais tels quels, sans tracé préalable en PDF, et un lot peut être envoyé aux sous-traitants et revenir chiffré.

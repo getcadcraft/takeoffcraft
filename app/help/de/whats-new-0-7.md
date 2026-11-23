@@ -2,7 +2,7 @@
 title: Neuerungen in 0.7 (früher)
 summary: DWG- und DXF-Zeichnungen öffnen sich als Blätter mit eigenem Maßstab, exakte Zählungen und Längen aus der Zeichnung selbst, das gewählte Angebot eines Nachunternehmers als Preis eines Pakets, Angebotsanfragen mit versiegelten Preisen, Assistenten-Werkzeuge für Zeichnungen und USD aus der 3D-Prüfansicht.
 keywords: neuerungen 0.7, früheres release, versionshinweise, änderungsprotokoll, änderungen, 0.7, version, neue funktionen, dwg, dxf, zeichnung, layouts, modellbereich, zeichnungsmaßstab, aus zeichnung zählen, cad-zählung, blöcke, dynamische blöcke, attribute, layer, xref, externe referenz, zeichnung messen, polylinie, schraffur, markiertes pdf, gewähltes angebot, angebot verwenden, zur angebotsabgabe senden, angebotseinladung, versiegelte angebote, angebotsöffnung, verspätetes angebot, nachunternehmerdaten, csv, assistent, mcp, usd, usdz, einheiten, einheitenlisten, kompakt, bereiche, dialoge, portugiesisch
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Das hat sich in TakeoffCraft 0.7 gegenüber 0.6 geändert. Zeichnungen werden nun geöffnet, wie sie sind, ohne vorheriges Plotten als PDF, und ein Vergabepaket kann an Nachunternehmer gehen und mit Preisen zurückkommen.

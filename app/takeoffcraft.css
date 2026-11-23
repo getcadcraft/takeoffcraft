@@ -513,6 +513,13 @@ html.cc-compact .tc-sheetbar-name, html.cc-compact .tc-sheetbar-scale { font-siz
 /* Toolbox and info box: the sheet bar is the info box's Sheet group (a row of its tools, not a floating card); the bid area picker
    its first group, and the picker's section in the right panel folds away while it is there */
 .tbx-info .tc-sheetbar { position: static; max-width: none; padding: 0; background: none; border: 0; }
+/* 0.11 UI.17 (owner 2026-11-21): in the info box the Sheet group stays one line (it wrapped to three at 1280 px and took the drawing's height):
+   name and scale shorten with an ellipsis (the full text is in Sheets and the tooltip), the buttons sit icon beside label */
+.tbx-info .tc-sheetbar { flex-wrap: nowrap; align-items: center; min-width: 0; }
+.tbx-info .tc-sheetbar > * { flex: 0 0 auto; }
+.tbx-info .tc-sheetbar > :is(.tc-sheetbar-name, .tc-sheetbar-scale) { flex: 0 1 auto; min-width: 2.5rem; max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tbx-info .tc-sheetbar .tc-3d-toggle { display: inline-flex; flex-direction: row; align-items: center; gap: .3rem; white-space: nowrap; min-height: 0; padding-block: .1rem; }
+.tbx-info .tc-sheetbar .tc-3d-toggle > .bi { font-size: 1em; }
 .tbx-info .tc-area-row .tc-h { display: none; }
 .tc-area-sec:not(:has(.tc-area-row)) { display: none; }
 /* Ribbon and project browser: Properties (the selected condition, note or mark) and the Takeoff browser */

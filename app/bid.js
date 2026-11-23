@@ -98,7 +98,7 @@ function wrap(str, font, size, w) {
   return out;
 }
 
-export async function proposalPdf(PDFLib, { state, est, alts = [], date = new Date(), items = null }) {
+export async function proposalPdf(PDFLib, { state, est, alts = [], date = new Date(), items = null, notes = [] }) {   // notes (0.11 BK.144): lines under the price, e.g. who signed the estimate off or that nobody did
   const { PDFDocument, StandardFonts, rgb } = PDFLib;
   const b = normalBid(state.bid);
   const sum = bidSummary(est, b, alts);
@@ -140,6 +140,7 @@ export async function proposalPdf(PDFLib, { state, est, alts = [], date = new Da
     y -= l.key === 'total' ? 20 : 15;
   }
   if (sum.incomplete) para(t('bid.pdf.incomplete'), 9, font, grey);
+  for (const n of notes) para(n, 9, font, grey);
 
   // alternates
   if (sum.alts.length) {

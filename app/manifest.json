@@ -10,6 +10,7 @@
     "pdfjs-dist": "/assets/vendor/pdfjs/current/build/pdf.min.mjs",
     "pdf-lib": "/assets/vendor/pdf-lib/current/pdf-lib.esm.min.js",
     "three": "/assets/vendor/three/current/three.module.js",
+    "manifold-3d": "/assets/vendor/manifold-3d/current/manifold.js",
     "@noble/curves/": "/assets/vendor/noble-curves/current/",
     "@noble/hashes/": "/assets/vendor/noble-hashes/current/",
     "@noble/ciphers/": "/assets/vendor/noble-ciphers/current/"
@@ -52,6 +53,7 @@
     "adapter": "workspace-takeoffcraft.js"
   },
   "hardware": true,
+  "toolbarRows": "auto",
   "problems": true,
   "engines": true
 }

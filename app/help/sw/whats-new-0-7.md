@@ -2,7 +2,7 @@
 title: Kilicho kipya katika 0.7 (cha awali)
 summary: Michoro ya DWG na DXF inafunguka kama karatasi zenye kipimo chake, hesabu na urefu sahihi kutoka kwenye mchoro wenyewe, zabuni ya kisubuni iliyochaguliwa kama bei ya kifurushi, mialiko ya zabuni yenye bei zilizofungwa, zana za wasaidizi kwa michoro, na USD kutoka mwonekano wa ukaguzi wa 3D.
 keywords: nini kipya 0.7, toleo la awali, maelezo ya toleo, mabadiliko, orodha ya mabadiliko, 0.7, toleo, vipengele vipya, dwg, dxf, mchoro, mipangilio ya karatasi, nafasi ya modeli, kipimo cha mchoro, hesabu kutoka mchoro, hesabu ya CAD, bloku, bloku zenye nguvu, sifa, tabaka, xref, mchoro uliounganishwa, pima mchoro, polilaini, kujaza, PDF yenye alama, zabuni iliyochaguliwa, tumia zabuni, tuma kwa zabuni, mwaliko wa zabuni, zabuni zilizofungwa, zabuni iliyochelewa, rekodi za wakandarasi wadogo, csv, msaidizi, mcp, usd, usdz, vitengo, orodha za vitengo, kubana, paneli, mazungumzo, kireno
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Hiki ndicho kilichobadilika katika TakeoffCraft 0.7, ikilinganishwa na 0.6. Michoro sasa inafunguka kama ilivyo, bila kuchapishwa kuwa PDF kwanza, na kifurushi cha zabuni kinaweza kutumwa kwa wakandarasi wadogo na kurudi kikiwa na bei.

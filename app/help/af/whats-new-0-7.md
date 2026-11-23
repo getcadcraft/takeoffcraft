@@ -2,7 +2,7 @@
 title: Wat is nuut in 0.7 (vroeër)
 summary: DWG- en DXF-tekeninge open as blaaie met hul eie skaal, presiese tellings en lengtes uit die tekening self, die gekose onderaannemer-tender as 'n pakket se prys, tenderuitnodigings met verseëlde pryse, assistent-gereedskap vir tekeninge, en USD uit die 3D-nagaansig.
 keywords: wat is nuut 0.7, vroeër vrystelling, vrystellingsnotas, veranderinge, changelog, 0.7, weergawe, nuwe kenmerke, dwg, dxf, tekening, uitlegte, modelruimte, tekeningskaal, tel vanuit tekening, cad-telling, blokke, dinamiese blokke, kenmerke, lae, xref, gekoppelde tekening, meet tekening, polilyn, arsering, gemerkte pdf, gekose tender, gebruik 'n tender, stuur vir tenders, tenderuitnodiging, verseëlde tenders, tenderopening, laat tender, onderaannemer-rekords, csv, assistent, mcp, usd, usdz, eenhede, eenheidslyste, kompak, paneele, dialoë, portugees
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Dit is wat in TakeoffCraft 0.7 verander het, vergeleke met 0.6. Tekeninge open nou soos hulle is, sonder om eers na PDF te plot, en 'n tenderpakket kan na onderaannemers gaan en pryse terugkry.

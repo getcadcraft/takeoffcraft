@@ -2,7 +2,7 @@
 title: Çfarë ka të re në 0.7 (më herët)
 summary: Vizatimet DWG dhe DXF hapen si fletë me shkallën e tyre, numërime dhe gjatësi të sakta nga vetë vizatimi, oferta e zgjedhur e nënkontraktorit si çmim i një pakete, ftesa për oferta me çmime të mbyllura, mjete asistenti për vizatimet, dhe USD nga pamja 3D e kontrollit.
 keywords: çfarë ka të re 0.7, version më i hershëm, shënime versioni, regjistër ndryshimesh, ndryshime, 0.7, version, veçori të reja, dwg, dxf, vizatim, paraqitje, hapësirë modeli, shkallë vizatimi, numëro nga vizatimi, numërim cad, blloqe, blloqe dinamike, atribute, shtresa, xref, vizatim i lidhur, mat vizatimin, polivijë, vijëzim, pdf e shënuar, ofertë e zgjedhur, përdor ofertën, dërgo për oferta, ftesë oferte, oferta të mbyllura, hapja e ofertave, ofertë e vonshme, të dhëna nënkontraktorësh, csv, asistent, mcp, usd, usdz, njësi, lista e njësive, kompakte, panele, dialogë, portugalisht
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Ky është ndryshimi në TakeoffCraft 0.7, krahasuar me 0.6. Vizatimet tani hapen ashtu siç janë, pa printim në PDF më parë, dhe një paketë oferte mund të dalë te nënkontraktorët dhe të kthehet e çmuar.

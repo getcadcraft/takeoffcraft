@@ -2,7 +2,7 @@
 title: Kas naujo 0.7 versijoje (ankstesnė)
 summary: DWG ir DXF brėžiniai atidaromi kaip lapai su savo mastelį, tikslūs kiekiai ir ilgiai iš paties brėžinio, pasirinktas subrangovo pasiūlymas kaip paketo kaina, pasiūlymų kvietimai su užantspauduotomis kainomis, asistento įrankiai brėžiniams ir USD iš 3D patikros rodinio.
 keywords: kas naujo 0.7, ankstesnis leidimas, leidimo pastabos, keitimų žurnalas, pakeitimai, 0.7, versija, naujos funkcijos, dwg, dxf, brėžinys, maketai, modelio erdvė, brėžinio mastelis, skaičiavimas iš brėžinio, brėžinio skaičiavimas, blokai, dinaminiai blokai, atributai, sluoksniai, xref, susietas brėžinys, matuoti brėžinį, polilinija, brūkšniuotė, pažymėtas PDF, pasirinktas pasiūlymas, naudoti pasiūlymą, siųsti pasiūlymams, pasiūlymo kvietimas, užantspauduoti pasiūlymai, pasiūlymų atidarymas, vėlyvas pasiūlymas, subrangovo įrašai, csv, asistentas, mcp, usd, usdz, vienetai, vienetų sąrašai, kompaktiškas, skydeliai, dialogai, portugalų
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Tai, kas pasikeitė TakeoffCraft 0.7 versijoje, palyginti su 0.6. Brėžiniai dabar atidaromi tokie, kokie yra, be spausdinimo į PDF, o pasiūlymų paketas gali išeiti subrangovams ir grįžti įkainotas.

@@ -21,6 +21,7 @@
 import { compileDrawing } from './dwg-compile.js';
 import { indexDrawing, drawingUnits, UNIT_NAMES } from './cadcount.js';
 import { t } from './i18n.js';
+import { affineMul as mul } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 export const CAD_RE = /\.(dwg|dxf)$/i;
 export const LIMITS = Object.freeze({ dwgBytes: 300e6, dxfBytes: 200e6, spaces: 200 });
@@ -49,11 +50,6 @@ export async function defaultReaders() {
   };
 }
 
-const mul = (p, q) => [
-  p[0] * q[0] + p[2] * q[1], p[1] * q[0] + p[3] * q[1],
-  p[0] * q[2] + p[2] * q[3], p[1] * q[2] + p[3] * q[3],
-  p[0] * q[4] + p[2] * q[5] + p[4], p[1] * q[4] + p[3] * q[5] + p[5],
-];
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 
 /** A viewport's model → paper transform: about the view centre, scaled to the viewport, twisted, moved to its centre (as dwg-view.js). */

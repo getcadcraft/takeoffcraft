@@ -4,31 +4,12 @@
  * never imports another app's folder). el() is the only way file-derived text reaches the
  * page: children are appended as text nodes, never parsed as HTML. A PDF is untrusted input.
  */
+import { makeEl, bytes, frame } from './ui-util-core.js';
+export { bytes, frame };
 
-export function el(tag, props = {}, ...children) {
-  const n = document.createElement(tag);
-  for (const [k, v] of Object.entries(props)) {
-    if (v === undefined || v === null || v === false) continue;
-    if (k === 'className') n.className = v;
-    else if (k.startsWith('on') && typeof v === 'function') n.addEventListener(k.slice(2).toLowerCase(), v);
-    else if (k === 'dataset') Object.assign(n.dataset, v);
-    else if (k === 'style' && typeof v === 'object') Object.assign(n.style, v);
-    else if (k in n && typeof v !== 'string') n[k] = v;
-    else n.setAttribute(k, v === true ? '' : String(v));
-  }
-  for (const c of children.flat(Infinity)) if (c !== null && c !== undefined && c !== false) n.append(c);
-  return n;
-}
+export const el = makeEl({ styleObject: true });   // PERF.74: the shared builder with this app's own rules (ui-util-core.js)
 
 export const icon = (name) => el('i', { className: 'bi bi-' + name, 'aria-hidden': 'true' });
-
-export function bytes(n) {
-  if (n < 1024) return n + ' B';
-  if (n < 1048576) return (n / 1024).toFixed(0) + ' KB';
-  return (n / 1048576).toFixed(1) + ' MB';
-}
-
-export const frame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
 
 /** Download bytes or text as a file (nothing leaves the computer). */
 export function download(data, name, type) {

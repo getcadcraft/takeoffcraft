@@ -119,8 +119,8 @@ export function mountSupply(ctx) {
         sec('needs', t('eg51.needs.h'), t('eg51.needs.intro'), items, s ? t('eg51.needs.empty') : t('eg51.none')),
         sec('files', t('eg51.files.h'), t('eg51.files.intro'), srcRows, t('eg51.files.empty'))),
       el('div', { className: 'tc-dialog-foot' },
-        el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { supplyLibrary: '' }, title: t('eg51.lib.title'), disabled: !(s && s.sources.some((q) => q.rows.some((x) => x.price !== null))) || !ctx.library, onclick: () => toLibrary() }, t('eg51.lib')),
-        el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { supplyOrder: '' }, disabled: !rows.some((x) => x.status === 'short'), onclick: () => orderCsv() }, t('eg51.order')),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { supplyLibrary: '' }, title: t('eg51.lib.title'), disabled: !(s && s.sources.some((q) => q.rows.some((x) => x.price !== null))) || !ctx.library, onclick: toLibrary }, t('eg51.lib')),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { supplyOrder: '' }, disabled: !rows.some((x) => x.status === 'short'), onclick: orderCsv }, t('eg51.order')),
         el('button', { type: 'button', className: 'btn-plot btn-sm-cc', onclick: () => dlg.close() }, t('btn.close'))));
   }
 

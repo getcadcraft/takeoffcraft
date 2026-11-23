@@ -2,7 +2,7 @@
 title: 0.7 versiyasidagi yangiliklar (avvalgi)
 summary: DWG va DXF chizmalar oʻz masshtabi bilan varaqlar sifatida ochiladi, chizmaning oʻzidan aniq sanashlar va uzunliklar, tanlangan subpudratchi taklifi paket narxi sifatida, narxlari muhrlangan taklif taklifnomalari, chizmalar uchun yordamchi asboblar va 3D tekshiruv koʻrinishidan USD.
 keywords: 0.7 yangiliklari, oldingi reliz, reliz eslatmalari, oʻzgarishlar jurnali, oʻzgarishlar, 0.7, versiya, yangi funksiyalar, dwg, dxf, chizma, maket, model fazosi, chizma masshtabi, chizmadan sanash, cad sanash, bloklar, dinamik bloklar, atributlar, qatlamlar, xref, bogʻlangan chizma, chizmani oʻlchash, polichiziq, shtrixlash, belgilangan pdf, tanlangan taklif, taklifni qoʻllash, takliflar uchun yuborish, taklif taklifnomasi, muhrlangan takliflar, taklifni ochish, kech taklif, subpudratchi yozuvlari, csv, yordamchi, mcp, usd, usdz, birliklar, birlik roʻyxatlari, ixcham, panellar, dialoglar, portugalcha
-from: de1dca2b
+from: 0e3a424f
 ---
 
 TakeoffCraft 0.7 da 0.6 bilan solishtirganda nima oʻzgargani. Chizmalar endi PDF'ga chizmasdan, oʻz holatida ochiladi va taklif paketini subpudratchilarga yuborib, narxlangan holda qaytarish mumkin.

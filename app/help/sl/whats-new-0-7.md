@@ -2,7 +2,7 @@
 title: Kaj je novega v različici 0.7 (prej)
 summary: Risbe DWG in DXF se odprejo kot listi z lastnim merilom, natančna števila in dolžine iz same risbe, izbrana ponudba podizvajalca kot cena paketa, povabila k ponudbam z zapečatenimi cenami, orodja pomočnika za risbe in USD iz pogleda 3D preverjanja.
 keywords: kaj je novega 0.7, prejšnja izdaja, opombe ob izdaji, dnevnik sprememb, spremembe, 0.7, različica, nove funkcije, dwg, dxf, risba, postavitve, prostor modela, merilo risbe, štetje iz risbe, štetje CAD, bloki, dinamični bloki, atributi, sloji, xref, povezana risba, meri risbo, polilinija, šrafura, označeni PDF, izbrana ponudba, uporaba ponudbe, pošlji za ponudbe, povabilo k ponudbam, zapečatene ponudbe, odpiranje ponudb, zamudna ponudba, zapisi podizvajalcev, csv, pomočnik, mcp, usd, usdz, enote, seznami enot, strnjeno, podokna, pogovorna okna, portugalščina
-from: de1dca2b
+from: 0e3a424f
 ---
 
 To je, kar se je spremenilo v TakeoffCraft 0.7 v primerjavi z 0.6. Risbe se zdaj odprejo take, kakršne so, brez prejšnjega izrisa v PDF, paket ponudbe pa lahko gre podizvajalcem in se vrne z cenami.

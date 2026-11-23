@@ -2,7 +2,7 @@
 title: Mba'e pyahu 0.7-pe (ymaguare)
 summary: DWG ha DXF planos oñepyrũ hojakuéra-pe nde escala ha conteo exacto ha longitudes plano-gui, subcontratista oferta eiporavo'ỹva paquete precio-pe, ofertas invitación sellado precio-kuéra, asistente herramientas planos-pe, ha USD 3D check vista-gui.
 keywords: novedades 0.7, versión anterior, notas de versión, changelog, cambios, 0.7, versión, nuevas funciones, dwg, dxf, plano, layouts, espacio modelo, escala de plano, conteo desde plano, conteo CAD, bloques, bloques dinámicos, atributos, capas, xref, plano vinculado, medir plano, polilínea, sombreado, PDF marcado, oferta elegida, usar oferta, enviar para ofertas, invitación de oferta, ofertas selladas, apertura de ofertas, oferta tardía, registros de subcontratistas, csv, asistente, mcp, usd, usdz, unidades, listas de unidades, compacto, paneles, diálogos, portugués
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Ko'ã ojeguerekóva TakeoffCraft 0.7-pe, 0.6 rehe. Planos ojepyrũ jeikeháicha, PDF-pe ndaipóri ojerure'ỹ ojepyrũ mboyve, ha paquete ofertas ohóta subcontratista-kuérape ha ojeguejy precio-ndive.

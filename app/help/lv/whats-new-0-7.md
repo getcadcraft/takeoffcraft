@@ -2,7 +2,7 @@
 title: Jaunumi 0.7 versijā (iepriekšējā)
 summary: DWG un DXF rasējumi atveras kā lapas ar savu mērogu, precīzi skaiti un garumi no paša rasējuma, izvēlētais apakšuzņēmēja piedāvājums kā paketes cena, piedāvājumu uzaicinājumi ar slēgtām cenām, asistentu rīki rasējumiem un USD no 3D pārbaudes skata.
 keywords: jaunumi 0.7, iepriekšēja versija, laidiena piezīmes, izmaiņu žurnāls, izmaiņas, 0.7, versija, jaunas funkcijas, dwg, dxf, rasējums, izkārtojumi, modeļa telpa, rasējuma mērogs, skaitīt no rasējuma, cad skaitīšana, bloki, dinamiskie bloki, atribūti, slāņi, xref, saistīts rasējums, izmērīt rasējumu, polilīnija, šrafējums, atzīmēts pdf, izvēlētais piedāvājums, izmantot piedāvājumu, nosūtīt piedāvājumiem, piedāvājuma uzaicinājums, slēgti piedāvājumi, piedāvājumu atvēršana, novēloti piedāvājumi, apakšuzņēmēju ieraksti, csv, asistents, mcp, usd, usdz, mērvienības, mērvienību saraksti, kompakts, paneļi, dialogi, portugāļu
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Šis ir tas, kas mainījās TakeoffCraft 0.7 versijā, salīdzinot ar 0.6. Rasējumi tagad atveras tādi, kādi tie ir, bez iepriekšējas drukāšanas PDF formātā, un piedāvājumu pakete var tikt nosūtīta apakšuzņēmējiem un atgriezties ar cenām.

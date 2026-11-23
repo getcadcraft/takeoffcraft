@@ -2,7 +2,7 @@
 title: Què hi ha de nou a la versió 0.7 (anterior)
 summary: Els dibuixos DWG i DXF s'obren com a fulls amb la seva pròpia escala, recomptes i longituds exactes del propi dibuix, l'oferta de subcontractista escollida com a preu del paquet, invitacions a ofertes amb preus segellats, eines d'assistent per a dibuixos, i USD des de la vista de revisió 3D.
 keywords: novetats 0.7, versió anterior, notes de la versió, registre de canvis, canvis, 0.7, versió, noves funcions, DWG, DXF, dibuix, presentacions, espai model, escala del dibuix, recompte des d'un dibuix, recompte CAD, blocs, blocs dinàmics, atributs, capes, xref, dibuix enllaçat, mesura del dibuix, polilínia, trama, PDF marcat, oferta escollida, usar una oferta, enviar per a ofertes, invitació a oferta, ofertes segellades, obertura d'ofertes, oferta tardana, registres de subcontractistes, CSV, assistent, MCP, USD, USDZ, unitats, llistes d'unitats, compacta, panells, diàlegs, portuguès
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Això és el que ha canviat a TakeoffCraft 0.7, en comparació amb la 0.6. Els dibuixos ara s'obren tal com són, sense haver de traçar-los abans a PDF, i un paquet d'ofertes pot sortir cap als subcontractistes i tornar amb preus.

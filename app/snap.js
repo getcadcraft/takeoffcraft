@@ -16,6 +16,7 @@
  * nearest point on a line ("on the line"). Intersections are computed only among the segments near the pointer.
  */
 
+import { affineMul as mul } from './geom-vec.js';   // shared helpers (0.11 PERF.74)
 const CURVE_STEPS = 8;
 export const MAX_SEGS = 400000;
 
@@ -25,7 +26,6 @@ export function extractSegments(OPS, ops, { maxSegs = MAX_SEGS } = {}) {
   let segs = out, curve = new Uint8Array(segs.length / 4), n = 0, truncated = false;
   let ctm = [1, 0, 0, 1, 0, 0];
   const stack = [];
-  const mul = (m, k) => [m[0] * k[0] + m[2] * k[1], m[1] * k[0] + m[3] * k[1], m[0] * k[2] + m[2] * k[3], m[1] * k[2] + m[3] * k[3], m[0] * k[4] + m[2] * k[5] + m[4], m[1] * k[4] + m[3] * k[5] + m[5]];
   // curve[n]: 0 a straight segment; else 1 (a chord of a flattened curve) | 2 (it starts at the curve's start) | 4 (it ends at its end)
   const push = (ax, ay, bx, by, flags) => {
     if (n >= maxSegs) { truncated = true; return; }

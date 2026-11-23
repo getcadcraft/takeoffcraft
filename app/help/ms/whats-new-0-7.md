@@ -2,7 +2,7 @@
 title: Perkara baharu dalam 0.7 (terdahulu)
 summary: Lukisan DWG dan DXF dibuka sebagai helaian dengan skala sendiri, kiraan dan panjang yang tepat daripada lukisan itu sendiri, harga bidaan subkontraktor yang dipilih sebagai harga pakej, jemputan bidaan dengan harga bertutup, alat pembantu untuk lukisan, dan USD daripada paparan semakan 3D.
 keywords: perkara baharu 0.7, keluaran terdahulu, nota keluaran, log perubahan, perubahan, 0.7, versi, ciri baharu, dwg, dxf, lukisan, reka letak, ruang model, skala lukisan, kiraan daripada lukisan, kiraan CAD, blok, blok dinamik, atribut, lapisan, xref, lukisan terpaut, ukur lukisan, polygaris, hatch, PDF ditanda, bidaan dipilih, guna bidaan, hantar untuk bidaan, jemputan bidaan, bidaan bertutup, pembukaan bidaan, bidaan lewat, rekod subkontraktor, csv, pembantu, mcp, usd, usdz, unit, senarai unit, padat, panel, kotak dialog, Portugis
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Ini ialah perkara yang berubah dalam TakeoffCraft 0.7, berbanding 0.6. Lukisan kini dibuka seperti sedia ada, tanpa perlu dicetak ke PDF dahulu, dan pakej bidaan boleh dihantar kepada subkontraktor dan kembali dengan harga.

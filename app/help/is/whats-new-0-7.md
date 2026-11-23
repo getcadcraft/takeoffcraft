@@ -2,7 +2,7 @@
 title: Nýjungar í 0.7 (eldra)
 summary: DWG- og DXF-teikningar opnast sem blöð með eigin mælikvarða, nákvæmar talningar og lengdir úr teikningunni sjálfri, valið undirverktakatilboð sem verð pakka, boð um tilboð með lokuðum verðum, aðstoðarmannaverkfæri fyrir teikningar og USD úr þrívíddarathugunarsýninni.
 keywords: nýjungar 0.7, eldri útgáfa, útgáfuskýrslur, breytingaskrá, breytingar, 0.7, útgáfa, nýir eiginleikar, dwg, dxf, teikning, skipulag, líkanrými, mælikvarði teikningar, talning úr teikningu, cad count, blokkir, kvikar blokkir, eigindi, lög, xref, tengd teikning, mæla teikningu, fjöllína, skygging, merkt pdf, valið tilboð, nota tilboð, senda til tilboðsgjafa, boð um tilboð, lokuð tilboð, opnun tilboða, seint tilboð, skrár undirverktaka, csv, aðstoðarmaður, mcp, usd, usdz, einingar, einingalistar, þétt, spjöld, gluggar, portúgalska
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Þetta er það sem breyttist í TakeoffCraft 0.7, miðað við 0.6. Teikningar opnast nú eins og þær eru, án þess að prenta í PDF fyrst, og tilboðspakki getur farið til undirverktaka og komið til baka verðlagður.

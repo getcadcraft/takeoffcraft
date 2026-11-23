@@ -2,7 +2,7 @@
 title: Ano ang bago sa 0.7 (mas luma)
 summary: Nagbubukas ang mga DWG at DXF drawing bilang mga sheet na may sariling scale, eksaktong bilang at haba mula mismo sa drawing, ang napiling bid ng subcontractor bilang presyo ng package, mga imbitasyon sa bid na may selyadong presyo, mga tool ng assistant para sa drawing, at USD mula sa 3D check view.
 keywords: ano ang bago 0.7, mas lumang release, release notes, changelog, mga pagbabago, 0.7, bersyon, bagong feature, dwg, dxf, drawing, layout, model space, scale ng drawing, bilangin mula sa drawing, cad count, block, dynamic block, attribute, layer, xref, naka-link na drawing, sukatin ang drawing, polyline, hatch, marked pdf, napiling bid, gamitin ang bid, ipadala para sa bids, imbitasyon sa bid, selyadong bid, pagbubukas ng bid, huling bid, talaan ng subcontractor, csv, assistant, mcp, usd, usdz, unit, listahan ng unit, compact, panel, dialog, portuges
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Ito ang nagbago sa TakeoffCraft 0.7, kumpara sa 0.6. Nagbubukas na ngayon ang mga drawing gaya ng mga ito, nang walang plotting sa PDF muna, at maaaring ipadala ang isang bid package sa mga subcontractor at bumalik na may presyo.

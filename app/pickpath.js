@@ -13,6 +13,8 @@
  * At a junction the way that bends least is followed. A segment is never used twice. Pure; the index is only read.
  */
 
+import { pointInPolygon as pip2d } from './geom2d.js';   // 0.11 PERF.74: one copy of the ray cast (lib/geom2d)
+
 export const MAX_PATH_SEGS = 20000;
 export const GAP_MIN = 0.05, GAP_MAX = 60, GAP_DEFAULT = 1.5;      // user units (PDF points)
 
@@ -151,14 +153,7 @@ export function candidatesAt(idx, p, pickTol, gap = GAP_DEFAULT, limit = 6, chai
 }
 
 /** True when p is inside the polygon (even-odd). */
-export function inside(pts, p) {
-  let c = false;
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-    const a = pts[i], b = pts[j];
-    if ((a.y > p.y) !== (b.y > p.y) && p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x) c = !c;
-  }
-  return c;
-}
+export function inside(pts, p) { return pip2d(p.x, p.y, pts); }
 
 /**
  * Closed paths that have p inside, smallest first. Looks along four rays from p and follows the segment each meets

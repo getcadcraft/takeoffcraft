@@ -2,7 +2,7 @@
 title: Novità della versione 0.7 (precedente)
 summary: I disegni DWG e DXF si aprono come tavole con una propria scala, conteggi e lunghezze esatti dal disegno stesso, l'offerta scelta del subappaltatore come prezzo di un pacchetto, inviti a offerta con prezzi sigillati, strumenti per assistenti sui disegni e USD dalla vista di verifica 3D.
 keywords: novità 0.7, versione precedente, note di rilascio, changelog, modifiche, 0.7, versione, nuove funzionalità, dwg, dxf, disegno, layout, spazio modello, scala del disegno, conteggio da disegno, conteggio CAD, blocchi, blocchi dinamici, attributi, layer, xref, disegno collegato, misura disegno, polilinea, tratteggio, PDF segnato, offerta scelta, usa un'offerta, invia per le offerte, invito a offerta, offerte sigillate, apertura offerte, offerta in ritardo, registri subappaltatori, csv, assistente, mcp, usd, usdz, unità, elenchi unità, compatta, pannelli, finestre di dialogo, portoghese
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Ecco cosa è cambiato in TakeoffCraft 0.7 rispetto alla 0.6. I disegni ora si aprono così come sono, senza stampa preventiva in PDF, e un pacchetto d'offerta può essere inviato ai subappaltatori e tornare con i prezzi.

@@ -10,7 +10,7 @@ import * as U from './units.js';
 import { bidSummary, proposalPdf } from './bid.js';
 import { alternates, baseEstimate } from './model.js';
 import { createBidsUi } from './bids-ui.js';
-import { divisionTitle } from './export.js';
+import { divisionTitle, signoffNote } from './export.js';
 import { pdfWithMarks } from './pdfmarks.js';
 import { bidPackages, leveling, packageCsv, updateBid, setAward, removeBid, addBid } from './level.js';
 import { readStored, readLibraryCsv, mergeEntries, entryFromItem, libraryCsv, itemFromEntry, repricePatches } from './library.js';
@@ -66,7 +66,7 @@ export function mountDialogs(ctx) {
     for (const n of root.querySelectorAll('dialog [data-bid]')) n.dispatchEvent(new Event('change'));   // a field still being typed in
     try {
       const PDFLib = await import('pdf-lib');
-      const bytesOut = await proposalPdf(PDFLib, { state: model.state, est: ctx.est, alts: alternates(model.state) });
+      const bytesOut = await proposalPdf(PDFLib, { state: model.state, est: ctx.est, alts: alternates(model.state), notes: [signoffNote(model.state, ctx.est)] });
       const file = t('bid.pdf.file', { name: safeName(model.state.name || 'Takeoff') }) + '.pdf';
       host.download(bytesOut, file, 'application/pdf');
       status(t('bid.pdf.done', { file, total: U.formatCents(bidSummary(ctx.est, model.bid(), alternates(model.state)).total) }), 9000);

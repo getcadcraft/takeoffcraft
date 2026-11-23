@@ -2,7 +2,7 @@
 title: Nytt i 0.7 (tidligere)
 summary: DWG- og DXF-tegninger åpnes som ark med egen målestokk, nøyaktige tellinger og lengder fra selve tegningen, det valgte underentreprenørtilbudet som en pakkes pris, tilbudsinvitasjoner med forseglede priser, assistentverktøy for tegninger og USD fra 3D-kontrollvisningen.
 keywords: nytt i 0.7, tidligere utgivelse, utgivelsesnotater, endringslogg, endringer, 0.7, versjon, nye funksjoner, dwg, dxf, tegning, layouter, modellrom, tegningsmålestokk, tell fra tegning, CAD-telling, blokker, dynamiske blokker, attributter, layers, xref, ekstern referanse, mål tegning, polylinje, skravur, markert pdf, valgt tilbud, bruk et tilbud, send for tilbud, tilbudsinvitasjon, forseglede tilbud, tilbudsåpning, sent tilbud, underentreprenørregister, csv, assistent, mcp, usd, usdz, enheter, enhetslister, kompakt, paneler, dialogbokser, portugisisk
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Dette er hva som endret seg i TakeoffCraft 0.7, sammenlignet med 0.6. Tegninger åpnes nå slik de er, uten å skrive ut til PDF først, og en tilbudspakke kan sendes til underentreprenører og komme tilbake priset.

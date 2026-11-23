@@ -2,7 +2,7 @@
 title: Co je nového ve verzi 0.7 (dřívější)
 summary: Výkresy DWG a DXF se otevírají jako listy s vlastním měřítkem, přesné počty a délky z výkresu samotného, vybraná nabídka subdodavatele jako cena balíčku, výzvy k nabídkám s utěsněnými cenami, nástroje asistenta pro výkresy a USD z pohledu 3D kontroly.
 keywords: co je nového 0.7, dřívější vydání, poznámky k vydání, seznam změn, změny, 0.7, verze, nové funkce, dwg, dxf, výkres, rozvržení, prostor modelu, měřítko výkresu, počet z výkresu, bloky, dynamické bloky, atributy, vrstvy, xref, propojený výkres, měřit výkres, lomená čára, šrafa, označené PDF, zvolená nabídka, použít nabídku, odeslat k nabídkám, pozvánka k nabídce, utěsněné nabídky, otevření nabídek, pozdní nabídka, záznamy subdodavatelů, csv, asistent, mcp, usd, usdz, jednotky, seznamy jednotek, kompaktní, panely, dialogy, portugalština
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Toto se změnilo ve verzi TakeoffCraft 0.7 oproti verzi 0.6. Výkresy se nyní otevírají tak, jak jsou, bez předchozího vykreslování do PDF, a balíček nabídky může odejít subdodavatelům a vrátit se oceněný.

@@ -2,7 +2,7 @@
 title: Có gì mới trong 0.7 (trước đó)
 summary: Bản vẽ DWG và DXF mở thành các tờ với tỷ lệ riêng, số đếm và chiều dài chính xác lấy từ chính bản vẽ, dự thầu của thầu phụ được chọn làm giá của gói, lời mời dự thầu với giá kín, công cụ cho trợ lý với bản vẽ, và USD từ khung nhìn kiểm tra 3D.
 keywords: có gì mới 0.7, phiên bản trước, ghi chú phát hành, nhật ký thay đổi, thay đổi, 0.7, phiên bản, tính năng mới, dwg, dxf, bản vẽ, bố cục, không gian mô hình, tỷ lệ bản vẽ, đếm từ bản vẽ, đếm CAD, khối, khối động, thuộc tính, lớp, xref, bản vẽ liên kết, đo bản vẽ, đa tuyến, tô bóng, pdf đã đánh dấu, dự thầu đã chọn, dùng dự thầu, gửi mời dự thầu, lời mời dự thầu, dự thầu kín, mở thầu, dự thầu trễ, hồ sơ thầu phụ, csv, trợ lý, mcp, usd, usdz, đơn vị, danh sách đơn vị, gọn, bảng, hộp thoại, tiếng bồ đào nha
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Đây là những gì đã thay đổi trong TakeoffCraft 0.7 so với 0.6. Bản vẽ giờ mở đúng như chúng là, không cần in ra PDF trước, và một gói dự thầu có thể gửi cho thầu phụ và nhận về đã có giá.

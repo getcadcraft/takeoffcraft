@@ -2,7 +2,7 @@
 title: Yang baru di 0.7 (sebelumnya)
 summary: Gambar DWG dan DXF terbuka sebagai lembar dengan skala sendiri, hitungan dan panjang yang persis dari gambar itu sendiri, penawaran subkontraktor terpilih sebagai harga paket, undangan penawaran dengan harga tersegel, alat asisten untuk gambar, dan USD dari tampilan cek 3D.
 keywords: yang baru 0.7, rilis sebelumnya, catatan rilis, changelog, perubahan, 0.7, versi, fitur baru, dwg, dxf, gambar, layout, ruang model, skala gambar, hitung dari gambar, hitung CAD, blok, blok dinamis, atribut, layer, xref, gambar tertaut, ukur gambar, polyline, hatch, PDF bertanda, penawaran terpilih, pakai penawaran, kirim untuk penawaran, undangan penawaran, penawaran tersegel, pembukaan penawaran, penawaran terlambat, catatan subkontraktor, csv, asisten, mcp, usd, usdz, satuan, daftar satuan, padat, panel, dialog, portugis
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Ini yang berubah di TakeoffCraft 0.7, dibandingkan dengan 0.6. Gambar kini terbuka apa adanya, tanpa dicetak ke PDF lebih dulu, dan sebuah paket penawaran dapat dikirim ke subkontraktor dan kembali dalam bentuk harga.

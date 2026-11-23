@@ -65,14 +65,17 @@ function colCells(columns, r, state) {
 /**
  * 0.10 BK.62: what the exported estimate says about its rates and its sign-off: how many lines have no rate, and who signed it
  * off, when and for what total. The sign-off is only ever the one that holds for the figures exported. An estimate with every
- * line priced and no sign-off adds nothing (the export is then exactly what it was before 0.10).
+ * line priced and no sign-off said nothing in 0.10; from 0.11 (BK.144) an unsigned estimate always says "Not signed off by a person".
  */
+export function signoffNote(state, est = baseEstimate(state)) {
+  const so = state.signoff && signoffHolds(state) ? state.signoff : null;
+  if (!so) return t('signoff.unsigned');   // 0.11 BK.144: an output nobody signed off says so, every time (0.10 said it only when a rate was missing)
+  return t('signoff.line', { by: so.by + (so.role ? ', ' + so.role : ''), when: so.at.slice(0, 10), total: formatCents(so.total) }) + (so.missing ? ' ' + t('signoff.line.missing', { n: so.missing }) : '');
+}
 export function signoffLines(state, est = baseEstimate(state)) {
   const out = [], n = est.rows.filter((r) => r.noRate).length;
   if (n) out.push(t('x.norate.count', { n }));
-  const so = state.signoff && signoffHolds(state) ? state.signoff : null;
-  if (so) out.push(t('signoff.line', { by: so.by + (so.role ? ', ' + so.role : ''), when: so.at.slice(0, 10), total: formatCents(so.total) }) + (so.missing ? ' ' + t('signoff.line.missing', { n: so.missing }) : ''));
-  else if (n) out.push(t('signoff.none'));
+  out.push(signoffNote(state, est));
   return out;
 }
 
@@ -225,8 +228,12 @@ function markupRows(est, bid, totalRow, firstRow) {
   return rows;
 }
 
-/** Workbook sheets for writeXlsx: Estimate (with formulas), By sheet, Marks, Scales. */
-export function estimateSheets(state, sheetLabel, est = baseEstimate(state), columns = [], pageSizes = null) {
+/*
+ * PERF.78 (perf-finish-11 r2): estimateSheets was one 180-line function writing every worksheet; each worksheet is now its own
+ * builder below, called in the same order with the same arguments, so the workbook is the same (tmp/pf11-r2-mt/export-ab.mjs).
+ */
+/** The Estimate worksheet: the rows in the office layout (formulas, subtotals, the total, markups, sign-off). */
+function estimateSheetRows(state, est, columns) {
   const L = estimateLayout(state, est);   // 0.10 BK.149: the rows in the office layout; with no standard the plan is the rows in order
   const grouped = L.plan.some((p) => p.kind === 'subtotal');
   const rows = [[...estimateHead(), ...columns.map((c) => c.name)].map((h) => ({ v: L.caseOf(h), s: 'head' }))];
@@ -284,10 +291,18 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
   }
   if (signRows.length) rows.push([], ...signRows);
 
+  return rows;
+}
+/** The By sheet worksheet. */
+function bySheetRows(state, sheetLabel) {
   const q = quantities(state);
   const bySheet = [['sheet', 'item', 'qty', 'unit', 'marks'].map((k) => ({ v: t('x.head.' + k), s: 'head' }))];
   for (const r of sheetBreakdown(state, q)) bySheet.push([sheetLabel(r.sheet), r.name, { v: r.qty, s: 'qty' }, r.unit, { v: r.marks, s: 'int' }]);
 
+  return bySheet;
+}
+/** The Marks worksheet: one row per mark (count, linear with its segments, area with its holes). */
+function marksSheetRows(state, sheetLabel) {
   const withAreas = state.areas?.length > 0;      // T12: a Bid area column when the takeoff has bid areas
   const areaName = new Map((state.areas || []).map((a) => [a.id, a.name]));
   const marks = [['sheet', 'item', 'type', 'qty', 'unit', 'detail'].map((k) => ({ v: t('x.head.' + k), s: 'head' }))];
@@ -322,6 +337,10 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
     }
   }
 
+  return marks;
+}
+/** The Scales worksheet: every sheet with a scale or a mark. */
+function scalesSheetRows(state, sheetLabel) {
   const scales = [['sheet', 'scale', 'how', 'ftpu'].map((k) => ({ v: t('x.head.' + k), s: 'head' }))];
   for (const f of state.files) {
     for (let p = 0; p < (f.pages || 0); p++) {
@@ -331,25 +350,39 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
       scales.push([sheetLabel(key), sc ? sc.label || describeScale(sc.ftPerUnit) : t('x.noscale'), sc ? (sc.method === 'preset' ? t('x.preset') : sc.cal ? t('x.calibrated.on', { text: sc.cal.text }) : t('x.calibrated')) : '', sc ? sc.ftPerUnit : null]);
     }
   }
-  const out = [
-    { name: t('x.sheet.estimate'), rows, cols: [34, 10, 7, 12, 9, 14, 16, 14, 14, 14, 14, 48], freeze: 1 },
-    { name: t('x.sheet.bysheet'), rows: bySheet, cols: [40, 34, 12, 7, 8], freeze: 1 },
-    { name: t('x.sheet.marks'), rows: marks, cols: [40, 34, 9, 12, 7, 60], freeze: 1 },
-    { name: t('x.sheet.scales'), rows: scales, cols: [40, 18, 30, 18], freeze: 1 },
-  ];
+  return scales;
+}
+/** Page sizes (0.10 SU.1805), when the caller passes them. */
+function pageSizesSheet(c, out) {
+  const { pageSizes } = c;
   // every PDF page with its size and paper name, the odd sizes marked (0.10 SU.1805): [{ title, file, page, size, mm, orient, wMm, hMm, odd }]
   if (pageSizes?.length) {
     const head = ['sheet', 'file', 'page', 'size', 'wmm', 'hmm', 'mm', 'orient', 'odd'].map((k) => ({ v: t('x.size.' + k), s: 'head' }));
     out.push({ name: t('x.sheet.sizes'), rows: [head, ...pageSizes.map((p) => [p.title || '', p.file || '', p.page ?? null, p.size || '', p.wMm, p.hMm, p.mm || '', p.orient || '', p.odd ? t('x.size.odd.yes') : ''])], cols: [40, 24, 6, 10, 10, 10, 30, 11, 14], freeze: 1 });
   }
+}
+/** By bid area (T12). */
+function areasSheet(c, out) {
+  const { state } = c;
   if (state.areas?.length) out.push({ name: t('export.areas.sheet'), rows: areaRows(state), cols: [30, 34, 7, 12, 14, 14, 14, 14, 40], freeze: 1 });
-  const alts = alternates(state);
+}
+/** Alternates (T17). */
+function alternatesSheet(c, out) {
+  const { state, est, alts } = c;
   if (alts.length) out.push({ name: t('export.alt.sheet'), rows: alternateRows(state, est, alts), cols: [34, 34, 7, 12, 14, 40], freeze: 1 });
+}
+/** Markups (T22). */
+function notesSheet(c, out) {
+  const { state, sheetLabel } = c;
   if (state.notes?.length) {                                // T22: the markups, as a list to work through
     const rowsN = [['x.head.sheet', 'note.f.kind', 'note.f.status', 'note.f.text'].map((k) => ({ v: t(k), s: 'head' }))];
     for (const n of state.notes) rowsN.push([sheetLabel(n.sheet), t('tool.' + n.kind), t('note.status.' + n.status), n.text]);
     out.push({ name: t('notes.sheet'), rows: rowsN, cols: [40, 12, 12, 80], freeze: 1 });
   }
+}
+/** The bid summary (T19). */
+function bidSheet(c, out) {
+  const { state, est, alts } = c;
   if (bidUsed(state.bid)) {                                 // T19: the bid summary
     const b = bidSummary(est, state.bid, alts);
     const rowsB = [[{ v: t('bid.h'), s: 'head' }, { v: t('bid.col.pct'), s: 'head' }, { v: t('bid.col.amount'), s: 'head' }]];
@@ -357,6 +390,10 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
     if (b.alts.length) { rowsB.push([]); for (const a of b.alts) rowsB.push([t('bid.pdf.alt', { name: a.name, kind: t('alt.' + a.alt).toLowerCase() }), null, { v: dollars(a.withMarkup), s: 'money' }]); }
     out.push({ name: t('bid.sheet'), rows: rowsB, cols: [40, 10, 16], freeze: 1 });
   }
+}
+/** Takeoff summary (TK.4). */
+function summarySheet(c, out) {
+  const { state, est } = c;
   // TK.4 (after every sheet it had, so they keep their places): takeoff summary (quantities, no prices), material list and the quote request for suppliers, by CSI division
   const ts = takeoffSummary(state, est);
   if (ts.length) {
@@ -364,6 +401,10 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
     for (const x of ts) rowsT.push([{ v: x.name, s: 'bold' }, x.csi, x.type, { v: x.qty, s: 'qty' }, x.unit, { v: x.marks, s: 'int' }, { v: x.sheets, s: 'int' }]);
     out.push({ name: t('sum.sheet'), rows: rowsT, cols: [40, 11, 9, 12, 7, 8, 8], freeze: 1 });
   }
+}
+/** Material list and the supplier quote request (TK.4). */
+function materialSheets(c, out) {
+  const { state, est } = c;
   const ml = materialList(state, est);
   if (ml.length) {
     const rowsM = [['part', 'csi', 'unit', 'qty', 'qtyw', 'mat', 'items'].map((k) => ({ v: t('mat.head.' + k), s: 'head' }))];
@@ -378,6 +419,10 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
     rowsQ.push([{ v: t('x.total'), s: 'bold' }, null, null, null, { v: 0, f: 'SUM(E4:E' + (ml.length + 3) + ')', s: 'boldMoney' }]);
     out.push({ name: t('quote.sheet'), rows: rowsQ, cols: [44, 8, 14, 14, 16], freeze: 3 });
   }
+}
+/** By CSI division. */
+function divisionSheet(c, out) {
+  const { state, est } = c;
   if (state.items.some((i) => i.csi)) {
     const bd = byDivision(state, est);
     const rowsD = [['div', 'title', 'items', 'mat', 'lab', 'total'].map((k) => ({ v: t('div.head.' + k), s: 'head' }))];
@@ -387,6 +432,10 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
     rowsD.push([null, { v: t('x.total'), s: 'bold' }, null, { v: dollars(est.matTotal), f: 'SUM(D2:D' + n + ')', s: 'boldMoney' }, { v: dollars(est.labTotal), f: 'SUM(E2:E' + n + ')', s: 'boldMoney' }, { v: dollars(est.total), f: 'SUM(F2:F' + n + ')', s: 'boldMoney' }]);
     out.push({ name: t('div.sheet'), rows: rowsD, cols: [8, 48, 8, 14, 14, 14], freeze: 1 });
   }
+}
+/** Bid leveling (LC.13), last. */
+function levelingSheet(c, out) {
+  const { state } = c;
   // LC.13 (last, so the other sheets keep their places): the bids per package side by side, leveled with plugs at our cost
   const lv = leveling(state, baseEstimate(state, { awards: false }), { title: (k) => (k ? divisionTitle(k) : t('csi.div.none')) });
   if (lv.length) {
@@ -405,6 +454,24 @@ export function estimateSheets(state, sheetLabel, est = baseEstimate(state), col
     }
     out.push({ name: t('lvl.sheet'), rows: rowsL, cols: [36, 14, 14, 14, 14, 8, 50] });
   }
+}
+const OPTIONAL_SHEETS = [pageSizesSheet, areasSheet, alternatesSheet, notesSheet, bidSheet, summarySheet, materialSheets, divisionSheet, levelingSheet];
+
+/** Workbook sheets for writeXlsx: Estimate (with formulas), By sheet, Marks, Scales, then the optional ones in OPTIONAL_SHEETS order. */
+export function estimateSheets(state, sheetLabel, est = baseEstimate(state), columns = [], pageSizes = null) {
+  const rows = estimateSheetRows(state, est, columns);
+  const bySheet = bySheetRows(state, sheetLabel);
+  const marks = marksSheetRows(state, sheetLabel);
+  const scales = scalesSheetRows(state, sheetLabel);
+  const out = [
+    { name: t('x.sheet.estimate'), rows, cols: [34, 10, 7, 12, 9, 14, 16, 14, 14, 14, 14, 48], freeze: 1 },
+    { name: t('x.sheet.bysheet'), rows: bySheet, cols: [40, 34, 12, 7, 8], freeze: 1 },
+    { name: t('x.sheet.marks'), rows: marks, cols: [40, 34, 9, 12, 7, 60], freeze: 1 },
+    { name: t('x.sheet.scales'), rows: scales, cols: [40, 18, 30, 18], freeze: 1 },
+  ];
+  const alts = alternates(state);
+  const c = { state, sheetLabel, est, pageSizes, alts };
+  for (const build of OPTIONAL_SHEETS) build(c, out);
   return out;
 }
 

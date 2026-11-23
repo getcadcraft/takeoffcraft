@@ -2,7 +2,7 @@
 title: Nyheter i 0.7 (tidigare)
 summary: DWG- och DXF-ritningar öppnas som blad med sin egen skala, exakta antal och längder från själva ritningen, det valda underentreprenörsanbudet som ett paketets pris, anbudsinbjudningar med förseglade priser, assistentverktyg för ritningar och USD från 3D-kontrollvyn.
 keywords: nyheter 0.7, tidigare version, versionsinformation, ändringslogg, ändringar, 0.7, version, nya funktioner, dwg, dxf, ritning, layouter, modellrum, ritningsskala, räkna från ritning, cad-räkning, block, dynamiska block, attribut, lager, xref, externreferens, mät ritning, polylinje, skraffering, markerad pdf, valt anbud, använd ett anbud, skicka för anbud, anbudsinbjudan, förseglade anbud, anbudsöppning, sent anbud, underentreprenörsregister, csv, assistent, mcp, usd, usdz, enheter, enhetslistor, kompakt, paneler, dialogrutor, portugisiska
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Detta är vad som ändrats i TakeoffCraft 0.7, jämfört med 0.6. Ritningar öppnas nu som de är, utan att först plottas till PDF, och ett anbudspaket kan skickas till underentreprenörer och komma tillbaka prissatt.

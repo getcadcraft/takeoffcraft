@@ -2,7 +2,7 @@
 title: Mitä uutta versiossa 0.7 (aiemmin)
 summary: DWG- ja DXF-piirustukset avautuvat arkkeina omalla mittakaavallaan, tarkat lukumäärät ja pituudet itse piirustuksesta, valittu alihankkijan tarjous paketin hintana, tarjouskutsut suljetuilla hinnoilla, avustajan työkalut piirustuksille sekä USD 3D-tarkistusnäkymästä.
 keywords: mitä uutta 0.7, aiempi julkaisu, julkaisutiedot, muutosloki, muutokset, 0.7, versio, uudet ominaisuudet, dwg, dxf, piirustus, asettelut, mallitila, piirustuksen mittakaava, laskenta piirustuksesta, cad-laskenta, lohkot, dynaamiset lohkot, attribuutit, tasot, xref, linkitetty piirustus, mittaa piirustus, polyline, viivoitus, merkitty pdf, valittu tarjous, käytä tarjousta, lähetä tarjouspyyntö, tarjouskutsu, suljetut tarjoukset, tarjousavaus, myöhässä oleva tarjous, alihankkijatiedot, csv, avustaja, mcp, usd, usdz, yksiköt, yksikkölistat, tiivis, paneelit, valintaikkunat, portugali
-from: de1dca2b
+from: 0e3a424f
 ---
 
 Tämä on se, mikä muuttui TakeoffCraft 0.7:ssä versioon 0.6 verrattuna. Piirustukset avautuvat nyt sellaisinaan ilman tulostusta PDF-muotoon ensin, ja tarjouspaketti voi lähteä alihankkijoille ja palata hinnoiteltuna.
